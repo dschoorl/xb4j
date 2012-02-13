@@ -1,7 +1,13 @@
 package info.rsdev.xb4j.model;
 
 import static org.junit.Assert.assertEquals;
-import java.io.StringWriter;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
+import javax.xml.namespace.QName;
 
 import org.junit.Test;
 
@@ -12,12 +18,45 @@ import org.junit.Test;
 public class BindingModelTest {
 
     @Test
-    public void testSimpleMarshalling() {
-        StringWriter writer = new StringWriter();
+    public void testMarshallingToEmptyElementNoNamespace() {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new Object();
         BindingModel model = new BindingModel();
-        model.toXml(writer, instance);
-        assertEquals("<root/>", writer.toString());
+        model.bind(new QName("root"), Object.class);
+        model.toXml(stream, instance);
+        assertEquals("<root/>", stream.toString());
+    }
+    
+    @Test
+    public void testUnmarshallingFromEmptyElementNoNamespace() {
+        byte[] buffer = "<root/>".getBytes();
+        ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
+        BindingModel model = new BindingModel();
+        model.bind(new QName("root"), Object.class);
+        Object instance = model.toJava(stream);
+        assertNotNull(instance);
+        assertSame(Object.class, instance.getClass());
+    }
+    
+    @Test
+    public void testMarshallingToEmptyElementWithNamespace() {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        Object instance = new Object();
+        BindingModel model = new BindingModel();
+        model.bind(new QName("urn:test/namespace", "root", "tst"), Object.class);
+        model.toXml(stream, instance);
+        assertEquals("<tst:root xmlns:tst=\"urn:test/namespace\"/>", stream.toString());
+    }
+    
+    @Test
+    public void testUnmarshallingFromEmptyElementWithNamespace() {
+        byte[] buffer = "<tst:root xmlns:tst=\"urn:test/namespace\"/>".getBytes();
+        ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
+        BindingModel model = new BindingModel();
+        model.bind(new QName("urn:test/namespace", "root", "tst"), Object.class);
+        Object instance = model.toJava(stream);
+        assertNotNull(instance);
+        assertSame(Object.class, instance.getClass());
     }
 
 }

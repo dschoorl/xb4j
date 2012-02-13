@@ -1,0 +1,14 @@
+TODO
+----
+- allow the element to have namespaces
+- allow the java instance to be constructed by a non-default constructor method
+- allow the java instance to be created through a factory method
+- marshall/unmarshall a java object tree
+- support attributes
+- support namespaces for attributes
+- configure binding through xml binding file
+
+
+DONE
+----
+20120213  bind a java class to an xml element and marshall/unmarshall
