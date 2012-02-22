@@ -1,5 +1,6 @@
 package info.rsdev.xb4j.model;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -68,13 +69,19 @@ public class BindingModel {
         
         XMLStreamReader staxReader = null;
         try {
+            stream.mark(stream.available());    //does this work with very large elements (E.g. base64 file inclusions)
             staxReader = XMLInputFactory.newInstance().createXMLStreamReader(stream);
             if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
                 QName element = staxReader.getName();
                 if (xmlToClass.containsKey(element)) {
-                    return xmlToClass.get(element).newInstance();
+                    ElementBinding binding = xmlToClass.get(element);
+                    stream.reset();
+                    UnmarshallingContext context = new UnmarshallingContext(stream);
+                    return context.unmarshall(binding, null);
                 }
             }
+        } catch (IOException e) {
+            log.error("Exception occured when bytes of the xml stream", e);
         } catch (XMLStreamException e) {
             log.error("Exception occured when reading instance from xml stream", e);
         } catch (FactoryConfigurationError e) {

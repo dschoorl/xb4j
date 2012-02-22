@@ -60,4 +60,20 @@ public class BindingModelTest {
         assertSame(Object.class, instance.getClass());
     }
     
+    @Test
+    public void testUnmarshalFromNestedXmlWithNamespaces() {
+        BindingModel model = new BindingModel();
+        ElementBinding binding = new ElementBinding(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
+        binding.addChild(new ElementBinding(new QName("urn:test/namespace", "child", "tst"), MyObject.class));
+        model.bind(binding);
+        
+        byte[] buffer = "<tst:root xmlns:tst=\"urn:test/namespace\"><tst:child/></tst:root>".getBytes();
+        ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
+        
+        Object instance = model.toJava(stream);
+        assertNotNull(instance);
+        assertSame(ObjectTree.class, instance.getClass());
+        assertNotNull(((ObjectTree)instance).getMyObject());
+    }
+    
 }

@@ -30,5 +30,4 @@ public class MarshallingContextTest {
         context.marshall(binding, instance);
         assertEquals(expected, stream.toString());
     }
-
 }

@@ -1,5 +1,8 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.test.MyObject;
+import info.rsdev.xb4j.test.ObjectTree;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,6 +18,8 @@ public class ElementBinding{
     private QName element = null;
     
     private Instantiator instantiator = null;
+    
+//    private PropertyAccesor accesor = null;
     
     private ArrayList<ElementBinding> children = new ArrayList<ElementBinding>();
     
@@ -66,8 +71,21 @@ public class ElementBinding{
         return newInstance();
     }
     
+    public boolean setProperty(Object objectContext, Object property) {
+        boolean isPropertySet = false;
+        if (objectContext instanceof ObjectTree) {
+            ((ObjectTree)objectContext).setMyObject((MyObject)property);
+            isPropertySet = true;
+        }
+        return isPropertySet;
+    }
+    
     @Override
     public String toString() {
         return String.format("ElementBinding[element=%s, javaType=%s]",this.element, getJavaType());
+    }
+
+    public boolean isExpected(QName element) {
+        return this.element.equals(element);
     }
 }
