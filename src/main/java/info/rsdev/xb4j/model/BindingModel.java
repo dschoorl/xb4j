@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
@@ -29,9 +28,9 @@ public class BindingModel {
     
     private static final Logger log = LoggerFactory.getLogger(BindingModel.class);
     
-    private Map<Class<?>, QName> classToXml = new HashMap<Class<?>, QName>();
+    private Map<Class<?>, ElementBinding> classToXml = new HashMap<Class<?>, ElementBinding>();
     
-    private Map<QName, Class<?>> xmlToClass = new HashMap<QName, Class<?>>();
+    private Map<QName, ElementBinding> xmlToClass = new HashMap<QName, ElementBinding>();
 
     /**
      * Marshall a Java instance into xml representation
@@ -44,13 +43,9 @@ public class BindingModel {
         try {
             staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
 //            staxWriter.writeStartDocument();
-            QName element = getXmlElement(instance.getClass());
-            if (element.getNamespaceURI().equals(XMLConstants.NULL_NS_URI)) {
-                staxWriter.writeEmptyElement(element.getLocalPart());
-            } else {
-                staxWriter.writeEmptyElement(element.getPrefix(), element.getLocalPart(), element.getNamespaceURI());
-                staxWriter.writeNamespace(element.getPrefix(), element.getNamespaceURI());
-            }
+            ElementBinding binding = getBinding(instance.getClass());
+            MarshallingContext context = new MarshallingContext(staxWriter);
+            context.marshall(binding, instance);
             staxWriter.writeEndDocument();
         } catch (XMLStreamException e) {
             log.error("Exception occured when writing instance to xml stream: ".concat(instance.toString()), e);
@@ -76,11 +71,8 @@ public class BindingModel {
             staxReader = XMLInputFactory.newInstance().createXMLStreamReader(stream);
             if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
                 QName element = staxReader.getName();
-                Class<?> type = xmlToClass.get(element);
-                try {
-                    return type.newInstance();
-                } catch (Exception e) {
-                    log.error("Could not instantiate instance", e);
+                if (xmlToClass.containsKey(element)) {
+                    return xmlToClass.get(element).newInstance();
                 }
             }
         } catch (XMLStreamException e) {
@@ -97,13 +89,16 @@ public class BindingModel {
         return null;
     }
     
-    private QName getXmlElement(Class<?> type) {
+    private ElementBinding getBinding(Class<?> type) {
+        if (!this.classToXml.containsKey(type)) {
+            return null;
+        }
         return this.classToXml.get(type);
     }
     
-    public void bind(QName xmlElement, Class<?> type) {
-        xmlToClass.put(xmlElement, type);
-        classToXml.put(type, xmlElement);
+    public void bind(ElementBinding binding) {
+        xmlToClass.put(binding.getElement(), binding);
+        classToXml.put(binding.getJavaType(), binding);
     }
     
 }

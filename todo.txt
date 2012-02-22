@@ -1,6 +1,5 @@
 TODO
 ----
-- allow the element to have namespaces
 - allow the java instance to be constructed by a non-default constructor method
 - allow the java instance to be created through a factory method
 - marshall/unmarshall a java object tree
@@ -12,3 +11,4 @@ TODO
 DONE
 ----
 20120213  bind a java class to an xml element and marshall/unmarshall
+20120214  allow the element to have namespaces
