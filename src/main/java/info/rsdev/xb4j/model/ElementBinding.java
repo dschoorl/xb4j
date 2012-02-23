@@ -1,8 +1,5 @@
 package info.rsdev.xb4j.model;
 
-import info.rsdev.xb4j.test.MyObject;
-import info.rsdev.xb4j.test.ObjectTree;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,7 +16,9 @@ public class ElementBinding{
     
     private Instantiator instantiator = null;
     
-//    private PropertyAccesor accesor = null;
+    private IGetter getter = null;
+    
+    private ISetter setter = null;
     
     private ArrayList<ElementBinding> children = new ArrayList<ElementBinding>();
     
@@ -44,10 +43,33 @@ public class ElementBinding{
      * element to expect next. Any, choice, sequence</p> 
      * @param childBinding
      */
-    public void addChild(ElementBinding childBinding) {
+    public void addChild(ElementBinding childBinding, IGetter getter, ISetter setter) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
+        this.getter = getter.setContext(getJavaType());
+        this.setter = setter.setContext(getJavaType());
+        
+        this.children.add(childBinding);
+    }
+    
+    /**
+     * Convenience method, which adds a child binding, and navigating the object tree from parent to child is done through
+     * the field with the given fieldname.
+     * 
+     * @param childBinding
+     * @param fieldName
+     */
+    public void addChild(ElementBinding childBinding, String fieldName) {
+        if (childBinding == null) {
+            throw new NullPointerException("Child binding cannot be null");
+        }
+        if (fieldName == null) {
+        }
+        FieldAccessProvider provider = new FieldAccessProvider(getJavaType(), fieldName);
+        this.getter = provider;
+        this.setter = provider;
+        
         this.children.add(childBinding);
     }
 
@@ -71,13 +93,18 @@ public class ElementBinding{
         return newInstance();
     }
     
-    public boolean setProperty(Object objectContext, Object property) {
-        boolean isPropertySet = false;
-        if (objectContext instanceof ObjectTree) {
-            ((ObjectTree)objectContext).setMyObject((MyObject)property);
-            isPropertySet = true;
-        }
-        return isPropertySet;
+    public boolean setProperty(Object contextInstance, Object propertyValue) {
+    	if (this.setter == null) {
+    		throw new NullPointerException(String.format("No setter available. Cannot set property value %s on %s", propertyValue, contextInstance));
+    	}
+        return this.setter.set(contextInstance, propertyValue);
+    }
+    
+    public Object getProperty(Object contextInstance) {
+    	if (this.getter == null) {
+    		throw new NullPointerException(String.format("No getter available. Cannot get property value from %s", contextInstance));
+    	}
+    	return this.getter.get(contextInstance);
     }
     
     @Override

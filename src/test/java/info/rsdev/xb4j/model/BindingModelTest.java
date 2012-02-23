@@ -64,7 +64,7 @@ public class BindingModelTest {
     public void testUnmarshalFromNestedXmlWithNamespaces() {
         BindingModel model = new BindingModel();
         ElementBinding binding = new ElementBinding(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
-        binding.addChild(new ElementBinding(new QName("urn:test/namespace", "child", "tst"), MyObject.class));
+        binding.addChild(new ElementBinding(new QName("urn:test/namespace", "child", "tst"), MyObject.class), "myObject");
         model.bind(binding);
         
         byte[] buffer = "<tst:root xmlns:tst=\"urn:test/namespace\"><tst:child/></tst:root>".getBytes();

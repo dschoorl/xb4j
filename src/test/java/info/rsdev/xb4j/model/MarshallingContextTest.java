@@ -18,7 +18,7 @@ public class MarshallingContextTest {
     public void testMarshallNestedBinding() throws Exception {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ElementBinding binding = new ElementBinding(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
-        binding.addChild(new ElementBinding(new QName("urn:test/namespace", "child", "tst"), MyObject.class));
+        binding.addChild(new ElementBinding(new QName("urn:test/namespace", "child", "tst"), MyObject.class), "myObject");
         
         ObjectTree instance = new ObjectTree();
         instance.setMyObject(new MyObject("test"));

@@ -1,0 +1,98 @@
+package info.rsdev.xb4j.model;
+
+import info.rsdev.xb4j.exceptions.Xb4jException;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Modifier;
+
+/**
+ * 
+ * @author Dave Schoorl
+ */
+public class FieldAccessProvider implements ISetter, IGetter {
+	
+	private String fieldName = null;
+	
+	private Field field = null;
+	
+	public FieldAccessProvider(Class<?> context, String fieldName) {
+		this.fieldName = fieldName;
+		this.field = getField(context, fieldName);
+	}
+	
+	public FieldAccessProvider(String fieldName) {
+		this.fieldName = fieldName;
+	}
+	
+	@Override
+	public boolean set(Object contextInstance, Object propertyValue) {
+		try {
+			field.set(contextInstance, propertyValue);
+		} catch (Exception e) {
+			String fieldName = field==null?"null":field.getName();
+			throw new Xb4jException(String.format("Could not set field %s from %s with value %s", fieldName, contextInstance, propertyValue), e);
+		}
+		return true;
+	}
+	
+	@Override
+	public Object get(Object contextInstance) {
+		try {
+			return field.get(contextInstance);
+		} catch (Exception e) {
+			String fieldName = field==null?"null":field.getName();
+			throw new Xb4jException(String.format("Could not get field %s from %s", fieldName, contextInstance), e);
+		}
+	}
+	
+	private Field getField(Class<?> context, String fieldName) {	//wrong context
+		if (context == null) {
+			throw new NullPointerException("Type must be provided");
+		}
+		if (fieldName == null) {
+			throw new NullPointerException("The name of the Field must be provided");
+		}
+		
+		Field targetField = null;
+		Class<?> candidateClass = context;
+		while ((candidateClass != null) && (targetField == null)) {
+			for (Field candidate: candidateClass.getDeclaredFields()) {
+				if (candidate.getName().equals(fieldName)) {
+					targetField = candidate;
+					break;
+				}
+			}
+			if (targetField ==  null) {
+				candidateClass = candidateClass.getSuperclass();
+			}
+		}
+		
+		if (targetField != null) {
+			if (!Modifier.isPublic(((Member)targetField).getModifiers()) || !Modifier.isPublic(((Member)targetField).getDeclaringClass().getModifiers())) {
+				targetField.setAccessible(true);
+			}
+		}
+		
+		return targetField;
+	}
+
+	@Override
+	public FieldAccessProvider setContext(Class<?> javaContext) {
+		if (javaContext != null) {
+			throw new NullPointerException("Context cannot be null");
+		}
+		//this only works when the fieldname is set at construction time and cannot be changed afterwards
+		if (this.field != null) {
+			if (this.field.getType().equals(javaContext)) {
+				return this; 
+			} else {
+				throw new Xb4jException(String.format("Cannot set Java context %s, because context is already set to %s", 
+						javaContext, this.field.getType()));
+			}
+		}
+		this.field = getField(javaContext, this.fieldName);
+		return this;
+	}
+
+}
