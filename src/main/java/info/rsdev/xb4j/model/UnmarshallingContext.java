@@ -42,7 +42,6 @@ public class UnmarshallingContext {
             }
         }
         
-        
         return javaContext;
     }
 }
