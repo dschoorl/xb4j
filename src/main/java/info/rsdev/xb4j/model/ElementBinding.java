@@ -1,5 +1,7 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.model.util.RecordAndPlayBackXMLStreamReader;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,7 +12,7 @@ import javax.xml.namespace.QName;
  *
  * @author Dave Schoorl
  */
-public class ElementBinding{
+public class ElementBinding implements IBinding {
     
     private QName element = null;
     
@@ -114,5 +116,11 @@ public class ElementBinding{
 
     public boolean isExpected(QName element) {
         return this.element.equals(element);
+    }
+
+    @Override
+    public Object toJava(RecordAndPlayBackXMLStreamReader stream) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

@@ -1,3 +1,10 @@
+Current
+-------
+- remove MarshallingContext/UnmarshallingContext -> implement directly in binding (use IBinding)
+- use RecordAndPlaybackXMLStreamWriter
+- all tests (except new ValueBindingTest) should still pass
+- make ValueBindingTest pass
+
 TODO
 ----
 - allow the java instance to be constructed by a non-default constructor method

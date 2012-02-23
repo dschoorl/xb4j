@@ -20,7 +20,7 @@ public class DefaultConstructorTest {
     
     @Test(expected=Xb4jException.class)
     public void testNoDefaultConstructor() {
-        new DefaultConstructor(MyOtherObject.class);
+        new DefaultConstructor(MyOtherObject.class);    //has no default constructor
     }
     
     //TODO: test with anonymous inner classes?
