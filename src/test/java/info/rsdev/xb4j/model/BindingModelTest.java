@@ -76,4 +76,36 @@ public class BindingModelTest {
         assertNotNull(((ObjectTree)instance).getMyObject());
     }
     
+    @Test
+    public void testMarshallNestedBinding() throws Exception {
+        BindingModel model = new BindingModel();
+        ElementBinding binding = new ElementBinding(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
+        binding.addChild(new ElementBinding(new QName("urn:test/namespace", "child", "tst"), MyObject.class), "myObject");
+        model.bind(binding);
+        
+        ObjectTree instance = new ObjectTree();
+        instance.setMyObject(new MyObject("test"));
+        String expected = "<tst:root xmlns:tst=\"urn:test/namespace\">" +
+                          "<tst:child/>" +
+                          "</tst:root>";
+        
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        model.toXml(stream, instance);
+        assertEquals(expected, stream.toString());
+    }
+    
+    @Test
+    public void testMarshallValue() throws Exception {
+        BindingModel model = new BindingModel();
+        ElementBinding binding = new ElementBinding(new QName("urn:test/namespace", "root", "tst"), MyObject.class);
+        binding.addChild(new ElementBinding(new QName("child"), String.class), "name");
+        model.bind(binding);
+        
+        MyObject instance = new MyObject("test");
+        
+        String expected = "<tst:root xmlns:tst=\"urn:test/namespace\"><child>test</child></tst:root>";
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        model.toXml(stream, instance);
+        assertEquals(expected, stream.toString());
+    }
 }

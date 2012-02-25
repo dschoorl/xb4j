@@ -1,6 +1,8 @@
 package info.rsdev.xb4j.model;
 
-import java.io.IOException;
+import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -45,8 +47,7 @@ public class BindingModel {
             staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
 //            staxWriter.writeStartDocument();
             ElementBinding binding = getBinding(instance.getClass());
-            MarshallingContext context = new MarshallingContext(staxWriter);
-            context.marshall(binding, instance);
+            binding.toXml(new SimplifiedXMLStreamWriter(staxWriter), instance);
             staxWriter.writeEndDocument();
         } catch (XMLStreamException e) {
             log.error("Exception occured when writing instance to xml stream: ".concat(instance.toString()), e);
@@ -62,26 +63,18 @@ public class BindingModel {
     }
     
     public Object toJava(InputStream stream) {
-        if (!stream.markSupported()) {
-            throw new IllegalArgumentException("Stream does not supported mark/reset. Please choose a stream, E.g. " +
-            		"BufferedOutputStream, that does support mark/reset");
-        }
-        
-        XMLStreamReader staxReader = null;
+        RecordAndPlaybackXMLStreamReader staxReader = null;
         try {
-            stream.mark(stream.available());    //does this work with very large elements (E.g. base64 file inclusions)
-            staxReader = XMLInputFactory.newInstance().createXMLStreamReader(stream);
+            staxReader = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
+            staxReader.startRecording();
             if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
+                staxReader.rewindAndPlayback();
                 QName element = staxReader.getName();
                 if (xmlToClass.containsKey(element)) {
                     ElementBinding binding = xmlToClass.get(element);
-                    stream.reset();
-                    UnmarshallingContext context = new UnmarshallingContext(stream);
-                    return context.unmarshall(binding, null);
+                    return binding.toJava(staxReader);//context.unmarshall(staxReader, binding, null);
                 }
             }
-        } catch (IOException e) {
-            log.error("Exception occured when bytes of the xml stream", e);
         } catch (XMLStreamException e) {
             log.error("Exception occured when reading instance from xml stream", e);
         } catch (FactoryConfigurationError e) {

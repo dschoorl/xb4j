@@ -1,12 +1,15 @@
 package info.rsdev.xb4j.model;
 
-import info.rsdev.xb4j.model.util.RecordAndPlayBackXMLStreamReader;
+import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 /**
  *
@@ -118,9 +121,38 @@ public class ElementBinding implements IBinding {
         return this.element.equals(element);
     }
 
+    
     @Override
-    public Object toJava(RecordAndPlayBackXMLStreamReader stream) {
-        // TODO Auto-generated method stub
-        return null;
+    public Object toJava(RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
+        Object javaContext = null;
+        if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
+            QName element = staxReader.getName();
+            if (isExpected(element)) {
+                javaContext = newInstance();
+                for (ElementBinding child: getChildren()) {
+                    Object childContext = child.toJava(staxReader);
+                    setProperty(javaContext, childContext);
+                }
+            }
+        }
+        
+        return javaContext;
     }
+    
+    
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+        QName element = getElement();
+        Collection<ElementBinding> children = getChildren();
+        boolean mustClose = children.isEmpty();
+        staxWriter.writeElement(element, mustClose);
+        
+        for (ElementBinding child: getChildren()) {
+            child.toXml(staxWriter, child.getContext(javaContext));
+        }
+        
+        if (!mustClose) {
+            staxWriter.closeElement(element);
+        }
+    }
+    
 }

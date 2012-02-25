@@ -1,6 +1,9 @@
 package info.rsdev.xb4j.model;
 
-import info.rsdev.xb4j.model.util.RecordAndPlayBackXMLStreamReader;
+import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
+
+import javax.xml.stream.XMLStreamException;
 
 
 /**
@@ -10,8 +13,8 @@ import info.rsdev.xb4j.model.util.RecordAndPlayBackXMLStreamReader;
  */
 public interface IBinding {
     
-    public Object toJava(RecordAndPlayBackXMLStreamReader stream);
+    public Object toJava(RecordAndPlaybackXMLStreamReader stream) throws XMLStreamException;
     
-//    public void toXml(XMLStreamWriter stream);
+    public void toXml(SimplifiedXMLStreamWriter stream, Object javaContext) throws XMLStreamException;
     
 }
