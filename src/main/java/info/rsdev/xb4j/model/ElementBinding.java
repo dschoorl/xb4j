@@ -1,11 +1,9 @@
 package info.rsdev.xb4j.model;
 
+import java.util.Collection;
+
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -15,47 +13,47 @@ import javax.xml.stream.XMLStreamReader;
  *
  * @author Dave Schoorl
  */
-public class ElementBinding implements IBinding {
-    
-    private QName element = null;
+public class ElementBinding extends AbstractBinding {
     
     private Instantiator instantiator = null;
     
-    private IGetter getter = null;
-    
-    private ISetter setter = null;
-    
-    private ArrayList<ElementBinding> children = new ArrayList<ElementBinding>();
-    
     public ElementBinding(QName element, Instantiator instantiator) {
-        this.element = element;
+        super(element);
         this.instantiator = instantiator;
     }
     
     /**
-     * Create a new {@link ElementBinding} where the javaType will be created with a {@link DefaultConstructor}
+     * Create a new {@link AbstractBinding} where the javaType will be created with a {@link DefaultConstructor}
      * 
      * @param element
      * @param javaType
      */
     public ElementBinding(QName element, Class<?> javaType) {
-        this.element = element;
+        super(element);
         this.instantiator = new DefaultConstructor(javaType);
     }
+
+    public Class<?> getJavaType() {
+        return instantiator.getJavaType();
+    }
     
+    public Object newInstance() {
+        return instantiator.newInstance();
+    }
+
     /**
      * <p>When unmarshalling, the child binding will know how to get from the current element to the next one. Which
      * element to expect next. Any, choice, sequence</p> 
      * @param childBinding
      */
-    public void addChild(ElementBinding childBinding, IGetter getter, ISetter setter) {
+    public void addChild(IBinding childBinding, IGetter getter, ISetter setter) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
-        this.getter = getter.setContext(getJavaType());
-        this.setter = setter.setContext(getJavaType());
+        setGetter(getter.setContext(getJavaType()));
+        setSetter(setter.setContext(getJavaType()));
         
-        this.children.add(childBinding);
+        super.add(childBinding);
     }
     
     /**
@@ -65,63 +63,24 @@ public class ElementBinding implements IBinding {
      * @param childBinding
      * @param fieldName
      */
-    public void addChild(ElementBinding childBinding, String fieldName) {
+    public void addChild(IBinding childBinding, String fieldName) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
         if (fieldName == null) {
         }
         FieldAccessProvider provider = new FieldAccessProvider(getJavaType(), fieldName);
-        this.getter = provider;
-        this.setter = provider;
+        setGetter(provider);
+        setSetter(provider);
         
-        this.children.add(childBinding);
+        super.add(childBinding);
     }
 
-    public QName getElement() {
-        return element;
-    }
-    
-    public Class<?> getJavaType() {
-        return instantiator.getJavaType();
-    }
-    
-    public Object newInstance() {
-        return instantiator.newInstance();
-    }
-
-    public Collection<ElementBinding> getChildren() {
-        return Collections.unmodifiableList(this.children);
-    }
-
-    public Object getContext(Object objectContext) {
-        return newInstance();
-    }
-    
-    public boolean setProperty(Object contextInstance, Object propertyValue) {
-    	if (this.setter == null) {
-    		throw new NullPointerException(String.format("No setter available. Cannot set property value %s on %s", propertyValue, contextInstance));
-    	}
-        return this.setter.set(contextInstance, propertyValue);
-    }
-    
-    public Object getProperty(Object contextInstance) {
-    	if (this.getter == null) {
-    		throw new NullPointerException(String.format("No getter available. Cannot get property value from %s", contextInstance));
-    	}
-    	return this.getter.get(contextInstance);
-    }
-    
     @Override
     public String toString() {
-        return String.format("ElementBinding[element=%s, javaType=%s]",this.element, getJavaType());
+        return String.format("ElementBinding[element=%s, javaType=%s]", getElement(), getJavaType());
     }
 
-    public boolean isExpected(QName element) {
-        return this.element.equals(element);
-    }
-
-    
     @Override
     public Object toJava(RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
         Object javaContext = null;
@@ -129,7 +88,7 @@ public class ElementBinding implements IBinding {
             QName element = staxReader.getName();
             if (isExpected(element)) {
                 javaContext = newInstance();
-                for (ElementBinding child: getChildren()) {
+                for (IBinding child: getChildren()) {
                     Object childContext = child.toJava(staxReader);
                     setProperty(javaContext, childContext);
                 }
@@ -139,15 +98,16 @@ public class ElementBinding implements IBinding {
         return javaContext;
     }
     
-    
     public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
         QName element = getElement();
-        Collection<ElementBinding> children = getChildren();
+        
+        //mixed content is not yet supported -- there are either child elements or there is content
+        Collection<IBinding> children = getChildren();
         boolean mustClose = children.isEmpty();
         staxWriter.writeElement(element, mustClose);
         
-        for (ElementBinding child: getChildren()) {
-            child.toXml(staxWriter, child.getContext(javaContext));
+        for (IBinding child: children) {
+            child.toXml(staxWriter, getProperty(javaContext));
         }
         
         if (!mustClose) {

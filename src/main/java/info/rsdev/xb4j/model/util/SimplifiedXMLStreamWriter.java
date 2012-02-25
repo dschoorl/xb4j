@@ -84,5 +84,11 @@ public class SimplifiedXMLStreamWriter {
         }
         return prefix;
     }
+
+    public void writeContent(String content) throws XMLStreamException {
+        if ((content != null) && !content.isEmpty()) {
+            staxWriter.writeCharacters(content);
+        }
+    }
     
 }

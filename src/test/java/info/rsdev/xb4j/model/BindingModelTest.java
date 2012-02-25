@@ -97,15 +97,31 @@ public class BindingModelTest {
     @Test
     public void testMarshallValue() throws Exception {
         BindingModel model = new BindingModel();
-        ElementBinding binding = new ElementBinding(new QName("urn:test/namespace", "root", "tst"), MyObject.class);
-        binding.addChild(new ElementBinding(new QName("child"), String.class), "name");
+        ElementBinding binding = new ElementBinding(new QName("urn:test/namespace", "myobject", "tst"), MyObject.class);
+        binding.addChild(new ValueBinding(new QName("name")), "name");
         model.bind(binding);
         
         MyObject instance = new MyObject("test");
         
-        String expected = "<tst:root xmlns:tst=\"urn:test/namespace\"><child>test</child></tst:root>";
+        String expected = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>test</name></tst:myobject>";
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         model.toXml(stream, instance);
         assertEquals(expected, stream.toString());
+    }
+    
+    @Test
+    public void testUnmarshallValue() throws Exception {
+        BindingModel model = new BindingModel();
+        ElementBinding binding = new ElementBinding(new QName("urn:test/namespace", "myobject", "tst"), MyObject.class);
+        binding.addChild(new ValueBinding(new QName("name")), "name");
+        model.bind(binding);
+        
+        byte[] buffer = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>test</name></tst:myobject>".getBytes();
+        ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
+        
+        Object instance = model.toJava(stream);
+        assertNotNull(instance);
+        assertSame(MyObject.class, instance.getClass());
+        assertEquals("test", ((MyObject)instance).getName());
     }
 }

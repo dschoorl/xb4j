@@ -73,11 +73,19 @@ public class RecordAndPlaybackXMLStreamReader {
     }
     
     public int nextTag() throws XMLStreamException {
-        //todo: if we must record, read and record all events in 
-        this.currentEvent = nextParseEventData();
+        int eventType = -1; 
+        if (!playbackQueue.isEmpty()) {
+            this.currentEvent = playbackQueue.poll();
+        } else {
+            //read next tag from staxReader
+            eventType = staxReader.nextTag();
+            this.currentEvent = ParseEventData.newParseEventData(eventType, staxReader);
+        }
+        
         if (this.recordingQueue != null) {
             this.recordingQueue.add(this.currentEvent);
         }
+        
         return this.currentEvent.eventType;
     }
     
@@ -86,6 +94,26 @@ public class RecordAndPlaybackXMLStreamReader {
             throw new XMLStreamException("Not the proper moment to call getName()");
         }
         return this.currentEvent.name;
+    }
+    
+    
+
+    public String getElementText() throws XMLStreamException {
+        if (!playbackQueue.isEmpty()) {
+            this.currentEvent = playbackQueue.poll();
+        } else {
+            //read content of text-only element from staxReader
+            String text = staxReader.getElementText();
+            this.currentEvent = new ParseEventData(XMLStreamConstants.CHARACTERS, text);
+        }
+        
+        if (this.recordingQueue != null) {
+            this.recordingQueue.add(this.currentEvent);
+        }
+        if (this.currentEvent.eventType != XMLStreamConstants.CHARACTERS) {
+            throw new XMLStreamException("No element text could be read at this point in the stream");
+        }
+        return this.currentEvent.text;
     }
 
     public void close() throws XMLStreamException {
@@ -101,32 +129,32 @@ public class RecordAndPlaybackXMLStreamReader {
         }
     }
     
-    private ParseEventData nextParseEventData() throws XMLStreamException {
-        if (!playbackQueue.isEmpty()) {
-            return playbackQueue.poll();
-        }
-        
-        //read next tag from staxReader
-        int eventType = staxReader.nextTag();
-        return ParseEventData.newParseEventData(eventType, staxReader);
-    }
-
     private static final class ParseEventData {
         
         private QName name = null;
         private int eventType = -1;
+        private String text = null;
+        
+        private ParseEventData(int eventType, String elementText) {
+            this.eventType = eventType;
+            this.text = elementText;
+        }
+        
+        private ParseEventData(int eventType, QName elementName) {
+            this.eventType = eventType;
+            this.name = elementName;
+        }
         
         private static ParseEventData newParseEventData(int eventType, XMLStreamReader staxReader) throws XMLStreamException {
             if ((eventType != XMLStreamConstants.START_ELEMENT) && (eventType != XMLStreamConstants.END_ELEMENT)) {
                 throw new XMLStreamException("This type of event is currently unsupported: "+eventType);
             }
             
-            ParseEventData eventData = new ParseEventData();
-            eventData.eventType = eventType;
-            eventData.name = staxReader.getName();
+            ParseEventData eventData = new ParseEventData(eventType, staxReader.getName());
+            //TODO: possibly set more data
             return eventData;
         }
-        
+
     }
 
 }
