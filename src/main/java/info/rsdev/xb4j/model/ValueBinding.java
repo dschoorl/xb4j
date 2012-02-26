@@ -8,6 +8,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 /**
+ * <p>Translates a text-only element to a Java field and vice versa. The Java field is expected to be a String.
+ * Other types will need a converter to convert the field to and from a String.</p>
+ * TODO: add converter mechanism 
  * 
  * @author Dave Schoorl
  */

@@ -3,6 +3,7 @@ TODO
 - allow the java instance to be constructed by a non-default constructor method
 - allow the java instance to be created through a factory method
 - marshall/unmarshall a java object tree
+- add converter mechanism to convert Java field to and from a String
 - support attributes
 - support namespaces for attributes
 - configure binding through xml binding file

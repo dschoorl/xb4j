@@ -10,14 +10,14 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 /**
- *
+ * Group a number of elements where ordering is fixed. Elements can be optional or occur more than once. 
  * @author Dave Schoorl
  */
-public class ElementBinding extends AbstractBinding {
+public class SequenceBinding extends AbstractBinding {
     
     private Instantiator instantiator = null;
     
-    public ElementBinding(QName element, Instantiator instantiator) {
+    public SequenceBinding(QName element, Instantiator instantiator) {
         super(element);
         this.instantiator = instantiator;
     }
@@ -28,7 +28,7 @@ public class ElementBinding extends AbstractBinding {
      * @param element
      * @param javaType
      */
-    public ElementBinding(QName element, Class<?> javaType) {
+    public SequenceBinding(QName element, Class<?> javaType) {
         super(element);
         this.instantiator = new DefaultConstructor(javaType);
     }

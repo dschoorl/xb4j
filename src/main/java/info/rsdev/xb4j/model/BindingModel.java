@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The model knows how to map Java objects to a certain xml definition and visa versa. The metaphor used 
- * to bind xml and java, regardless of direction, is a binding? A binding always binds an element to a 
- * Java class. Every binding can marhalled or unmarshalled standalone.
+ * to bind xml and java, regardless of direction, is a binding? A binding always binds something in the xml 
+ * world to something in the Java world. Every binding can be marhalled or unmarshalled standalone.
  *  
  * 
  * @author Dave Schoorl
@@ -31,9 +31,9 @@ public class BindingModel {
     
     private static final Logger log = LoggerFactory.getLogger(BindingModel.class);
     
-    private Map<Class<?>, ElementBinding> classToXml = new HashMap<Class<?>, ElementBinding>();
+    private Map<Class<?>, SequenceBinding> classToXml = new HashMap<Class<?>, SequenceBinding>();
     
-    private Map<QName, ElementBinding> xmlToClass = new HashMap<QName, ElementBinding>();
+    private Map<QName, SequenceBinding> xmlToClass = new HashMap<QName, SequenceBinding>();
 
     /**
      * Marshall a Java instance into xml representation
@@ -46,7 +46,7 @@ public class BindingModel {
         try {
             staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
 //            staxWriter.writeStartDocument();
-            ElementBinding binding = getBinding(instance.getClass());
+            SequenceBinding binding = getBinding(instance.getClass());
             binding.toXml(new SimplifiedXMLStreamWriter(staxWriter), instance);
             staxWriter.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -71,7 +71,7 @@ public class BindingModel {
                 staxReader.rewindAndPlayback();
                 QName element = staxReader.getName();
                 if (xmlToClass.containsKey(element)) {
-                    ElementBinding binding = xmlToClass.get(element);
+                    SequenceBinding binding = xmlToClass.get(element);
                     return binding.toJava(staxReader);//context.unmarshall(staxReader, binding, null);
                 }
             }
@@ -89,14 +89,14 @@ public class BindingModel {
         return null;
     }
     
-    private ElementBinding getBinding(Class<?> type) {
+    private SequenceBinding getBinding(Class<?> type) {
         if (!this.classToXml.containsKey(type)) {
             return null;
         }
         return this.classToXml.get(type);
     }
     
-    public void bind(ElementBinding binding) {
+    public void bind(SequenceBinding binding) {
         xmlToClass.put(binding.getElement(), binding);
         classToXml.put(binding.getJavaType(), binding);
     }
