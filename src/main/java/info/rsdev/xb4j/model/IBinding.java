@@ -28,4 +28,7 @@ public interface IBinding {
     
     public QName getElement();
     
+    public Class<?> getJavaType();
+    
+    public Object newInstance();
 }

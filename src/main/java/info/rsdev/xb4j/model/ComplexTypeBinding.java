@@ -1,32 +1,35 @@
 package info.rsdev.xb4j.model;
 
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
-import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.InheritElementFetchStrategy;
 
-import javax.xml.stream.XMLStreamException;
+import javax.xml.XMLConstants;
 
 /**
  * <p>This type of binding get's it's element from it's parent container.</p>
  * 
  * @author Dave Schoorl
  */
-public class ComplexTypeBinding extends AbstractBinding implements IBinding {
+public class ComplexTypeBinding extends AbstractGroupBinding implements IBinding {
+    
+    private String identifier = null;
+    
+    private String namespaceUri = null;
 	
-	public ComplexTypeBinding() {
-    	setElementFetchStrategy(new InheritElementFetchStrategy());
+	public ComplexTypeBinding(String identifier, String namespaceUri) {
+	    if (identifier == null) {
+	        throw new NullPointerException("Identifier cannot be null");
+	    }
+	    this.identifier = identifier;
+	    this.namespaceUri = namespaceUri==null?XMLConstants.NULL_NS_URI:namespaceUri;
+    	setElementFetchStrategy(new InheritElementFetchStrategy(this));
 	}
 	
-	@Override
-	public Object toJava(RecordAndPlaybackXMLStreamReader stream) throws XMLStreamException {
-		// TODO Auto-generated method stub
-		return null;
+	public String getIdentifier() {
+	    return this.identifier;
 	}
 	
-	@Override
-	public void toXml(SimplifiedXMLStreamWriter stream, Object javaContext) throws XMLStreamException {
-		// TODO Auto-generated method stub
-		
+	public String getNamespace() {
+	    return this.namespaceUri;
 	}
 	
 }

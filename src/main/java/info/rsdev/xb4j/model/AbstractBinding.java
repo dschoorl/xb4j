@@ -1,10 +1,7 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.model.java.IObjectFetchStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 import javax.xml.namespace.QName;
 
@@ -16,11 +13,11 @@ public abstract class AbstractBinding implements IBinding {
     
 	private IElementFetchStrategy elementFetcher = null;
 	
+	private IObjectFetchStrategy objectFetcher = null;
+	
     private IGetter getter = null;
     
     private ISetter setter = null;
-    
-    private ArrayList<IBinding> children = new ArrayList<IBinding>();
     
     private IBinding parent = null;
     
@@ -28,8 +25,22 @@ public abstract class AbstractBinding implements IBinding {
     
     public QName getElement() {
     	if (elementFetcher != null) {
-    		return elementFetcher.getElement(this);
+    		return elementFetcher.getElement();
     	}
+        return null;
+    }
+    
+    public Class<?> getJavaType() {
+        if (objectFetcher != null) {
+            return objectFetcher.getJavaType();
+        }
+        return null;
+    }
+    
+    public Object newInstance() {
+        if (objectFetcher != null) {
+            return objectFetcher.newInstance();
+        }
         return null;
     }
     
@@ -37,8 +48,12 @@ public abstract class AbstractBinding implements IBinding {
     	this.elementFetcher = elementFetcher;
     }
     
-    public Collection<IBinding> getChildren() {
-        return Collections.unmodifiableList(this.children);
+    protected void setObjectFetchStrategy(IObjectFetchStrategy objectFetcher) {
+        this.objectFetcher = objectFetcher;
+    }
+    
+    protected IObjectFetchStrategy getObjectFetchStrategy() {
+        return this.objectFetcher;
     }
     
     protected void setGetter(IGetter getter) {
@@ -49,20 +64,26 @@ public abstract class AbstractBinding implements IBinding {
         this.setter = setter;
     }
     
-    protected void add(IBinding childBinding) {
-        this.children.add(childBinding);
-        childBinding.setParent(this);	//maintain bidirectional relationship
-    }
-    
     public void setParent(IBinding parent) {
     	if (parent == null) {
-    		throw new NullPointerException();
+    		throw new NullPointerException("Parent IBinding cannot be null");
+    	}
+    	if ((this.parent != null) && !this.parent.equals(parent)) {
+    	    throw new IllegalArgumentException(String.format("This binding '%s' is already is part of a binding tree.", this));
     	}
     	this.parent = parent;
     }
     
     public IBinding getParent() {
     	return this.parent;
+    }
+    
+    protected RootBinding getRootBinding() {
+        IBinding root = getParent();
+        while (root != null) {
+            root = root.getParent();
+        }
+        return (RootBinding)root;   //RootBinding should always be at the root of a binding hierarchy
     }
 
     public boolean setProperty(Object contextInstance, Object propertyValue) {
@@ -84,6 +105,13 @@ public abstract class AbstractBinding implements IBinding {
     		throw new NullPointerException("QName cannot be null");
     	}
         return element.equals(getElement());
+    }
+    
+    @Override
+    public String toString() {
+        String fqClassName = getClass().getName();
+        int dotIndex = Math.max(0, fqClassName.lastIndexOf('.') + 1);
+        return String.format("%s[element=%s, javaType=%s]", fqClassName.substring(dotIndex), getElement(), getJavaType().getName());
     }
     
 }

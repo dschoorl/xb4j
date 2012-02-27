@@ -1,7 +1,5 @@
 package info.rsdev.xb4j.model.xml;
 
-import info.rsdev.xb4j.model.IBinding;
-
 import javax.xml.namespace.QName;
 
 /**
@@ -21,7 +19,7 @@ public class DefaultElementFetchStrategy implements IElementFetchStrategy {
 	}
 	
 	@Override
-	public QName getElement(IBinding binding) {
+	public QName getElement() {
 		return this.element;
 	}
 	

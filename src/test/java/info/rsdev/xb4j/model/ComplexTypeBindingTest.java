@@ -1,6 +1,7 @@
 package info.rsdev.xb4j.model;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import info.rsdev.xb4j.test.MyObject;
 
 import java.io.ByteArrayOutputStream;
 
@@ -10,17 +11,22 @@ import org.junit.Test;
 
 public class ComplexTypeBindingTest {
 	
-//    @Test
+    @Test
     public void testMarshallComplexType() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new Object();
+        ComplexTypeBinding complexType = new ComplexTypeBinding("typeO", null);
+        complexType.addChild(new ValueBinding(new QName("name")), "name");
+        
+        RootBinding root = new RootBinding(new QName("root"), MyObject.class);	//has element, but class comes from child
+        root.add(new ComplexTypeReference("typeO", null));
+        
         BindingModel model = new BindingModel();
-        SequenceBinding binding = new SequenceBinding(new QName("root"), Object.class);	//has element, but class comes from child
-//        binding.add(new ComplexTypeBinding(), "");
-        model.bind(binding);
+        model.register(complexType);
+        model.register(root);
         
         model.toXml(stream, instance);
-        assertEquals("<root/>", stream.toString());
+        assertEquals("<root><name>test</name></root>", stream.toString());
     }
     
 }

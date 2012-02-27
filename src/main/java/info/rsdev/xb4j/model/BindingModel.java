@@ -24,16 +24,17 @@ import org.slf4j.LoggerFactory;
  * to bind xml and java, regardless of direction, is a binding? A binding always binds something in the xml 
  * world to something in the Java world. Every binding can be marhalled or unmarshalled standalone.
  *  
- * 
  * @author Dave Schoorl
  */
 public class BindingModel {
     
     private static final Logger log = LoggerFactory.getLogger(BindingModel.class);
     
-    private Map<Class<?>, SequenceBinding> classToXml = new HashMap<Class<?>, SequenceBinding>();
+    private Map<Class<?>, RootBinding> classToXml = new HashMap<Class<?>, RootBinding>();
     
-    private Map<QName, SequenceBinding> xmlToClass = new HashMap<QName, SequenceBinding>();
+    private Map<QName, RootBinding> xmlToClass = new HashMap<QName, RootBinding>();
+    
+    private Map<QName, ComplexTypeBinding> complexTypes = new HashMap<QName, ComplexTypeBinding>();
 
     /**
      * Marshall a Java instance into xml representation
@@ -46,7 +47,7 @@ public class BindingModel {
         try {
             staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
 //            staxWriter.writeStartDocument();
-            SequenceBinding binding = getBinding(instance.getClass());
+            RootBinding binding = getBinding(instance.getClass());
             binding.toXml(new SimplifiedXMLStreamWriter(staxWriter), instance);
             staxWriter.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -71,7 +72,7 @@ public class BindingModel {
                 staxReader.rewindAndPlayback();
                 QName element = staxReader.getName();
                 if (xmlToClass.containsKey(element)) {
-                    SequenceBinding binding = xmlToClass.get(element);
+                    RootBinding binding = xmlToClass.get(element);
                     return binding.toJava(staxReader);//context.unmarshall(staxReader, binding, null);
                 }
             }
@@ -89,16 +90,33 @@ public class BindingModel {
         return null;
     }
     
-    private SequenceBinding getBinding(Class<?> type) {
+    private RootBinding getBinding(Class<?> type) {
         if (!this.classToXml.containsKey(type)) {
             return null;
         }
         return this.classToXml.get(type);
     }
     
-    public void bind(SequenceBinding binding) {
+    public void register(RootBinding binding) {
         xmlToClass.put(binding.getElement(), binding);
         classToXml.put(binding.getJavaType(), binding);
+        binding.setModel(this);
+    }
+    
+    public void register(ComplexTypeBinding complexType) {
+        if (complexType == null) {
+            throw new NullPointerException("ComplexTypeBinding cannot be null");
+        }
+        QName fqComplexTypeName = new QName(complexType.getNamespace(), complexType.getIdentifier());
+        if (this.complexTypes.containsKey(fqComplexTypeName)) {
+            throw new IllegalArgumentException(String.format("A ComplexTypeBinding with identifier='%s' and namespace='%'" +
+                    "is already registered", complexType.getIdentifier(), complexType.getNamespace()));
+        }
+        this.complexTypes.put(fqComplexTypeName, complexType);
+    }
+    
+    public ComplexTypeBinding getComplexType(String identifier, String namespaceUri) {
+        return this.complexTypes.get(new QName(namespaceUri, identifier));
     }
     
 }

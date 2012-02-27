@@ -47,4 +47,8 @@ public class ValueBinding extends AbstractBinding {
         staxWriter.closeElement(element);
     }
 
+    @Override
+    public String toString() {
+        return String.format("ValueBinding[element=%s]", getElement());
+    }
 }

@@ -23,7 +23,7 @@ public class SimpleBindingModelTest {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new Object();
         BindingModel model = new BindingModel();
-        model.bind(new SequenceBinding(new QName("root"), Object.class));
+        model.register(new RootBinding(new QName("root"), Object.class));
         model.toXml(stream, instance);
         assertEquals("<root/>", stream.toString());
     }
@@ -33,7 +33,7 @@ public class SimpleBindingModelTest {
         byte[] buffer = "<root/>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
         BindingModel model = new BindingModel();
-        model.bind(new SequenceBinding(new QName("root"), Object.class));
+        model.register(new RootBinding(new QName("root"), Object.class));
         Object instance = model.toJava(stream);
         assertNotNull(instance);
         assertSame(Object.class, instance.getClass());
@@ -44,7 +44,7 @@ public class SimpleBindingModelTest {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new Object();
         BindingModel model = new BindingModel();
-        model.bind(new SequenceBinding(new QName("urn:test/namespace", "root", "tst"), Object.class));
+        model.register(new RootBinding(new QName("urn:test/namespace", "root", "tst"), Object.class));
         model.toXml(stream, instance);
         assertEquals("<tst:root xmlns:tst=\"urn:test/namespace\"/>", stream.toString());
     }
@@ -54,7 +54,7 @@ public class SimpleBindingModelTest {
         byte[] buffer = "<tst:root xmlns:tst=\"urn:test/namespace\"/>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
         BindingModel model = new BindingModel();
-        model.bind(new SequenceBinding(new QName("urn:test/namespace", "root", "tst"), Object.class));
+        model.register(new RootBinding(new QName("urn:test/namespace", "root", "tst"), Object.class));
         Object instance = model.toJava(stream);
         assertNotNull(instance);
         assertSame(Object.class, instance.getClass());
@@ -63,9 +63,9 @@ public class SimpleBindingModelTest {
     @Test
     public void testUnmarshalFromNestedXmlWithNamespaces() {
         BindingModel model = new BindingModel();
-        SequenceBinding binding = new SequenceBinding(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
+        RootBinding binding = new RootBinding(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
         binding.addChild(new SequenceBinding(new QName("urn:test/namespace", "child", "tst"), MyObject.class), "myObject");
-        model.bind(binding);
+        model.register(binding);
         
         byte[] buffer = "<tst:root xmlns:tst=\"urn:test/namespace\"><tst:child/></tst:root>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
@@ -79,9 +79,9 @@ public class SimpleBindingModelTest {
     @Test
     public void testMarshallNestedBinding() throws Exception {
         BindingModel model = new BindingModel();
-        SequenceBinding binding = new SequenceBinding(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
+        RootBinding binding = new RootBinding(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
         binding.addChild(new SequenceBinding(new QName("urn:test/namespace", "child", "tst"), MyObject.class), "myObject");
-        model.bind(binding);
+        model.register(binding);
         
         ObjectTree instance = new ObjectTree();
         instance.setMyObject(new MyObject("test"));
@@ -97,9 +97,9 @@ public class SimpleBindingModelTest {
     @Test
     public void testMarshallValue() throws Exception {
         BindingModel model = new BindingModel();
-        SequenceBinding binding = new SequenceBinding(new QName("urn:test/namespace", "myobject", "tst"), MyObject.class);
+        RootBinding binding = new RootBinding(new QName("urn:test/namespace", "myobject", "tst"), MyObject.class);
         binding.addChild(new ValueBinding(new QName("name")), "name");
-        model.bind(binding);
+        model.register(binding);
         
         MyObject instance = new MyObject("test");
         
@@ -112,9 +112,9 @@ public class SimpleBindingModelTest {
     @Test
     public void testUnmarshallValue() throws Exception {
         BindingModel model = new BindingModel();
-        SequenceBinding binding = new SequenceBinding(new QName("urn:test/namespace", "myobject", "tst"), MyObject.class);
+        RootBinding binding = new RootBinding(new QName("urn:test/namespace", "myobject", "tst"), MyObject.class);
         binding.addChild(new ValueBinding(new QName("name")), "name");
-        model.bind(binding);
+        model.register(binding);
         
         byte[] buffer = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>test</name></tst:myobject>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);

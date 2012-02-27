@@ -1,7 +1,5 @@
 package info.rsdev.xb4j.model.xml;
 
-import info.rsdev.xb4j.model.IBinding;
-
 import javax.xml.namespace.QName;
 
 /**
@@ -11,6 +9,6 @@ import javax.xml.namespace.QName;
  */
 public interface IElementFetchStrategy {
 	
-	public QName getElement(IBinding binding);
+	public QName getElement();
 	
 }
