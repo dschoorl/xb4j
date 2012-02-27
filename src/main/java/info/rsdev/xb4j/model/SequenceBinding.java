@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
+import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -18,7 +19,7 @@ public class SequenceBinding extends AbstractBinding {
     private Instantiator instantiator = null;
     
     public SequenceBinding(QName element, Instantiator instantiator) {
-        super(element);
+    	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
         this.instantiator = instantiator;
     }
     
@@ -29,8 +30,7 @@ public class SequenceBinding extends AbstractBinding {
      * @param javaType
      */
     public SequenceBinding(QName element, Class<?> javaType) {
-        super(element);
-        this.instantiator = new DefaultConstructor(javaType);
+        this(element, new DefaultConstructor(javaType));
     }
 
     public Class<?> getJavaType() {
@@ -103,15 +103,15 @@ public class SequenceBinding extends AbstractBinding {
         
         //mixed content is not yet supported -- there are either child elements or there is content
         Collection<IBinding> children = getChildren();
-        boolean mustClose = children.isEmpty();
-        staxWriter.writeElement(element, mustClose);
+        boolean isEmptyElement = children.isEmpty();
+        staxWriter.writeElement(element, isEmptyElement);
         
         for (IBinding child: children) {
             child.toXml(staxWriter, getProperty(javaContext));
         }
         
-        if (!mustClose) {
-            staxWriter.closeElement(element);
+        if (!isEmptyElement) {
+        	staxWriter.closeElement(element);
         }
     }
     

@@ -27,18 +27,18 @@ public class SimplifiedXMLStreamWriter {
         this.staxWriter = staxWriter;
     }
     
-    public void writeElement(QName element, boolean mustClose) throws XMLStreamException {
+    public void writeElement(QName element, boolean isEmptyElement) throws XMLStreamException {
         String namespace = element.getNamespaceURI();
         boolean nsIsKnown = namespacesInContext.containsKey(namespace);
         if (namespace.equals(XMLConstants.NULL_NS_URI)) {
-            if (mustClose) {
+            if (isEmptyElement) {
                 staxWriter.writeEmptyElement(element.getLocalPart());
             } else {
                 staxWriter.writeStartElement(element.getLocalPart());
             }
         } else {
             String prefix = getAndPutPrefix(namespace, element.getPrefix());
-            if (mustClose) {
+            if (isEmptyElement) {
                 if (nsIsKnown) {
                     staxWriter.writeEmptyElement(namespace, element.getLocalPart());
                 } else {

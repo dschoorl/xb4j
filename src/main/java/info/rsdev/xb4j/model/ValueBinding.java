@@ -2,6 +2,7 @@ package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
+import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -17,7 +18,7 @@ import javax.xml.stream.XMLStreamReader;
 public class ValueBinding extends AbstractBinding {
     
     public ValueBinding(QName element) {
-        super(element);
+    	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
     }
 
     @Override

@@ -1,5 +1,7 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,20 +14,27 @@ import javax.xml.namespace.QName;
  */
 public abstract class AbstractBinding implements IBinding {
     
-    private QName element = null;
-    
+	private IElementFetchStrategy elementFetcher = null;
+	
     private IGetter getter = null;
     
     private ISetter setter = null;
     
     private ArrayList<IBinding> children = new ArrayList<IBinding>();
     
-    public AbstractBinding(QName element) {
-        this.element = element;
-    }
+    private IBinding parent = null;
+    
+    public AbstractBinding() { }
     
     public QName getElement() {
-        return element;
+    	if (elementFetcher != null) {
+    		return elementFetcher.getElement(this);
+    	}
+        return null;
+    }
+    
+    protected void setElementFetchStrategy(IElementFetchStrategy elementFetcher) {
+    	this.elementFetcher = elementFetcher;
     }
     
     public Collection<IBinding> getChildren() {
@@ -42,6 +51,18 @@ public abstract class AbstractBinding implements IBinding {
     
     protected void add(IBinding childBinding) {
         this.children.add(childBinding);
+        childBinding.setParent(this);	//maintain bidirectional relationship
+    }
+    
+    public void setParent(IBinding parent) {
+    	if (parent == null) {
+    		throw new NullPointerException();
+    	}
+    	this.parent = parent;
+    }
+    
+    public IBinding getParent() {
+    	return this.parent;
     }
 
     public boolean setProperty(Object contextInstance, Object propertyValue) {
@@ -59,7 +80,10 @@ public abstract class AbstractBinding implements IBinding {
     }
     
     public boolean isExpected(QName element) {
-        return this.element.equals(element);
+    	if (element == null) {
+    		throw new NullPointerException("QName cannot be null");
+    	}
+        return element.equals(getElement());
     }
     
 }
