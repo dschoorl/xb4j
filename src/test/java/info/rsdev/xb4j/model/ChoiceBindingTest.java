@@ -3,10 +3,13 @@ package info.rsdev.xb4j.model;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
-
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import info.rsdev.xb4j.model.java.IObjectFetchStrategy;
 import info.rsdev.xb4j.model.java.InstanceOfChooser;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
+import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectB;
 
@@ -47,7 +50,10 @@ public class ChoiceBindingTest {
 	
 	@Test
 	public void testUnmarshallChoiceNoNamespaces() throws Exception {
-		ChoiceBinding choice = new ChoiceBinding();
+	    IObjectFetchStrategy objectAProvider = mock(IObjectFetchStrategy.class);
+	    when(objectAProvider.newInstance()).thenReturn(new ObjectA(""));
+	    
+		ChoiceBinding choice = new ChoiceBinding(mock(IElementFetchStrategy.class), objectAProvider);
 		choice.addChoice(new ValueBinding(new QName("elem1")), "name", new InstanceOfChooser(ObjectA.class));
 		choice.addChoice(new ValueBinding(new QName("elem2")), "value", new InstanceOfChooser(ObjectB.class));
 		
@@ -59,7 +65,11 @@ public class ChoiceBindingTest {
 		assertEquals("test", ((ObjectA)instance).getName());
 		
 		//unmarshall second option
-		stream = new ByteArrayInputStream("<elem1>test</elem1>".getBytes());
+        IObjectFetchStrategy objectBProvider = mock(IObjectFetchStrategy.class);
+        when(objectBProvider.newInstance()).thenReturn(new ObjectB(""));
+        choice.setObjectFetchStrategy(objectBProvider);
+        
+		stream = new ByteArrayInputStream("<elem2>test</elem2>".getBytes());
 		instance = choice.toJava(new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream)));
 		assertNotNull(instance);
 		assertSame(ObjectB.class, instance.getClass());

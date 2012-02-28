@@ -34,7 +34,8 @@ public class FieldAccessProvider implements ISetter, IGetter {
 			getField(contextInstance.getClass(), this.fieldName).set(contextInstance, propertyValue);
 		} catch (Exception e) {
 //			String fieldName = field==null?"null":field.getName();
-			throw new Xb4jException(String.format("Could not set field %s from %s with value %s", fieldName, contextInstance, propertyValue), e);
+			throw new Xb4jException(String.format("Could not set field '%s' with value '%s' in object '%s'", 
+			        fieldName, propertyValue, contextInstance), e);
 		}
 		return true;
 	}

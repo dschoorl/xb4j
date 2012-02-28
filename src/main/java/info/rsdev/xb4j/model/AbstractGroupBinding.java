@@ -79,18 +79,21 @@ public abstract class AbstractGroupBinding extends AbstractBinding {
     }
     
     public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+        //when this Binding must not output an element, the getElement() method should return null
         QName element = getElement();
         
         //mixed content is not yet supported -- there are either child elements or there is content
         Collection<IBinding> children = getChildren();
         boolean isEmptyElement = children.isEmpty();
-        staxWriter.writeElement(element, isEmptyElement);
+        if (element != null) {
+            staxWriter.writeElement(element, isEmptyElement);
+        }
         
         for (IBinding child: children) {
             child.toXml(staxWriter, getProperty(javaContext));
         }
         
-        if (!isEmptyElement) {
+        if (!isEmptyElement && (element != null)) {
             staxWriter.closeElement(element);
         }
     }

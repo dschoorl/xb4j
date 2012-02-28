@@ -43,11 +43,21 @@ public class BindingModel {
      * @param instance
      */
     public void toXml(OutputStream stream, Object instance) {
+        if (instance == null) {
+            throw new NullPointerException("Instance to marshall to xml cannot be null");
+        }
+        if (stream == null) {
+            throw new NullPointerException("OutputStream cannot be null");
+        }
+        
         XMLStreamWriter staxWriter = null;
         try {
             staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
 //            staxWriter.writeStartDocument();
             RootBinding binding = getBinding(instance.getClass());
+            if (binding == null) {
+                throw new IllegalArgumentException("No binding found for: ".concat(instance.getClass().getName()));
+            }
             binding.toXml(new SimplifiedXMLStreamWriter(staxWriter), instance);
             staxWriter.writeEndDocument();
         } catch (XMLStreamException e) {

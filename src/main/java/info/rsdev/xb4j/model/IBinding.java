@@ -34,6 +34,8 @@ public interface IBinding {
     
     public Object getProperty(Object contextInstance);
     
+    public boolean setProperty(Object contextInstance, Object propertyValue);
+    
     public void setGetter(IGetter getter);
     
     public void setSetter(ISetter setter);
