@@ -21,12 +21,12 @@ public abstract class AbstractGroupBinding extends AbstractBinding {
      * element to expect next. Any, choice, sequence</p> 
      * @param childBinding
      */
-    public void addChild(IBinding childBinding, IGetter getter, ISetter setter) {
+    public void add(IBinding childBinding, IGetter getter, ISetter setter) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
-        setGetter(getter.setContext(getJavaType()));
-        setSetter(setter.setContext(getJavaType()));
+        setGetter(getter);
+        setSetter(setter);
         
         add(childBinding);
     }
@@ -38,20 +38,21 @@ public abstract class AbstractGroupBinding extends AbstractBinding {
      * @param childBinding
      * @param fieldName
      */
-    public void addChild(IBinding childBinding, String fieldName) {
+    public void add(IBinding childBinding, String fieldName) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
         if (fieldName == null) {
+        	throw new NullPointerException("Fieldname cannot be null");
         }
-        FieldAccessProvider provider = new FieldAccessProvider(getJavaType(), fieldName);
+        FieldAccessProvider provider = new FieldAccessProvider(getObjectFetchStrategy(), fieldName);
         setGetter(provider);
         setSetter(provider);
         
         add(childBinding);
     }
 
-    protected void add(IBinding childBinding) {
+    private void add(IBinding childBinding) {
         this.children.add(childBinding);
         childBinding.setParent(this);   //maintain bidirectional relationship
     }

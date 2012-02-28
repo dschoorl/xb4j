@@ -26,7 +26,15 @@ public class InheritElementFetchStrategy implements IElementFetchStrategy {
 
 	@Override
 	public QName getElement() {
-		return thisBinding.getParent().getElement();
+		return getParentBinding().getElement();
 	}
 	
+    private IBinding getParentBinding() {
+    	IBinding parent = thisBinding.getParent();
+    	if (parent == null) {
+    		throw new NullPointerException("Parent is not set in ".concat(thisBinding.getClass().getName()));
+    	}
+    	return parent;
+    }
+
 }

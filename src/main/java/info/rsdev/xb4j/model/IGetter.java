@@ -8,6 +8,6 @@ public interface IGetter {
 	
 	public Object get(Object javaContext);
 	
-	public IGetter setContext(Class<?> javaContext);
+//	public IGetter setContext(Class<?> javaContext);
 	
 }

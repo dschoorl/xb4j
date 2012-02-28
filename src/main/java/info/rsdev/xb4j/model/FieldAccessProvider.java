@@ -1,6 +1,7 @@
 package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.IObjectFetchStrategy;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -14,11 +15,13 @@ public class FieldAccessProvider implements ISetter, IGetter {
 	
 	private String fieldName = null;
 	
-	private Field field = null;
+//	private IObjectFetchStrategy objectFetcher = null;
 	
-	public FieldAccessProvider(Class<?> context, String fieldName) {
+//	private Field field = null;
+	
+	public FieldAccessProvider(IObjectFetchStrategy objectFetcher, String fieldName) {
 		this.fieldName = fieldName;
-		this.field = getField(context, fieldName);
+//		this.objectFetcher = objectFetcher;
 	}
 	
 	public FieldAccessProvider(String fieldName) {
@@ -28,9 +31,9 @@ public class FieldAccessProvider implements ISetter, IGetter {
 	@Override
 	public boolean set(Object contextInstance, Object propertyValue) {
 		try {
-			field.set(contextInstance, propertyValue);
+			getField(contextInstance.getClass(), this.fieldName).set(contextInstance, propertyValue);
 		} catch (Exception e) {
-			String fieldName = field==null?"null":field.getName();
+//			String fieldName = field==null?"null":field.getName();
 			throw new Xb4jException(String.format("Could not set field %s from %s with value %s", fieldName, contextInstance, propertyValue), e);
 		}
 		return true;
@@ -39,14 +42,21 @@ public class FieldAccessProvider implements ISetter, IGetter {
 	@Override
 	public Object get(Object contextInstance) {
 		try {
-			return field.get(contextInstance);
+			return getField(contextInstance.getClass(), this.fieldName).get(contextInstance);
 		} catch (Exception e) {
-			String fieldName = field==null?"null":field.getName();
+//			String fieldName = field==null?"null":field.getName();
 			throw new Xb4jException(String.format("Could not get field %s from %s", fieldName, contextInstance), e);
 		}
 	}
 	
-	private Field getField(Class<?> context, String fieldName) {	//wrong context
+//	private Field getField() {
+//		if (this.field == null) {
+//			this.field = getField(this.objectFetcher.getJavaType(), this.fieldName);
+//		}
+//		return this.field;
+//	}
+	
+	private Field getField(Class<?> context, String fieldName) {
 		if (context == null) {
 			throw new NullPointerException("Type must be provided");
 		}
@@ -65,6 +75,9 @@ public class FieldAccessProvider implements ISetter, IGetter {
 			}
 			if (targetField ==  null) {
 				candidateClass = candidateClass.getSuperclass();
+				if (candidateClass == null) {
+					throw new IllegalStateException(String.format("Field '%s' is not definied in the entire class hierarchy of '%s'.",fieldName, context.getName()));
+				}
 			}
 		}
 		
@@ -77,22 +90,22 @@ public class FieldAccessProvider implements ISetter, IGetter {
 		return targetField;
 	}
 
-	@Override
-	public FieldAccessProvider setContext(Class<?> javaContext) {
-		if (javaContext != null) {
-			throw new NullPointerException("Context cannot be null");
-		}
-		//this only works when the fieldname is set at construction time and cannot be changed afterwards
-		if (this.field != null) {
-			if (this.field.getType().equals(javaContext)) {
-				return this; 
-			} else {
-				throw new Xb4jException(String.format("Cannot set Java context %s, because context is already set to %s", 
-						javaContext, this.field.getType()));
-			}
-		}
-		this.field = getField(javaContext, this.fieldName);
-		return this;
-	}
+//	@Override
+//	public FieldAccessProvider setContext(Class<?> javaContext) {
+//		if (javaContext != null) {
+//			throw new NullPointerException("Context cannot be null");
+//		}
+//		//this only works when the fieldname is set at construction time and cannot be changed afterwards
+//		if (this.field != null) {
+//			if (this.field.getType().equals(javaContext)) {
+//				return this; 
+//			} else {
+//				throw new Xb4jException(String.format("Cannot set Java context %s, because context is already set to %s", 
+//						javaContext, this.field.getType()));
+//			}
+//		}
+//		this.field = getField(javaContext, this.fieldName);
+//		return this;
+//	}
 
 }

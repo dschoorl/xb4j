@@ -1,5 +1,6 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.model.java.InheritObjectFetchStrategy;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
@@ -17,8 +18,13 @@ import javax.xml.stream.XMLStreamReader;
  */
 public class ValueBinding extends AbstractBinding {
     
+    /**
+     * Create a new {@link ValueBinding} with a {@link DefaultElementFetchStrategy}
+     * @param element the element 
+     */
     public ValueBinding(QName element) {
     	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
+    	setObjectFetchStrategy(new InheritObjectFetchStrategy(this));
     }
 
     @Override
@@ -51,4 +57,5 @@ public class ValueBinding extends AbstractBinding {
     public String toString() {
         return String.format("ValueBinding[element=%s]", getElement());
     }
+    
 }

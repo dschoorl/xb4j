@@ -11,6 +11,11 @@ public class DefaultElementFetchStrategy implements IElementFetchStrategy {
 
 	private QName element = null;
 	
+	/**
+	 * Create a new {@link DefaultElementFetchStrategy}. This implementation of {@link IElementFetchStrategy} is the simplest:
+	 * the bound element is stored in this strategy
+	 * @param element the element bound
+	 */
 	public DefaultElementFetchStrategy(QName element) {
 		if (element == null) {
 			throw new NullPointerException("QName must be provided");

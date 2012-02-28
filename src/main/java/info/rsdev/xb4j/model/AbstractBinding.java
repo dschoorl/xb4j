@@ -56,11 +56,11 @@ public abstract class AbstractBinding implements IBinding {
         return this.objectFetcher;
     }
     
-    protected void setGetter(IGetter getter) {
+    public void setGetter(IGetter getter) {
         this.getter = getter;
     }
 
-    protected void setSetter(ISetter setter) {
+    public void setSetter(ISetter setter) {
         this.setter = setter;
     }
     

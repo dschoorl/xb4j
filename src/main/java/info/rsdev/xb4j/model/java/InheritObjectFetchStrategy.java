@@ -6,6 +6,10 @@ public class InheritObjectFetchStrategy implements IObjectFetchStrategy {
     
     private IBinding thisBinding = null;
     
+    /**
+     * Create a new {@link InheritObjectFetchStrategy}
+     * @param thisBinding
+     */
     public InheritObjectFetchStrategy(IBinding thisBinding) {
         if (thisBinding == null) {
             throw new NullPointerException("IBinding cannot be null");
@@ -15,12 +19,20 @@ public class InheritObjectFetchStrategy implements IObjectFetchStrategy {
 
     @Override
     public Class<?> getJavaType() {
-        return thisBinding.getParent().getJavaType();
+        return getParentBinding().getJavaType();
     }
 
     @Override
     public Object newInstance() {
-        return thisBinding.getParent().newInstance();
+        return getParentBinding().newInstance();
+    }
+    
+    private IBinding getParentBinding() {
+    	IBinding parent = thisBinding.getParent();
+    	if (parent == null) {
+    		throw new NullPointerException("Parent is not set in ".concat(thisBinding.getClass().getName()));
+    	}
+    	return parent;
     }
 
 }

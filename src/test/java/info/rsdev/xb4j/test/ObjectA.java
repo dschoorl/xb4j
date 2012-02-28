@@ -1,13 +1,13 @@
 package info.rsdev.xb4j.test;
 
-public class MyObject {
+public class ObjectA {
     
     private String name = null;
     
     @SuppressWarnings("unused")
-    private MyObject() {}
+    private ObjectA() {}
     
-    public MyObject(String name) {
+    public ObjectA(String name) {
         if (name == null) {
             throw new NullPointerException("Name cannot be null");
         }

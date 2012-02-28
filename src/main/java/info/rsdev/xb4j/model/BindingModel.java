@@ -97,13 +97,14 @@ public class BindingModel {
         return this.classToXml.get(type);
     }
     
-    public void register(RootBinding binding) {
+    public BindingModel register(RootBinding binding) {
         xmlToClass.put(binding.getElement(), binding);
         classToXml.put(binding.getJavaType(), binding);
         binding.setModel(this);
+        return this;
     }
     
-    public void register(ComplexTypeBinding complexType) {
+    public BindingModel register(ComplexTypeBinding complexType) {
         if (complexType == null) {
             throw new NullPointerException("ComplexTypeBinding cannot be null");
         }
@@ -113,6 +114,7 @@ public class BindingModel {
                     "is already registered", complexType.getIdentifier(), complexType.getNamespace()));
         }
         this.complexTypes.put(fqComplexTypeName, complexType);
+        return this;
     }
     
     public ComplexTypeBinding getComplexType(String identifier, String namespaceUri) {

@@ -14,9 +14,9 @@ import javax.xml.stream.XMLStreamException;
  */
 public interface IBinding {
     
-    public Object toJava(RecordAndPlaybackXMLStreamReader stream) throws XMLStreamException;
+    public Object toJava(RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException;
     
-    public void toXml(SimplifiedXMLStreamWriter stream, Object javaContext) throws XMLStreamException;
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException;
     
     /**
      * Bindings are organized in a hierarchy. Call setParent to build the hierarchy of bindings.
@@ -31,4 +31,10 @@ public interface IBinding {
     public Class<?> getJavaType();
     
     public Object newInstance();
+    
+    public Object getProperty(Object contextInstance);
+    
+    public void setGetter(IGetter getter);
+    
+    public void setSetter(ISetter setter);
 }
