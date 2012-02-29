@@ -1,6 +1,5 @@
 package info.rsdev.xb4j.model;
 
-import info.rsdev.xb4j.model.java.InheritObjectFetchStrategy;
 import info.rsdev.xb4j.model.java.converter.IValueConverter;
 import info.rsdev.xb4j.model.java.converter.NOPConverter;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
@@ -31,13 +30,11 @@ public class SimpleTypeBinding extends AbstractBinding {
      */
     public SimpleTypeBinding(QName element) {
     	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
-    	setObjectFetchStrategy(new InheritObjectFetchStrategy(this));
     }
 
     public SimpleTypeBinding(QName element, IValueConverter converter) {
     	setConverter(converter);
     	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
-    	setObjectFetchStrategy(new InheritObjectFetchStrategy(this));
     }
 
     @Override

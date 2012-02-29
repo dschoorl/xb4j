@@ -1,7 +1,5 @@
 package info.rsdev.xb4j.model;
 
-import info.rsdev.xb4j.model.java.DefaultObjectFetchStrategy;
-import info.rsdev.xb4j.model.java.InheritObjectFetchStrategy;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.InheritElementFetchStrategy;
 
@@ -18,7 +16,6 @@ public class SequenceBinding extends AbstractBindingContainer implements IBindin
 	 */
 	public SequenceBinding() {
 		setElementFetchStrategy(new InheritElementFetchStrategy(this));
-		setObjectFetchStrategy(new InheritObjectFetchStrategy(this));
 	}
     
     /**
@@ -29,7 +26,7 @@ public class SequenceBinding extends AbstractBindingContainer implements IBindin
      */
     public SequenceBinding(QName element, Instantiator instantiator) {
     	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
-    	setObjectFetchStrategy(new DefaultObjectFetchStrategy(instantiator));
+    	setObjectCreator(instantiator);
     }
     
     /**

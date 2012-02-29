@@ -1,6 +1,5 @@
 package info.rsdev.xb4j.model;
 
-import info.rsdev.xb4j.model.java.IObjectFetchStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 
 import javax.xml.namespace.QName;
@@ -13,7 +12,9 @@ public abstract class AbstractBinding implements IBinding {
     
 	private IElementFetchStrategy elementFetcher = null;
 	
-	private IObjectFetchStrategy objectFetcher = null;
+	private Instantiator objectCreator = null;
+	
+//	private IObjectFetchStrategy objectFetcher = null;
 	
     private IGetter getter = null;
     
@@ -30,7 +31,7 @@ public abstract class AbstractBinding implements IBinding {
      */
     protected AbstractBinding(AbstractBinding original, ComplexTypeReference newParent) {
         this.elementFetcher = original.elementFetcher;
-        this.objectFetcher = original.objectFetcher;
+        this.objectCreator = original.objectCreator;
         this.getter = original.getter;
         this.setter = original.setter;
         this.parent = newParent;    //merge copy into another binding hierarchy
@@ -44,15 +45,15 @@ public abstract class AbstractBinding implements IBinding {
     }
     
     public Class<?> getJavaType() {
-        if (objectFetcher != null) {
-            return objectFetcher.getJavaType();
+        if (objectCreator != null) {
+            return objectCreator.getJavaType();
         }
         return null;
     }
     
     public Object newInstance() {
-        if (objectFetcher != null) {
-            return objectFetcher.newInstance();
+        if (objectCreator != null) {
+            return objectCreator.newInstance();
         }
         return null;
     }
@@ -64,12 +65,8 @@ public abstract class AbstractBinding implements IBinding {
     	this.elementFetcher = elementFetcher;
     }
     
-    protected void setObjectFetchStrategy(IObjectFetchStrategy objectFetcher) {
-        this.objectFetcher = objectFetcher;
-    }
-    
-    protected IObjectFetchStrategy getObjectFetchStrategy() {
-        return this.objectFetcher;
+    protected void setObjectCreator(Instantiator objectCreator) {
+        this.objectCreator = objectCreator;
     }
     
     public void setGetter(IGetter getter) {

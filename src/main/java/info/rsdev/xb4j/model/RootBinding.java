@@ -1,7 +1,6 @@
 package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
-import info.rsdev.xb4j.model.java.DefaultObjectFetchStrategy;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 
 import javax.xml.XMLConstants;
@@ -24,7 +23,7 @@ public class RootBinding extends AbstractBindingContainer implements IBinding {
 	        throw new NullPointerException("Java type cannot be null");
 	    }
     	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
-    	setObjectFetchStrategy(new DefaultObjectFetchStrategy(javaType));
+    	setObjectCreator(new DefaultConstructor(javaType));
 	}
 	
 	public ComplexTypeBinding getComplexType(String identifier, String namespaceUri) {

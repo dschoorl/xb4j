@@ -1,9 +1,7 @@
 package info.rsdev.xb4j.model;
 
-import info.rsdev.xb4j.model.java.DefaultObjectFetchStrategy;
 import info.rsdev.xb4j.model.java.IChooser;
 import info.rsdev.xb4j.model.java.IObjectFetchStrategy;
-import info.rsdev.xb4j.model.java.InheritObjectFetchStrategy;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
@@ -33,7 +31,6 @@ public class ChoiceBinding extends AbstractBinding {
 	 */
 	public ChoiceBinding() {
 		setElementFetchStrategy(new InheritElementFetchStrategy(this));
-		setObjectFetchStrategy(new InheritObjectFetchStrategy(this));
 	}
 	
 	/**
@@ -43,12 +40,12 @@ public class ChoiceBinding extends AbstractBinding {
 	 * @param instantiator
 	 */
 	public ChoiceBinding(QName element, Instantiator instantiator) { //we don't know what type to unmarshall to; that depends on the child xml.
-		this(new DefaultElementFetchStrategy(element) ,new DefaultObjectFetchStrategy(instantiator));
+		this(new DefaultElementFetchStrategy(element), instantiator);
 	}
 	
-	public ChoiceBinding(IElementFetchStrategy elementFetcher, IObjectFetchStrategy objectFetcher) {
+	public ChoiceBinding(IElementFetchStrategy elementFetcher, Instantiator instantiator) {
 		setElementFetchStrategy(elementFetcher);
-		setObjectFetchStrategy(objectFetcher);
+		setObjectCreator(instantiator);
 	}
 	
 	/**
@@ -112,7 +109,7 @@ public class ChoiceBinding extends AbstractBinding {
 		
 		Object javaContext = null;
 		if (resultBinding != null) {
-		    javaContext = resultBinding.newInstance(); //get current object from stack???
+		    javaContext = newInstance(); //get current object from stack???
 		    resultBinding.setProperty(javaContext, result);
 		}
 		

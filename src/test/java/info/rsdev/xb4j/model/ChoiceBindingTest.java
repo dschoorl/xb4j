@@ -50,7 +50,7 @@ public class ChoiceBindingTest {
 	
 	@Test
 	public void testUnmarshallChoiceNoNamespaces() throws Exception {
-	    IObjectFetchStrategy objectAProvider = mock(IObjectFetchStrategy.class);
+	    Instantiator objectAProvider = mock(Instantiator.class);
 	    when(objectAProvider.newInstance()).thenReturn(new ObjectA(""));
 	    
 		ChoiceBinding choice = new ChoiceBinding(mock(IElementFetchStrategy.class), objectAProvider);
@@ -65,9 +65,9 @@ public class ChoiceBindingTest {
 		assertEquals("test", ((ObjectA)instance).getName());
 		
 		//unmarshall second option
-        IObjectFetchStrategy objectBProvider = mock(IObjectFetchStrategy.class);
+		Instantiator objectBProvider = mock(Instantiator.class);
         when(objectBProvider.newInstance()).thenReturn(new ObjectB(""));
-        choice.setObjectFetchStrategy(objectBProvider);
+        choice.setObjectCreator(objectBProvider);
         
 		stream = new ByteArrayInputStream("<elem2>test</elem2>".getBytes());
 		instance = choice.toJava(new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream)));

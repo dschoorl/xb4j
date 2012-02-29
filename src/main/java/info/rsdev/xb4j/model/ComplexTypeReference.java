@@ -1,7 +1,5 @@
 package info.rsdev.xb4j.model;
 
-import info.rsdev.xb4j.model.java.DefaultObjectFetchStrategy;
-import info.rsdev.xb4j.model.java.InheritObjectFetchStrategy;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
@@ -30,21 +28,19 @@ public class ComplexTypeReference extends AbstractBinding {
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
         setElementFetchStrategy(new DefaultElementFetchStrategy(element));
-        setObjectFetchStrategy(new DefaultObjectFetchStrategy(javaType));
+        setObjectCreator(new DefaultConstructor(javaType));
     }
 
     public ComplexTypeReference(String identifier, String namespaceUri) {
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
         setElementFetchStrategy(new InheritElementFetchStrategy(this));
-        setObjectFetchStrategy(new InheritObjectFetchStrategy(this));
     }
 
     public ComplexTypeReference(IElementFetchStrategy elementFetcher, String identifier, String namespaceUri) {
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
         setElementFetchStrategy(elementFetcher);
-        setObjectFetchStrategy(new InheritObjectFetchStrategy(this));
     }
 
     @Override
