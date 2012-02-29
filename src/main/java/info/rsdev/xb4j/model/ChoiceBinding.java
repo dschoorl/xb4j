@@ -61,14 +61,20 @@ public class ChoiceBinding extends AbstractBinding {
 		this(element, new DefaultConstructor(javaType));
 	}
 	
-	public void addChoice(IBinding choice, String fieldName, IChooser selector) {
+	public IBinding addChoice(IBinding choice, String fieldName, IChooser selector) {
 		//Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
-		FieldAccessProvider provider = new FieldAccessProvider(getObjectFetchStrategy(), fieldName);
+		FieldAccessProvider provider = new FieldAccessProvider(fieldName);
 		choice.setGetter(provider);
 		choice.setSetter(provider);
 		
 		this.choices.put(selector, choice);
 		choice.setParent(this); //maintain bidirectional relationship
+		return choice;
+	}
+	
+	public SequenceBinding addChoice(SequenceBinding choice, String fieldName, IChooser selector) {
+		addChoice((IBinding)choice, fieldName, selector);
+		return choice;
 	}
 	
 	private IBinding selectBinding(Object javaContext) {

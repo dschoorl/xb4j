@@ -1,6 +1,6 @@
 package info.rsdev.xb4j.model.java;
 
-import info.rsdev.xb4j.model.AbstractGroupBinding;
+import info.rsdev.xb4j.model.AbstractBindingContainer;
 
 /**
  * 
@@ -8,7 +8,7 @@ import info.rsdev.xb4j.model.AbstractGroupBinding;
  */
 public class ChildObjectFetchStrategy implements IObjectFetchStrategy {
 	
-	private AbstractGroupBinding thisBinding = null;
+	private AbstractBindingContainer thisBinding = null;
 	
 	@Override
 	public Class<?> getJavaType() {

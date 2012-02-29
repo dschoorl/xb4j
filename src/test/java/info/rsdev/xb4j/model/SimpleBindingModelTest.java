@@ -98,7 +98,7 @@ public class SimpleBindingModelTest {
     public void testMarshallValue() throws Exception {
         BindingModel model = new BindingModel();
         RootBinding binding = new RootBinding(new QName("urn:test/namespace", "myobject", "tst"), ObjectA.class);
-        binding.add(new ValueBinding(new QName("name")), "name");
+        binding.add(new SimpleTypeBinding(new QName("name")), "name");
         model.register(binding);
         
         ObjectA instance = new ObjectA("test");
@@ -113,7 +113,7 @@ public class SimpleBindingModelTest {
     public void testUnmarshallValue() throws Exception {
         BindingModel model = new BindingModel();
         RootBinding binding = new RootBinding(new QName("urn:test/namespace", "myobject", "tst"), ObjectA.class);
-        binding.add(new ValueBinding(new QName("name")), "name");
+        binding.add(new SimpleTypeBinding(new QName("name")), "name");
         model.register(binding);
         
         byte[] buffer = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>test</name></tst:myobject>".getBytes();

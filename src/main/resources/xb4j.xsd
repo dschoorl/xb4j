@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rsdev.info/xb4j" xmlns:tns="http://www.rsdev.info/xb4j" elementFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rsdev.info/xb4j" xmlns="http://www.rsdev.info/xb4j" elementFormDefault="qualified">
+
+    <xs:element name="model" >
+        <xs:complexType>
+        </xs:complexType>
+    </xs:element>
     
-</schema>
+</xs:schema>

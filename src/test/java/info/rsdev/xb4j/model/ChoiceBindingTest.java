@@ -28,8 +28,8 @@ public class ChoiceBindingTest {
 	@Test
 	public void testMarshallChoiceNoNamespaces() throws Exception {
 		ChoiceBinding choice = new ChoiceBinding();
-		choice.addChoice(new ValueBinding(new QName("elem1")), "name", new InstanceOfChooser(ObjectA.class));
-		choice.addChoice(new ValueBinding(new QName("elem2")), "value", new InstanceOfChooser(ObjectB.class));
+		choice.addChoice(new SimpleTypeBinding(new QName("elem1")), "name", new InstanceOfChooser(ObjectA.class));
+		choice.addChoice(new SimpleTypeBinding(new QName("elem2")), "value", new InstanceOfChooser(ObjectB.class));
 		
 		ObjectA instanceA = new ObjectA("test");
 		String expected = "<elem1>test</elem1>";
@@ -54,8 +54,8 @@ public class ChoiceBindingTest {
 	    when(objectAProvider.newInstance()).thenReturn(new ObjectA(""));
 	    
 		ChoiceBinding choice = new ChoiceBinding(mock(IElementFetchStrategy.class), objectAProvider);
-		choice.addChoice(new ValueBinding(new QName("elem1")), "name", new InstanceOfChooser(ObjectA.class));
-		choice.addChoice(new ValueBinding(new QName("elem2")), "value", new InstanceOfChooser(ObjectB.class));
+		choice.addChoice(new SimpleTypeBinding(new QName("elem1")), "name", new InstanceOfChooser(ObjectA.class));
+		choice.addChoice(new SimpleTypeBinding(new QName("elem2")), "value", new InstanceOfChooser(ObjectB.class));
 		
 		//unmarshall first option
 		ByteArrayInputStream stream = new ByteArrayInputStream("<elem1>test</elem1>".getBytes());

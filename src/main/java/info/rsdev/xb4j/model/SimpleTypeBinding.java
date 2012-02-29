@@ -1,6 +1,8 @@
 package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.model.java.InheritObjectFetchStrategy;
+import info.rsdev.xb4j.model.java.converter.IValueConverter;
+import info.rsdev.xb4j.model.java.converter.NOPConverter;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
@@ -12,28 +14,39 @@ import javax.xml.stream.XMLStreamReader;
 /**
  * <p>Translates a text-only element to a Java field and vice versa. The Java field is expected to be a String.
  * Other types will need a converter to convert the field to and from a String.</p>
+ * 
  * TODO: add converter mechanism 
+ * TODO: add support for fixed / default values in the xml world?
+ * TODO: simple type cannot be an empty element??
  * 
  * @author Dave Schoorl
  */
-public class ValueBinding extends AbstractBinding {
+public class SimpleTypeBinding extends AbstractBinding {
+	
+	private IValueConverter converter = NOPConverter.INSTANCE;
     
     /**
-     * Create a new {@link ValueBinding} with a {@link DefaultElementFetchStrategy}
+     * Create a new {@link SimpleTypeBinding} with a {@link DefaultElementFetchStrategy}
      * @param element the element 
      */
-    public ValueBinding(QName element) {
+    public SimpleTypeBinding(QName element) {
+    	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
+    	setObjectFetchStrategy(new InheritObjectFetchStrategy(this));
+    }
+
+    public SimpleTypeBinding(QName element, IValueConverter converter) {
+    	
     	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
     	setObjectFetchStrategy(new InheritObjectFetchStrategy(this));
     }
 
     @Override
     public Object toJava(RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
-        String value = null;
+        Object value = null;
         if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
             QName element = staxReader.getName();
             if (isExpected(element)) {
-                value = staxReader.getElementText();
+                value = this.converter.toObject(staxReader.getElementText());
             }
         }
         
@@ -47,15 +60,22 @@ public class ValueBinding extends AbstractBinding {
         staxWriter.writeElement(element, false);
         
         if (elementValue != null) {
-            staxWriter.writeContent(elementValue.toString());
+            staxWriter.writeContent(this.converter.toText(elementValue));
         }
         
         staxWriter.closeElement(element);
     }
+    
+    private void setConverter(IValueConverter converter) {
+    	if (converter == null) {
+    		throw new NullPointerException("IValueConverter cannot be null");
+    	}
+    	this.converter = converter;
+    }
 
     @Override
     public String toString() {
-        return String.format("ValueBinding[element=%s]", getElement());
+        return String.format("SimpleTypeBinding[element=%s]", getElement());
     }
     
 }

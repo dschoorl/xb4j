@@ -1,31 +1,23 @@
 package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
-import info.rsdev.xb4j.model.java.IObjectFetchStrategy;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 
+import javax.lang.model.SourceVersion;
+
 /**
- * 
+ * Get or set the value of a class property by accessing it's {@link Field} by fieldname
  * @author Dave Schoorl
  */
 public class FieldAccessProvider implements ISetter, IGetter {
 	
 	private String fieldName = null;
 	
-//	private IObjectFetchStrategy objectFetcher = null;
-	
-//	private Field field = null;
-	
-	public FieldAccessProvider(IObjectFetchStrategy objectFetcher, String fieldName) {
-		this.fieldName = fieldName;
-//		this.objectFetcher = objectFetcher;
-	}
-	
 	public FieldAccessProvider(String fieldName) {
-		this.fieldName = fieldName;
+		this.fieldName = validate(fieldName);
 	}
 	
 	@Override
@@ -33,7 +25,6 @@ public class FieldAccessProvider implements ISetter, IGetter {
 		try {
 			getField(contextInstance.getClass(), this.fieldName).set(contextInstance, propertyValue);
 		} catch (Exception e) {
-//			String fieldName = field==null?"null":field.getName();
 			throw new Xb4jException(String.format("Could not set field '%s' with value '%s' in object '%s'", 
 			        fieldName, propertyValue, contextInstance), e);
 		}
@@ -45,20 +36,12 @@ public class FieldAccessProvider implements ISetter, IGetter {
 		try {
 			return getField(contextInstance.getClass(), this.fieldName).get(contextInstance);
 		} catch (Exception e) {
-//			String fieldName = field==null?"null":field.getName();
-			throw new Xb4jException(String.format("Could not get field %s from %s", fieldName, contextInstance), e);
+			throw new Xb4jException(String.format("Could not get field '%s' from %s", fieldName, contextInstance), e);
 		}
 	}
 	
-//	private Field getField() {
-//		if (this.field == null) {
-//			this.field = getField(this.objectFetcher.getJavaType(), this.fieldName);
-//		}
-//		return this.field;
-//	}
-	
-	private Field getField(Class<?> context, String fieldName) {
-		if (context == null) {
+	private Field getField(Class<?> contextType, String fieldName) {
+		if (contextType == null) {
 			throw new NullPointerException("Type must be provided");
 		}
 		if (fieldName == null) {
@@ -66,7 +49,7 @@ public class FieldAccessProvider implements ISetter, IGetter {
 		}
 		
 		Field targetField = null;
-		Class<?> candidateClass = context;
+		Class<?> candidateClass = contextType;
 		while ((candidateClass != null) && (targetField == null)) {
 			for (Field candidate: candidateClass.getDeclaredFields()) {
 				if (candidate.getName().equals(fieldName)) {
@@ -77,7 +60,8 @@ public class FieldAccessProvider implements ISetter, IGetter {
 			if (targetField ==  null) {
 				candidateClass = candidateClass.getSuperclass();
 				if (candidateClass == null) {
-					throw new IllegalStateException(String.format("Field '%s' is not definied in the entire class hierarchy of '%s'.",fieldName, context.getName()));
+					throw new IllegalStateException(String.format("Field '%s' is not definied in the entire class hierarchy " +
+							"of '%s'.",fieldName, contextType.getName()));
 				}
 			}
 		}
@@ -86,27 +70,17 @@ public class FieldAccessProvider implements ISetter, IGetter {
 			if (!Modifier.isPublic(((Member)targetField).getModifiers()) || !Modifier.isPublic(((Member)targetField).getDeclaringClass().getModifiers())) {
 				targetField.setAccessible(true);
 			}
+			//TODO: check if the field is final? warn if static?
 		}
 		
 		return targetField;
 	}
-
-//	@Override
-//	public FieldAccessProvider setContext(Class<?> javaContext) {
-//		if (javaContext != null) {
-//			throw new NullPointerException("Context cannot be null");
-//		}
-//		//this only works when the fieldname is set at construction time and cannot be changed afterwards
-//		if (this.field != null) {
-//			if (this.field.getType().equals(javaContext)) {
-//				return this; 
-//			} else {
-//				throw new Xb4jException(String.format("Cannot set Java context %s, because context is already set to %s", 
-//						javaContext, this.field.getType()));
-//			}
-//		}
-//		this.field = getField(javaContext, this.fieldName);
-//		return this;
-//	}
+	
+	private String validate(String fieldName) {
+		if (!SourceVersion.isIdentifier(fieldName)) {
+			throw new IllegalArgumentException(String.format("Not a valid name for a field: %s", fieldName));
+		}
+		return fieldName;
+	}
 
 }

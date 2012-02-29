@@ -45,6 +45,9 @@ public abstract class AbstractBinding implements IBinding {
     }
     
     protected void setElementFetchStrategy(IElementFetchStrategy elementFetcher) {
+    	if (elementFetcher == null) {
+    		throw new NullPointerException("IElementFetchStrategy cannot be null");
+    	}
     	this.elementFetcher = elementFetcher;
     }
     
@@ -79,9 +82,9 @@ public abstract class AbstractBinding implements IBinding {
     }
     
     protected RootBinding getRootBinding() {
-        IBinding root = getParent();
-        while (root != null) {
-            root = root.getParent();
+        IBinding root = this;
+        while (root.getParent() != null) {
+        	root = root.getParent();
         }
         return (RootBinding)root;   //RootBinding should always be at the root of a binding hierarchy
     }

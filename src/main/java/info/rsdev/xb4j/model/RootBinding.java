@@ -7,11 +7,13 @@ import javax.xml.namespace.QName;
 
 /**
  * <p>This Binding is at the root of a binding hierarchy. It has a reference to the {@link BindingModel}, so
- * it can lookup {@link ComplexTypeBinding}s.</p>
+ * it can lookup {@link ComplexTypeBinding complextype definitions}.</p>
+ * 
+ * TODO: set schema on the root type to use validation on stax reader/writer?
  * 
  * @author Dave Schoorl
  */
-public class RootBinding extends AbstractGroupBinding implements IBinding {
+public class RootBinding extends AbstractBindingContainer implements IBinding {
 	
     private BindingModel model = null;
     

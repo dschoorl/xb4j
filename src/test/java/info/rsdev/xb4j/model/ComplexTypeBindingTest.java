@@ -14,10 +14,10 @@ public class ComplexTypeBindingTest {
     @Test 
     public void testMarshallComplexType() {
         ComplexTypeBinding complexType = new ComplexTypeBinding("typeO", null);
-        complexType.add(new ValueBinding(new QName("name")), "name");
+        complexType.setChild(new SimpleTypeBinding(new QName("name")));
         
         RootBinding root = new RootBinding(new QName("root"), ObjectA.class);	//has element, but class comes from child
-        root.add(new ComplexTypeReference("typeO", null), "");
+        root.add(new ComplexTypeReference("typeO", null));
         
         //bind complextype to other xml element (same javaclass) -- this is currently not supported by BindingModel
 //        RootBinding hoofdmap = new RootBinding(new QName("hoofdmap"), ObjectA.class);   //has element, but class comes from child

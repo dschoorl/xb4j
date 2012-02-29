@@ -108,8 +108,27 @@ public class BindingModel {
     }
     
     public BindingModel register(RootBinding binding) {
-        xmlToClass.put(binding.getElement(), binding);
-        classToXml.put(binding.getJavaType(), binding);
+    	if (binding == null) {
+    		throw new NullPointerException("RootBinding cannot be null when registering it");
+    	}
+    	QName element = binding.getElement();
+    	if (element == null) {
+    		throw new NullPointerException("FQN of element cannot be null in a RootBinding you try to register");
+    	}
+    	Class<?> javaType = binding.getJavaType();
+    	if (javaType == null) {
+    		throw new NullPointerException("Java type cannot be null in a RootBinding you try to register");
+    	}
+    	if (xmlToClass.containsKey(element) && !binding.equals(xmlToClass.get(element))) {
+    		throw new IllegalArgumentException(String.format("Cannot register binding '%s', because another one (%s) is " +
+    				"already registered for this FQN element: '%s'", binding, xmlToClass.get(element), element));
+    	}
+    	if (classToXml.containsKey(javaType) && !binding.equals(classToXml.get(javaType))) {
+    		throw new IllegalArgumentException(String.format("Cannot register RootBinding '%s', because another one (%s) is " +
+    				"already registered for this Java type: '%s'", binding, xmlToClass.get(element), javaType.getName()));
+    	}
+        xmlToClass.put(element, binding);
+        classToXml.put(javaType, binding);
         binding.setModel(this);
         return this;
     }
@@ -120,8 +139,9 @@ public class BindingModel {
         }
         QName fqComplexTypeName = new QName(complexType.getNamespace(), complexType.getIdentifier());
         if (this.complexTypes.containsKey(fqComplexTypeName)) {
-            throw new IllegalArgumentException(String.format("A ComplexTypeBinding with identifier='%s' and namespace='%'" +
-                    "is already registered", complexType.getIdentifier(), complexType.getNamespace()));
+            throw new IllegalArgumentException(String.format("Cannot register ComplexTypeBinding '%s', because another one (%s) is " +
+    				"already registered with identifier='%s' and namespace='%'", complexType, complexTypes.get(fqComplexTypeName), 
+    				complexType.getIdentifier(), complexType.getNamespace()));
         }
         this.complexTypes.put(fqComplexTypeName, complexType);
         return this;
