@@ -48,5 +48,10 @@ public class DefaultConstructor implements Instantiator {
     public Class<?> getJavaType() {
         return defaultConstructor.getDeclaringClass();
     }
+    
+    @Override
+    public String toString() {
+        return String.format("DefaultConstructor[type=%s]", getJavaType());
+    }
 
 }

@@ -28,4 +28,9 @@ public class DefaultObjectFetchStrategy implements IObjectFetchStrategy {
     public Object newInstance() {
         return instantiator.newInstance();
     }
+    
+    @Override
+    public String toString() {
+        return String.format("DefaultObjectFetchStrategy[constructor=%s]", this.instantiator);
+    }
 }

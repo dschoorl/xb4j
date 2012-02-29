@@ -23,6 +23,19 @@ public abstract class AbstractBinding implements IBinding {
     
     public AbstractBinding() { }
     
+    /**
+     * Copy constructor that copies the properties of the original binding in a 
+     * @param original
+     * @param newParent
+     */
+    protected AbstractBinding(AbstractBinding original, ComplexTypeReference newParent) {
+        this.elementFetcher = original.elementFetcher;
+        this.objectFetcher = original.objectFetcher;
+        this.getter = original.getter;
+        this.setter = original.setter;
+        this.parent = newParent;    //merge copy into another binding hierarchy
+    }
+    
     public QName getElement() {
     	if (elementFetcher != null) {
     		return elementFetcher.getElement();
@@ -91,7 +104,8 @@ public abstract class AbstractBinding implements IBinding {
 
     public boolean setProperty(Object contextInstance, Object propertyValue) {
     	if (this.setter == null) {
-    		throw new NullPointerException(String.format("No setter available. Cannot set property value %s on %s", propertyValue, contextInstance));
+    	    return false;
+//    		throw new NullPointerException(String.format("No setter available. Cannot set property value '%s' on %s", propertyValue, contextInstance));
     	}
         return this.setter.set(contextInstance, propertyValue);
     }
@@ -100,7 +114,7 @@ public abstract class AbstractBinding implements IBinding {
     	if (this.getter != null) {
             return this.getter.get(contextInstance);
     	}
-    	return null;
+    	return contextInstance;
     }
     
     public boolean isExpected(QName element) {
@@ -117,4 +131,7 @@ public abstract class AbstractBinding implements IBinding {
         return String.format("%s[element=%s, javaType=%s]", fqClassName.substring(dotIndex), getElement(), getJavaType().getName());
     }
     
+    protected void copyInto(AbstractBinding copy) {
+        
+    }
 }

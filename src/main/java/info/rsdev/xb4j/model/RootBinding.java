@@ -1,8 +1,10 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.DefaultObjectFetchStrategy;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 /**
@@ -26,7 +28,14 @@ public class RootBinding extends AbstractBindingContainer implements IBinding {
 	}
 	
 	public ComplexTypeBinding getComplexType(String identifier, String namespaceUri) {
-	    return this.model.getComplexType(identifier, namespaceUri);
+	    if (namespaceUri == null) { namespaceUri = XMLConstants.NULL_NS_URI; }
+	    ComplexTypeBinding complexType = this.model.getComplexType(identifier, namespaceUri);
+        if (complexType == null) {
+            throw new Xb4jException(String.format("ComplexTypeBinding with identifier=%s and namespace=%s is not" +
+                    "registered in the BindingModel", identifier, namespaceUri));
+        }
+
+	    return complexType;
 	}
 	
 	public void setModel(BindingModel model) {

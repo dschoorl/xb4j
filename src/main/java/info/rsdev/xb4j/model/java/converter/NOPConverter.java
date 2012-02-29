@@ -23,7 +23,7 @@ public class NOPConverter implements IValueConverter {
 	public String toText(Object value) {
 		if (value == null) { return null; }
 		if (!(value instanceof String)) {
-			throw new Xb4jException(String.format("Expected a %s, but was a %s", String.class.getName(), 
+			throw new Xb4jException(String.format("Expected a %s, but encountered a %s", String.class.getName(), 
 					value.getClass().getName()));
 		}
 		return (String)value;

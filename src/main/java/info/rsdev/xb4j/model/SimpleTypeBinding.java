@@ -35,7 +35,7 @@ public class SimpleTypeBinding extends AbstractBinding {
     }
 
     public SimpleTypeBinding(QName element, IValueConverter converter) {
-    	
+    	setConverter(converter);
     	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
     	setObjectFetchStrategy(new InheritObjectFetchStrategy(this));
     }

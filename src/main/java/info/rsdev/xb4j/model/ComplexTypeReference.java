@@ -23,6 +23,8 @@ public class ComplexTypeReference extends AbstractBinding {
     private String identifier = null;
 
     private String namespaceUri = null;
+    
+    private ComplexTypeBinding referencedBinding = null;
 
     public ComplexTypeReference(QName element, Class<?> javaType, String identifier, String namespaceUri) {
         setIdentifier(identifier);
@@ -47,16 +49,13 @@ public class ComplexTypeReference extends AbstractBinding {
 
     @Override
     public Object toJava(RecordAndPlaybackXMLStreamReader stream) throws XMLStreamException {
-        RootBinding root = getRootBinding();
-        ComplexTypeBinding complexType = root.getComplexType(identifier, namespaceUri);
-        return complexType.toJava(stream);  //TODO: solve -- the complextype is not in the right binding hierarchy
+        //check if there is a setter / objectfetcher defined
+        return getReferencedBinding().toJava(stream);
     }
 
     @Override
     public void toXml(SimplifiedXMLStreamWriter stream, Object javaContext) throws XMLStreamException {
-        RootBinding root = getRootBinding();
-        ComplexTypeBinding complexType = root.getComplexType(identifier, namespaceUri);
-        complexType.toXml(stream, javaContext);  //TODO: solve -- the complextype is not in the right binding hierarchy
+        getReferencedBinding().toXml(stream, getProperty(javaContext));
     }
     
     private void setIdentifier(String newIdentifier) {
@@ -72,5 +71,13 @@ public class ComplexTypeReference extends AbstractBinding {
     	}
     	this.namespaceUri = newNamespaceUri;
     }
-
+    
+    private ComplexTypeBinding getReferencedBinding() {
+        if (this.referencedBinding == null) {
+            RootBinding root = getRootBinding();
+            ComplexTypeBinding complexType = root.getComplexType(identifier, namespaceUri);
+            this.referencedBinding = complexType.copyIntoHierarchy(this);
+        }
+        return this.referencedBinding;
+    }
 }

@@ -82,5 +82,10 @@ public class FieldAccessProvider implements ISetter, IGetter {
 		}
 		return fieldName;
 	}
+	
+	@Override
+	public String toString() {
+	    return String.format("FieldAccessProvider[field=%s]", fieldName);
+	}
 
 }

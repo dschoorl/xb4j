@@ -28,4 +28,8 @@ public class DefaultElementFetchStrategy implements IElementFetchStrategy {
 		return this.element;
 	}
 	
+	@Override
+	public String toString() {
+	    return String.format("DefaultElementFetchStrategy[element=%s]", this.element);
+	}
 }
