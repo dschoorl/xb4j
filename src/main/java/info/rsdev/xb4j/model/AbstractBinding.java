@@ -58,6 +58,13 @@ public abstract class AbstractBinding implements IBinding {
         return null;
     }
     
+    protected Object getJavaContext(Object javaContext) {
+        if (this.objectCreator != null) {
+            return newInstance();
+        }
+        return javaContext;
+    }
+    
     protected void setElementFetchStrategy(IElementFetchStrategy elementFetcher) {
     	if (elementFetcher == null) {
     		throw new NullPointerException("IElementFetchStrategy cannot be null");

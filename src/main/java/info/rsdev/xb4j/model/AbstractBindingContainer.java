@@ -102,7 +102,7 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
         if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
             QName element = staxReader.getName();
             if (isExpected(element)) {
-                javaContext = newInstance();
+                javaContext = newInstance();    //or instance is passed on - through a stack somewhere?
                 for (IBinding child: getChildren()) {
                     Object childContext = child.toJava(staxReader);
                     setProperty(javaContext, childContext);
