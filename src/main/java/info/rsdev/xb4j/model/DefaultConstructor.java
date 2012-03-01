@@ -11,7 +11,7 @@ import java.lang.reflect.Modifier;
  * 
  * @author Dave Schoorl
  */
-public class DefaultConstructor implements Instantiator {
+public class DefaultConstructor implements ICreator {
     
     private Constructor<?> defaultConstructor = null;
     

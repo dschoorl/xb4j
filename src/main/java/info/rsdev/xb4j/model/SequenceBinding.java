@@ -24,7 +24,7 @@ public class SequenceBinding extends AbstractBindingContainer implements IBindin
      * @param element
      * @param instantiator
      */
-    public SequenceBinding(QName element, Instantiator instantiator) {
+    public SequenceBinding(QName element, ICreator instantiator) {
     	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
     	setObjectCreator(instantiator);
     }

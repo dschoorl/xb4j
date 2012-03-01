@@ -1,6 +1,5 @@
 package info.rsdev.xb4j.model;
 
-import info.rsdev.xb4j.model.java.IObjectFetchStrategy;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
@@ -47,10 +46,11 @@ public class ComplexTypeBinding extends AbstractBinding {
         setElementFetchStrategy(elementFetcher);
     }
 
-    public ComplexTypeBinding(IElementFetchStrategy elementFetcher, IObjectFetchStrategy objectFetcher, String identifier, String namespaceUri) {
+    public ComplexTypeBinding(IElementFetchStrategy elementFetcher, ICreator instantiator, String identifier, String namespaceUri) {
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
         setElementFetchStrategy(elementFetcher);
+        setObjectCreator(instantiator);
     }
     
     /**

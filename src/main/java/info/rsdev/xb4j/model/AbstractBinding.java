@@ -12,7 +12,7 @@ public abstract class AbstractBinding implements IBinding {
     
 	private IElementFetchStrategy elementFetcher = null;
 	
-	private Instantiator objectCreator = null;
+	private ICreator objectCreator = null;
 	
 //	private IObjectFetchStrategy objectFetcher = null;
 	
@@ -72,7 +72,7 @@ public abstract class AbstractBinding implements IBinding {
     	this.elementFetcher = elementFetcher;
     }
     
-    protected void setObjectCreator(Instantiator objectCreator) {
+    protected void setObjectCreator(ICreator objectCreator) {
         this.objectCreator = objectCreator;
     }
     

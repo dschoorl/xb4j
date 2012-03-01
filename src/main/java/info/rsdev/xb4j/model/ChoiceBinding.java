@@ -1,7 +1,8 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.IChooser;
-import info.rsdev.xb4j.model.java.IObjectFetchStrategy;
+import info.rsdev.xb4j.model.java.InstanceOfChooser;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
@@ -39,11 +40,11 @@ public class ChoiceBinding extends AbstractBinding {
 	 * @param element
 	 * @param instantiator
 	 */
-	public ChoiceBinding(QName element, Instantiator instantiator) { //we don't know what type to unmarshall to; that depends on the child xml.
+	public ChoiceBinding(QName element, ICreator instantiator) { //we don't know what type to unmarshall to; that depends on the child xml.
 		this(new DefaultElementFetchStrategy(element), instantiator);
 	}
 	
-	public ChoiceBinding(IElementFetchStrategy elementFetcher, Instantiator instantiator) {
+	public ChoiceBinding(IElementFetchStrategy elementFetcher, ICreator instantiator) {
 		setElementFetchStrategy(elementFetcher);
 		setObjectCreator(instantiator);
 	}
@@ -64,6 +65,25 @@ public class ChoiceBinding extends AbstractBinding {
 		choice.setGetter(provider);
 		choice.setSetter(provider);
 		
+		return add(choice, selector);
+	}
+	
+	/**
+	 * Convenience method. The {@link IBinding choice} will be registered with this {@link ChoiceBinding}, and an {@link InstanceOfChooser} 
+	 * will be generated for selection of this choice when marshalling. 
+	 * @param choice
+	 * @return
+	 */
+	public IBinding addChoice(IBinding choice) {
+		Class<?> javaType = choice.getJavaType();
+		if (javaType == null) {
+			throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the choice '%s' does not define" +
+					"a Java type", choice));
+		}
+		return add(choice, new InstanceOfChooser(javaType));
+	}
+	
+	private IBinding add(IBinding choice, IChooser selector) {
 		this.choices.put(selector, choice);
 		choice.setParent(this); //maintain bidirectional relationship
 		return choice;

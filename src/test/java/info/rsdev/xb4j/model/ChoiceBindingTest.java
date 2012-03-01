@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import info.rsdev.xb4j.model.java.IObjectFetchStrategy;
 import info.rsdev.xb4j.model.java.InstanceOfChooser;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
@@ -50,7 +49,7 @@ public class ChoiceBindingTest {
 	
 	@Test
 	public void testUnmarshallChoiceNoNamespaces() throws Exception {
-	    Instantiator objectAProvider = mock(Instantiator.class);
+	    ICreator objectAProvider = mock(ICreator.class);
 	    when(objectAProvider.newInstance()).thenReturn(new ObjectA(""));
 	    
 		ChoiceBinding choice = new ChoiceBinding(mock(IElementFetchStrategy.class), objectAProvider);
@@ -65,7 +64,7 @@ public class ChoiceBindingTest {
 		assertEquals("test", ((ObjectA)instance).getName());
 		
 		//unmarshall second option
-		Instantiator objectBProvider = mock(Instantiator.class);
+		ICreator objectBProvider = mock(ICreator.class);
         when(objectBProvider.newInstance()).thenReturn(new ObjectB(""));
         choice.setObjectCreator(objectBProvider);
         
