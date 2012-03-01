@@ -4,7 +4,7 @@ import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
-import info.rsdev.xb4j.model.xml.InheritElementFetchStrategy;
+import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -34,13 +34,13 @@ public class ComplexTypeReference extends AbstractBinding {
     public ComplexTypeReference(String identifier, String namespaceUri) {
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
-        setElementFetchStrategy(new InheritElementFetchStrategy(this));
+        setElementFetchStrategy(new FetchFromParentStrategy(this));
     }
 
     public ComplexTypeReference(Class<?> javaType, String identifier, String namespaceUri) {
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
-        setElementFetchStrategy(new InheritElementFetchStrategy(this));
+        setElementFetchStrategy(new FetchFromParentStrategy(this));
         setObjectCreator(new DefaultConstructor(javaType));
     }
 

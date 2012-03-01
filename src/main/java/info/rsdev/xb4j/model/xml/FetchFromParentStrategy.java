@@ -9,15 +9,15 @@ import javax.xml.namespace.QName;
  * 
  * @author Dave Schoorl
  */
-public class InheritElementFetchStrategy implements IElementFetchStrategy {
+public class FetchFromParentStrategy implements IElementFetchStrategy {
     
     private IBinding thisBinding = null;
     
     /**
-     * Create a new {@link InheritElementFetchStrategy}
-     * @param thisBinding the {@link IBinding} that owns this {@link InheritElementFetchStrategy}
+     * Create a new {@link FetchFromParentStrategy}
+     * @param thisBinding the {@link IBinding} that owns this {@link FetchFromParentStrategy}
      */
-    public InheritElementFetchStrategy(IBinding thisBinding) {
+    public FetchFromParentStrategy(IBinding thisBinding) {
         if (thisBinding == null) {
             throw new NullPointerException("IBinding cannot be null");
         }

@@ -1,7 +1,7 @@
 package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
-import info.rsdev.xb4j.model.xml.InheritElementFetchStrategy;
+import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
 
 import javax.xml.namespace.QName;
 
@@ -15,7 +15,7 @@ public class SequenceBinding extends AbstractBindingContainer implements IBindin
 	 * Create a new {@link SequenceBinding} which inherits it's element and javatype from it's parent
 	 */
 	public SequenceBinding() {
-		setElementFetchStrategy(new InheritElementFetchStrategy(this));
+		setElementFetchStrategy(new FetchFromParentStrategy(this));
 	}
     
     /**

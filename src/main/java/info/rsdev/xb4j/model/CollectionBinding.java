@@ -9,14 +9,16 @@ import java.util.Collection;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 public class CollectionBinding extends AbstractBinding {
 	
 	private IBinding itemBinding = null;
 	
 	public CollectionBinding(Class<?> javaType) {
-		setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
+	    setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
 		setObjectCreator(new DefaultConstructor(javaType));
+		setSetter(new MethodSetter("add"));   //default add method for Collection interface
 	}
 	
 	public IBinding setItem(IBinding itemBinding) {
@@ -34,8 +36,53 @@ public class CollectionBinding extends AbstractBinding {
 	
 	@Override
 	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
-		// TODO Auto-generated method stub
-		return null;
+	    //TODO: also support addmethod on container class, which will add to underlying collection for us
+        Object newJavaContext = newInstance();
+        javaContext = select(javaContext, newJavaContext);
+        
+        if (!(javaContext instanceof Collection<?>)) {
+            throw new Xb4jException(String.format("Not a Collection: %s", javaContext));
+        }
+        
+        //read enclosing collection element (if defined)
+        QName collectionElement = getElement();
+        if (collectionElement != null) {
+            if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
+                QName element = staxReader.getName();
+                if (!isExpected(element)) { //take optional into account??
+                    throw new Xb4jException(String.format("Expected collection tag %s, but encountered element %s",
+                            collectionElement, element));
+                }
+            }
+        }
+        
+        Object result = null;
+        boolean proceed = true;
+        while (proceed) {
+            staxReader.startRecording(); //TODO: support multiple simultaneous recordings (markings)
+            try {
+                result = itemBinding.toJava(staxReader, select(javaContext, newJavaContext));
+                if (proceed = (result != null)) {
+                    setProperty(javaContext, result);
+                    staxReader.stopAndWipeRecording();
+                }
+            } finally {
+                staxReader.rewindAndPlayback();
+            }
+        }
+        
+        //read end of enclosing collection element (if defined)
+        if (collectionElement != null) {
+            if (staxReader.nextTag() == XMLStreamReader.END_ELEMENT) {
+                QName element = staxReader.getName();
+                if (!isExpected(element)) { //take optional into account??
+                    throw new Xb4jException(String.format("Encountered unexpected close tag %s (expected close tag %s",
+                            element, collectionElement));
+                }
+            }
+        }
+        
+		return newJavaContext;
 	}
 	
 	@Override

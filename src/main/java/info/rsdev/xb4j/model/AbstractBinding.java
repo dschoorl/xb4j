@@ -14,8 +14,6 @@ public abstract class AbstractBinding implements IBinding {
 	
 	private ICreator objectCreator = null;
 	
-//	private IObjectFetchStrategy objectFetcher = null;
-	
     private IGetter getter = null;
     
     private ISetter setter = null;
@@ -70,6 +68,10 @@ public abstract class AbstractBinding implements IBinding {
     		throw new NullPointerException("IElementFetchStrategy cannot be null");
     	}
     	this.elementFetcher = elementFetcher;
+    }
+    
+    protected IElementFetchStrategy getElementFetchStrategy() {
+        return this.elementFetcher;
     }
     
     protected void setObjectCreator(ICreator objectCreator) {
@@ -143,7 +145,4 @@ public abstract class AbstractBinding implements IBinding {
         return String.format("%s[element=%s, javaType=%s]", fqClassName.substring(dotIndex), getElement(), getJavaType().getName());
     }
     
-    protected void copyInto(AbstractBinding copy) {
-        
-    }
 }

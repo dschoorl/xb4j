@@ -24,11 +24,11 @@ public class FieldAccessProvider implements ISetter, IGetter {
 	public boolean set(Object contextInstance, Object propertyValue) {
 		try {
 			getField(contextInstance.getClass(), this.fieldName).set(contextInstance, propertyValue);
+			return true;
 		} catch (Exception e) {
 			throw new Xb4jException(String.format("Could not set field '%s' with value '%s' in object '%s'", 
 			        fieldName, propertyValue, contextInstance), e);
 		}
-		return true;
 	}
 	
 	@Override

@@ -7,7 +7,7 @@ import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
-import info.rsdev.xb4j.model.xml.InheritElementFetchStrategy;
+import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class ChoiceBinding extends AbstractBinding {
 	 * set (so this won't work)
 	 */
 	public ChoiceBinding() {
-		setElementFetchStrategy(new InheritElementFetchStrategy(this));
+		setElementFetchStrategy(new FetchFromParentStrategy(this));
 	}
 	
 	/**

@@ -1,6 +1,7 @@
 package info.rsdev.xb4j.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import info.rsdev.xb4j.test.ObjectTree;
@@ -8,6 +9,7 @@ import info.rsdev.xb4j.test.ObjectTree;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.xml.namespace.QName;
 
@@ -52,6 +54,7 @@ public class CollectionBindingTest {
         ObjectTree tree = (ObjectTree)instance;
         assertNotNull(tree.getMessages());
         assertEquals(2, tree.getMessages().size());
+        assertArrayEquals(new String[] {"bericht1", "bericht2"}, tree.getMessages().toArray());
 	}
 	
 }
