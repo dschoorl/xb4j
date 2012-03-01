@@ -23,6 +23,8 @@ public abstract class AbstractBinding implements IBinding {
     
     private IBinding parent = null;
     
+    private boolean isOptional = false;
+    
     public AbstractBinding() { }
     
     /**
@@ -139,6 +141,15 @@ public abstract class AbstractBinding implements IBinding {
     		throw new NullPointerException("QName cannot be null");
     	}
         return element.equals(getElement());
+    }
+    
+    public boolean isOptional() {
+        return this.isOptional;
+    }
+    
+    public IBinding setOptional(boolean isOptional) {
+        this.isOptional = isOptional;
+        return this;
     }
     
     @Override

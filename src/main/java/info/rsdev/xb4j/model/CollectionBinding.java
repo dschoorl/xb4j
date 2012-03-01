@@ -5,6 +5,7 @@ import info.rsdev.xb4j.model.java.accessor.MethodSetter;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
+import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
 import java.util.Collection;
@@ -23,6 +24,12 @@ public class CollectionBinding extends AbstractBinding {
 		setSetter(new MethodSetter("add"));   //default add method for Collection interface
 	}
 	
+    public CollectionBinding(QName element, Class<?> javaType) {
+        setElementFetchStrategy(new DefaultElementFetchStrategy(element));
+        setObjectCreator(new DefaultConstructor(javaType));
+        setSetter(new MethodSetter("add"));   //default add method for Collection interface
+    }
+    
 	public IBinding setItem(IBinding itemBinding) {
 		if (itemBinding == null) {
 			throw new NullPointerException("Binding for collection items cannot be null");

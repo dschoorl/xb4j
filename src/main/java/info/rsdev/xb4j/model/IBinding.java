@@ -41,4 +41,8 @@ public interface IBinding {
     public void setGetter(IGetter getter);
     
     public void setSetter(ISetter setter);
+    
+    public boolean isOptional();
+    
+    public IBinding setOptional(boolean isOptional);
 }
