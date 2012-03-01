@@ -1,5 +1,8 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
+import info.rsdev.xb4j.model.java.accessor.IGetter;
+import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 

@@ -1,5 +1,7 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
+import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
 

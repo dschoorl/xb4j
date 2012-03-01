@@ -1,6 +1,7 @@
 package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 
 import javax.xml.XMLConstants;

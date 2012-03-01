@@ -1,5 +1,7 @@
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.java.constructor;
 
+import info.rsdev.xb4j.model.IBinding;
+import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 
 /**

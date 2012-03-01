@@ -1,4 +1,4 @@
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 
