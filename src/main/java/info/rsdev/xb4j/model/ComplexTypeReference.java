@@ -37,6 +37,13 @@ public class ComplexTypeReference extends AbstractBinding {
         setElementFetchStrategy(new InheritElementFetchStrategy(this));
     }
 
+    public ComplexTypeReference(Class<?> javaType, String identifier, String namespaceUri) {
+        setIdentifier(identifier);
+        setNamespaceUri(namespaceUri);
+        setElementFetchStrategy(new InheritElementFetchStrategy(this));
+        setObjectCreator(new DefaultConstructor(javaType));
+    }
+
     public ComplexTypeReference(IElementFetchStrategy elementFetcher, String identifier, String namespaceUri) {
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
@@ -44,9 +51,14 @@ public class ComplexTypeReference extends AbstractBinding {
     }
 
     @Override
-    public Object toJava(RecordAndPlaybackXMLStreamReader stream) throws XMLStreamException {
-        //check if there is a setter / objectfetcher defined
-        return getReferencedBinding().toJava(stream);
+    public Object toJava(RecordAndPlaybackXMLStreamReader stream, Object javaContext) throws XMLStreamException {
+		Object newJavaContext = newInstance();	//use getter on supplied javaContext??
+		javaContext = select(javaContext, newJavaContext);
+		Object result = getReferencedBinding().toJava(stream, javaContext);
+		if (hasSetter()) {
+			setProperty(javaContext, result);
+		}
+        return newJavaContext;
     }
 
     @Override

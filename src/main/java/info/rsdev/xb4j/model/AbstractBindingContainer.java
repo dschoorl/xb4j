@@ -97,20 +97,20 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
     }
     
     @Override
-    public Object toJava(RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
-        Object javaContext = null;
+    public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    	Object newJavaContext = null;
         if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
             QName element = staxReader.getName();
             if (isExpected(element)) {
-                javaContext = newInstance();    //or instance is passed on - through a stack somewhere?
+            	newJavaContext = newInstance();    //or instance is passed on - through a stack somewhere?
                 for (IBinding child: getChildren()) {
-                    Object childContext = child.toJava(staxReader);
-                    setProperty(javaContext, childContext);
+                    Object childContext = child.toJava(staxReader, select(javaContext, newJavaContext));
+                    setProperty(newJavaContext, childContext);
                 }
             }
         }
         
-        return javaContext;
+        return newJavaContext;
     }
     
     public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {

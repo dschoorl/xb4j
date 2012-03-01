@@ -118,8 +118,14 @@ public class ComplexTypeBinding extends AbstractBinding {
     	this.namespaceUri = newNamespaceUri;
     }
 
-	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
-		return childBinding.toJava(staxReader);
+	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+		Object newJavaContext = newInstance();
+		javaContext = select(javaContext, newJavaContext);
+		Object result = childBinding.toJava(staxReader, javaContext);
+		if (hasSetter()) {
+			setProperty(javaContext, result);
+		}
+		return newJavaContext;
 	}
 
 	@Override

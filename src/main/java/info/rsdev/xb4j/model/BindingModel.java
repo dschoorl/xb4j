@@ -83,7 +83,7 @@ public class BindingModel {
                 QName element = staxReader.getName();
                 if (xmlToClass.containsKey(element)) {
                     RootBinding binding = xmlToClass.get(element);
-                    return binding.toJava(staxReader);//context.unmarshall(staxReader, binding, null);
+                    return binding.toJava(staxReader, null);//context.unmarshall(staxReader, binding, null);
                 }
             }
         } catch (XMLStreamException e) {

@@ -110,13 +110,14 @@ public class ChoiceBinding extends AbstractBinding {
 	}
 	
 	@Override
-	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
+	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+		Object newJavaContext = newInstance();
 		Object result = null;
 		IBinding resultBinding = null;
 		for (IBinding candidate: this.choices.values()) {
 			staxReader.startRecording(); //TODO: support multiple simultaneous recordings (markings)
 			try {
-				result = candidate.toJava(staxReader);
+				result = candidate.toJava(staxReader, select(javaContext, newJavaContext));
 				if (result != null) {
 					staxReader.stopAndWipeRecording();
 					resultBinding = candidate; 
@@ -127,13 +128,12 @@ public class ChoiceBinding extends AbstractBinding {
 			}
 		}
 		
-		Object javaContext = null;
 		if (resultBinding != null) {
-		    javaContext = newInstance(); //get current object from stack???
+		    javaContext = select(javaContext, newJavaContext);
 		    resultBinding.setProperty(javaContext, result);
 		}
 		
-		return javaContext;
+		return newJavaContext;
 	}
 	
 }

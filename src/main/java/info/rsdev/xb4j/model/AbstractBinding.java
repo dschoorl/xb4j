@@ -58,11 +58,11 @@ public abstract class AbstractBinding implements IBinding {
         return null;
     }
     
-    protected Object getJavaContext(Object javaContext) {
-        if (this.objectCreator != null) {
-            return newInstance();
+    protected Object select(Object javaContext, Object newJavaContext) {
+        if (newJavaContext != null) {
+            return newJavaContext;
         }
-        return javaContext;
+        return javaContext;	//TODO: must we detect when both are null? That's worth an Exception, right?
     }
     
     protected void setElementFetchStrategy(IElementFetchStrategy elementFetcher) {
@@ -112,6 +112,14 @@ public abstract class AbstractBinding implements IBinding {
 //    		throw new NullPointerException(String.format("No setter available. Cannot set property value '%s' on %s", propertyValue, contextInstance));
     	}
         return this.setter.set(contextInstance, propertyValue);
+    }
+    
+    protected boolean hasSetter() {
+    	return this.setter != null;
+    }
+    
+    protected boolean hasGetter() {
+    	return this.getter != null;
     }
     
     public Object getProperty(Object contextInstance) {

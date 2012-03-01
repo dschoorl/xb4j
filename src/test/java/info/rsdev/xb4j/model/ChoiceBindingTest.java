@@ -58,7 +58,7 @@ public class ChoiceBindingTest {
 		
 		//unmarshall first option
 		ByteArrayInputStream stream = new ByteArrayInputStream("<elem1>test</elem1>".getBytes());
-		Object instance = choice.toJava(new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream)));
+		Object instance = choice.toJava(new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream)), null);
 		assertNotNull(instance);
 		assertSame(ObjectA.class, instance.getClass());
 		assertEquals("test", ((ObjectA)instance).getName());
@@ -69,7 +69,7 @@ public class ChoiceBindingTest {
         choice.setObjectCreator(objectBProvider);
         
 		stream = new ByteArrayInputStream("<elem2>test</elem2>".getBytes());
-		instance = choice.toJava(new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream)));
+		instance = choice.toJava(new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream)), null);
 		assertNotNull(instance);
 		assertSame(ObjectB.class, instance.getClass());
 		assertEquals("test", ((ObjectB)instance).getValue());

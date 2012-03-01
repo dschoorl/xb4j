@@ -38,7 +38,7 @@ public class SimpleTypeBinding extends AbstractBinding {
     }
 
     @Override
-    public Object toJava(RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
+    public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         Object value = null;
         if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
             QName element = staxReader.getName();
