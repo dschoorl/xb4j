@@ -56,12 +56,12 @@ public class ComplexTypeBindingTest {
     
     @Test
     public void testUnmarshallComplexType() {
-        //Unmarshall ObjectA
+    	//Unmarshall ObjectA
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><name>test</name></root>".getBytes());
-        Object instance = null;//model.toJava(stream);
-//        assertNotNull(instance);
-//        assertSame(ObjectA.class, instance.getClass());
-//        assertEquals("test", ((ObjectA)instance).getName());
+        Object instance = model.toJava(stream);
+        assertNotNull(instance);
+        assertSame(ObjectA.class, instance.getClass());
+        assertEquals("test", ((ObjectA)instance).getName());
         
         //unmarshall ObjectTree
         stream = new ByteArrayInputStream("<directory><name>test</name></directory>".getBytes());
