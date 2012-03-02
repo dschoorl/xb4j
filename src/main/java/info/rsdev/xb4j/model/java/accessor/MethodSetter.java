@@ -25,16 +25,17 @@ public class MethodSetter implements ISetter {
     @Override
     public boolean set(Object javaContext, Object propertyValue) {
         try {
-            getMethod(javaContext.getClass(), this.methodname).invoke(javaContext, propertyValue);
+        	Class<?> parameterType = (propertyValue==null?null:propertyValue.getClass());
+            getMethod(javaContext.getClass(), this.methodname, parameterType).invoke(javaContext, propertyValue);
         } catch (Exception e) {
-            throw new Xb4jException(String.format("Could not set value '%s' in object '%s' through method '%'", 
+            throw new Xb4jException(String.format("Could not set value '%s' in object '%s' through method '%s'", 
                     propertyValue, javaContext, this.methodname));
         }
         return false;
     }
     
-    private Method getMethod(Class<?> contextType, String methodName) {
-        if (contextType == null) {
+    private Method getMethod(Class<?> objectType, String methodName, Class<?> parameterType) {
+        if (objectType == null) {
             throw new NullPointerException("Type cannot be null");
         }
         if (methodName == null) {
@@ -42,20 +43,26 @@ public class MethodSetter implements ISetter {
         }
         
         Method targetMethod = null;
-        Class<?> candidateClass = contextType;
+        Class<?> candidateClass = objectType;
         while ((candidateClass != null) && (targetMethod == null)) {
             for (Method candidate: candidateClass.getDeclaredMethods()) {
                 if (candidate.getName().equals(methodName)) {
-                    targetMethod = candidate;   //TODO: check parameters
-                    break;
+                	Class<?>[] parameters = candidate.getParameterTypes();
+                	if (parameters.length == 1) {
+                		if ((parameterType != null) && !parameters[0].isAssignableFrom(parameterType)) { 
+                			continue;	//not the right parametertype: look at the next methods
+                		}
+                		targetMethod = candidate;
+                		break;
+                	}
                 }
             }
             
             if (targetMethod ==  null) {
                 candidateClass = candidateClass.getSuperclass();
                 if (candidateClass == null) {
-                    throw new IllegalStateException(String.format("Method '%s' is not definied in the entire class hierarchy " +
-                            "of '%s'.",methodName, contextType.getName()));
+                    throw new IllegalStateException(String.format("Method '%s', taking single parameter of type '%s', is not " +
+                    		"definied in the entire class hierarchy of '%s'.", methodName, parameterType, objectType.getName()));
                 }
             }
         }
