@@ -15,7 +15,7 @@ public class SequenceBindingTest {
 	@Test
 	public void testMarshallMultipleElementsNoNamespace() {
 		RootBinding root = new RootBinding(new QName("root"), ObjectC.class);
-		SequenceBinding sequence = root.add(new SequenceBinding());
+		SequenceBinding sequence = root.setChild(new SequenceBinding());
 		sequence.add(new SimpleTypeBinding(new QName("naam")), "name");
 		sequence.add(new SimpleTypeBinding(new QName("omschrijving")), "description");
 		BindingModel model = new BindingModel().register(root);

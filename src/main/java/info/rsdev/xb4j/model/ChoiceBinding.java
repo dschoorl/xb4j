@@ -25,9 +25,9 @@ import javax.xml.stream.XMLStreamException;
  * 
  * @author Dave Schoorl
  */
-public class ChoiceBinding extends AbstractBinding {
+public class ChoiceBinding extends AbstractSingleBinding {
 	
-	private Map<IChooser, IBinding> choices = new HashMap<IChooser, IBinding>();
+	private Map<IChooser, IBindingBase> choices = new HashMap<IChooser, IBindingBase>();
 	
 	/**
 	 * Create a new {@link ChoiceBinding}. No {@link IElementFetchStrategy} nor {@link IObjectFetchStrategy} are currently
@@ -53,7 +53,7 @@ public class ChoiceBinding extends AbstractBinding {
 	}
 	
 	/**
-	 * Create a new {@link AbstractBinding} where the javaType will be created with a {@link DefaultConstructor}
+	 * Create a new {@link AbstractBindingBase} where the javaType will be created with a {@link DefaultConstructor}
 	 * 
 	 * @param element
 	 * @param javaType
@@ -62,7 +62,7 @@ public class ChoiceBinding extends AbstractBinding {
 		this(element, new DefaultConstructor(javaType));
 	}
 	
-	public IBinding addChoice(IBinding choice, String fieldName, IChooser selector) {
+	public IBindingBase addChoice(IBindingBase choice, String fieldName, IChooser selector) {
 		//Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
 		FieldAccessProvider provider = new FieldAccessProvider(fieldName);
 		choice.setGetter(provider);
@@ -72,12 +72,12 @@ public class ChoiceBinding extends AbstractBinding {
 	}
 	
 	/**
-	 * Convenience method. The {@link IBinding choice} will be registered with this {@link ChoiceBinding}, and an {@link InstanceOfChooser} 
+	 * Convenience method. The {@link IBindingBase choice} will be registered with this {@link ChoiceBinding}, and an {@link InstanceOfChooser} 
 	 * will be generated for selection of this choice when marshalling. 
 	 * @param choice
 	 * @return
 	 */
-	public IBinding addChoice(IBinding choice) {
+	public IBindingBase addChoice(IBindingBase choice) {
 		Class<?> javaType = choice.getJavaType();
 		if (javaType == null) {
 			throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the choice '%s' does not define" +
@@ -86,19 +86,19 @@ public class ChoiceBinding extends AbstractBinding {
 		return add(choice, new InstanceOfChooser(javaType));
 	}
 	
-	private IBinding add(IBinding choice, IChooser selector) {
+	private IBindingBase add(IBindingBase choice, IChooser selector) {
 		this.choices.put(selector, choice);
 		choice.setParent(this); //maintain bidirectional relationship
 		return choice;
 	}
 	
 	public SequenceBinding addChoice(SequenceBinding choice, String fieldName, IChooser selector) {
-		addChoice((IBinding)choice, fieldName, selector);
+		addChoice((IBindingBase)choice, fieldName, selector);
 		return choice;
 	}
 	
-	private IBinding selectBinding(Object javaContext) {
-		for (Entry<IChooser, IBinding> entry: this.choices.entrySet()) {
+	private IBindingBase selectBinding(Object javaContext) {
+		for (Entry<IChooser, IBindingBase> entry: this.choices.entrySet()) {
 			if (entry.getKey().matches(javaContext)) {
 				return entry.getValue();
 			}
@@ -108,7 +108,7 @@ public class ChoiceBinding extends AbstractBinding {
 	
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
-		IBinding selected = selectBinding(javaContext);
+		IBindingBase selected = selectBinding(javaContext);
 		selected.toXml(staxWriter, javaContext);	//how determine getter/setter to use
 	}
 	
@@ -116,8 +116,8 @@ public class ChoiceBinding extends AbstractBinding {
 	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 		Object newJavaContext = newInstance();
 		Object result = null;
-		IBinding resultBinding = null;
-		for (IBinding candidate: this.choices.values()) {
+		IBindingBase resultBinding = null;
+		for (IBindingBase candidate: this.choices.values()) {
 			staxReader.startRecording(); //TODO: support multiple simultaneous recordings (markings)
 			try {
 				result = candidate.toJava(staxReader, select(javaContext, newJavaContext));

@@ -14,11 +14,11 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-public class CollectionBinding extends AbstractBinding {
+public class CollectionBinding extends AbstractBindingBase {
 	
 	public static final int UNBOUNDED = Integer.MAX_VALUE;
 	
-	private IBinding itemBinding = null;
+	private IBindingBase itemBinding = null;
 	
 	private int maxOccurs = UNBOUNDED;
 	
@@ -34,7 +34,7 @@ public class CollectionBinding extends AbstractBinding {
         
     }
     
-	public IBinding setItem(IBinding itemBinding) {
+	public IBindingBase setItem(IBindingBase itemBinding) {
 		if (itemBinding == null) {
 			throw new NullPointerException("Binding for collection items cannot be null");
 		}
@@ -43,7 +43,7 @@ public class CollectionBinding extends AbstractBinding {
 	}
 	
 	public ChoiceBinding setItem(ChoiceBinding itemBinding) {
-		setItem((IBinding)itemBinding);
+		setItem((IBindingBase)itemBinding);
 		return itemBinding;
 	}
 	

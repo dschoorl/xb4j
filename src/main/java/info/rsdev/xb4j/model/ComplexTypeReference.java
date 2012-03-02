@@ -4,8 +4,8 @@ import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
-import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
+import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -17,7 +17,7 @@ import javax.xml.stream.XMLStreamException;
  * 
  * @author Dave Schoorl
  */
-public class ComplexTypeReference extends AbstractBinding {
+public class ComplexTypeReference extends AbstractSingleBinding {
 
     private String identifier = null;
 
@@ -55,9 +55,7 @@ public class ComplexTypeReference extends AbstractBinding {
     public Object toJava(RecordAndPlaybackXMLStreamReader stream, Object javaContext) throws XMLStreamException {
 		Object newJavaContext = newInstance();	//use getter on supplied javaContext??
 		getReferencedBinding().toJava(stream, select(javaContext, newJavaContext));
-		if (hasSetter()) {
-			setProperty(javaContext, newJavaContext);
-		}
+		setProperty(javaContext, newJavaContext);
         return newJavaContext;
     }
 

@@ -50,7 +50,7 @@ public class FieldAccessProvider implements ISetter, IGetter {
 		
 		Field targetField = null;
 		Class<?> candidateClass = contextType;
-		while ((candidateClass != null) && (targetField == null)) {
+		while (targetField == null) {
 			for (Field candidate: candidateClass.getDeclaredFields()) {
 				if (candidate.getName().equals(fieldName)) {
 					targetField = candidate;
@@ -66,12 +66,10 @@ public class FieldAccessProvider implements ISetter, IGetter {
 			}
 		}
 		
-		if (targetField != null) {
-			if (!Modifier.isPublic(((Member)targetField).getModifiers()) || !Modifier.isPublic(((Member)targetField).getDeclaringClass().getModifiers())) {
-				targetField.setAccessible(true);
-			}
-			//TODO: check if the field is final? warn if static?
+		if (!Modifier.isPublic(((Member)targetField).getModifiers()) || !Modifier.isPublic(((Member)targetField).getDeclaringClass().getModifiers())) {
+			targetField.setAccessible(true);
 		}
+		//TODO: check if the field is final? warn if static?
 		
 		return targetField;
 	}

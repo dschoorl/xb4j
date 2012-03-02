@@ -20,9 +20,7 @@ import javax.xml.stream.XMLStreamReader;
  * 
  * @author Dave Schoorl
  */
-public class ElementBinding extends AbstractBinding {
-	
-	private IBinding childBinding = null;
+public class ElementBinding extends AbstractSingleBinding {
 	
     public ElementBinding() {
     	setElementFetchStrategy(new FetchFromParentStrategy(this));
@@ -46,14 +44,6 @@ public class ElementBinding extends AbstractBinding {
     	setObjectCreator(creator);
     }
     
-    public ElementBinding setChild(IBinding childBinding) {
-    	if (this.childBinding == null) {
-    		throw new NullPointerException("Child IBinding must not be null when you explicitly set it");
-    	}
-    	this.childBinding = childBinding;
-    	return this;
-    }
-
     @Override
     public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         Object newJavaContext = null;
@@ -61,6 +51,7 @@ public class ElementBinding extends AbstractBinding {
             QName element = staxReader.getName();
             if (isExpected(element)) {
             	newJavaContext = newInstance();
+            	IBindingBase childBinding = getChildBinding();
             	if (childBinding != null) {
             		childBinding.toJava(staxReader, select(javaContext, newJavaContext));
             	}
@@ -77,13 +68,14 @@ public class ElementBinding extends AbstractBinding {
         QName element = getElement();
         
         //mixed content is not yet supported -- there are either child elements or there is content
-        boolean isEmptyElement = this.childBinding == null;
+    	IBindingBase childBinding = getChildBinding();
+        boolean isEmptyElement = childBinding == null;
         if (element != null) {
             staxWriter.writeElement(element, isEmptyElement);
         }
         
-        if (this.childBinding != null) {
-        	this.childBinding.toXml(staxWriter, getProperty(javaContext));
+        if (childBinding != null) {
+        	childBinding.toXml(staxWriter, getProperty(javaContext));
         }
         
         if (!isEmptyElement && (element != null)) {

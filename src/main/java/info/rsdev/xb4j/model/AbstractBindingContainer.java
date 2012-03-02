@@ -15,9 +15,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 
-public abstract class AbstractBindingContainer extends AbstractBinding implements IBindingContainer {
+public abstract class AbstractBindingContainer extends AbstractBindingBase implements IBindingContainer {
 
-    private ArrayList<IBinding> children = new ArrayList<IBinding>();
+    private ArrayList<IBindingBase> children = new ArrayList<IBindingBase>();
     
     /**
      * <p>When unmarshalling, the child binding will know how to get from the current element to the next one. Which
@@ -25,7 +25,7 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
      * @param childBinding
      * @return the childBinding
      */
-    public IBinding add(IBinding childBinding, IGetter getter, ISetter setter) {
+    public IBindingBase add(IBindingBase childBinding, IGetter getter, ISetter setter) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
@@ -43,7 +43,7 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
      * @param fieldName
      * @return the childBinding
      */
-    public IBinding add(IBinding childBinding, String fieldName) {
+    public IBindingBase add(IBindingBase childBinding, String fieldName) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
@@ -58,25 +58,25 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
     }
 
     /**
-     * Add a {@link IBinding} to a binding container. A bidirectional relationship will be established between the
+     * Add a {@link IBindingBase} to a binding container. A bidirectional relationship will be established between the
      * container and the child.
      * 
      * @param childBinding the binding to add to this group
      * @return the childBinding
      */
-    public IBinding add(IBinding childBinding) {
+    private IBindingBase add(IBindingBase childBinding) {
         this.children.add(childBinding);
         childBinding.setParent(this);   //maintain bidirectional relationship
         return childBinding;
     }
     
     public ChoiceBinding add(ChoiceBinding childBinding) {
-    	add((IBinding)childBinding);
+    	add((IBindingBase)childBinding);
     	return childBinding;
     }
     
     public ComplexTypeBinding add(ComplexTypeBinding childBinding) {
-    	add((IBinding)childBinding);
+    	add((IBindingBase)childBinding);
     	return childBinding;
     }
     
@@ -85,17 +85,17 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
      * @return the {@link SequenceBinding} that was added to this binding container
      */
     public SequenceBinding add(SequenceBinding childBinding) {
-    	add((IBinding)childBinding);
+    	add((IBindingBase)childBinding);
     	return childBinding;
     }
     
 	@Override
 	public IBindingContainer add(IBindingContainer childContainer) {
-		add((IBinding)childContainer);
+		add((IBindingBase)childContainer);
 		return childContainer;
 	}
 
-    public Collection<IBinding> getChildren() {
+    public Collection<IBindingBase> getChildren() {
         return Collections.unmodifiableList(this.children);
     }
     
@@ -106,7 +106,7 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
             QName element = staxReader.getName();
             if (isExpected(element)) {
             	newJavaContext = newInstance();
-                for (IBinding child: getChildren()) {
+                for (IBindingBase child: getChildren()) {
                     Object childContext = child.toJava(staxReader, select(javaContext, newJavaContext));
                     setProperty(newJavaContext, childContext);
                 }
@@ -121,13 +121,13 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
         QName element = getElement();
         
         //mixed content is not yet supported -- there are either child elements or there is content
-        Collection<IBinding> children = getChildren();
+        Collection<IBindingBase> children = getChildren();
         boolean isEmptyElement = children.isEmpty();
         if (element != null) {
             staxWriter.writeElement(element, isEmptyElement);
         }
         
-        for (IBinding child: children) {
+        for (IBindingBase child: children) {
             child.toXml(staxWriter, getProperty(javaContext));
         }
         

@@ -15,7 +15,7 @@ import javax.xml.namespace.QName;
  * 
  * @author Dave Schoorl
  */
-public class RootBinding extends AbstractBindingContainer implements IBinding {
+public class RootBinding extends ElementBinding {
 	
     private BindingModel model = null;
     
@@ -50,7 +50,7 @@ public class RootBinding extends AbstractBindingContainer implements IBinding {
 	}
 	
 	@Override
-	public IBinding setOptional(boolean isOptional) {
+	public IBindingBase setOptional(boolean isOptional) {
 		throw new Xb4jException("A RootBinding cannot be made optional");
 	}
 }

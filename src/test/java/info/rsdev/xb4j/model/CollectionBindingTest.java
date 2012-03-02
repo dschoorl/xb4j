@@ -24,7 +24,7 @@ public class CollectionBindingTest {
 	public void testMarshallValueCollectionNoContainerElement() {
 		//fixture
         RootBinding root = new RootBinding(new QName("root"), ObjectTree.class);
-        CollectionBinding collection = (CollectionBinding)root.add(new CollectionBinding(ArrayList.class), "messages");
+        CollectionBinding collection = (CollectionBinding)root.setChild(new CollectionBinding(ArrayList.class), "messages");
         collection.setItem(new SimpleTypeBinding(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         
@@ -42,7 +42,7 @@ public class CollectionBindingTest {
     public void testMarshallValueCollectionWithContainerElement() {
         //fixture
         RootBinding root = new RootBinding(new QName("root"), ObjectTree.class);
-        CollectionBinding collection = (CollectionBinding)root.add(new CollectionBinding(new QName("collection"), ArrayList.class), "messages");
+        CollectionBinding collection = (CollectionBinding)root.setChild(new CollectionBinding(new QName("collection"), ArrayList.class), "messages");
         collection.setItem(new SimpleTypeBinding(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         
@@ -60,7 +60,7 @@ public class CollectionBindingTest {
 	public void testUnmarshallValueCollectionNoContainerElement() {
 		//fixture
         RootBinding root = new RootBinding(new QName("root"), ObjectTree.class);
-        CollectionBinding collection = (CollectionBinding)root.add(new CollectionBinding(ArrayList.class), "messages");
+        CollectionBinding collection = (CollectionBinding)root.setChild(new CollectionBinding(ArrayList.class), "messages");
         collection.setItem(new SimpleTypeBinding(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         
@@ -78,7 +78,7 @@ public class CollectionBindingTest {
     public void testUnmarshallValueCollectionWithContainerElement() {
         //fixture
         RootBinding root = new RootBinding(new QName("root"), ObjectTree.class);
-        CollectionBinding collection = (CollectionBinding)root.add(new CollectionBinding(new QName("collection"), ArrayList.class), "messages");
+        CollectionBinding collection = (CollectionBinding)root.setChild(new CollectionBinding(new QName("collection"), ArrayList.class), "messages");
         collection.setItem(new SimpleTypeBinding(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         

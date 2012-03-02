@@ -22,21 +22,26 @@ import javax.xml.stream.XMLStreamException;
  * @see ComplexTypeReference
  * @author Dave Schoorl
  */
-public class ComplexTypeBinding extends AbstractBinding {
+public class ComplexTypeBinding extends AbstractBindingBase {
     
     private String identifier = null;
     
     private String namespaceUri = null;
     
-    private IBinding childBinding = null;
+    private IBindingBase childBinding = null;
 	
-    public ComplexTypeBinding(QName element, Class<?> javaType, String identifier, String namespaceUri) {
-        setIdentifier(identifier);
-        setNamespaceUri(namespaceUri);
+    public ComplexTypeBinding(QName element, Class<?> javaType) {
         setElementFetchStrategy(new DefaultElementFetchStrategy(element));
         setObjectCreator(new DefaultConstructor(javaType));
+        setIdentifier(element.getLocalPart());
+        setNamespaceUri(element.getNamespaceURI());
     }
 
+    /**
+     * Create a new {@link ComplexTypeBinding} with the purpose to be referenced by a {@link ComplexTypeReference}
+     * @param identifier
+     * @param namespaceUri
+     */
     public ComplexTypeBinding(String identifier, String namespaceUri) {
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
@@ -67,7 +72,7 @@ public class ComplexTypeBinding extends AbstractBinding {
         this.childBinding = original.childBinding;
     }
     
-    public IBinding setChild(IBinding childBinding, String fieldName) {
+    public IBindingBase setChild(IBindingBase childBinding, String fieldName) {
         if (fieldName == null) {
             throw new NullPointerException("Fieldname cannot be null");
         }
@@ -78,7 +83,7 @@ public class ComplexTypeBinding extends AbstractBinding {
         return setChild(childBinding);
     }
     
-    public IBinding setChild(IBinding childBinding) {
+    public IBindingBase setChild(IBindingBase childBinding) {
     	if (childBinding == null) {
     		throw new NullPointerException(String.format("Childbinding for %s cannot be null", this));
     	}
@@ -90,12 +95,12 @@ public class ComplexTypeBinding extends AbstractBinding {
     }
     
     public SequenceBinding setChild(SequenceBinding childBinding) {
-    	setChild((IBinding)childBinding);
+    	setChild((IBindingBase)childBinding);
     	return childBinding;
     }
 
     public ChoiceBinding setChild(ChoiceBinding childBinding) {
-    	setChild((IBinding)childBinding);
+    	setChild((IBindingBase)childBinding);
     	return childBinding;
     }
 
@@ -125,9 +130,7 @@ public class ComplexTypeBinding extends AbstractBinding {
 		Object newJavaContext = newInstance();
 		javaContext = select(javaContext, newJavaContext);
 		Object result = childBinding.toJava(staxReader, javaContext);
-		if (hasSetter()) {
-			setProperty(javaContext, result);
-		}
+		setProperty(javaContext, result);
 		return newJavaContext;
 	}
 

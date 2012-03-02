@@ -8,7 +8,7 @@ import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
  * 
  * @author Dave Schoorl
  */
-public class SequenceBinding extends AbstractBindingContainer implements IBindingContainer {
+public class SequenceBinding extends AbstractBindingContainer {
 	
 	/**
 	 * Create a new {@link SequenceBinding} which inherits it's element and javatype from it's parent

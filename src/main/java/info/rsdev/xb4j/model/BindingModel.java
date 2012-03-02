@@ -1,5 +1,6 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 
@@ -91,11 +92,13 @@ public class BindingModel {
         } catch (FactoryConfigurationError e) {
             log.error("Exception occured when creating reader for xml stream", e);
         } finally {
-            try {
-                staxReader.close();
-            } catch (XMLStreamException e) {
-                log.error("Exception occured when closing xml stream", e);
-            }
+        	if (staxReader != null) {
+	            try {
+	                staxReader.close();
+	            } catch (XMLStreamException e) {
+	                log.error("Exception occured when closing xml stream", e);
+	            }
+        	}
         }
         return null;
     }
@@ -137,10 +140,14 @@ public class BindingModel {
         if (complexType == null) {
             throw new NullPointerException("ComplexTypeBinding cannot be null");
         }
+        if (complexType.getParent() != null) {
+        	throw new Xb4jException(String.format("ComplexType %s cannot be registered when it is part of a binding hierarchy; " +
+        			"substitute with ComplexTypeReference in the binding hierarchy where applicable.", complexType));
+        }
         QName fqComplexTypeName = new QName(complexType.getNamespace(), complexType.getIdentifier());
         if (this.complexTypes.containsKey(fqComplexTypeName)) {
             throw new IllegalArgumentException(String.format("Cannot register ComplexTypeBinding '%s', because another one (%s) is " +
-    				"already registered with identifier='%s' and namespace='%'", complexType, complexTypes.get(fqComplexTypeName), 
+    				"already registered with identifier='%s' and namespace='%s'", complexType, complexTypes.get(fqComplexTypeName), 
     				complexType.getIdentifier(), complexType.getNamespace()));
         }
         this.complexTypes.put(fqComplexTypeName, complexType);

@@ -10,11 +10,12 @@ import javax.xml.stream.XMLStreamException;
 
 
 /**
- * This interface defines how to transform from Java instance to xml and visa versa
+ * This interface defines how to transform from Java instance to xml and visa versa, regardless whether the binding represents
+ * a single element or a group of elements.
  * 
  * @author Dave Schoorl
  */
-public interface IBinding {
+public interface IBindingBase {
     
     public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException;
     
@@ -22,11 +23,11 @@ public interface IBinding {
     
     /**
      * Bindings are organized in a hierarchy. Call setParent to build the hierarchy of bindings.
-     * @param parent the parent {@link IBinding} that this binding is a child of.
+     * @param parent the parent {@link IBindingBase} that this binding is a child of.
      */
-    public void setParent(IBinding parent);
+    public void setParent(IBindingBase parent);
     
-    public IBinding getParent();
+    public IBindingBase getParent();
     
     public QName getElement();
     
@@ -38,11 +39,11 @@ public interface IBinding {
     
     public boolean setProperty(Object contextInstance, Object propertyValue);
     
-    public IBinding setGetter(IGetter getter);
+    public IBindingBase setGetter(IGetter getter);
     
-    public IBinding setSetter(ISetter setter);
+    public IBindingBase setSetter(ISetter setter);
     
     public boolean isOptional();
     
-    public IBinding setOptional(boolean isOptional);
+    public IBindingBase setOptional(boolean isOptional);
 }

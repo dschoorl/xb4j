@@ -2,6 +2,8 @@ package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
+import info.rsdev.xb4j.model.java.accessor.NoGetter;
+import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 
@@ -11,7 +13,7 @@ import javax.xml.namespace.QName;
  *
  * @author Dave Schoorl
  */
-public abstract class AbstractBinding implements IBinding {
+public abstract class AbstractBindingBase implements IBindingBase {
     
 	private IElementFetchStrategy elementFetcher = null;
 	
@@ -21,18 +23,21 @@ public abstract class AbstractBinding implements IBinding {
     
     private ISetter setter = null;
     
-    private IBinding parent = null;
+    private IBindingBase parent = null;
     
     private boolean isOptional = false;
     
-    public AbstractBinding() { }
+    public AbstractBindingBase() {
+    	this.getter = NoGetter.INSTANCE;
+    	this.setter = NoSetter.INSTANCE;
+    }
     
     /**
      * Copy constructor that copies the properties of the original binding in a 
      * @param original
      * @param newParent
      */
-    protected AbstractBinding(AbstractBinding original, ComplexTypeReference newParent) {
+    protected AbstractBindingBase(AbstractBindingBase original, ComplexTypeReference newParent) {
         this.elementFetcher = original.elementFetcher;
         this.objectCreator = original.objectCreator;
         this.getter = original.getter;
@@ -83,17 +88,17 @@ public abstract class AbstractBinding implements IBinding {
         this.objectCreator = objectCreator;
     }
     
-    public IBinding setGetter(IGetter getter) {
+    public IBindingBase setGetter(IGetter getter) {
         this.getter = getter;
         return this;
     }
 
-    public IBinding setSetter(ISetter setter) {
+    public IBindingBase setSetter(ISetter setter) {
         this.setter = setter;
         return this;
     }
     
-    public void setParent(IBinding parent) {
+    public void setParent(IBindingBase parent) {
     	if (parent == null) {
     		throw new NullPointerException("Parent IBinding cannot be null");
     	}
@@ -103,12 +108,12 @@ public abstract class AbstractBinding implements IBinding {
     	this.parent = parent;
     }
     
-    public IBinding getParent() {
+    public IBindingBase getParent() {
     	return this.parent;
     }
     
     protected RootBinding getRootBinding() {
-        IBinding root = this;
+        IBindingBase root = this;
         while (root.getParent() != null) {
         	root = root.getParent();
         }
@@ -116,26 +121,11 @@ public abstract class AbstractBinding implements IBinding {
     }
 
     public boolean setProperty(Object contextInstance, Object propertyValue) {
-    	if (this.setter == null) {
-    	    return false;
-//    		throw new NullPointerException(String.format("No setter available. Cannot set property value '%s' on %s", propertyValue, contextInstance));
-    	}
         return this.setter.set(contextInstance, propertyValue);
     }
     
-    protected boolean hasSetter() {
-    	return this.setter != null;
-    }
-    
-    protected boolean hasGetter() {
-    	return this.getter != null;
-    }
-    
     public Object getProperty(Object contextInstance) {
-    	if (this.getter != null) {
-            return this.getter.get(contextInstance);
-    	}
-    	return contextInstance;
+        return this.getter.get(contextInstance);
     }
     
     public boolean isExpected(QName element) {
@@ -149,7 +139,7 @@ public abstract class AbstractBinding implements IBinding {
         return this.isOptional;
     }
     
-    public IBinding setOptional(boolean isOptional) {
+    public IBindingBase setOptional(boolean isOptional) {
         this.isOptional = isOptional;
         return this;
     }

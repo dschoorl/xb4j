@@ -25,9 +25,12 @@ public class MethodSetter implements ISetter {
 
     @Override
     public boolean set(Object javaContext, Object propertyValue) {
+      	Class<?> parameterType = (propertyValue==null?null:propertyValue.getClass());
+      	Method method = getMethod(javaContext.getClass(), this.methodname, parameterType);
         try {
-        	Class<?> parameterType = (propertyValue==null?null:propertyValue.getClass());
-            getMethod(javaContext.getClass(), this.methodname, parameterType).invoke(javaContext, propertyValue);
+            method.invoke(javaContext, propertyValue);
+        } catch (RuntimeException e) {
+        	throw e;	//to signal FindBugs that I consciously do not handle RuntimeExceptions
         } catch (Exception e) {
             throw new Xb4jException(String.format("Could not set value '%s' in object '%s' through method '%s'", 
                     propertyValue, javaContext, this.methodname));
@@ -45,7 +48,7 @@ public class MethodSetter implements ISetter {
         
         Method targetMethod = null;
         Class<?> candidateClass = objectType;
-        while ((candidateClass != null) && (targetMethod == null)) {
+        while (targetMethod == null) {
             for (Method candidate: candidateClass.getDeclaredMethods()) {
                 if (candidate.getName().equals(methodName)) {
                 	Class<?>[] parameters = candidate.getParameterTypes();
@@ -62,16 +65,14 @@ public class MethodSetter implements ISetter {
             if (targetMethod ==  null) {
                 candidateClass = candidateClass.getSuperclass();
                 if (candidateClass == null) {
-                    throw new IllegalStateException(String.format("Method '%s', taking single parameter of type '%s', is not " +
+                    throw new Xb4jException(String.format("Method '%s', taking single parameter of type '%s', is not " +
                     		"definied in the entire class hierarchy of '%s'.", methodName, parameterType, objectType.getName()));
                 }
             }
         }
         
-        if (targetMethod != null) {
-            if (!Modifier.isPublic(((Member)targetMethod).getModifiers()) || !Modifier.isPublic(((Member)targetMethod).getDeclaringClass().getModifiers())) {
-                targetMethod.setAccessible(true);
-            }
+        if (!Modifier.isPublic(((Member)targetMethod).getModifiers()) || !Modifier.isPublic(((Member)targetMethod).getDeclaringClass().getModifiers())) {
+            targetMethod.setAccessible(true);
         }
         
         return targetMethod;

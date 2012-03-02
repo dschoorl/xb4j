@@ -38,7 +38,7 @@ public class DefaultConstructor implements ICreator {
                     !Modifier.isPublic(((Member)defaultConstructor).getDeclaringClass().getModifiers())) {
                 defaultConstructor.setAccessible(true);
             }
-        } catch (Exception e) {
+        } catch (NoSuchMethodException e) {
             throw new Xb4jException("Can not obtain a default constructor", e);
         }
         return defaultConstructor;
