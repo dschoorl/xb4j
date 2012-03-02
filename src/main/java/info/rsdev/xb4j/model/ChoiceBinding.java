@@ -109,7 +109,7 @@ public class ChoiceBinding extends AbstractBinding {
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
 		IBinding selected = selectBinding(javaContext);
-		selected.toXml(staxWriter, selected.getProperty(javaContext));	//how determine getter/setter to use
+		selected.toXml(staxWriter, javaContext);	//how determine getter/setter to use
 	}
 	
 	@Override

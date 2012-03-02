@@ -25,6 +25,7 @@ public class RootBinding extends AbstractBindingContainer implements IBinding {
 	    }
     	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
     	setObjectCreator(new DefaultConstructor(javaType));
+    	super.setOptional(false);
 	}
 	
 	public ComplexTypeBinding getComplexType(String identifier, String namespaceUri) {
@@ -48,4 +49,8 @@ public class RootBinding extends AbstractBindingContainer implements IBinding {
 	    this.model = model;
 	}
 	
+	@Override
+	public IBinding setOptional(boolean isOptional) {
+		throw new Xb4jException("A RootBinding cannot be made optional");
+	}
 }

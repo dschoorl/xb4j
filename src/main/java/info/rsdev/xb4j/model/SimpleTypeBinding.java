@@ -44,6 +44,7 @@ public class SimpleTypeBinding extends AbstractBinding {
             QName element = staxReader.getName();
             if (isExpected(element)) {
                 value = this.converter.toObject(staxReader.getElementText());
+                setProperty(javaContext, value);
             }
         }
         
@@ -51,11 +52,12 @@ public class SimpleTypeBinding extends AbstractBinding {
     }
     
     @Override
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object elementValue) throws XMLStreamException {
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
         QName element = getElement();
         
         staxWriter.writeElement(element, false);
         
+        Object elementValue = getProperty(javaContext);
         if (elementValue != null) {
             staxWriter.writeContent(this.converter.toText(elementValue));
         }

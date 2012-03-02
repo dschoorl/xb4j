@@ -38,9 +38,9 @@ public interface IBinding {
     
     public boolean setProperty(Object contextInstance, Object propertyValue);
     
-    public void setGetter(IGetter getter);
+    public IBinding setGetter(IGetter getter);
     
-    public void setSetter(ISetter setter);
+    public IBinding setSetter(ISetter setter);
     
     public boolean isOptional();
     

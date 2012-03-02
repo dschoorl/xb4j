@@ -16,7 +16,11 @@ import javax.xml.stream.XMLStreamReader;
 
 public class CollectionBinding extends AbstractBinding {
 	
+	public static final int UNBOUNDED = Integer.MAX_VALUE;
+	
 	private IBinding itemBinding = null;
+	
+	private int maxOccurs = UNBOUNDED;
 	
 	public CollectionBinding(Class<?> javaType) {
 	    setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
@@ -27,14 +31,14 @@ public class CollectionBinding extends AbstractBinding {
     public CollectionBinding(QName element, Class<?> javaType) {
         setElementFetchStrategy(new DefaultElementFetchStrategy(element));
         setObjectCreator(new DefaultConstructor(javaType));
-        setSetter(new MethodSetter("add"));   //default add method for Collection interface
+        
     }
     
 	public IBinding setItem(IBinding itemBinding) {
 		if (itemBinding == null) {
 			throw new NullPointerException("Binding for collection items cannot be null");
 		}
-		this.itemBinding = itemBinding;
+		this.itemBinding = itemBinding.setSetter(new MethodSetter("add"));   //default add method for Collection interface;
 		return this.itemBinding;
 	}
 	
@@ -47,10 +51,10 @@ public class CollectionBinding extends AbstractBinding {
 	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 	    //TODO: also support addmethod on container class, which will add to underlying collection for us
         Object newJavaContext = newInstance();
-        javaContext = select(javaContext, newJavaContext);
+        Object collection = select(javaContext, newJavaContext);
         
-        if (!(javaContext instanceof Collection<?>)) {
-            throw new Xb4jException(String.format("Not a Collection: %s", javaContext));
+        if (!(collection instanceof Collection<?>)) {
+            throw new Xb4jException(String.format("Not a Collection: %s", collection));
         }
         
         //read enclosing collection element (if defined)
@@ -70,14 +74,16 @@ public class CollectionBinding extends AbstractBinding {
         while (proceed) {
             staxReader.startRecording(); //TODO: support multiple simultaneous recordings (markings)
             try {
-                result = itemBinding.toJava(staxReader, select(javaContext, newJavaContext));
+                result = itemBinding.toJava(staxReader, collection);
                 if (proceed = (result != null)) {
-                    setProperty(javaContext, result);
                     staxReader.stopAndWipeRecording();
                 }
             } finally {
                 staxReader.rewindAndPlayback();
             }
+        }
+        if (javaContext != null) {
+        	setProperty(javaContext, collection);
         }
         
         //read end of enclosing collection element (if defined)
@@ -98,8 +104,9 @@ public class CollectionBinding extends AbstractBinding {
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
         //when this Binding must not output an element, the getElement() method should return null
         QName element = getElement();
+        Object collection = getProperty(javaContext);
         
-        if (!(javaContext instanceof Collection<?>)) {
+        if (!(collection instanceof Collection<?>)) {
         	throw new Xb4jException(String.format("Not a Collection: %s", javaContext));
         }
         
@@ -109,8 +116,8 @@ public class CollectionBinding extends AbstractBinding {
         }
         
         if (itemBinding != null) {
-        	for (Object newJavaContext: (Collection<?>)javaContext) {
-            	itemBinding.toXml(staxWriter, newJavaContext);
+        	for (Object item: (Collection<?>)collection) {
+            	itemBinding.toXml(staxWriter, item);
         	}
         }
         

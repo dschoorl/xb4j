@@ -1,4 +1,4 @@
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.java.constructor;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;

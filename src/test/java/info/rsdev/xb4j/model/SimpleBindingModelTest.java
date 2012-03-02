@@ -18,6 +18,7 @@ import org.junit.Test;
  * @author Dave Schoorl
  */
 public class SimpleBindingModelTest {
+	
     @Test
     public void testMarshallingToEmptyElementNoNamespace() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -64,7 +65,7 @@ public class SimpleBindingModelTest {
     public void testUnmarshalFromNestedXmlWithNamespaces() {
         BindingModel model = new BindingModel();
         RootBinding binding = new RootBinding(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
-        binding.add(new SequenceBinding(new QName("urn:test/namespace", "child", "tst"), ObjectA.class), "myObject");
+        binding.add(new ElementBinding(new QName("urn:test/namespace", "child", "tst"), ObjectA.class), "myObject");
         model.register(binding);
         
         byte[] buffer = "<tst:root xmlns:tst=\"urn:test/namespace\"><tst:child/></tst:root>".getBytes();
@@ -80,7 +81,7 @@ public class SimpleBindingModelTest {
     public void testMarshallNestedBinding() throws Exception {
         BindingModel model = new BindingModel();
         RootBinding binding = new RootBinding(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
-        binding.add(new SequenceBinding(new QName("urn:test/namespace", "child", "tst"), ObjectA.class), "myObject");
+        binding.add(new ElementBinding(new QName("urn:test/namespace", "child", "tst"), ObjectA.class), "myObject");
         model.register(binding);
         
         ObjectTree instance = new ObjectTree();

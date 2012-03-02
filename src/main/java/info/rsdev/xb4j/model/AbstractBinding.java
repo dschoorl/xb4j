@@ -83,12 +83,14 @@ public abstract class AbstractBinding implements IBinding {
         this.objectCreator = objectCreator;
     }
     
-    public void setGetter(IGetter getter) {
+    public IBinding setGetter(IGetter getter) {
         this.getter = getter;
+        return this;
     }
 
-    public void setSetter(ISetter setter) {
+    public IBinding setSetter(ISetter setter) {
         this.setter = setter;
+        return this;
     }
     
     public void setParent(IBinding parent) {

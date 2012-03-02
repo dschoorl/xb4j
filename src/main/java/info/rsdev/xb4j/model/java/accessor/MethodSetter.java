@@ -7,7 +7,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
- * Set a value on a parent object by calling this setter method
+ * Set a value on a parent object by calling a setter method. The setter must take a single parameter that must accept the
+ * type of the value to set.
  * 
  * @author Dave Schoorl
  */

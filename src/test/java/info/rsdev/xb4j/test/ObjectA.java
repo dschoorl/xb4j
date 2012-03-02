@@ -4,13 +4,9 @@ public class ObjectA {
     
     private String name = null;
     
-    @SuppressWarnings("unused")
-    private ObjectA() {}
+    protected ObjectA() {}
     
     public ObjectA(String name) {
-        if (name == null) {
-            throw new NullPointerException("Name cannot be null");
-        }
         this.name = name;
     }
     
@@ -18,8 +14,12 @@ public class ObjectA {
         return this.name;
     }
     
-    protected void setName(String newName) {
+    protected ObjectA setName(String newName) {
+        if (newName == null) {
+            throw new NullPointerException("Name cannot be null");
+        }
         this.name = newName;
+        return this;
     }
 
 }

@@ -54,10 +54,9 @@ public class ComplexTypeReference extends AbstractBinding {
     @Override
     public Object toJava(RecordAndPlaybackXMLStreamReader stream, Object javaContext) throws XMLStreamException {
 		Object newJavaContext = newInstance();	//use getter on supplied javaContext??
-		javaContext = select(javaContext, newJavaContext);
-		Object result = getReferencedBinding().toJava(stream, javaContext);
+		getReferencedBinding().toJava(stream, select(javaContext, newJavaContext));
 		if (hasSetter()) {
-			setProperty(javaContext, result);
+			setProperty(javaContext, newJavaContext);
 		}
         return newJavaContext;
     }

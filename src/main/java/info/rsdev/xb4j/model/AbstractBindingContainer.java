@@ -29,8 +29,8 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
-        setGetter(getter);
-        setSetter(setter);
+        childBinding.setGetter(getter);
+        childBinding.setSetter(setter);
         
         return add(childBinding);
     }
@@ -51,8 +51,8 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
         	throw new NullPointerException("Fieldname cannot be null");
         }
         FieldAccessProvider provider = new FieldAccessProvider(fieldName);
-        setGetter(provider);
-        setSetter(provider);
+        childBinding.setGetter(provider);
+        childBinding.setSetter(provider);
         
         return add(childBinding);
     }
@@ -105,7 +105,7 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
         if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
             QName element = staxReader.getName();
             if (isExpected(element)) {
-            	newJavaContext = newInstance();    //or instance is passed on - through a stack somewhere?
+            	newJavaContext = newInstance();
                 for (IBinding child: getChildren()) {
                     Object childContext = child.toJava(staxReader, select(javaContext, newJavaContext));
                     setProperty(newJavaContext, childContext);
