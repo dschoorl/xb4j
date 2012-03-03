@@ -15,7 +15,7 @@ import javax.xml.namespace.QName;
  * 
  * @author Dave Schoorl
  */
-public class RootBinding extends ElementBinding {
+public class RootBinding extends ElementBinding implements IModelAware {
 	
     private BindingModel model = null;
     
@@ -39,6 +39,7 @@ public class RootBinding extends ElementBinding {
 	    return complexType;
 	}
 	
+    @Override
 	public void setModel(BindingModel model) {
 	    if (model == null) {
 	        throw new NullPointerException("BindingModel cannot be null");
@@ -49,8 +50,20 @@ public class RootBinding extends ElementBinding {
 	    this.model = model;
 	}
 	
+    @Override
+	public BindingModel getModel() {
+	    return this.model;
+	}
+	
 	@Override
 	public IBindingBase setOptional(boolean isOptional) {
 		throw new Xb4jException("A RootBinding cannot be made optional");
 	}
+	
+    @Override
+    public String toString() {
+        String fqClassName = getClass().getName();
+        int dotIndex = Math.max(0, fqClassName.lastIndexOf('.') + 1);
+        return String.format("%s[element=%s, javaType=%s]", fqClassName.substring(dotIndex), getElement(), getJavaType().getName());
+    }
 }

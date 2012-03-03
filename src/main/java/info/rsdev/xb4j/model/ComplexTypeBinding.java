@@ -1,12 +1,9 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
-import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
-import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
-import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
-import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
 
 import javax.xml.XMLConstants;
@@ -22,19 +19,23 @@ import javax.xml.stream.XMLStreamException;
  * @see ComplexTypeReference
  * @author Dave Schoorl
  */
-public class ComplexTypeBinding extends AbstractBindingBase {
+public class ComplexTypeBinding extends AbstractBindingBase implements IModelAware {    //TODO: extend ElementBinding?
     
-    private String identifier = null;
+    private String identifier = null;   //only needed when registered with BindingModel
     
-    private String namespaceUri = null;
+    private String namespaceUri = null; //only needed when registered with BindingModel
     
     private IBindingBase childBinding = null;
-	
-    public ComplexTypeBinding(QName element, Class<?> javaType) {
-        setElementFetchStrategy(new DefaultElementFetchStrategy(element));
-        setObjectCreator(new DefaultConstructor(javaType));
-        setIdentifier(element.getLocalPart());
-        setNamespaceUri(element.getNamespaceURI());
+    
+    private BindingModel model = null;  //this is set on ComplexTypeBindings that are registered with the BindingModel
+    
+    /**
+     * Create a ComplexTypeReference for an anonymous ComplexType (not registered with {@link BindingModel}
+     * @param element
+     * @param referencedBinding
+     */
+    public ComplexTypeBinding(QName element) {
+        setParent(new ComplexTypeReference(element, this));    //not correctly included in the binding hierarchy
     }
 
     /**
@@ -48,25 +49,12 @@ public class ComplexTypeBinding extends AbstractBindingBase {
         setElementFetchStrategy(new FetchFromParentStrategy(this));
     }
 
-    public ComplexTypeBinding(IElementFetchStrategy elementFetcher, String identifier, String namespaceUri) {
-        setIdentifier(identifier);
-        setNamespaceUri(namespaceUri);
-        setElementFetchStrategy(elementFetcher);
-    }
-
-    public ComplexTypeBinding(IElementFetchStrategy elementFetcher, ICreator instantiator, String identifier, String namespaceUri) {
-        setIdentifier(identifier);
-        setNamespaceUri(namespaceUri);
-        setElementFetchStrategy(elementFetcher);
-        setObjectCreator(instantiator);
-    }
-    
     /**
      * Copy constructor that creates a copy of ComplexTypeBinding with the given {@link ComplexTypeReference parent}
      * as it's parent 
      */
-    private ComplexTypeBinding(ComplexTypeBinding original, ComplexTypeReference newParent) {
-        super(original, newParent);
+    private ComplexTypeBinding(ComplexTypeBinding original) {
+        super(original);
         this.identifier = original.identifier;
         this.namespaceUri = original.namespaceUri;
         this.childBinding = original.childBinding;
@@ -77,8 +65,8 @@ public class ComplexTypeBinding extends AbstractBindingBase {
             throw new NullPointerException("Fieldname cannot be null");
         }
         FieldAccessProvider provider = new FieldAccessProvider(fieldName);
-        setGetter(provider);
-        setSetter(provider);
+        childBinding.setGetter(provider);
+        childBinding.setSetter(provider);
         
         return setChild(childBinding);
     }
@@ -88,9 +76,10 @@ public class ComplexTypeBinding extends AbstractBindingBase {
     		throw new NullPointerException(String.format("Childbinding for %s cannot be null", this));
     	}
     	if ((this.childBinding != null) && !this.childBinding.equals(childBinding)) {
-    		throw new IllegalArgumentException();
+    		throw new Xb4jException("");
     	}
     	this.childBinding = childBinding;
+    	childBinding.setParent(this);  //Maintain bidirectional relationship
     	return childBinding;
     }
     
@@ -136,7 +125,7 @@ public class ComplexTypeBinding extends AbstractBindingBase {
 
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
-	    childBinding.toXml(staxWriter, getProperty(javaContext));
+        childBinding.toXml(staxWriter, getProperty(javaContext));
 	}
 
     /**
@@ -144,8 +133,43 @@ public class ComplexTypeBinding extends AbstractBindingBase {
      * @param complexTypeReference the parent in the hierarchy
      * @return a copy of this {@link ComplexTypeBinding}
      */
-    public ComplexTypeBinding copyIntoHierarchy(ComplexTypeReference newParent) {
-        return new ComplexTypeBinding(this, newParent);
+    public ComplexTypeBinding copy() {
+        return new ComplexTypeBinding(this);
     }
-
+    
+    @Override
+    public void setModel(BindingModel model) {
+        if (model == null) {
+            throw new NullPointerException("BindingModel cannot be null");
+        }
+        if ((this.model != null) && !this.model.equals(model)) {
+            throw new IllegalArgumentException("It is currently not supported that a ComplexTypeBinding is added to multiple BindingModels");
+        }
+        this.model = model;
+    }
+    
+    @Override
+    public BindingModel getModel() {
+        return this.model;
+    }
+    
+    /**
+     * Factory method that creates a ComplexType that cannot be reused. It is
+     *  
+     * @param element
+     * @param javaType
+     * @param parent
+     * @return
+     */
+//    public static final ComplexTypeBinding newAnonymous(QName element, Class<?> javaType, ISingleBinding parent) {
+//        if (parent == null) {
+//            throw new NullPointerException("The parent for the ComplexTypeBinding cannot be null");
+//        }
+//        
+//        ComplexTypeBinding complexType = new ComplexTypeBinding(javaType); 
+//        ComplexTypeReference reference = new ComplexTypeReference(element, complexType);
+//        parent.setChild(reference, NoGetter.INSTANCE, NoSetter.INSTANCE);
+//        return complexType;
+//    }
+    
 }

@@ -29,4 +29,8 @@ public class NOPConverter implements IValueConverter {
 		return (String)value;
 	}
 	
+	public Class<?> getJavaType() {
+	    return String.class;
+	}
+	
 }

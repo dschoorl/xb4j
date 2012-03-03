@@ -11,4 +11,6 @@ public interface IValueConverter {
 	
 	public String toText(Object value);
 	
+	public Class<?> getJavaType();
+	
 }

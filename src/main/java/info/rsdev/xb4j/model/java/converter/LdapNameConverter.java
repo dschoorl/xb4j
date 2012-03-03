@@ -33,5 +33,10 @@ public class LdapNameConverter implements IValueConverter {
 		}
 		return ((LdapName)value).toString();
 	}
+
+    @Override
+    public Class<?> getJavaType() {
+        return LdapName.class;
+    }
 	
 }

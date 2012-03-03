@@ -1,5 +1,6 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
@@ -25,7 +26,7 @@ public abstract class AbstractBindingBase implements IBindingBase {
     
     private IBindingBase parent = null;
     
-    private boolean isOptional = false;
+    private boolean isOptional = true;
     
     public AbstractBindingBase() {
     	this.getter = NoGetter.INSTANCE;
@@ -37,12 +38,12 @@ public abstract class AbstractBindingBase implements IBindingBase {
      * @param original
      * @param newParent
      */
-    protected AbstractBindingBase(AbstractBindingBase original, ComplexTypeReference newParent) {
+    protected AbstractBindingBase(AbstractBindingBase original) {
         this.elementFetcher = original.elementFetcher;
         this.objectCreator = original.objectCreator;
         this.getter = original.getter;
         this.setter = original.setter;
-        this.parent = newParent;    //merge copy into another binding hierarchy
+        this.parent = null;    //clear parent, so that copy can be used in another binding hierarchy
     }
     
     public QName getElement() {
@@ -112,12 +113,16 @@ public abstract class AbstractBindingBase implements IBindingBase {
     	return this.parent;
     }
     
-    protected RootBinding getRootBinding() {
-        IBindingBase root = this;
-        while (root.getParent() != null) {
-        	root = root.getParent();
+    protected IModelAware getModelAware() {
+        IBindingBase modelAwareBinding = this;
+        while (modelAwareBinding.getParent() != null) {
+        	modelAwareBinding = modelAwareBinding.getParent();
         }
-        return (RootBinding)root;   //RootBinding should always be at the root of a binding hierarchy
+        if (!(modelAwareBinding instanceof IModelAware)) {
+            throw new Xb4jException(String.format("Expected top level binding to implement IModelAware, but found %s", 
+                    modelAwareBinding.getClass().getName()));
+        }
+        return (IModelAware)modelAwareBinding;
     }
 
     public boolean setProperty(Object contextInstance, Object propertyValue) {
@@ -148,7 +153,8 @@ public abstract class AbstractBindingBase implements IBindingBase {
     public String toString() {
         String fqClassName = getClass().getName();
         int dotIndex = Math.max(0, fqClassName.lastIndexOf('.') + 1);
-        return String.format("%s[element=%s, javaType=%s]", fqClassName.substring(dotIndex), getElement(), getJavaType().getName());
+        String typename = (getJavaType()==null?null:getJavaType().getName());
+        return String.format("%s[element=%s, javaType=%s]", fqClassName.substring(dotIndex), getElement(), typename);
     }
     
 }

@@ -70,6 +70,11 @@ public class SimpleTypeBinding extends AbstractBindingBase {
     	}
     	this.converter = converter;
     }
+    
+    @Override
+    public Class<?> getJavaType() {
+        return this.converter.getJavaType();
+    }
 
     @Override
     public String toString() {

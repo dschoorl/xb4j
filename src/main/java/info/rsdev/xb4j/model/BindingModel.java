@@ -151,6 +151,7 @@ public class BindingModel {
     				complexType.getIdentifier(), complexType.getNamespace()));
         }
         this.complexTypes.put(fqComplexTypeName, complexType);
+        complexType.setModel(this);
         return this;
     }
     

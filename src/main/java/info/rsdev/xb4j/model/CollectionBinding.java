@@ -39,6 +39,7 @@ public class CollectionBinding extends AbstractBindingBase {
 			throw new NullPointerException("Binding for collection items cannot be null");
 		}
 		this.itemBinding = itemBinding.setSetter(new MethodSetter("add"));   //default add method for Collection interface;
+		this.itemBinding.setParent(this);
 		return this.itemBinding;
 	}
 	
@@ -105,6 +106,13 @@ public class CollectionBinding extends AbstractBindingBase {
         //when this Binding must not output an element, the getElement() method should return null
         QName element = getElement();
         Object collection = getProperty(javaContext);
+        if (collection == null) {
+            if (isOptional()) {
+                return;
+            } else {
+                throw new Xb4jException(String.format("This collection is not optional: ", this));
+            }
+        }
         
         if (!(collection instanceof Collection<?>)) {
         	throw new Xb4jException(String.format("Not a Collection: %s", javaContext));

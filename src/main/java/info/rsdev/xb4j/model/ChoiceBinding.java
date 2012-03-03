@@ -4,19 +4,15 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.IChooser;
 import info.rsdev.xb4j.model.java.InstanceOfChooser;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
-import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
-import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
-import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
-import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
+import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
@@ -35,31 +31,6 @@ public class ChoiceBinding extends AbstractSingleBinding {
 	 */
 	public ChoiceBinding() {
 		setElementFetchStrategy(new FetchFromParentStrategy(this));
-	}
-	
-	/**
-	 * Create new {@link ChoiceBinding}
-	 * 
-	 * @param element
-	 * @param instantiator
-	 */
-	public ChoiceBinding(QName element, ICreator instantiator) { //we don't know what type to unmarshall to; that depends on the child xml.
-		this(new DefaultElementFetchStrategy(element), instantiator);
-	}
-	
-	public ChoiceBinding(IElementFetchStrategy elementFetcher, ICreator instantiator) {
-		setElementFetchStrategy(elementFetcher);
-		setObjectCreator(instantiator);
-	}
-	
-	/**
-	 * Create a new {@link AbstractBindingBase} where the javaType will be created with a {@link DefaultConstructor}
-	 * 
-	 * @param element
-	 * @param javaType
-	 */
-	public ChoiceBinding(QName element, Class<?> javaType) {
-		this(element, new DefaultConstructor(javaType));
 	}
 	
 	public IBindingBase addChoice(IBindingBase choice, String fieldName, IChooser selector) {
@@ -103,7 +74,7 @@ public class ChoiceBinding extends AbstractSingleBinding {
 				return entry.getValue();
 			}
 		}
-		return null;
+		throw new Xb4jException(String.format("%s could not select a choice for java context value %s", this, javaContext));
 	}
 	
 	@Override
