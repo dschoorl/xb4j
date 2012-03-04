@@ -64,7 +64,7 @@ public abstract class AbstractBindingContainer extends AbstractBindingBase imple
      * @param childBinding the binding to add to this group
      * @return the childBinding
      */
-    private IBindingBase add(IBindingBase childBinding) {
+    public IBindingBase add(IBindingBase childBinding) {
         this.children.add(childBinding);
         childBinding.setParent(this);   //maintain bidirectional relationship
         return childBinding;
@@ -89,7 +89,6 @@ public abstract class AbstractBindingContainer extends AbstractBindingBase imple
     	return childBinding;
     }
     
-	@Override
 	public IBindingContainer add(IBindingContainer childContainer) {
 		add((IBindingBase)childContainer);
 		return childContainer;

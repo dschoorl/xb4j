@@ -38,14 +38,21 @@ public class SimpleTypeBinding extends AbstractBindingBase {
 
     @Override
     public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
-        Object value = null;
-        if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
-            QName element = staxReader.getName();
-            if (isExpected(element)) {
-                value = this.converter.toObject(staxReader.getElementText());
-                setProperty(javaContext, value);
+        //check if we are on the right element -- consume the xml when needed
+        QName expectedElement = getElement();
+        if (expectedElement != null) {
+            if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
+                QName element = staxReader.getName();
+                if (!isExpected(element)) {
+                    return null;    //or throw Exception to signal this was not the right path
+                }
+            } else {
+                return null;
             }
         }
+        
+        Object value = this.converter.toObject(staxReader.getElementText());
+        setProperty(javaContext, value);
         
         return value;
     }

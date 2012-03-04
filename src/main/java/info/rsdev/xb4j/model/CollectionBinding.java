@@ -25,26 +25,21 @@ public class CollectionBinding extends AbstractBindingBase {
 	public CollectionBinding(Class<?> javaType) {
 	    setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
 		setObjectCreator(new DefaultConstructor(javaType));
-		setSetter(new MethodSetter("add"));   //default add method for Collection interface
 	}
 	
     public CollectionBinding(QName element, Class<?> javaType) {
         setElementFetchStrategy(new DefaultElementFetchStrategy(element));
         setObjectCreator(new DefaultConstructor(javaType));
-        
     }
     
-	public IBindingBase setItem(IBindingBase itemBinding) {
+	public <T extends IBindingBase> T setItem(T itemBinding) {
 		if (itemBinding == null) {
 			throw new NullPointerException("Binding for collection items cannot be null");
 		}
-		this.itemBinding = itemBinding.setSetter(new MethodSetter("add"));   //default add method for Collection interface;
+		
+		this.itemBinding = itemBinding;
 		this.itemBinding.setParent(this);
-		return this.itemBinding;
-	}
-	
-	public ChoiceBinding setItem(ChoiceBinding itemBinding) {
-		setItem((IBindingBase)itemBinding);
+		itemBinding.setSetter(new MethodSetter("add"));   //default add method for Collection interface;
 		return itemBinding;
 	}
 	

@@ -39,7 +39,7 @@ public class ChoiceBinding extends AbstractSingleBinding {
 		choice.setGetter(provider);
 		choice.setSetter(provider);
 		
-		return add(choice, selector);
+		return addChoice(choice, selector);
 	}
 	
 	/**
@@ -54,17 +54,12 @@ public class ChoiceBinding extends AbstractSingleBinding {
 			throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the choice '%s' does not define" +
 					"a Java type", choice));
 		}
-		return add(choice, new InstanceOfChooser(javaType));
+		return addChoice(choice, new InstanceOfChooser(javaType));
 	}
 	
-	private IBindingBase add(IBindingBase choice, IChooser selector) {
+	public <T extends IBindingBase> T addChoice(T choice, IChooser selector) {
 		this.choices.put(selector, choice);
 		choice.setParent(this); //maintain bidirectional relationship
-		return choice;
-	}
-	
-	public SequenceBinding addChoice(SequenceBinding choice, String fieldName, IChooser selector) {
-		addChoice((IBindingBase)choice, fieldName, selector);
 		return choice;
 	}
 	
@@ -85,16 +80,14 @@ public class ChoiceBinding extends AbstractSingleBinding {
 	
 	@Override
 	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
-		Object newJavaContext = newInstance();
 		Object result = null;
-		IBindingBase resultBinding = null;
 		for (IBindingBase candidate: this.choices.values()) {
 			staxReader.startRecording(); //TODO: support multiple simultaneous recordings (markings)
 			try {
-				result = candidate.toJava(staxReader, select(javaContext, newJavaContext));
+				result = candidate.toJava(staxReader, javaContext);
 				if (result != null) {
+				    setProperty(javaContext, result);
 					staxReader.stopAndWipeRecording();
-					resultBinding = candidate; 
 					break;	//TODO: check ambiguity?
 				}
 			} finally {
@@ -102,12 +95,7 @@ public class ChoiceBinding extends AbstractSingleBinding {
 			}
 		}
 		
-		if (resultBinding != null) {
-		    javaContext = select(javaContext, newJavaContext);
-		    resultBinding.setProperty(javaContext, result);
-		}
-		
-		return newJavaContext;
+		return result;
 	}
 	
 }

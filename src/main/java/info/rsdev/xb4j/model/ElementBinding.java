@@ -6,6 +6,8 @@ import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
+import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
+import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -33,6 +35,11 @@ public class ElementBinding extends AbstractSingleBinding {
     public ElementBinding(QName element) {
     	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
     }
+    
+    public ElementBinding(Class<?> javaType) {
+        setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
+        setObjectCreator(new DefaultConstructor(javaType));
+    }
 
     public ElementBinding(QName element, Class<?> javaType) {
     	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
@@ -44,20 +51,32 @@ public class ElementBinding extends AbstractSingleBinding {
     	setObjectCreator(creator);
     }
     
+    public ElementBinding(IElementFetchStrategy elementFetcher, ICreator creator) {
+        setElementFetchStrategy(elementFetcher);
+        setObjectCreator(creator);
+    }
+    
     @Override
     public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
-        Object newJavaContext = null;
-        if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
-            QName element = staxReader.getName();
-            if (isExpected(element)) {
-            	newJavaContext = newInstance();
-            	IBindingBase childBinding = getChildBinding();
-            	if (childBinding != null) {
-            		childBinding.toJava(staxReader, select(javaContext, newJavaContext));
-            	}
-                setProperty(javaContext, newJavaContext);
+        //check if we are on the right element -- consume the xml when needed
+        QName expectedElement = getElement();
+        if (expectedElement != null) {
+            if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
+                QName element = staxReader.getName();
+                if (!isExpected(element)) {
+                    return null;    //or throw Exception to signal this was not the right path
+                }
+            } else {
+                return null;
             }
         }
+        
+        Object newJavaContext = newInstance();
+    	IBindingBase childBinding = getChildBinding();
+    	if (childBinding != null) {
+    		childBinding.toJava(staxReader, select(javaContext, newJavaContext));
+    	}
+        setProperty(javaContext, newJavaContext);
         
         return newJavaContext;
     }
@@ -81,11 +100,6 @@ public class ElementBinding extends AbstractSingleBinding {
         if (!isEmptyElement && (element != null)) {
             staxWriter.closeElement(element);
         }
-    }
-    
-    @Override
-    public String toString() {
-        return String.format("ElementBinding[element=%s]", getElement());
     }
     
 }

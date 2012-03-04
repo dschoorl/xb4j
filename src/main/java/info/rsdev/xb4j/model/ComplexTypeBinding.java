@@ -19,7 +19,7 @@ import javax.xml.stream.XMLStreamException;
  * @see ComplexTypeReference
  * @author Dave Schoorl
  */
-public class ComplexTypeBinding extends AbstractBindingBase implements IModelAware {    //TODO: extend ElementBinding?
+public class ComplexTypeBinding extends AbstractBindingBase implements IModelAware {
     
     private String identifier = null;   //only needed when registered with BindingModel
     
@@ -34,8 +34,16 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
      * @param element
      * @param referencedBinding
      */
-    public ComplexTypeBinding(QName element) {
-        setParent(new ComplexTypeReference(element, this));    //not correctly included in the binding hierarchy
+    public ComplexTypeBinding(QName element, IBindingBase parent, String fieldName) {
+        if (parent == null) {
+            throw new NullPointerException("Parent IBindingBase cannot be null");
+        }
+        ComplexTypeReference reference = new ComplexTypeReference(element, this);
+        if (parent instanceof ISingleBinding) {
+            ((ISingleBinding)parent).setChild(reference, fieldName);
+        } else {
+            ((IBindingContainer)parent).add(reference, fieldName);
+        }
     }
 
     /**
@@ -152,24 +160,5 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
     public BindingModel getModel() {
         return this.model;
     }
-    
-    /**
-     * Factory method that creates a ComplexType that cannot be reused. It is
-     *  
-     * @param element
-     * @param javaType
-     * @param parent
-     * @return
-     */
-//    public static final ComplexTypeBinding newAnonymous(QName element, Class<?> javaType, ISingleBinding parent) {
-//        if (parent == null) {
-//            throw new NullPointerException("The parent for the ComplexTypeBinding cannot be null");
-//        }
-//        
-//        ComplexTypeBinding complexType = new ComplexTypeBinding(javaType); 
-//        ComplexTypeReference reference = new ComplexTypeReference(element, complexType);
-//        parent.setChild(reference, NoGetter.INSTANCE, NoSetter.INSTANCE);
-//        return complexType;
-//    }
     
 }

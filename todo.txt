@@ -1,6 +1,7 @@
 CURRENT
 -------
-- Do we need a deep copy from ComplexTypeBinding that is copied into hierarchy?
+- Make ChoiceBinding an instance of IContainerBinding -- no, because we need to be able to provide a IChooser
+- Simplify the usage of ComplexTypeReference
 
 TODO
 ----

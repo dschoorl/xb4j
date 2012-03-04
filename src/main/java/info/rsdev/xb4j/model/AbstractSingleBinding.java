@@ -50,7 +50,7 @@ public abstract class AbstractSingleBinding extends AbstractBindingBase implemen
         return childBinding;
     }
 
-    protected IBindingBase setChild(IBindingBase childBinding) {
+    public IBindingBase setChild(IBindingBase childBinding) {
     	if (childBinding == null) {
     		throw new NullPointerException("Child IBinding must not be null when you explicitly set it");
     	}

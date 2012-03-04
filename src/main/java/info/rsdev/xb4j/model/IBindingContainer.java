@@ -10,7 +10,7 @@ import info.rsdev.xb4j.model.java.accessor.ISetter;
  */
 public interface IBindingContainer extends IBindingBase {
 	
-	public IBindingContainer add(IBindingContainer childContainer);
+	public IBindingBase add(IBindingBase childBinding);
 	
 	public IBindingBase add(IBindingBase childBinding, IGetter getter, ISetter setter);
 	
