@@ -2,6 +2,7 @@ package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader.Marker;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 
 import java.io.InputStream;
@@ -78,9 +79,9 @@ public class BindingModel {
         RecordAndPlaybackXMLStreamReader staxReader = null;
         try {
             staxReader = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
-            staxReader.startRecording();
+            Marker startMarker = staxReader.startRecording();
             if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
-                staxReader.rewindAndPlayback();
+                staxReader.rewindAndPlayback(startMarker);
                 QName element = staxReader.getName();
                 if (xmlToClass.containsKey(element)) {
                     RootBinding binding = xmlToClass.get(element);

@@ -4,6 +4,7 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.accessor.MethodSetter;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader.Marker;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
@@ -68,14 +69,18 @@ public class CollectionBinding extends AbstractBindingBase {
         Object result = null;
         boolean proceed = true;
         while (proceed) {
-            staxReader.startRecording(); //TODO: support multiple simultaneous recordings (markings)
+            Marker marker = staxReader.startRecording();
             try {
                 result = itemBinding.toJava(staxReader, collection);
                 if (proceed = (result != null)) {
-                    staxReader.stopAndWipeRecording();
+                    if (!staxReader.isMarkerObsolete(marker)) {
+                        staxReader.stopRecording(marker);
+                    }
                 }
             } finally {
-                staxReader.rewindAndPlayback();
+                if (!staxReader.isMarkerObsolete(marker)) {
+                    staxReader.rewindAndPlayback(marker);
+                }
             }
         }
         if (javaContext != null) {

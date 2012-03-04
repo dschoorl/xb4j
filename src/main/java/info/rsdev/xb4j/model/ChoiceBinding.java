@@ -5,6 +5,7 @@ import info.rsdev.xb4j.model.java.IChooser;
 import info.rsdev.xb4j.model.java.InstanceOfChooser;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader.Marker;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
@@ -82,16 +83,18 @@ public class ChoiceBinding extends AbstractSingleBinding {
 	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 		Object result = null;
 		for (IBindingBase candidate: this.choices.values()) {
-			staxReader.startRecording(); //TODO: support multiple simultaneous recordings (markings)
+			Marker marker = staxReader.startRecording(); //TODO: support multiple simultaneous recordings (markings)
 			try {
 				result = candidate.toJava(staxReader, javaContext);
 				if (result != null) {
 				    setProperty(javaContext, result);
-					staxReader.stopAndWipeRecording();
+					staxReader.stopRecording(marker);
 					break;	//TODO: check ambiguity?
 				}
 			} finally {
-				staxReader.rewindAndPlayback();
+			    if (!staxReader.isMarkerObsolete(marker)) {
+			        staxReader.rewindAndPlayback(marker);
+			    }
 			}
 		}
 		
