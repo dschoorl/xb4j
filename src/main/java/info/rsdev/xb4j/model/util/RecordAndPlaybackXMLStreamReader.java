@@ -136,37 +136,39 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         return this.recordingQueue != null;
     }
     
+    public String getEventName() {
+        if (this.currentEvent == null) { return null; }
+        return EVENTNAMES[currentEvent.eventType];
+    }
+    
     /**
-     * Respond to START- and END ELEMENT and END DOCUMENT events
+     * Respond to START ELEMENT, END ELEMENT, CHARACTER and END DOCUMENT events
      * @return
      * @throws XMLStreamException
      */
     public int nextTag() throws XMLStreamException {
-    	//What if... there is no more start tag? And how handle character data that we encounter before we reach start tag
-        int eventType = 0; 
-        while ((eventType != START_ELEMENT) && (eventType != END_DOCUMENT)) {
-	        if (!playbackQueue.isEmpty()) {
-	            this.currentEvent = playbackQueue.poll();
-	            eventType = currentEvent.eventType;
-	        } else {
-	            //read events from staxReader, untill we find start element or end document
-	        	while ((eventType != START_ELEMENT) && (eventType != END_DOCUMENT)) {
-	        		if (eventType > 0) {
-//	                	QName encounteredName = ((eventType==START_ELEMENT)||(eventType==END_ELEMENT))?getName():null;
-			        	logger.info(String.format("Ignoring stax event %s", EVENTNAMES[eventType]));
-	        		}
-		        	eventType = staxReader.next();
-	        	}
-	        	if (eventType == START_ELEMENT) {
-		            this.currentEvent = ParseEventData.newParseEventData(eventType, staxReader);
-	        	} else if (eventType == END_DOCUMENT) {
-	        		this.currentEvent = new ParseEventData(eventType, (String)null, staxReader.getLocation());
-	        	}
-	        }
-            
-	        if (this.recordingQueue != null) {
-	            this.recordingQueue.add(this.currentEvent);
-	        }
+        int eventType = 0;
+        while ((eventType != START_ELEMENT) && (eventType != END_DOCUMENT) && (eventType != END_ELEMENT)) {
+            if (!playbackQueue.isEmpty()) {
+                this.currentEvent = playbackQueue.poll();
+                eventType = currentEvent.eventType;
+            } else {
+                while ((eventType != START_ELEMENT) && (eventType != END_DOCUMENT) && (eventType != END_ELEMENT)) {
+                    if (eventType > 0) {
+                        logger.info(String.format("Skipping over stax event: %s", EVENTNAMES[eventType]));
+                    }
+                    eventType = staxReader.next();
+                }
+                if ((eventType == START_ELEMENT) || (eventType == END_ELEMENT)) {
+                    this.currentEvent = ParseEventData.newParseEventData(eventType, staxReader);
+                } else if (eventType == END_DOCUMENT) {
+                    this.currentEvent = new ParseEventData(eventType, (String) null, staxReader.getLocation());
+                }
+                
+                if (this.recordingQueue != null) {
+                    this.recordingQueue.add(this.currentEvent);
+                }
+            }
         }
         return this.currentEvent.eventType;
     }
@@ -205,10 +207,6 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
 	                QName element = getName();
 	                matchesExpected = expectedElement.equals(element);
 	            }
-        	} catch (XMLStreamException e) {
-//        		String tekst = staxReader.getText();
-//        		System.out.println("Read tekst: ".concat(tekst));
-        		throw e;
         	} finally {
                 if (!matchesExpected) {
                 	rewindAndPlayback(marker);
@@ -296,7 +294,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         @Override
         public String toString() {
             String data = text==null?name.toString():text;
-            return String.format("ParseEventData[eventType=%d, data=%s, hascode=%d]", eventType, data, hashCode());
+            return String.format("ParseEventData[eventType=%S, data=%s, hascode=%d]", EVENTNAMES[eventType], data, hashCode());
         }
 
         @Override

@@ -81,8 +81,8 @@ public class CollectionBinding extends AbstractBindingBase {
         
         //read end of enclosing collection element (if defined)
         if ((collectionElement != null) && !staxReader.isAtElementEnd(collectionElement)) {
-            throw new Xb4jException(String.format("Encountered unexpected close tag %s (expected close tag %s)",
-                    staxReader.getName(), collectionElement));
+            throw new Xb4jException(String.format("Expected element close tag </%s> (encountered a %s)",
+                    collectionElement, staxReader.getEventName()));
         }
         
 		return newJavaContext;
