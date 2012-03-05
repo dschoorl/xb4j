@@ -11,7 +11,6 @@ import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 /**
  * <p>Translates a text-only element to a Java field and vice versa. The Java field is expected to be a String.
@@ -60,15 +59,8 @@ public class ElementBinding extends AbstractSingleBinding {
     public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
-        if (expectedElement != null) {
-            if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
-                QName element = staxReader.getName();
-                if (!isExpected(element)) {
-                    return null;    //or throw Exception to signal this was not the right path
-                }
-            } else {
-                return null;
-            }
+        if ((expectedElement != null) && !staxReader.isAtElementStart(expectedElement)) {
+        	return null;
         }
         
         Object newJavaContext = newInstance();
@@ -77,6 +69,10 @@ public class ElementBinding extends AbstractSingleBinding {
     		childBinding.toJava(staxReader, select(javaContext, newJavaContext));
     	}
         setProperty(javaContext, newJavaContext);
+        
+//        if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement)) {
+//        	throw new Xb4jException("No End tag encountered: ".concat(expectedElement.toString()));
+//        }
         
         return newJavaContext;
     }

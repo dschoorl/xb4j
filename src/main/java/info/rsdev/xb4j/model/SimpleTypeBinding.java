@@ -8,7 +8,6 @@ import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 /**
  * <p>Translates a text-only element to a Java field and vice versa. The Java field is expected to be a String.
@@ -40,18 +39,11 @@ public class SimpleTypeBinding extends AbstractBindingBase {
     public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
-        if (expectedElement != null) {
-            if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
-                QName element = staxReader.getName();
-                if (!isExpected(element)) {
-                    return null;    //or throw Exception to signal this was not the right path
-                }
-            } else {
-                return null;
-            }
+        if ((expectedElement != null) && !staxReader.isAtElementStart(expectedElement)) {
+        	return null;
         }
         
-        Object value = this.converter.toObject(staxReader.getElementText());
+        Object value = this.converter.toObject(staxReader.getElementText());	//this also reads the end element
         setProperty(javaContext, value);
         
         return value;

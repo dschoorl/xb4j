@@ -1,8 +1,3 @@
-CURRENT
--------
-- Make ChoiceBinding an instance of IContainerBinding -- no, because we need to be able to provide a IChooser
-- Simplify the usage of ComplexTypeReference
-
 TODO
 ----
 - allow the java instance to be constructed by a non-default constructor method

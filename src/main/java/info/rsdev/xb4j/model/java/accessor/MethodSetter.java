@@ -81,5 +81,10 @@ public class MethodSetter implements ISetter {
     private String validate(String methodname) {
         return methodname;
     }
+    
+    @Override
+    public String toString() {
+    	return "MethodSetter[methodname=".concat(methodname).concat("]");
+    }
 
 }

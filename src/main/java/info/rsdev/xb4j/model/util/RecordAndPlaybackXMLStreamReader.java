@@ -7,18 +7,28 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * <p>Decorate an XMLStreamReader to add recording/playback functionality, to allow previous XMLStreamReader events 
- * to be replayed once again.</p>
+ * to be replayed once again. Events that are currently recorded are: start- and end element and characters.</p>
  * <p>This class is not thread safe</p>
  * 
  * @author Dave Schoorl
  */
-public class RecordAndPlaybackXMLStreamReader {
+public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
+	
+	private static final Logger logger = LoggerFactory.getLogger(RecordAndPlaybackXMLStreamReader.class);
+	
+	private static final String[] EVENTNAMES = new String[] {"Undefined", "start element", "end element", "processing instruction",
+			"characters", "comment", "space", "start document", "end document", "entity reference", "attribute", "DTD", "cdata",
+			"namespace", "notation declaration", "entity declaration"};
     
     /**
      * The {@link XMLStreamReader} that parses an xml stream
@@ -126,20 +136,38 @@ public class RecordAndPlaybackXMLStreamReader {
         return this.recordingQueue != null;
     }
     
+    /**
+     * Respond to START- and END ELEMENT and END DOCUMENT events
+     * @return
+     * @throws XMLStreamException
+     */
     public int nextTag() throws XMLStreamException {
-        int eventType = -1; 
-        if (!playbackQueue.isEmpty()) {
-            this.currentEvent = playbackQueue.poll();
-        } else {
-            //read next tag from staxReader
-            eventType = staxReader.nextTag();
-            this.currentEvent = ParseEventData.newParseEventData(eventType, staxReader);
+    	//What if... there is no more start tag? And how handle character data that we encounter before we reach start tag
+        int eventType = 0; 
+        while ((eventType != START_ELEMENT) && (eventType != END_DOCUMENT)) {
+	        if (!playbackQueue.isEmpty()) {
+	            this.currentEvent = playbackQueue.poll();
+	            eventType = currentEvent.eventType;
+	        } else {
+	            //read events from staxReader, untill we find start element or end document
+	        	while ((eventType != START_ELEMENT) && (eventType != END_DOCUMENT)) {
+	        		if (eventType > 0) {
+//	                	QName encounteredName = ((eventType==START_ELEMENT)||(eventType==END_ELEMENT))?getName():null;
+			        	logger.info(String.format("Ignoring stax event %s", EVENTNAMES[eventType]));
+	        		}
+		        	eventType = staxReader.next();
+	        	}
+	        	if (eventType == START_ELEMENT) {
+		            this.currentEvent = ParseEventData.newParseEventData(eventType, staxReader);
+	        	} else if (eventType == END_DOCUMENT) {
+	        		this.currentEvent = new ParseEventData(eventType, (String)null, staxReader.getLocation());
+	        	}
+	        }
+            
+	        if (this.recordingQueue != null) {
+	            this.recordingQueue.add(this.currentEvent);
+	        }
         }
-        
-        if (this.recordingQueue != null) {
-            this.recordingQueue.add(this.currentEvent);
-        }
-        
         return this.currentEvent.eventType;
     }
     
@@ -150,21 +178,72 @@ public class RecordAndPlaybackXMLStreamReader {
         return this.currentEvent.name;
     }
     
+    /**
+     * Check if the next element in the xml file is the start of the element that this binding expects. If not, then the
+     * staxReader is positioned prior to the element just read (so it can be re-read),
+     * @param staxReader
+     * @param expectedElement
+     * @return true if this binding should continue processing the current element, false otherwise
+     * @throws XMLStreamException any exception from the underlying stax reader is propagated up
+     */
+    public boolean isAtElementStart(QName expectedElement) throws XMLStreamException {
+    	return isAtElement(expectedElement, XMLStreamReader.START_ELEMENT);
+    }
     
-
+    public boolean isAtElementEnd(QName expectedElement) throws XMLStreamException {
+    	return isAtElement(expectedElement, XMLStreamReader.END_ELEMENT);
+    }
+    
+    private boolean isAtElement(QName expectedElement, int eventType) throws XMLStreamException {
+        if (expectedElement != null) {
+        	boolean matchesExpected = false;
+        	Marker marker = startRecording();
+        	int realEvent = 0;
+        	try {
+        		realEvent = nextTag();
+	            if ((realEvent != END_DOCUMENT) && (realEvent == eventType)) {
+	                QName element = getName();
+	                matchesExpected = expectedElement.equals(element);
+	            }
+        	} catch (XMLStreamException e) {
+//        		String tekst = staxReader.getText();
+//        		System.out.println("Read tekst: ".concat(tekst));
+        		throw e;
+        	} finally {
+                if (!matchesExpected) {
+                	rewindAndPlayback(marker);
+                	QName encounteredName = (realEvent==START_ELEMENT||realEvent==END_ELEMENT)?getName():null;
+                	logger.info(String.format("Expected %s (%s), but found %s (%s @ %s)", EVENTNAMES[eventType], expectedElement,
+                			EVENTNAMES[realEvent], encounteredName, getLocation()));
+                } else {
+        			stopRecording(marker);
+                }
+        	}
+        	return matchesExpected;
+        }
+        return true;	//when we expect nothing, all is well
+    }
+    
+    public Location getLocation() {
+    	if (currentEvent != null) {
+    		return currentEvent.location;
+    	}
+    	return null;
+    }
+    
     public String getElementText() throws XMLStreamException {
         if (!playbackQueue.isEmpty()) {
             this.currentEvent = playbackQueue.poll();
         } else {
             //read content of text-only element from staxReader
             String text = staxReader.getElementText();
-            this.currentEvent = new ParseEventData(XMLStreamConstants.CHARACTERS, text);
+            this.currentEvent = new ParseEventData(CHARACTERS, text, staxReader.getLocation());
         }
         
         if (this.recordingQueue != null) {
             this.recordingQueue.add(this.currentEvent);
         }
-        if (this.currentEvent.eventType != XMLStreamConstants.CHARACTERS) {
+        if (this.currentEvent.eventType != CHARACTERS) {
             throw new XMLStreamException("No element text could be read at this point in the stream");
         }
         return this.currentEvent.text;
@@ -186,26 +265,29 @@ public class RecordAndPlaybackXMLStreamReader {
     
     private static final class ParseEventData {
         
+    	private Location location = null;
         private QName name = null;
         private int eventType = -1;
         private String text = null;
         
-        private ParseEventData(int eventType, String elementText) {
+        private ParseEventData(int eventType, String elementText, Location location) {
             this.eventType = eventType;
             this.text = elementText;
+            this.location = location;
         }
         
-        private ParseEventData(int eventType, QName elementName) {
+        private ParseEventData(int eventType, QName elementName, Location location) {
             this.eventType = eventType;
             this.name = elementName;
+            this.location = location;
         }
         
         private static ParseEventData newParseEventData(int eventType, XMLStreamReader staxReader) throws XMLStreamException {
-            if ((eventType != XMLStreamConstants.START_ELEMENT) && (eventType != XMLStreamConstants.END_ELEMENT)) {
+            if ((eventType != START_ELEMENT) && (eventType != END_ELEMENT)) {
                 throw new XMLStreamException("This type of event is currently unsupported: "+eventType);
             }
             
-            ParseEventData eventData = new ParseEventData(eventType, staxReader.getName());
+            ParseEventData eventData = new ParseEventData(eventType, staxReader.getName(), staxReader.getLocation());
             //TODO: possibly set more data
             return eventData;
         }

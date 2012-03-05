@@ -5,7 +5,6 @@ import info.rsdev.xb4j.model.java.IChooser;
 import info.rsdev.xb4j.model.java.InstanceOfChooser;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader.Marker;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
@@ -49,7 +48,7 @@ public class ChoiceBinding extends AbstractSingleBinding {
 	 * @param choice
 	 * @return
 	 */
-	public IBindingBase addChoice(IBindingBase choice) {
+	public <T extends IBindingBase> T addChoice(T choice) {
 		Class<?> javaType = choice.getJavaType();
 		if (javaType == null) {
 			throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the choice '%s' does not define" +
@@ -83,18 +82,10 @@ public class ChoiceBinding extends AbstractSingleBinding {
 	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 		Object result = null;
 		for (IBindingBase candidate: this.choices.values()) {
-			Marker marker = staxReader.startRecording(); //TODO: support multiple simultaneous recordings (markings)
-			try {
-				result = candidate.toJava(staxReader, javaContext);
-				if (result != null) {
-				    setProperty(javaContext, result);
-					staxReader.stopRecording(marker);
-					break;	//TODO: check ambiguity?
-				}
-			} finally {
-			    if (!staxReader.isMarkerObsolete(marker)) {
-			        staxReader.rewindAndPlayback(marker);
-			    }
+			result = candidate.toJava(staxReader, javaContext);
+			if (result != null) {
+			    setProperty(javaContext, result);
+				break;	//TODO: check ambiguity?
 			}
 		}
 		

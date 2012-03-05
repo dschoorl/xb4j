@@ -1,5 +1,6 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
 /**
@@ -14,6 +15,11 @@ public class SequenceBinding extends AbstractBindingContainer {
 	 * Create a new {@link SequenceBinding} which inherits it's element and javatype from it's parent
 	 */
 	public SequenceBinding() {
+		setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
+	}
+	
+	public SequenceBinding(Class<?> javaType) {
+		setObjectCreator(new DefaultConstructor(javaType));
 		setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
 	}
     

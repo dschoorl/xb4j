@@ -40,10 +40,15 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
         }
         ComplexTypeReference reference = new ComplexTypeReference(element, this);
         if (parent instanceof ISingleBinding) {
-            ((ISingleBinding)parent).setChild(reference, fieldName);
+            ((ISingleBinding)parent).setChild(reference);
         } else {
-            ((IBindingContainer)parent).add(reference, fieldName);
+            ((IBindingContainer)parent).add(reference);
         }
+        
+        //In the case of anonymous ComplexType, the setter must be on the ComplexType
+        FieldAccessProvider provider = new FieldAccessProvider(fieldName);
+        setGetter(provider);
+        setSetter(provider);
     }
 
     /**
@@ -130,7 +135,7 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
 		setProperty(javaContext, result);
 		return newJavaContext;
 	}
-
+	
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
         childBinding.toXml(staxWriter, getProperty(javaContext));

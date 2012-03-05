@@ -101,15 +101,15 @@ public abstract class AbstractBindingContainer extends AbstractBindingBase imple
     @Override
     public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
     	Object newJavaContext = null;
-        if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
-            QName element = staxReader.getName();
-            if (isExpected(element)) {
-            	newJavaContext = newInstance();
-                for (IBindingBase child: getChildren()) {
-                    Object childContext = child.toJava(staxReader, select(javaContext, newJavaContext));
-                    setProperty(newJavaContext, childContext);
-                }
-            }
+    	QName expectedElement = getElement();
+    	if ((expectedElement != null) && !staxReader.isAtElementStart(expectedElement)) {
+    		return null;
+    	}
+    	
+    	newJavaContext = newInstance();
+        for (IBindingBase child: getChildren()) {
+            Object result = child.toJava(staxReader, select(javaContext, newJavaContext));
+            setProperty(newJavaContext, result);
         }
         
         return newJavaContext;

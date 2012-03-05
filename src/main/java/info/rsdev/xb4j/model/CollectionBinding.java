@@ -4,7 +4,6 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.accessor.MethodSetter;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader.Marker;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
@@ -13,7 +12,6 @@ import java.util.Collection;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 public class CollectionBinding extends AbstractBindingBase {
 	
@@ -56,46 +54,35 @@ public class CollectionBinding extends AbstractBindingBase {
         
         //read enclosing collection element (if defined)
         QName collectionElement = getElement();
-        if (collectionElement != null) {
-            if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
-                QName element = staxReader.getName();
-                if (!isExpected(element)) { //take optional into account??
-                    throw new Xb4jException(String.format("Expected collection tag %s, but encountered element %s",
-                            collectionElement, element));
-                }
+        if ((collectionElement != null) && !staxReader.isAtElementStart(collectionElement)) {
+            throw new Xb4jException(String.format("Expected collection tag %s, but encountered element %s",
+                    collectionElement, staxReader.getName()));
+        }
+        
+        int occurences = 0;
+        boolean proceed = true;
+        while (proceed) {
+            proceed = (itemBinding.toJava(staxReader, collection) != null);
+            if (proceed) {
+            	occurences++;
+            	if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
+            		throw new Xb4jException(String.format("Found %d occurences, but no mare than %d are allowed", occurences, maxOccurs));
+            	}
             }
         }
         
-        Object result = null;
-        boolean proceed = true;
-        while (proceed) {
-            Marker marker = staxReader.startRecording();
-            try {
-                result = itemBinding.toJava(staxReader, collection);
-                if (proceed = (result != null)) {
-                    if (!staxReader.isMarkerObsolete(marker)) {
-                        staxReader.stopRecording(marker);
-                    }
-                }
-            } finally {
-                if (!staxReader.isMarkerObsolete(marker)) {
-                    staxReader.rewindAndPlayback(marker);
-                }
-            }
+        if ((occurences == 0) && !isOptional()) {
+        	throw new Xb4jException("Mandatory collection has no content");
         }
+        
         if (javaContext != null) {
         	setProperty(javaContext, collection);
         }
         
         //read end of enclosing collection element (if defined)
-        if (collectionElement != null) {
-            if (staxReader.nextTag() == XMLStreamReader.END_ELEMENT) {
-                QName element = staxReader.getName();
-                if (!isExpected(element)) { //take optional into account??
-                    throw new Xb4jException(String.format("Encountered unexpected close tag %s (expected close tag %s",
-                            element, collectionElement));
-                }
-            }
+        if ((collectionElement != null) && !staxReader.isAtElementEnd(collectionElement)) {
+            throw new Xb4jException(String.format("Encountered unexpected close tag %s (expected close tag %s)",
+                    staxReader.getName(), collectionElement));
         }
         
 		return newJavaContext;
@@ -110,7 +97,7 @@ public class CollectionBinding extends AbstractBindingBase {
             if (isOptional()) {
                 return;
             } else {
-                throw new Xb4jException(String.format("This collection is not optional: ", this));
+                throw new Xb4jException(String.format("This collection is not optional: %s", this));
             }
         }
         
@@ -132,6 +119,14 @@ public class CollectionBinding extends AbstractBindingBase {
         if (!isEmptyElement && (element != null)) {
             staxWriter.closeElement(element);
         }
+	}
+	
+	public CollectionBinding setMaxOccurs(int newMaxOccurs) {
+		if (newMaxOccurs <= 1) {
+			throw new Xb4jException("maxOccurs must be 1 or higher: "+newMaxOccurs);
+		}
+		this.maxOccurs = newMaxOccurs;
+		return this;
 	}
 	
 }
