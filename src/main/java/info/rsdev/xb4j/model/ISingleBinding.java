@@ -10,10 +10,10 @@ import info.rsdev.xb4j.model.java.accessor.ISetter;
  */
 public interface ISingleBinding extends IBindingBase {
 	
-	public IBindingBase setChild(IBindingBase childContainer);
+	public <T extends IBindingBase> T setChild(T childContainer);
 	
-	public IBindingBase setChild(IBindingBase childBinding, IGetter getter, ISetter setter);
+	public <T extends IBindingBase> T setChild(T childBinding, IGetter getter, ISetter setter);
 	
-	public IBindingBase setChild(IBindingBase childBinding, String fieldname);
+	public <T extends IBindingBase> T setChild(T childBinding, String fieldname);
 	
 }

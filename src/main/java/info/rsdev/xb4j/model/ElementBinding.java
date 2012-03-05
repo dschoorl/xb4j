@@ -1,5 +1,6 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
@@ -13,8 +14,11 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * <p>Translates a text-only element to a Java field and vice versa. The Java field is expected to be a String.
- * Other types will need a converter to convert the field to and from a String.</p>
+ * <p>An {@link ElementBinding} can represent an element in the xml world. It can also represent a counterpart object in
+ * the Java world. At least one of the two is required. An ElementBinding can hold other bindings, E.g. 
+ * a {@link SequenceBinding}, a {@link ComplexTypeReference} or a {@link ChoiceBinding}.</p>
+ * <p>An ElementBinding cannot contain text. When you need an element that must contain text, use {@link SimpleTypeBinding} 
+ * instead.</p>
  * 
  * TODO: add support for fixed / default values in the xml world?
  * TODO: simple type cannot be an empty element??
@@ -70,9 +74,9 @@ public class ElementBinding extends AbstractSingleBinding {
     	}
         setProperty(javaContext, newJavaContext);
         
-//        if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement)) {
-//        	throw new Xb4jException("No End tag encountered: ".concat(expectedElement.toString()));
-//        }
+        if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement)) {
+            throw new Xb4jException("No End tag encountered: ".concat(expectedElement.toString()));
+        }
         
         return newJavaContext;
     }

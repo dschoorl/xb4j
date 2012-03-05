@@ -6,13 +6,9 @@ import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader.Marker;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 /**
  *

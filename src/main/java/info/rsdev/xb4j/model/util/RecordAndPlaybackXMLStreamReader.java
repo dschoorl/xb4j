@@ -189,11 +189,19 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
      * @throws XMLStreamException any exception from the underlying stax reader is propagated up
      */
     public boolean isAtElementStart(QName expectedElement) throws XMLStreamException {
-    	return isAtElement(expectedElement, XMLStreamReader.START_ELEMENT);
+        boolean isAt = isAtElement(expectedElement, XMLStreamReader.START_ELEMENT);
+        if (isAt && logger.isInfoEnabled()) {
+            logger.info(String.format("Found expected element <%s> open tag ", expectedElement));
+        }
+    	return isAt;
     }
     
     public boolean isAtElementEnd(QName expectedElement) throws XMLStreamException {
-    	return isAtElement(expectedElement, XMLStreamReader.END_ELEMENT);
+        boolean isAt = isAtElement(expectedElement, XMLStreamReader.END_ELEMENT);
+        if (isAt && logger.isInfoEnabled()) {
+            logger.info(String.format("Found expected element </%s> close tag ", expectedElement));
+        }
+        return isAt;
     }
     
     private boolean isAtElement(QName expectedElement, int eventType) throws XMLStreamException {

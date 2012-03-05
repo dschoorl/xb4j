@@ -5,6 +5,7 @@ import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
+import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -44,6 +45,7 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
         } else {
             ((IBindingContainer)parent).add(reference);
         }
+        setElementFetchStrategy(new FetchFromParentStrategy(this));
         
         //In the case of anonymous ComplexType, the setter must be on the ComplexType
         FieldAccessProvider provider = new FieldAccessProvider(fieldName);
@@ -59,7 +61,8 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
     public ComplexTypeBinding(String identifier, String namespaceUri) {
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
-        setElementFetchStrategy(new FetchFromParentStrategy(this));
+        //the element fetch strategy will be replaced by a real one when this 'type' is copied into a binding hierarchy
+        setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
     }
 
     /**

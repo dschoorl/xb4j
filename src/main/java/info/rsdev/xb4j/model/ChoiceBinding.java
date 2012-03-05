@@ -6,13 +6,15 @@ import info.rsdev.xb4j.model.java.InstanceOfChooser;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
-import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
+import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
+import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
@@ -30,9 +32,13 @@ public class ChoiceBinding extends AbstractSingleBinding {
 	 * set (so this won't work)
 	 */
 	public ChoiceBinding() {
-		setElementFetchStrategy(new FetchFromParentStrategy(this));
+		setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
 	}
 	
+    public ChoiceBinding(QName element) {
+        setElementFetchStrategy(new DefaultElementFetchStrategy(element));
+    }
+    
 	public IBindingBase addChoice(IBindingBase choice, String fieldName, IChooser selector) {
 		//Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
 		FieldAccessProvider provider = new FieldAccessProvider(fieldName);
@@ -74,21 +80,46 @@ public class ChoiceBinding extends AbstractSingleBinding {
 	
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
-		IBindingBase selected = selectBinding(javaContext);
-		selected.toXml(staxWriter, javaContext);	//how determine getter/setter to use
+        QName element = getElement();
+        
+        //mixed content is not yet supported -- there are either child elements or there is content
+        javaContext = getProperty(javaContext);
+        IBindingBase selected = selectBinding(javaContext);
+        boolean isEmptyElement = selected == null;
+        if (element != null) {
+            staxWriter.writeElement(element, isEmptyElement);
+        }
+        
+        if (selected != null) {
+            selected.toXml(staxWriter, javaContext);
+        }
+        
+        if (!isEmptyElement && (element != null)) {
+            staxWriter.closeElement(element);
+        }
 	}
 	
 	@Override
 	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+        //check if we are on the right element -- consume the xml when needed
+        QName expectedElement = getElement();
+        if ((expectedElement != null) && !staxReader.isAtElementStart(expectedElement)) {
+            return null;
+        }
+        
 		Object result = null;
 		for (IBindingBase candidate: this.choices.values()) {
-			result = candidate.toJava(staxReader, javaContext);
+			result = candidate.toJava(staxReader, getProperty(javaContext));
 			if (result != null) {
 			    setProperty(javaContext, result);
 				break;	//TODO: check ambiguity?
 			}
 		}
 		
+        if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement)) {
+            throw new Xb4jException("No End tag encountered: ".concat(expectedElement.toString()));
+        }
+        
 		return result;
 	}
 	

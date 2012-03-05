@@ -12,7 +12,6 @@ import java.util.Collections;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 
 public abstract class AbstractBindingContainer extends AbstractBindingBase implements IBindingContainer {
@@ -25,7 +24,7 @@ public abstract class AbstractBindingContainer extends AbstractBindingBase imple
      * @param childBinding
      * @return the childBinding
      */
-    public IBindingBase add(IBindingBase childBinding, IGetter getter, ISetter setter) {
+    public <T extends IBindingBase> T add(T childBinding, IGetter getter, ISetter setter) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
@@ -43,7 +42,7 @@ public abstract class AbstractBindingContainer extends AbstractBindingBase imple
      * @param fieldName
      * @return the childBinding
      */
-    public IBindingBase add(IBindingBase childBinding, String fieldName) {
+    public <T extends IBindingBase> T add(T childBinding, String fieldName) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
@@ -64,29 +63,10 @@ public abstract class AbstractBindingContainer extends AbstractBindingBase imple
      * @param childBinding the binding to add to this group
      * @return the childBinding
      */
-    public IBindingBase add(IBindingBase childBinding) {
+    public <T extends IBindingBase> T add(T childBinding) {
         this.children.add(childBinding);
         childBinding.setParent(this);   //maintain bidirectional relationship
         return childBinding;
-    }
-    
-    public ChoiceBinding add(ChoiceBinding childBinding) {
-    	add((IBindingBase)childBinding);
-    	return childBinding;
-    }
-    
-    public ComplexTypeBinding add(ComplexTypeBinding childBinding) {
-    	add((IBindingBase)childBinding);
-    	return childBinding;
-    }
-    
-    /**
-     * @param childBinding
-     * @return the {@link SequenceBinding} that was added to this binding container
-     */
-    public SequenceBinding add(SequenceBinding childBinding) {
-    	add((IBindingBase)childBinding);
-    	return childBinding;
     }
     
 	public IBindingContainer add(IBindingContainer childContainer) {

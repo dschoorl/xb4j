@@ -1,14 +1,18 @@
 package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
+import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 /**
- * This class is a stand-in for a {@link ComplexTypeBinding}, so that a binding can be re-used in multiple 
- * {@link RootBinding} hierarchies.
+ * <p>This class is a special {@link ElementBinding}; it can only contain a single {@link ComplexTypeBinding}. The 
+ * ComplexTypeBinding can be anonymous or a type reference. as it's child so that a binding can be re-used in multiple 
+ * {@link RootBinding} hierarchies.</p>
+ * 
+ * TODO: setChild methods from ElementBinding are available to the outside world: solve this!
  * 
  * @author Dave Schoorl
  */
@@ -73,6 +77,7 @@ public class ComplexTypeReference extends ElementBinding {
             ComplexTypeBinding complexType = root.getModel().getComplexType(identifier, namespaceUri);
             referenced = complexType.copy();    //copy without parent
             setChild(referenced);
+            referenced.setElementFetchStrategy(new FetchFromParentStrategy(referenced));
         }
         return referenced;
     }

@@ -12,22 +12,12 @@ public abstract class AbstractSingleBinding extends AbstractBindingBase implemen
 	
 	private IBindingBase childBinding = null;
 	
-	public IBindingContainer setChild(IBindingContainer container) {
-		setChild((IBindingBase)container);
-		return container;
-	}
-	
-	public SequenceBinding setChild(SequenceBinding container) {
-		setChild((IBindingBase)container);
-		return container;
-	}
-	
-    public IBindingBase setChild(IBindingBase childBinding, IGetter getter, ISetter setter) {
+    public <T extends IBindingBase> T setChild(T childBinding, IGetter getter, ISetter setter) {
     	setChild(childBinding);
     	childBinding.setGetter(getter);
         childBinding.setSetter(setter);
         
-        return this;
+        return childBinding;
     }
     
     /**
@@ -38,7 +28,7 @@ public abstract class AbstractSingleBinding extends AbstractBindingBase implemen
      * @param fieldName
      * @return the childBinding
      */
-    public IBindingBase setChild(IBindingBase childBinding, String fieldName) {
+    public <T extends IBindingBase> T setChild(T childBinding, String fieldName) {
         if (fieldName == null) {
         	throw new NullPointerException("Fieldname cannot be null");
         }
@@ -50,7 +40,7 @@ public abstract class AbstractSingleBinding extends AbstractBindingBase implemen
         return childBinding;
     }
 
-    public IBindingBase setChild(IBindingBase childBinding) {
+    public <T extends IBindingBase> T setChild(T childBinding) {
     	if (childBinding == null) {
     		throw new NullPointerException("Child IBinding must not be null when you explicitly set it");
     	}
