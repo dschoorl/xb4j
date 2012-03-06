@@ -76,7 +76,7 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
         this.childBinding = original.childBinding;
     }
     
-    public IBindingBase setChild(IBindingBase childBinding, String fieldName) {
+    public <T extends IBindingBase> T setChild(T childBinding, String fieldName) {
         if (fieldName == null) {
             throw new NullPointerException("Fieldname cannot be null");
         }
@@ -87,7 +87,7 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
         return setChild(childBinding);
     }
     
-    public IBindingBase setChild(IBindingBase childBinding) {
+    public <T extends IBindingBase> T setChild(T childBinding) {
     	if (childBinding == null) {
     		throw new NullPointerException(String.format("Childbinding for %s cannot be null", this));
     	}
@@ -99,16 +99,6 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
     	return childBinding;
     }
     
-    public SequenceBinding setChild(SequenceBinding childBinding) {
-    	setChild((IBindingBase)childBinding);
-    	return childBinding;
-    }
-
-    public ChoiceBinding setChild(ChoiceBinding childBinding) {
-    	setChild((IBindingBase)childBinding);
-    	return childBinding;
-    }
-
 	public String getIdentifier() {
 	    return this.identifier;
 	}
