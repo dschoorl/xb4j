@@ -42,7 +42,7 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
         ComplexTypeReference reference = new ComplexTypeReference(element, this);
         if (parent instanceof ISingleBinding) {
             ((ISingleBinding)parent).setChild(reference);
-        } else {
+        } else if (parent instanceof IBindingContainer) {
             ((IBindingContainer)parent).add(reference);
         }
         setElementFetchStrategy(new FetchFromParentStrategy(this));

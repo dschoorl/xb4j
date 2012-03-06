@@ -168,7 +168,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                     		if (characters.length() > 0) {
                     			//TODO: salvage characters to recordingQueue
                     			if (logger.isTraceEnabled()) {
-                    				logger.trace(String.format("Skipping over stax event %s: %s", EVENTNAMES[eventType]), characters);
+                    				logger.trace(String.format("Skipping over stax event %s: %s", EVENTNAMES[eventType], characters));
                     			}
                     		}
                     	} else {
