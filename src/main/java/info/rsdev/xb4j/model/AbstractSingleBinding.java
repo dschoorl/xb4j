@@ -1,5 +1,6 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
@@ -18,6 +19,17 @@ public abstract class AbstractSingleBinding extends AbstractBindingBase implemen
         childBinding.setSetter(setter);
         
         return childBinding;
+    }
+    
+    public AbstractSingleBinding() {}
+    
+    /**
+     * Copy constructor
+     * @param original
+     */
+    protected AbstractSingleBinding(AbstractSingleBinding original) {
+        super(original);
+        this.childBinding = original.childBinding;
     }
     
     /**
@@ -44,6 +56,9 @@ public abstract class AbstractSingleBinding extends AbstractBindingBase implemen
     	if (childBinding == null) {
     		throw new NullPointerException("Child IBinding must not be null when you explicitly set it");
     	}
+        if ((this.childBinding != null) && !this.childBinding.equals(childBinding)) {
+            throw new Xb4jException(String.format("Cannot replace existing child %s with ew one: %s", this.childBinding, childBinding));
+        }
         this.childBinding = childBinding;
         childBinding.setParent(this);   //maintain bidirectional relationship
         return childBinding;

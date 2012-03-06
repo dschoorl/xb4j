@@ -1,6 +1,5 @@
 package info.rsdev.xb4j.model;
 
-import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
@@ -20,13 +19,11 @@ import javax.xml.stream.XMLStreamException;
  * @see ComplexTypeReference
  * @author Dave Schoorl
  */
-public class ComplexTypeBinding extends AbstractBindingBase implements IModelAware {
+public class ComplexTypeBinding extends AbstractSingleBinding implements IModelAware {
     
     private String identifier = null;   //only needed when registered with BindingModel
     
     private String namespaceUri = null; //only needed when registered with BindingModel
-    
-    private IBindingBase childBinding = null;
     
     private BindingModel model = null;  //this is set on ComplexTypeBindings that are registered with the BindingModel
     
@@ -73,30 +70,6 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
         super(original);
         this.identifier = original.identifier;
         this.namespaceUri = original.namespaceUri;
-        this.childBinding = original.childBinding;
-    }
-    
-    public <T extends IBindingBase> T setChild(T childBinding, String fieldName) {
-        if (fieldName == null) {
-            throw new NullPointerException("Fieldname cannot be null");
-        }
-        FieldAccessProvider provider = new FieldAccessProvider(fieldName);
-        childBinding.setGetter(provider);
-        childBinding.setSetter(provider);
-        
-        return setChild(childBinding);
-    }
-    
-    public <T extends IBindingBase> T setChild(T childBinding) {
-    	if (childBinding == null) {
-    		throw new NullPointerException(String.format("Childbinding for %s cannot be null", this));
-    	}
-    	if ((this.childBinding != null) && !this.childBinding.equals(childBinding)) {
-    		throw new Xb4jException("");
-    	}
-    	this.childBinding = childBinding;
-    	childBinding.setParent(this);  //Maintain bidirectional relationship
-    	return childBinding;
     }
     
 	public String getIdentifier() {
@@ -124,14 +97,14 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
 	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 		Object newJavaContext = newInstance();
 		javaContext = select(javaContext, newJavaContext);
-		Object result = childBinding.toJava(staxReader, javaContext);
+		Object result = getChildBinding().toJava(staxReader, javaContext);
 		setProperty(javaContext, result);
 		return newJavaContext;
 	}
 	
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
-        childBinding.toXml(staxWriter, getProperty(javaContext));
+        getChildBinding().toXml(staxWriter, getProperty(javaContext));
 	}
 
     /**
@@ -139,7 +112,7 @@ public class ComplexTypeBinding extends AbstractBindingBase implements IModelAwa
      * @param complexTypeReference the parent in the hierarchy
      * @return a copy of this {@link ComplexTypeBinding}
      */
-    public ComplexTypeBinding copy() {
+    ComplexTypeBinding copy() {
         return new ComplexTypeBinding(this);
     }
     
