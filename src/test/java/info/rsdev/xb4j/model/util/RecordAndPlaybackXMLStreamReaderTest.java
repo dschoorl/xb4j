@@ -61,69 +61,67 @@ public class RecordAndPlaybackXMLStreamReaderTest {
     @Test
     public void testMultiMarkerRewindAndPlayBack() throws XMLStreamException {
         InputStream stream = new ByteArrayInputStream("<root><level1><level2><child>Dit is tekst</child></level2></level1></root>".getBytes());
-        XMLStreamReader staxReader = XMLInputFactory.newInstance().createXMLStreamReader(stream);
-        RecordAndPlaybackXMLStreamReader reader = new RecordAndPlaybackXMLStreamReader(staxReader);
+        RecordAndPlaybackXMLStreamReader staxReader = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
         
-        Marker startMarker = reader.startRecording();
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());
-        assertEquals("root", reader.getName().getLocalPart());
+        Marker startMarker = staxReader.startRecording();
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());
+        assertEquals("root", staxReader.getName().getLocalPart());
         
-        Marker level1Marker = reader.startRecording();
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());
-        assertEquals("level1", reader.getName().getLocalPart());
+        Marker level1Marker = staxReader.startRecording();
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());
+        assertEquals("level1", staxReader.getName().getLocalPart());
         
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());  //goto start of level2
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());  //goto start of child
-        assertEquals("child", reader.getName().getLocalPart());
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());  //goto start of level2
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());  //goto start of child
+        assertEquals("child", staxReader.getName().getLocalPart());
         
-        reader.rewindAndPlayback(level1Marker);
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());
-        assertEquals("level1", reader.getName().getLocalPart());
+        staxReader.rewindAndPlayback(level1Marker);
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());
+        assertEquals("level1", staxReader.getName().getLocalPart());
         
         //we can still go back to the start marker
-        reader.rewindAndPlayback(startMarker);
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());
-        assertEquals("root", reader.getName().getLocalPart());
+        staxReader.rewindAndPlayback(startMarker);
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());
+        assertEquals("root", staxReader.getName().getLocalPart());
     }
     
     @Test
     public void testMultiMarker() throws XMLStreamException {
         InputStream stream = new ByteArrayInputStream("<root><level1><level2><child>Dit is tekst</child></level2></level1></root>".getBytes());
-        XMLStreamReader staxReader = XMLInputFactory.newInstance().createXMLStreamReader(stream);
-        RecordAndPlaybackXMLStreamReader reader = new RecordAndPlaybackXMLStreamReader(staxReader);
+        RecordAndPlaybackXMLStreamReader staxReader = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
         
-        Marker startMarker = reader.startRecording();
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());
-        assertEquals("root", reader.getName().getLocalPart());
+        Marker startMarker = staxReader.startRecording();
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());
+        assertEquals("root", staxReader.getName().getLocalPart());
         
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());
-        assertEquals("level1", reader.getName().getLocalPart());
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());
+        assertEquals("level1", staxReader.getName().getLocalPart());
         
-        Marker level2Marker = reader.startRecording();
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());  //goto start of level2
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());  //goto start of child
-        assertEquals("child", reader.getName().getLocalPart());
+        Marker level2Marker = staxReader.startRecording();
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());  //goto start of level2
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());  //goto start of child
+        assertEquals("child", staxReader.getName().getLocalPart());
         
         //we can still go back to the start marker
-        reader.stopRecording(level2Marker);
-        assertTrue(reader.isMarkerObsolete(level2Marker));
-        assertFalse(reader.isMarkerObsolete(startMarker));
-        assertTrue(reader.isRecording());
+        staxReader.stopRecording(level2Marker);
+        assertTrue(staxReader.isMarkerObsolete(level2Marker));
+        assertFalse(staxReader.isMarkerObsolete(startMarker));
+        assertTrue(staxReader.isRecording());
         
         //continue reading from the stream (and recording)
-        assertEquals("Dit is tekst", reader.getElementText());
+        assertEquals("Dit is tekst", staxReader.getElementText());
         
         //We can now still go back to the root marker??
-        reader.rewindAndPlayback(startMarker);
-        assertTrue(reader.isMarkerObsolete(startMarker));
-        assertFalse(reader.isRecording());
+        staxReader.rewindAndPlayback(startMarker);
+        assertTrue(staxReader.isMarkerObsolete(startMarker));
+        assertFalse(staxReader.isRecording());
         
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());
-        assertEquals("root", reader.getName().getLocalPart());
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());
-        assertEquals("level1", reader.getName().getLocalPart());
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());  //goto start of level2
-        assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());  //goto start of child
-        assertEquals("child", reader.getName().getLocalPart());
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());
+        assertEquals("root", staxReader.getName().getLocalPart());
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());
+        assertEquals("level1", staxReader.getName().getLocalPart());
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());  //goto start of level2
+        assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());  //goto start of child
+        assertEquals("child", staxReader.getName().getLocalPart());
     }
 }

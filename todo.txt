@@ -2,7 +2,7 @@ TODO
 ----
 - allow the java instance to be constructed by a non-default constructor method
 - allow the java instance to be created through a factory method
-- marshall/unmarshall a java object tree
+- simplify API
 - support attributes
 - support namespaces for attributes
 - configure binding through xml binding file
@@ -13,3 +13,4 @@ DONE
 20120213  bind a java class to an xml element and marshall/unmarshall
 20120214  allow the element to have namespaces
 20120229  add converter mechanism to convert Java field to and from a String
+20120306  marshall/unmarshall a java object tree

@@ -59,7 +59,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     }
     
     /**
-     * <p>Keep track of all parsing events as of now. Parsing events read from the stream are both returned and recorded.
+     * <p>Keep track of all parsing events as of now (including the current event). Parsing events read from the stream are both returned and recorded.
      * When we were already recording, all current recodings are discarded, as if first {@link #stopAndWipeRecording()} was
      * called.</p>
      * <p>When startRecording is called while playing back recordings, no current recordings must be dropped.</p>
@@ -72,15 +72,19 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         //hashCode is used as a check to identify if the marker points to the expected ParseEventData instance
         int hashCode = 0;
         if (!recordingQueue.isEmpty()) {
-            hashCode = recordingQueue.peek().hashCode();
+        	ParseEventData top = recordingQueue.peekLast();
+        	if (top != null) {
+        		hashCode = top.hashCode();
+        	}
         }
-        Marker marker = new Marker(recordingQueue.size(), hashCode);
+        Marker marker = new Marker(recordingQueue.size(), hashCode, this.currentEvent);
         publishedMarkers.add(marker);
+        
         return marker;
     }
     
     /**
-     * Stop recording parsing events and throw away any recordings upto and including the one pointed at by the {@link Marker}
+     * Stop recording parsing events and throw away all recordings and markers
      */
     public void stopAndWipeRecording() {
         clearRecordings();
@@ -103,6 +107,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         if (publishedMarkers.isEmpty()) {
             clearRecordings();
         }
+        this.currentEvent = marker.getCurrentEvent();
     }
     
     private void removeMarker(Marker marker) {
@@ -128,7 +133,10 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         boolean isObsolete = !publishedMarkers.contains(marker);
         isObsolete = isObsolete || recordingQueue == null;
         isObsolete = isObsolete || (recordingQueue.size() < marker.markedAt());
-        isObsolete = isObsolete || (!marker.isAtHead() && (recordingQueue.get(marker.markedAt() - 1).hashCode() != marker.getHashCode()));
+        if (!marker.isAtHead()) {
+        	ParseEventData prior = recordingQueue.get(marker.markedAt() - 1);
+            isObsolete = isObsolete || ((prior != null) && (prior.hashCode() != marker.getHashCode()));
+        }
         return isObsolete;
     }
     
@@ -148,14 +156,26 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
      */
     public int nextTag() throws XMLStreamException {
         int eventType = 0;
-        while ((eventType != START_ELEMENT) && (eventType != END_DOCUMENT) && (eventType != END_ELEMENT)) {
+        while ((eventType != START_ELEMENT) && (eventType != END_ELEMENT) && (eventType != END_DOCUMENT)) {
             if (!playbackQueue.isEmpty()) {
                 this.currentEvent = playbackQueue.poll();
                 eventType = currentEvent.eventType;
             } else {
-                while ((eventType != START_ELEMENT) && (eventType != END_DOCUMENT) && (eventType != END_ELEMENT)) {
-                    if (eventType > 0) {
-                        logger.info(String.format("Skipping over stax event: %s", EVENTNAMES[eventType]));
+                while ((eventType != START_ELEMENT) && (eventType != END_ELEMENT) && (eventType != END_DOCUMENT)) {
+                    if ((eventType > 0) && (this.currentEvent != null) && (this.currentEvent.eventType == START_ELEMENT)) {
+                    	if (eventType == CHARACTERS) {
+                    		String characters = staxReader.getText().trim();
+                    		if (characters.length() > 0) {
+                    			//TODO: salvage characters to recordingQueue
+                    			if (logger.isTraceEnabled()) {
+                    				logger.trace(String.format("Skipping over stax event %s: %s", EVENTNAMES[eventType]), characters);
+                    			}
+                    		}
+                    	} else {
+                    		if (logger.isTraceEnabled()) {
+                    			logger.trace(String.format("Skipping over stax event %s ", EVENTNAMES[eventType]));
+                    		}
+                    	}
                     }
                     eventType = staxReader.next();
                 }
@@ -164,10 +184,9 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                 } else if (eventType == END_DOCUMENT) {
                     this.currentEvent = new ParseEventData(eventType, (String) null, staxReader.getLocation());
                 }
-                
-                if (this.recordingQueue != null) {
-                    this.recordingQueue.add(this.currentEvent);
-                }
+            }
+            if (this.recordingQueue != null) {
+                this.recordingQueue.add(this.currentEvent);
             }
         }
         return this.currentEvent.eventType;
@@ -190,16 +209,16 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
      */
     public boolean isAtElementStart(QName expectedElement) throws XMLStreamException {
         boolean isAt = isAtElement(expectedElement, XMLStreamReader.START_ELEMENT);
-        if (isAt && logger.isInfoEnabled()) {
-            logger.info(String.format("Found expected element <%s> open tag ", expectedElement));
+        if (isAt && logger.isTraceEnabled()) {
+            logger.trace(String.format("Found expected element <%s> open tag ", expectedElement));
         }
     	return isAt;
     }
     
     public boolean isAtElementEnd(QName expectedElement) throws XMLStreamException {
         boolean isAt = isAtElement(expectedElement, XMLStreamReader.END_ELEMENT);
-        if (isAt && logger.isInfoEnabled()) {
-            logger.info(String.format("Found expected element </%s> close tag ", expectedElement));
+        if (isAt && logger.isTraceEnabled()) {
+            logger.trace(String.format("Found expected element </%s> close tag ", expectedElement));
         }
         return isAt;
     }
@@ -209,18 +228,22 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         	boolean matchesExpected = false;
         	Marker marker = startRecording();
         	int realEvent = 0;
+        	QName encounteredName = null;
         	try {
         		realEvent = nextTag();
-	            if ((realEvent != END_DOCUMENT) && (realEvent == eventType)) {
-	                QName element = getName();
-	                matchesExpected = expectedElement.equals(element);
-	            }
+        		if (realEvent != END_DOCUMENT) {
+		            if (realEvent == eventType) {	//should only be start- or end element
+		            	encounteredName = getName();
+		                matchesExpected = expectedElement.equals(encounteredName);
+		            }
+        		}
         	} finally {
                 if (!matchesExpected) {
                 	rewindAndPlayback(marker);
-                	QName encounteredName = (realEvent==START_ELEMENT||realEvent==END_ELEMENT)?getName():null;
-                	logger.info(String.format("Expected %s (%s), but found %s (%s @ %s)", EVENTNAMES[eventType], expectedElement,
-                			EVENTNAMES[realEvent], encounteredName, getLocation()));
+                	if (logger.isTraceEnabled()) {
+	                	logger.trace(String.format("Expected %s (%s), but found %s (%s @ %s)", EVENTNAMES[eventType], expectedElement,
+	                			EVENTNAMES[realEvent], encounteredName, getLocation()));
+                	}
                 } else {
         			stopRecording(marker);
                 }
@@ -252,6 +275,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         if (this.currentEvent.eventType != CHARACTERS) {
             throw new XMLStreamException("No element text could be read at this point in the stream");
         }
+        
         return this.currentEvent.text;
     }
 
@@ -267,6 +291,40 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
             this.recordingQueue = null;
         }
         this.publishedMarkers.clear();
+    }
+    
+    @Override
+    public String toString() {
+    	String separator = "";
+    	StringBuffer sb = new StringBuffer("RecordAndPlaybackXMLStreamReader[");
+    	if (this.currentEvent != null) {
+    		sb.append("currentEvent=").append(EVENTNAMES[currentEvent.eventType]);
+    		if (currentEvent.name != null) {
+    			sb.append(" <");
+    			if (currentEvent.eventType == END_ELEMENT) {
+    				sb.append("/");
+    			}
+    			sb.append(currentEvent.name.toString()).append(">");
+    		}
+    		separator = ", ";
+    	}
+    	
+    	sb.append(separator);
+    	if ((recordingQueue != null) && !recordingQueue.isEmpty()) {
+    		sb.append("recordingQueueSize=").append(recordingQueue.size());
+    	} else {
+    		sb.append("isRecording=").append(isRecording());
+    	}
+    	
+    	sb.append(", ");
+    	if (!playbackQueue.isEmpty()) {
+    		sb.append("playbackQueueSize=").append(playbackQueue.size());
+    	} else {
+    		sb.append("isPlayingback=false");
+    	}
+    	sb.append("]");
+    	
+    	return sb.toString();
     }
     
     private static final class ParseEventData {
@@ -362,9 +420,15 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
          */
         private final int hashCode;
         
-        private Marker(int recordingQueueSize, int hashCode) {
+        /**
+         * The currentEvent at the time the marking was set
+         */
+        private final ParseEventData currentEvent;
+        
+        private Marker(int recordingQueueSize, int hashCode, ParseEventData current) {
             this.hashCode = hashCode;
-            indexIntoRecordingQueue = recordingQueueSize;
+            this.indexIntoRecordingQueue = recordingQueueSize;
+            this.currentEvent = current;
         }
         
         public int markedAt() {
@@ -373,6 +437,10 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         
         private int getHashCode() {
             return hashCode;
+        }
+        
+        private ParseEventData getCurrentEvent() {
+        	return this.currentEvent;
         }
         
         public boolean isAtHead() {

@@ -81,8 +81,8 @@ public class BindingModel {
             staxReader = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
             Marker startMarker = staxReader.startRecording();
             if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
-                staxReader.rewindAndPlayback(startMarker);
                 QName element = staxReader.getName();
+                staxReader.rewindAndPlayback(startMarker);
                 if (xmlToClass.containsKey(element)) {
                     RootBinding binding = xmlToClass.get(element);
                     return binding.toJava(staxReader, null);//context.unmarshall(staxReader, binding, null);

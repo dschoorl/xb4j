@@ -49,11 +49,12 @@ public class ComplexTypeReference extends ElementBinding {
      * @param referencedBinding
      */
     ComplexTypeReference(QName element, ComplexTypeBinding referencedBinding) {
+    	//TODO: simplify -> can we not skip ComplexTypeReference when dealing with anonymous type (just use only a ComplexTypeBinding)
         if (referencedBinding == null) {
             throw new NullPointerException("ComplexTypeBinding cannot be null");
         }
         setChild(referencedBinding);
-        setElementFetchStrategy(new DefaultElementFetchStrategy(element));
+        setElementFetchStrategy(new DefaultElementFetchStrategy(element));	//anonymous type element fetch strategy
     }
 
     private void setIdentifier(String newIdentifier) {
@@ -77,7 +78,7 @@ public class ComplexTypeReference extends ElementBinding {
             ComplexTypeBinding complexType = root.getModel().getComplexType(identifier, namespaceUri);
             referenced = complexType.copy();    //copy without parent
             setChild(referenced);
-            referenced.setElementFetchStrategy(new FetchFromParentStrategy(referenced));
+            referenced.setElementFetchStrategy(new FetchFromParentStrategy(referenced));	//referenced type element fetch strategy
         }
         return referenced;
     }

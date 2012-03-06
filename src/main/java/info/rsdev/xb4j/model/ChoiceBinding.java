@@ -107,6 +107,7 @@ public class ChoiceBinding extends AbstractSingleBinding {
             return null;
         }
         
+        //Should we start recording to return to this element when necessary - currently this is responsibility of choices
 		Object result = null;
 		for (IBindingBase candidate: this.choices.values()) {
 			result = candidate.toJava(staxReader, getProperty(javaContext));
