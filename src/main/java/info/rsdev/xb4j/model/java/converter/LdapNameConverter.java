@@ -11,7 +11,7 @@ import javax.naming.ldap.LdapName;
  */
 public class LdapNameConverter implements IValueConverter {
 	
-	public static final LdapNameConverter INSTANCE = new LdapNameConverter(); 
+	public static final LdapNameConverter INSTANCE = new LdapNameConverter();
 
 	@Override
 	public Object toObject(String value) throws Xb4jException {
@@ -28,7 +28,7 @@ public class LdapNameConverter implements IValueConverter {
 	public String toText(Object value) throws Xb4jException {
 		if (value == null) { return null; }
 		if (!(value instanceof LdapName)) {
-			throw new IllegalArgumentException(String.format("Expected a %s, but was a %s", LdapName.class.getName(), 
+			throw new Xb4jException(String.format("Expected a %s, but was a %s", LdapName.class.getName(), 
 					value.getClass().getName()));
 		}
 		return ((LdapName)value).toString();

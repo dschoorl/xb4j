@@ -1,5 +1,6 @@
 package info.rsdev.xb4j.model;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.converter.IValueConverter;
 import info.rsdev.xb4j.model.java.converter.NOPConverter;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
@@ -40,7 +41,7 @@ public class SimpleTypeBinding extends AbstractBindingBase {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
         if ((expectedElement != null) && !staxReader.isAtElementStart(expectedElement)) {
-        	return null;
+        	return null;	//when mandatory: throw exception? -- but then we also need to add probe functionality to support ChoiceBinding
         }
         
         Object value = this.converter.toObject(staxReader.getElementText());	//this also reads the end element
@@ -53,14 +54,21 @@ public class SimpleTypeBinding extends AbstractBindingBase {
     public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
         QName element = getElement();
         
-        staxWriter.writeElement(element, false);
-        
         Object elementValue = getProperty(javaContext);
-        if (elementValue != null) {
-            staxWriter.writeContent(this.converter.toText(elementValue));
+        if ((elementValue == null) && (!isOptional())) {
+        	throw new Xb4jException(String.format("No text for mandatory element %s", element));
         }
         
-        staxWriter.closeElement(element);
+        boolean isEmpty = (elementValue == null);
+        if (!isOptional() || !isEmpty) {
+        	staxWriter.writeElement(element, isEmpty);	//suppress empty optional elements
+        }
+        
+        if (!isEmpty) {
+            staxWriter.writeContent(this.converter.toText(elementValue));
+            staxWriter.closeElement(element);
+        }
+        
     }
     
     private void setConverter(IValueConverter converter) {

@@ -31,9 +31,14 @@ public class CollectionBinding extends AbstractBindingBase {
 		setObjectCreator(new DefaultConstructor(collectionType));
 	}
 	
-    public CollectionBinding(QName element, Class<?> javaType) {
+    public CollectionBinding(QName element, Class<?> collectionType) {
+    	this(element, collectionType, true);
+    }
+    
+    public CollectionBinding(QName element, Class<?> collectionType, boolean isOptional) {
         setElementFetchStrategy(new DefaultElementFetchStrategy(element));
-        setObjectCreator(new DefaultConstructor(javaType));
+        setObjectCreator(new DefaultConstructor(collectionType));
+        setOptional(isOptional);
     }
     
 	public <T extends IBindingBase> T setItem(T itemBinding) {

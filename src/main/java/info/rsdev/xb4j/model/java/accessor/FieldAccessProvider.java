@@ -36,7 +36,7 @@ public class FieldAccessProvider implements ISetter, IGetter {
 		try {
 			return getField(contextInstance.getClass(), this.fieldName).get(contextInstance);
 		} catch (Exception e) {
-			throw new Xb4jException(String.format("Could not get field '%s' from %s", fieldName, contextInstance), e);
+			throw new Xb4jException(String.format("Could not get field '%s' from object %s", fieldName, contextInstance), e);
 		}
 	}
 	
