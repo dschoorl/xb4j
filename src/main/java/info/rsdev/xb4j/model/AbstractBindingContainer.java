@@ -69,11 +69,6 @@ public abstract class AbstractBindingContainer extends AbstractBindingBase imple
         return childBinding;
     }
     
-	public IBindingContainer add(IBindingContainer childContainer) {
-		add((IBindingBase)childContainer);
-		return childContainer;
-	}
-
     public Collection<IBindingBase> getChildren() {
         return Collections.unmodifiableList(this.children);
     }

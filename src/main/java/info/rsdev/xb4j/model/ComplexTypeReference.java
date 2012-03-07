@@ -40,6 +40,12 @@ public class ComplexTypeReference extends ElementBinding {
         setNamespaceUri(namespaceUri);
     }
     
+    public ComplexTypeReference(QName element, String identifier, String namespaceUri) {
+        super(element);
+        setIdentifier(identifier);
+        setNamespaceUri(namespaceUri);
+    }
+
     /**
      * Create a ComplexTypeReference for an anonymous ComplexType (not registered with {@link BindingModel}.
      * This method is not to be called directly, only by the framework to establish an anonymous complextype 

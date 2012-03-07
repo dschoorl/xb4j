@@ -21,9 +21,14 @@ public class CollectionBinding extends AbstractBindingBase {
 	
 	private int maxOccurs = UNBOUNDED;
 	
-	public CollectionBinding(Class<?> javaType) {
+	/**
+	 * Create a {@link CollectionBinding} where the underlying collection is of the specified type. The type must be a concrete
+	 * class, so it can be created during unmarshalling process (xml to java).
+	 * @param collectionType
+	 */
+	public CollectionBinding(Class<?> collectionType) {
 	    setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
-		setObjectCreator(new DefaultConstructor(javaType));
+		setObjectCreator(new DefaultConstructor(collectionType));
 	}
 	
     public CollectionBinding(QName element, Class<?> javaType) {
