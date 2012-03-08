@@ -7,47 +7,68 @@
 	<packaging>jar</packaging>
 	<name>xb4j</name>
 	<description>Xml databinding for Java</description>
-	
-    <developers>
-        <developer>
-            <name>Dave Schoorl</name>
-            <email>dave.schoorl@redstardevelopment.nl</email>
-            <timezone>+1</timezone>
-            <organization>Red Star Development</organization>
-            <organizationUrl>http://www.redstardevelopment.nl</organizationUrl>
-            <roles>
-                <role>Architect</role>
-                <role>Developer</role>
-            </roles>
-        </developer>
-    </developers>
+	<inceptionYear>2012</inceptionYear>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.6.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.6.4</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-        	<groupId>org.mockito</groupId>
-        	<artifactId>mockito-all</artifactId>
-        	<version>1.9.0</version>
-        	<scope>test</scope>
-        </dependency>
-    </dependencies>
-    
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>git://github.com/dschoorl/xb4j.git</connection>
+		<developerConnection>git@github.com:dschoorl/xb4j.git</developerConnection>
+		<url>https://github.com/dschoorl/xb4j</url>
+	</scm>
+
+	<developers>
+		<developer>
+			<name>Dave Schoorl</name>
+			<email>dave.schoorl@redstardevelopment.nl</email>
+			<timezone>+1</timezone>
+			<organization>Red Star Development</organization>
+			<organizationUrl>http://www.redstardevelopment.nl</organizationUrl>
+			<roles>
+				<role>Architect</role>
+				<role>Developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<organization>
+		<name>Red Star Development</name>
+		<url>www.redstardevelopment.nl</url>
+	</organization>
+
+	<url>https://github.com/dschoorl/xb4j</url>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.6.4</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.0</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -56,8 +77,8 @@
 				<version>2.8</version>
 				<configuration>
 					<downloadSources>true</downloadSources>
-					<!--downloadJavadocs>true</downloadJavadocs-->
-                    <useProjectReferences>true</useProjectReferences>
+					<!--downloadJavadocs>true</downloadJavadocs -->
+					<useProjectReferences>true</useProjectReferences>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -68,11 +89,25 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.8.1</version>
+			</plugin>
 		</plugins>
 	</build>
-	
-    <organization>
-    	<name>Red Star Development</name>
-    	<url>www.redstardevelopment.nl</url>
-    </organization>
 </project>
