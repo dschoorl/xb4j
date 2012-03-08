@@ -76,9 +76,20 @@ public class BindingModel {
     }
     
     public Object toJava(InputStream stream) {
+        try {
+            return toJava(XMLInputFactory.newInstance().createXMLStreamReader(stream));
+        } catch (XMLStreamException e) {
+            log.error("Exception occured when reading instance from xml stream", e);
+        } catch (FactoryConfigurationError e) {
+            log.error("Exception occured when creating reader for xml stream", e);
+        }
+        return null;
+    }
+    
+    public Object toJava(XMLStreamReader reader) {
         RecordAndPlaybackXMLStreamReader staxReader = null;
         try {
-            staxReader = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
+            staxReader = new RecordAndPlaybackXMLStreamReader(reader);
             Marker startMarker = staxReader.startRecording();
             if (staxReader.nextTag() == XMLStreamReader.START_ELEMENT) {
                 QName element = staxReader.getName();
@@ -90,8 +101,6 @@ public class BindingModel {
             }
         } catch (XMLStreamException e) {
             log.error("Exception occured when reading instance from xml stream", e);
-        } catch (FactoryConfigurationError e) {
-            log.error("Exception occured when creating reader for xml stream", e);
         } finally {
         	if (staxReader != null) {
 	            try {
@@ -104,7 +113,7 @@ public class BindingModel {
         return null;
     }
     
-    private RootBinding getBinding(Class<?> type) {
+    public RootBinding getBinding(Class<?> type) {
         if (!this.classToXml.containsKey(type)) {
             return null;
         }
