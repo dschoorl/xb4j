@@ -160,7 +160,7 @@ public class BindingModel {
         return this;
     }
     
-    public BindingModel register(ComplexTypeBinding complexType) {
+    public BindingModel register(ComplexTypeBinding complexType, boolean errorIfExists) {
         if (complexType == null) {
             throw new NullPointerException("ComplexTypeBinding cannot be null");
         }
@@ -170,9 +170,14 @@ public class BindingModel {
         }
         QName fqComplexTypeName = new QName(complexType.getNamespace(), complexType.getIdentifier());
         if (this.complexTypes.containsKey(fqComplexTypeName)) {
-            throw new IllegalArgumentException(String.format("Cannot register ComplexTypeBinding '%s', because another one (%s) is " +
-    				"already registered with identifier='%s' and namespace='%s'", complexType, complexTypes.get(fqComplexTypeName), 
-    				complexType.getIdentifier(), complexType.getNamespace()));
+        	String message = String.format("Cannot register ComplexTypeBinding '%s', because a ComplextTypeBinding (%s) is " +
+        			"already registered with identifier='%s' and namespace='%s'", complexType, complexTypes.get(fqComplexTypeName), 
+    				complexType.getIdentifier(), complexType.getNamespace());
+        	if (errorIfExists) {
+                throw new IllegalArgumentException(message);
+        	} else if (log.isDebugEnabled()) {
+        		log.debug(message);
+        	}
         }
         this.complexTypes.put(fqComplexTypeName, complexType);
         complexType.setModel(this);

@@ -34,7 +34,7 @@ public class ComplexTypeBindingTest {
         
         
         model = new BindingModel();
-        model.register(complexType);
+        model.register(complexType, true);
         model.register(root);
         model.register(hoofdmap);
     }
