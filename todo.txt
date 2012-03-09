@@ -1,5 +1,6 @@
 TODO
 ----
+- register javaclass with namespace with bindingmodel (allow same class be registered multiple times in different namespaces)
 - allow the java instance to be constructed by a non-default constructor method
 - allow the java instance to be created through a factory method
 - simplify API
