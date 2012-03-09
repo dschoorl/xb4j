@@ -21,7 +21,10 @@ import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -46,7 +49,7 @@ public class BindingModel {
     
     private static final Logger log = LoggerFactory.getLogger(BindingModel.class);
     
-    private Map<Class<?>, RootBinding> classToXml = new HashMap<Class<?>, RootBinding>();
+    private Map<Class<?>, LinkedList<RootBinding>> classToXml = new HashMap<Class<?>, LinkedList<RootBinding>>();
     
     private Map<QName, RootBinding> xmlToClass = new HashMap<QName, RootBinding>();
     
@@ -59,9 +62,18 @@ public class BindingModel {
      * @param instance
      */
     public void toXml(OutputStream stream, Object instance) {
+        toXml(stream, instance, (QName)null);
+    }
+    
+    public void toXml(OutputStream stream, Object instance, QName specifier) {
         if (instance == null) {
-            throw new NullPointerException("Instance to marshall to xml cannot be null");
+            throw new NullPointerException("Java instance to convert to xml cannot be null");
         }
+        RootBinding binding = getBinding(instance.getClass(), specifier);
+        toXml(stream, instance, binding);
+    }
+    
+    private void toXml(OutputStream stream, Object instance, RootBinding binding) {
         if (stream == null) {
             throw new NullPointerException("OutputStream cannot be null");
         }
@@ -70,7 +82,6 @@ public class BindingModel {
         try {
             staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
 //            staxWriter.writeStartDocument();
-            RootBinding binding = getBinding(instance.getClass());
             if (binding == null) {
                 throw new IllegalArgumentException("No binding found for: ".concat(instance.getClass().getName()));
             }
@@ -127,11 +138,43 @@ public class BindingModel {
         return null;
     }
     
+    /**
+     * Get the {@link RootBinding} that is bound to the supplied type. When multiple bindings are bound to the
+     * supplied type, a
+     * @param type
+     * @return a {@link RootBinding} or null when no binding is bound to the Java type
+     * @throws Xb4jException when multiple bindings are bound to 
+     * @see
+     */
     public RootBinding getBinding(Class<?> type) {
+        return getBinding(type, null);
+    }
+    
+    public RootBinding getBinding(Class<?> type, QName specifier) {
         if (!this.classToXml.containsKey(type)) {
             return null;
         }
-        return this.classToXml.get(type);
+        
+        LinkedList<RootBinding> bindings = classToXml.get(type);
+        if ((bindings.size() == 1) && (specifier == null)) {
+            return bindings.getFirst();
+        } else if ((bindings.size() > 1) && (specifier == null)) {
+            List<QName> candidates = new ArrayList<QName>(bindings.size());
+            for (RootBinding candidate: bindings) {
+                candidates.add(candidate.getElement());
+            }
+            throw new Xb4jException(String.format("Multiple bindings found. Please specify a QName to select the required " +
+                    "binding (one of: %s)", candidates));
+        } else {
+            RootBinding target = null;
+            for (RootBinding candidate: bindings) {
+                if (candidate.getElement().equals(specifier)) {
+                    target = candidate;
+                    break;
+                }
+            }
+            return target;
+        }
     }
     
     public BindingModel register(RootBinding binding) {
@@ -147,15 +190,21 @@ public class BindingModel {
     		throw new NullPointerException("Java type cannot be null in a RootBinding you try to register");
     	}
     	if (xmlToClass.containsKey(element) && !binding.equals(xmlToClass.get(element))) {
-    		throw new IllegalArgumentException(String.format("Cannot register binding '%s', because another one (%s) is " +
-    				"already registered for this FQN element: '%s'", binding, xmlToClass.get(element), element));
+    		throw new IllegalArgumentException(String.format("Cannot register '%s', because %s is " +
+    				"already registered for %s", binding, xmlToClass.get(element), element));
     	}
-    	if (classToXml.containsKey(javaType) && !binding.equals(classToXml.get(javaType))) {
-    		throw new IllegalArgumentException(String.format("Cannot register RootBinding '%s', because another one (%s) is " +
-    				"already registered for this Java type: '%s'", binding, xmlToClass.get(element), javaType.getName()));
-    	}
+//    	if (classToXml.containsKey(javaType) && !binding.equals(classToXml.get(javaType))) {
+//    		throw new IllegalArgumentException(String.format("Cannot register RootBinding '%s', because %s is " +
+//    				"already registered for %s", binding, classToXml.get(javaType), javaType.getName()));
+//    	}
         xmlToClass.put(element, binding);
-        classToXml.put(javaType, binding);
+        LinkedList<RootBinding> boundToClass = classToXml.get(javaType);
+        if (boundToClass == null) {
+            boundToClass = new LinkedList<RootBinding>();
+            classToXml.put(javaType, boundToClass);
+        }
+        boundToClass.add(binding);  //TODO: check if another RootBinding is not already registered for this QName?
+        
         binding.setModel(this);
         return this;
     }
