@@ -25,4 +25,7 @@ public interface IElementFetchStrategy {
 	
 	public QName getElement();
 	
+    public int hashCode();
+    
+    public boolean equals(Object obj);
 }

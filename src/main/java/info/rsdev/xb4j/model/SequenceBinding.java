@@ -29,12 +29,11 @@ public class SequenceBinding extends AbstractBindingContainer {
 	 * Create a new {@link SequenceBinding} which inherits it's element and javatype from it's parent
 	 */
 	public SequenceBinding() {
-		setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
+		super(NoElementFetchStrategy.INSTANCE, null);
 	}
 	
 	public SequenceBinding(Class<?> javaType) {
-		setObjectCreator(new DefaultConstructor(javaType));
-		setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
+		super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType));
 	}
     
 }

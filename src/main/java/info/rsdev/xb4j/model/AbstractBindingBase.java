@@ -42,7 +42,9 @@ public abstract class AbstractBindingBase implements IBindingBase {
     
     private boolean isOptional = true;
     
-    public AbstractBindingBase() {
+    protected AbstractBindingBase(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
+    	setElementFetchStrategy(elementFetcher);
+    	this.objectCreator = objectCreator;	//null is allowed
     	this.getter = NoGetter.INSTANCE;
     	this.setter = NoSetter.INSTANCE;
     }
@@ -53,7 +55,20 @@ public abstract class AbstractBindingBase implements IBindingBase {
      * @param newParent
      */
     protected AbstractBindingBase(AbstractBindingBase original) {
-        this.elementFetcher = original.elementFetcher;
+    	copyFields(original, original.elementFetcher);
+    }
+    
+    /**
+     * Copy constructor that copies the properties of the original binding in a 
+     * @param original
+     * @param newParent
+     */
+    protected AbstractBindingBase(AbstractBindingBase original, IElementFetchStrategy elementFetcher) {
+    	copyFields(original, elementFetcher);
+    }
+    
+    private void copyFields(AbstractBindingBase original, IElementFetchStrategy elementFetcher) {
+        this.elementFetcher = elementFetcher;
         this.objectCreator = original.objectCreator;
         this.getter = original.getter;
         this.setter = original.setter;
@@ -92,6 +107,9 @@ public abstract class AbstractBindingBase implements IBindingBase {
     	if (elementFetcher == null) {
     		throw new NullPointerException("IElementFetchStrategy cannot be null");
     	}
+    	if ((this.elementFetcher != null) && !this.elementFetcher.equals(elementFetcher)) {
+    		throw new Xb4jException("Once set, an IElementFetchStrategy cannot be changed: ".concat(this.toString()));
+    	}
     	this.elementFetcher = elementFetcher;
     }
     
@@ -100,6 +118,12 @@ public abstract class AbstractBindingBase implements IBindingBase {
     }
     
     protected void setObjectCreator(ICreator objectCreator) {
+    	if (objectCreator == null) {
+    		throw new NullPointerException("ICreator cannot be null");
+    	}
+    	if ((this.objectCreator != null) && !this.objectCreator.equals(objectCreator)) {
+    		throw new Xb4jException("Once set, an ICreator cannot be changed: ".concat(this.toString()));
+    	}
         this.objectCreator = objectCreator;
     }
     
@@ -170,5 +194,43 @@ public abstract class AbstractBindingBase implements IBindingBase {
         String typename = (getJavaType()==null?null:getJavaType().getName());
         return String.format("%s[element=%s, javaType=%s]", fqClassName.substring(dotIndex), getElement(), typename);
     }
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.elementFetcher == null) ? 0 : this.elementFetcher.hashCode());
+		result = prime * result + ((this.getter == null) ? 0 : this.getter.hashCode());
+		result = prime * result + (this.isOptional ? 1231 : 1237);
+		result = prime * result + ((this.objectCreator == null) ? 0 : this.objectCreator.hashCode());
+		result = prime * result + ((this.parent == null) ? 0 : this.parent.hashCode());
+		result = prime * result + ((this.setter == null) ? 0 : this.setter.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		AbstractBindingBase other = (AbstractBindingBase) obj;
+		if (this.elementFetcher == null) {
+			if (other.elementFetcher != null) return false;
+		} else if (!this.elementFetcher.equals(other.elementFetcher)) return false;
+		if (this.getter == null) {
+			if (other.getter != null) return false;
+		} else if (!this.getter.equals(other.getter)) return false;
+		if (this.isOptional != other.isOptional) return false;
+		if (this.objectCreator == null) {
+			if (other.objectCreator != null) return false;
+		} else if (!this.objectCreator.equals(other.objectCreator)) return false;
+		if (this.parent == null) {
+			if (other.parent != null) return false;
+		} else if (!this.parent.equals(other.parent)) return false;
+		if (this.setter == null) {
+			if (other.setter != null) return false;
+		} else if (!this.setter.equals(other.setter)) return false;
+		return true;
+	}
     
 }

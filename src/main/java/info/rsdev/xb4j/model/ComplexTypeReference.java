@@ -15,7 +15,6 @@
 package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
-import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
 import javax.xml.XMLConstants;
@@ -37,7 +36,7 @@ public class ComplexTypeReference extends ElementBinding {
     private String namespaceUri = null;
     
     public ComplexTypeReference(String identifier, String namespaceUri) {
-        setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
+    	super(NoElementFetchStrategy.INSTANCE, null);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }
@@ -69,12 +68,12 @@ public class ComplexTypeReference extends ElementBinding {
      * @param referencedBinding
      */
     ComplexTypeReference(QName element, ComplexTypeBinding referencedBinding) {
+    	super(new DefaultElementFetchStrategy(element), null);
     	//TODO: simplify -> can we not skip ComplexTypeReference when dealing with anonymous type (just use only a ComplexTypeBinding)
         if (referencedBinding == null) {
             throw new NullPointerException("ComplexTypeBinding cannot be null");
         }
         setChild(referencedBinding);
-        setElementFetchStrategy(new DefaultElementFetchStrategy(element));	//anonymous type element fetch strategy
     }
 
     private void setIdentifier(String newIdentifier) {
@@ -98,7 +97,6 @@ public class ComplexTypeReference extends ElementBinding {
             ComplexTypeBinding complexType = root.getModel().getComplexType(identifier, namespaceUri);
             referenced = complexType.copy();    //copy without parent
             setChild(referenced);
-            referenced.setElementFetchStrategy(new FetchFromParentStrategy(referenced));	//referenced type element fetch strategy
         }
         return referenced;
     }

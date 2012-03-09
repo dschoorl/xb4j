@@ -28,4 +28,8 @@ public interface ISetter {
 	
 	boolean set(Object javaContext, Object propertyValue);
 	
+    public int hashCode();
+    
+    public boolean equals(Object obj);
+    
 }

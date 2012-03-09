@@ -15,10 +15,9 @@
 package info.rsdev.xb4j.model;
 
 import static org.junit.Assert.assertEquals;
+import info.rsdev.xb4j.test.ObjectC;
 
 import java.io.ByteArrayOutputStream;
-
-import info.rsdev.xb4j.test.ObjectC;
 
 import javax.xml.namespace.QName;
 

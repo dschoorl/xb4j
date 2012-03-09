@@ -17,7 +17,9 @@ package info.rsdev.xb4j.model;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
+import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
+import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
 import javax.xml.XMLConstants;
@@ -47,6 +49,7 @@ public class ComplexTypeBinding extends AbstractSingleBinding implements IModelA
      * @param referencedBinding
      */
     public ComplexTypeBinding(QName element, IBindingBase parent, String fieldName) {
+    	super(new DefaultElementFetchStrategy(element), null);
         if (parent == null) {
             throw new NullPointerException("Parent IBindingBase cannot be null");
         }
@@ -56,7 +59,6 @@ public class ComplexTypeBinding extends AbstractSingleBinding implements IModelA
         } else if (parent instanceof IBindingContainer) {
             ((IBindingContainer)parent).add(reference);
         }
-        setElementFetchStrategy(new FetchFromParentStrategy(this));
         
         //In the case of anonymous ComplexType, the setter must be on the ComplexType
         FieldAccessProvider provider = new FieldAccessProvider(fieldName);
@@ -70,10 +72,10 @@ public class ComplexTypeBinding extends AbstractSingleBinding implements IModelA
      * @param namespaceUri
      */
     public ComplexTypeBinding(String identifier, String namespaceUri) {
+    	super(NoElementFetchStrategy.INSTANCE, null);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
         //the element fetch strategy will be replaced by a real one when this 'type' is copied into a binding hierarchy
-        setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
     }
 
     /**
@@ -81,7 +83,8 @@ public class ComplexTypeBinding extends AbstractSingleBinding implements IModelA
      * as it's parent 
      */
     private ComplexTypeBinding(ComplexTypeBinding original) {
-        super(original);
+        super(original, (IElementFetchStrategy)null);	//dirty hack, I want to do: new FetchFromParentStrategy(this), but cannot pass on this in super contructor call 
+        setElementFetchStrategy(new FetchFromParentStrategy(this));
         this.identifier = original.identifier;
         this.namespaceUri = original.namespaceUri;
     }

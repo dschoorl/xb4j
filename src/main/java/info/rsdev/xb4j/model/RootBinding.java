@@ -15,7 +15,6 @@
 package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
-import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 
 import javax.xml.XMLConstants;
@@ -34,12 +33,19 @@ public class RootBinding extends ElementBinding implements IModelAware {
     private BindingModel model = null;
     
 	public RootBinding(QName element, Class<?> javaType) {
-	    if (javaType == null) {
-	        throw new NullPointerException("Java type cannot be null");
-	    }
-    	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
-    	setObjectCreator(new DefaultConstructor(javaType));
+		super(element, javaType);
     	super.setOptional(false);
+	}
+	
+	/**
+	 * Copy constructor
+	 * 
+	 * @param original
+	 * @param newElement
+	 */
+	protected RootBinding(RootBinding original, QName newElement) {
+		//do not copy the BindingModel of original! - we want the flexibility to register the copy with another BindingModel
+		super(original, new DefaultElementFetchStrategy(newElement));
 	}
 	
 	public ComplexTypeBinding getComplexType(String identifier, String namespaceUri) {
@@ -79,5 +85,17 @@ public class RootBinding extends ElementBinding implements IModelAware {
         String fqClassName = getClass().getName();
         int dotIndex = Math.max(0, fqClassName.lastIndexOf('.') + 1);
         return String.format("%s[element=%s, javaType=%s]", fqClassName.substring(dotIndex), getElement(), getJavaType().getName());
+    }
+    
+    /**
+     * Copy this {@link RootBinding}, so it can be registered for another element (E.g. another namespace), but with the same
+     * structure). The BindingModel of this RootBinding (if any) will not be copied, so you can register this copy also with 
+     * another BindingModel.
+     * 
+     * @param newElementName
+     * @return A copy of this {@link RootBinding}. It still needs to be registered with the {@link BindingModel}
+     */
+    public RootBinding copy(QName newElement) {
+    	return new RootBinding(this, newElement);
     }
 }

@@ -100,4 +100,26 @@ public class FieldAccessProvider implements ISetter, IGetter {
 	    return String.format("FieldAccessProvider[field=%s]", fieldName);
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.fieldName == null) ? 0 : this.fieldName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		FieldAccessProvider other = (FieldAccessProvider) obj;
+		if (this.fieldName == null) {
+			if (other.fieldName != null) return false;
+		} else if (!this.fieldName.equals(other.fieldName)) return false;
+		return true;
+	}
+	
+	
+
 }

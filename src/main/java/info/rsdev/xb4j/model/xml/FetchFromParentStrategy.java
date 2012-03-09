@@ -51,4 +51,24 @@ public class FetchFromParentStrategy implements IElementFetchStrategy {
     	return parent;
     }
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.thisBinding == null) ? 0 : this.thisBinding.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		FetchFromParentStrategy other = (FetchFromParentStrategy) obj;
+		if (this.thisBinding == null) {
+			if (other.thisBinding != null) return false;
+		} else if (!this.thisBinding.equals(other.thisBinding)) return false;
+		return true;
+	}
+
 }

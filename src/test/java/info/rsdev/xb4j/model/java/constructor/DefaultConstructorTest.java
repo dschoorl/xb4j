@@ -17,7 +17,6 @@ package info.rsdev.xb4j.model.java.constructor;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import info.rsdev.xb4j.exceptions.Xb4jException;
-import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.SubclassedObjectA;
 

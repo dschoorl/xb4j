@@ -41,8 +41,7 @@ public class CollectionBinding extends AbstractBindingBase {
 	 * @param collectionType
 	 */
 	public CollectionBinding(Class<?> collectionType) {
-	    setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
-		setObjectCreator(new DefaultConstructor(collectionType));
+		super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(collectionType));
 	}
 	
     public CollectionBinding(QName element, Class<?> collectionType) {
@@ -50,8 +49,7 @@ public class CollectionBinding extends AbstractBindingBase {
     }
     
     public CollectionBinding(QName element, Class<?> collectionType, boolean isOptional) {
-        setElementFetchStrategy(new DefaultElementFetchStrategy(element));
-        setObjectCreator(new DefaultConstructor(collectionType));
+    	super(new DefaultElementFetchStrategy(element), new DefaultConstructor(collectionType));
         setOptional(isOptional);
     }
     

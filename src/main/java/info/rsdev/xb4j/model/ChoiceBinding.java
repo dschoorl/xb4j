@@ -46,11 +46,11 @@ public class ChoiceBinding extends AbstractSingleBinding {
 	 * set (so this won't work)
 	 */
 	public ChoiceBinding() {
-		setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
+		super(NoElementFetchStrategy.INSTANCE, null);
 	}
 	
     public ChoiceBinding(QName element) {
-        setElementFetchStrategy(new DefaultElementFetchStrategy(element));
+		super(new DefaultElementFetchStrategy(element), null);
     }
     
 	public IBindingBase addChoice(IBindingBase choice, String fieldName, IChooser selector) {
@@ -71,7 +71,7 @@ public class ChoiceBinding extends AbstractSingleBinding {
 	public <T extends IBindingBase> T addChoice(T choice) {
 		Class<?> javaType = choice.getJavaType();
 		if (javaType == null) {
-			throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the choice '%s' does not define" +
+			throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the choice '%s' does not define " +
 					"a Java type", choice));
 		}
 		return addChoice(choice, new InstanceOfChooser(javaType));

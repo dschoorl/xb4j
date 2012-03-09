@@ -68,4 +68,24 @@ public class DefaultConstructor implements ICreator {
         return String.format("DefaultConstructor[type=%s]", getJavaType());
     }
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.defaultConstructor == null) ? 0 : this.defaultConstructor.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		DefaultConstructor other = (DefaultConstructor) obj;
+		if (this.defaultConstructor == null) {
+			if (other.defaultConstructor != null) return false;
+		} else if (!this.defaultConstructor.equals(other.defaultConstructor)) return false;
+		return true;
+	}
+    
 }

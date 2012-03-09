@@ -18,6 +18,8 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
+import info.rsdev.xb4j.model.java.constructor.ICreator;
+import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 
 /**
  * 
@@ -35,14 +37,27 @@ public abstract class AbstractSingleBinding extends AbstractBindingBase implemen
         return childBinding;
     }
     
-    public AbstractSingleBinding() {}
+    protected AbstractSingleBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
+    	super(elementFetcher, objectCreator);
+    }
     
     /**
      * Copy constructor
+     * 
      * @param original
      */
     protected AbstractSingleBinding(AbstractSingleBinding original) {
         super(original);
+        this.childBinding = original.childBinding;
+    }
+    
+    /**
+     * Copy constructor
+     * 
+     * @param original
+     */
+    protected AbstractSingleBinding(AbstractSingleBinding original, IElementFetchStrategy elementFetcher) {
+        super(original, elementFetcher);
         this.childBinding = original.childBinding;
     }
     

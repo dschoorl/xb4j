@@ -36,4 +36,8 @@ public interface ICreator {
      */
     public Class<?> getJavaType();
     
+    public int hashCode();
+    
+    public boolean equals(Object obj);
+    
 }

@@ -42,12 +42,12 @@ public class SimpleTypeBinding extends AbstractBindingBase {
      * @param element the element 
      */
     public SimpleTypeBinding(QName element) {
-    	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
+    	super(new DefaultElementFetchStrategy(element), null);
     }
 
     public SimpleTypeBinding(QName element, IValueConverter converter) {
+    	super(new DefaultElementFetchStrategy(element), null);
     	setConverter(converter);
-    	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
     }
 
     @Override

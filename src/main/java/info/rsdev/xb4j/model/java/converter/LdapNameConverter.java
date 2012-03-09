@@ -26,6 +26,8 @@ import javax.naming.ldap.LdapName;
 public class LdapNameConverter implements IValueConverter {
 	
 	public static final LdapNameConverter INSTANCE = new LdapNameConverter();
+	
+	private LdapNameConverter() {}
 
 	@Override
 	public Object toObject(String value) throws Xb4jException {

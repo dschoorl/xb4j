@@ -60,4 +60,8 @@ public interface IBindingBase {
     public boolean isOptional();
     
     public IBindingBase setOptional(boolean isOptional);
+    
+    public int hashCode();
+    
+    public boolean equals(Object obj);
 }

@@ -101,4 +101,24 @@ public class MethodSetter implements ISetter {
     	return "MethodSetter[methodname=".concat(methodname).concat("]");
     }
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.methodname == null) ? 0 : this.methodname.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		MethodSetter other = (MethodSetter) obj;
+		if (this.methodname == null) {
+			if (other.methodname != null) return false;
+		} else if (!this.methodname.equals(other.methodname)) return false;
+		return true;
+	}
+    
 }

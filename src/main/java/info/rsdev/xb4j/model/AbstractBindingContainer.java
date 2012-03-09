@@ -17,8 +17,10 @@ package info.rsdev.xb4j.model;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
+import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
+import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +33,10 @@ import javax.xml.stream.XMLStreamException;
 public abstract class AbstractBindingContainer extends AbstractBindingBase implements IBindingContainer {
 
     private ArrayList<IBindingBase> children = new ArrayList<IBindingBase>();
+    
+    protected AbstractBindingContainer(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
+    	super(elementFetcher, objectCreator);
+    }
     
     /**
      * <p>When unmarshalling, the child binding will know how to get from the current element to the next one. Which

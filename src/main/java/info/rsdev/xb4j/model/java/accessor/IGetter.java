@@ -28,4 +28,7 @@ public interface IGetter {
 	
 	public Object get(Object javaContext);
 	
+    public int hashCode();
+    
+    public boolean equals(Object obj);
 }

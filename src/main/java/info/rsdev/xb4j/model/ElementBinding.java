@@ -20,7 +20,6 @@ import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
-import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
@@ -41,36 +40,38 @@ import javax.xml.stream.XMLStreamException;
  */
 public class ElementBinding extends AbstractSingleBinding {
 	
-    public ElementBinding() {
-    	setElementFetchStrategy(new FetchFromParentStrategy(this));
-    }
-
     /**
      * Create a new {@link ElementBinding} with a {@link DefaultElementFetchStrategy}
      * @param element the element 
      */
     public ElementBinding(QName element) {
-    	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
+    	super(new DefaultElementFetchStrategy(element), null);
     }
     
     public ElementBinding(Class<?> javaType) {
-        setElementFetchStrategy(NoElementFetchStrategy.INSTANCE);
-        setObjectCreator(new DefaultConstructor(javaType));
+    	super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType));
     }
 
     public ElementBinding(QName element, Class<?> javaType) {
-    	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
-    	setObjectCreator(new DefaultConstructor(javaType));
+    	super(new DefaultElementFetchStrategy(element), new DefaultConstructor(javaType));
     }
 
     public ElementBinding(QName element, ICreator creator) {
-    	setElementFetchStrategy(new DefaultElementFetchStrategy(element));
-    	setObjectCreator(creator);
+    	super(new DefaultElementFetchStrategy(element), creator);
     }
     
     public ElementBinding(IElementFetchStrategy elementFetcher, ICreator creator) {
-        setElementFetchStrategy(elementFetcher);
-        setObjectCreator(creator);
+    	super(elementFetcher, creator);
+    }
+    
+    /**
+     * Copy constructor
+     * 
+     * @param original
+     * @param newElement
+     */
+    protected ElementBinding(ElementBinding original, IElementFetchStrategy elementFetcher) {
+    	super(original, elementFetcher);
     }
     
     @Override
