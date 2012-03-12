@@ -16,6 +16,7 @@ package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.bindings.ComplexType;
+import info.rsdev.xb4j.model.bindings.IUnmarshallResponse;
 import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader.Marker;
@@ -123,7 +124,13 @@ public class BindingModel {
                 staxReader.rewindAndPlayback(startMarker);
                 if (xmlToClass.containsKey(element)) {
                     Root binding = xmlToClass.get(element);
-                    return binding.toJava(staxReader, null);//context.unmarshall(staxReader, binding, null);
+                    IUnmarshallResponse result = binding.toJava(staxReader, null);
+                    if (result.isUnmarshallSuccessful()) {
+                    	return result.getUnmarshalledObject();
+                    } else {
+                    	throw new Xb4jException(result.getErrorMessage());
+                    }
+                    
                 }
             }
         } catch (XMLStreamException e) {

@@ -14,6 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
@@ -94,20 +95,36 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
     }
     
     @Override
-    public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public IUnmarshallResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
     	Object newJavaContext = null;
     	QName expectedElement = getElement();
-    	if ((expectedElement != null) && !staxReader.isAtElementStart(expectedElement)) {
-    		return null;
+    	boolean startTagFound = false;
+    	if (expectedElement != null) {
+    		if (!staxReader.isAtElementStart(expectedElement)) {
+	    		if (!isOptional()) {
+	    			return DefaultResponse.newMissingElement(expectedElement);
+	    		}
+    		} else {
+    			startTagFound = true;
+    		}
     	}
     	
     	newJavaContext = newInstance();
         for (IBinding child: getChildren()) {
-            Object result = child.toJava(staxReader, select(javaContext, newJavaContext));
-            setProperty(newJavaContext, result);
+        	IUnmarshallResponse result = child.toJava(staxReader, select(javaContext, newJavaContext));
+        	if (!result.isUnmarshallSuccessful()) { return result; }
+        	if (result.mustHandleUnmarshalledObject()) {
+        		setProperty(newJavaContext, result.getUnmarshalledObject());
+        	}
         }
         
-        return newJavaContext;
+    	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
+    		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
+    		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+    				staxReader.getEventName(), encountered));
+    	}
+    	
+        return new DefaultResponse(newJavaContext);
     }
     
     public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {

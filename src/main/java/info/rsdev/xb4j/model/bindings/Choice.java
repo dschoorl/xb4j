@@ -114,25 +114,42 @@ public class Choice extends AbstractSingleBinding {
 	}
 	
 	@Override
-	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public IUnmarshallResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
-        if ((expectedElement != null) && !staxReader.isAtElementStart(expectedElement)) {
-            return null;
-        }
+    	boolean startTagFound = false;
+    	if (expectedElement != null) {
+    		if (!staxReader.isAtElementStart(expectedElement)) {
+	    		if (!isOptional()) {
+	    			return DefaultResponse.newMissingElement(expectedElement);
+	    		}
+    		} else {
+    			startTagFound = true;
+    		}
+    	}
         
         //Should we start recording to return to this element when necessary - currently this is responsibility of choices
-		Object result = null;
+        boolean choiceFound = false;
+        IUnmarshallResponse result = null;
 		for (IBinding candidate: this.choices.values()) {
 			result = candidate.toJava(staxReader, getProperty(javaContext));
-			if (result != null) {
-			    setProperty(javaContext, result);
+			if (result.isUnmarshallSuccessful()) {
+				choiceFound = true;
+				if (result.mustHandleUnmarshalledObject()) {
+					setProperty(javaContext, result.getUnmarshalledObject());
+				}
 				break;	//TODO: check ambiguity?
 			}
 		}
 		
-        if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement)) {
-            throw new Xb4jException("No End tag encountered: ".concat(expectedElement.toString()));
+		if (!choiceFound && !isOptional()) {
+			return new DefaultResponse("");
+		}
+		
+        if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
+    		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
+    		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+    				staxReader.getEventName(), encountered));
         }
         
 		return result;

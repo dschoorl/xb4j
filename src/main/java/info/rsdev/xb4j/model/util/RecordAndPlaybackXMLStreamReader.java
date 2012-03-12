@@ -158,6 +158,18 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         return this.recordingQueue != null;
     }
     
+    public int getEvent() {
+    	if (this.currentEvent == null) {
+    		return 0;
+    	}
+    	return currentEvent.eventType;
+    }
+    
+    public boolean isAtElement() {
+    	int currentEvent = getEvent();
+    	return currentEvent==XMLStreamConstants.START_ELEMENT||currentEvent==XMLStreamConstants.END_ELEMENT;
+    }
+    
     public String getEventName() {
         if (this.currentEvent == null) { return null; }
         return EVENTNAMES[currentEvent.eventType];

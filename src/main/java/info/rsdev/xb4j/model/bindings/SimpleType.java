@@ -51,17 +51,31 @@ public class SimpleType extends AbstractBinding {
     }
 
     @Override
-    public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public IUnmarshallResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
-        if ((expectedElement != null) && !staxReader.isAtElementStart(expectedElement)) {
-        	return null;	//when mandatory: throw exception? -- but then we also need to add probe functionality to support ChoiceBinding
-        }
+    	boolean startTagFound = false;
+    	if (expectedElement != null) {
+    		if (!staxReader.isAtElementStart(expectedElement)) {
+	    		if (!isOptional()) {
+	    			return DefaultResponse.newMissingElement(expectedElement);
+	    		}
+    		} else {
+    			startTagFound = true;
+    		}
+    	}
         
         Object value = this.converter.toObject(staxReader.getElementText());	//this also reads the end element
         setProperty(javaContext, value);
+        if (startTagFound && staxReader.isAtElement()) {
+        	if (!expectedElement.equals(staxReader.getName())) {
+        		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
+        		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+        				staxReader.getEventName(), encountered));
+        	}
+        }
         
-        return value;
+        return new DefaultResponse(value);
     }
     
     @Override

@@ -75,25 +75,37 @@ public class Element extends AbstractSingleBinding {
     }
     
     @Override
-    public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public IUnmarshallResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
-        if ((expectedElement != null) && !staxReader.isAtElementStart(expectedElement)) {
-        	return null;
-        }
+    	boolean startTagFound = false;
+    	if (expectedElement != null) {
+    		if (!staxReader.isAtElementStart(expectedElement)) {
+	    		if (!isOptional()) {
+	    			return DefaultResponse.newMissingElement(expectedElement);
+	    		}
+    		} else {
+    			startTagFound = true;
+    		}
+    	}
         
         Object newJavaContext = newInstance();
     	IBinding childBinding = getChildBinding();
     	if (childBinding != null) {
-    		childBinding.toJava(staxReader, select(javaContext, newJavaContext));
+    		IUnmarshallResponse result = childBinding.toJava(staxReader, select(javaContext, newJavaContext));
+    		if (!result.isUnmarshallSuccessful()) {
+    			return result;
+    		}
     	}
         setProperty(javaContext, newJavaContext);
         
-        if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement)) {
-            throw new Xb4jException("No End tag encountered: ".concat(expectedElement.toString()));
-        }
+    	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
+    		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
+    		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+    				staxReader.getEventName(), encountered));
+    	}
         
-        return newJavaContext;
+        return new DefaultResponse(newJavaContext);
     }
     
     @Override

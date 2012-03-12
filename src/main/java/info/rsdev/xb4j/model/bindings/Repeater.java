@@ -65,7 +65,7 @@ public class Repeater extends AbstractBinding {
 	}
 	
 	@Override
-	public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public IUnmarshallResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 	    //TODO: also support addmethod on container class, which will add to underlying collection for us
         Object newJavaContext = newInstance();
         Object collection = select(javaContext, newJavaContext);
@@ -76,15 +76,22 @@ public class Repeater extends AbstractBinding {
         
         //read enclosing collection element (if defined)
         QName collectionElement = getElement();
-        if ((collectionElement != null) && !staxReader.isAtElementStart(collectionElement)) {
-            throw new Xb4jException(String.format("Expected collection tag %s, but encountered element %s",
-                    collectionElement, staxReader.getName()));
-        }
+    	boolean startTagFound = false;
+    	if (collectionElement != null) {
+    		if (!staxReader.isAtElementStart(collectionElement)) {
+	    		if (!isOptional()) {
+	    			return DefaultResponse.newMissingElement(collectionElement);
+	    		}
+    		} else {
+    			startTagFound = true;
+    		}
+    	}
         
         int occurences = 0;
         boolean proceed = true;
         while (proceed) {
-            proceed = (itemBinding.toJava(staxReader, collection) != null);
+        	IUnmarshallResponse result = itemBinding.toJava(staxReader, collection);
+            proceed = result.isUnmarshallSuccessful();
             if (proceed) {
             	occurences++;
             	if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
@@ -102,12 +109,13 @@ public class Repeater extends AbstractBinding {
         }
         
         //read end of enclosing collection element (if defined)
-        if ((collectionElement != null) && !staxReader.isAtElementEnd(collectionElement)) {
-            throw new Xb4jException(String.format("Expected element close tag </%s> (encountered a %s)",
-                    collectionElement, staxReader.getEventName()));
+        if ((collectionElement != null) && !staxReader.isAtElementEnd(collectionElement) && startTagFound) {
+    		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
+    		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", collectionElement,
+    				staxReader.getEventName(), encountered));
         }
         
-		return newJavaContext;
+		return new DefaultResponse(newJavaContext);
 	}
 	
 	@Override
