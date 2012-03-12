@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
@@ -28,7 +28,7 @@ import javax.xml.namespace.QName;
  *
  * @author Dave Schoorl
  */
-public abstract class AbstractBindingBase implements IBindingBase {
+public abstract class AbstractBinding implements IBinding {
     
 	private IElementFetchStrategy elementFetcher = null;
 	
@@ -38,11 +38,11 @@ public abstract class AbstractBindingBase implements IBindingBase {
     
     private ISetter setter = null;
     
-    private IBindingBase parent = null;
+    private IBinding parent = null;
     
     private boolean isOptional = true;
     
-    protected AbstractBindingBase(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
+    protected AbstractBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
     	setElementFetchStrategy(elementFetcher);
     	this.objectCreator = objectCreator;	//null is allowed
     	this.getter = NoGetter.INSTANCE;
@@ -54,7 +54,7 @@ public abstract class AbstractBindingBase implements IBindingBase {
      * @param original
      * @param newParent
      */
-    protected AbstractBindingBase(AbstractBindingBase original) {
+    protected AbstractBinding(AbstractBinding original) {
     	copyFields(original, original.elementFetcher);
     }
     
@@ -63,11 +63,11 @@ public abstract class AbstractBindingBase implements IBindingBase {
      * @param original
      * @param newParent
      */
-    protected AbstractBindingBase(AbstractBindingBase original, IElementFetchStrategy elementFetcher) {
+    protected AbstractBinding(AbstractBinding original, IElementFetchStrategy elementFetcher) {
     	copyFields(original, elementFetcher);
     }
     
-    private void copyFields(AbstractBindingBase original, IElementFetchStrategy elementFetcher) {
+    private void copyFields(AbstractBinding original, IElementFetchStrategy elementFetcher) {
         this.elementFetcher = elementFetcher;
         this.objectCreator = original.objectCreator;
         this.getter = original.getter;
@@ -127,17 +127,17 @@ public abstract class AbstractBindingBase implements IBindingBase {
         this.objectCreator = objectCreator;
     }
     
-    public IBindingBase setGetter(IGetter getter) {
+    public IBinding setGetter(IGetter getter) {
         this.getter = getter;
         return this;
     }
 
-    public IBindingBase setSetter(ISetter setter) {
+    public IBinding setSetter(ISetter setter) {
         this.setter = setter;
         return this;
     }
     
-    public void setParent(IBindingBase parent) {
+    public void setParent(IBinding parent) {
     	if (parent == null) {
     		throw new NullPointerException("Parent IBinding cannot be null");
     	}
@@ -147,12 +147,12 @@ public abstract class AbstractBindingBase implements IBindingBase {
     	this.parent = parent;
     }
     
-    public IBindingBase getParent() {
+    public IBinding getParent() {
     	return this.parent;
     }
     
     protected IModelAware getModelAware() {
-        IBindingBase modelAwareBinding = this;
+        IBinding modelAwareBinding = this;
         while (modelAwareBinding.getParent() != null) {
         	modelAwareBinding = modelAwareBinding.getParent();
         }
@@ -182,7 +182,7 @@ public abstract class AbstractBindingBase implements IBindingBase {
         return this.isOptional;
     }
     
-    public IBindingBase setOptional(boolean isOptional) {
+    public IBinding setOptional(boolean isOptional) {
         this.isOptional = isOptional;
         return this;
     }
@@ -213,7 +213,7 @@ public abstract class AbstractBindingBase implements IBindingBase {
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		AbstractBindingBase other = (AbstractBindingBase) obj;
+		AbstractBinding other = (AbstractBinding) obj;
 		if (this.elementFetcher == null) {
 			if (other.elementFetcher != null) return false;
 		} else if (!this.elementFetcher.equals(other.elementFetcher)) return false;

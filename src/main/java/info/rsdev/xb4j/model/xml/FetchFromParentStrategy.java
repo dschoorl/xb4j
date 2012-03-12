@@ -14,7 +14,7 @@
  */
 package info.rsdev.xb4j.model.xml;
 
-import info.rsdev.xb4j.model.IBindingBase;
+import info.rsdev.xb4j.model.bindings.IBinding;
 
 import javax.xml.namespace.QName;
 
@@ -25,13 +25,13 @@ import javax.xml.namespace.QName;
  */
 public class FetchFromParentStrategy implements IElementFetchStrategy {
     
-    private IBindingBase thisBinding = null;
+    private IBinding thisBinding = null;
     
     /**
      * Create a new {@link FetchFromParentStrategy}
-     * @param thisBinding the {@link IBindingBase} that owns this {@link FetchFromParentStrategy}
+     * @param thisBinding the {@link IBinding} that owns this {@link FetchFromParentStrategy}
      */
-    public FetchFromParentStrategy(IBindingBase thisBinding) {
+    public FetchFromParentStrategy(IBinding thisBinding) {
         if (thisBinding == null) {
             throw new NullPointerException("IBinding cannot be null");
         }
@@ -43,8 +43,8 @@ public class FetchFromParentStrategy implements IElementFetchStrategy {
 		return getParentBinding().getElement();
 	}
 	
-    private IBindingBase getParentBinding() {
-    	IBindingBase parent = thisBinding.getParent();
+    private IBinding getParentBinding() {
+    	IBinding parent = thisBinding.getParent();
     	if (parent == null) {
     		throw new NullPointerException("Parent is not set in ".concat(thisBinding.getClass().getName()));
     	}

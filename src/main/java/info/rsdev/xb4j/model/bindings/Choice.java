@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.IChooser;
@@ -32,28 +32,28 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * From the children in this group, only one can be choosen. However, a choice can be placed in a {@link SequenceBinding} and
+ * From the children in this group, only one can be choosen. However, a choice can be placed in a {@link Sequence} and
  * be repeatable.
  * 
  * @author Dave Schoorl
  */
-public class ChoiceBinding extends AbstractSingleBinding {
+public class Choice extends AbstractSingleBinding {
 	
-	private Map<IChooser, IBindingBase> choices = new HashMap<IChooser, IBindingBase>();
+	private Map<IChooser, IBinding> choices = new HashMap<IChooser, IBinding>();
 	
 	/**
-	 * Create a new {@link ChoiceBinding}. No {@link IElementFetchStrategy} nor {@link IObjectFetchStrategy} are currently
+	 * Create a new {@link Choice}. No {@link IElementFetchStrategy} nor {@link IObjectFetchStrategy} are currently
 	 * set (so this won't work)
 	 */
-	public ChoiceBinding() {
+	public Choice() {
 		super(NoElementFetchStrategy.INSTANCE, null);
 	}
 	
-    public ChoiceBinding(QName element) {
+    public Choice(QName element) {
 		super(new DefaultElementFetchStrategy(element), null);
     }
     
-	public IBindingBase addChoice(IBindingBase choice, String fieldName, IChooser selector) {
+	public IBinding addChoice(IBinding choice, String fieldName, IChooser selector) {
 		//Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
 		FieldAccessProvider provider = new FieldAccessProvider(fieldName);
 		choice.setGetter(provider);
@@ -63,12 +63,12 @@ public class ChoiceBinding extends AbstractSingleBinding {
 	}
 	
 	/**
-	 * Convenience method. The {@link IBindingBase choice} will be registered with this {@link ChoiceBinding}, and an {@link InstanceOfChooser} 
+	 * Convenience method. The {@link IBinding choice} will be registered with this {@link Choice}, and an {@link InstanceOfChooser} 
 	 * will be generated for selection of this choice when marshalling. 
 	 * @param choice
 	 * @return
 	 */
-	public <T extends IBindingBase> T addChoice(T choice) {
+	public <T extends IBinding> T addChoice(T choice) {
 		Class<?> javaType = choice.getJavaType();
 		if (javaType == null) {
 			throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the choice '%s' does not define " +
@@ -77,14 +77,14 @@ public class ChoiceBinding extends AbstractSingleBinding {
 		return addChoice(choice, new InstanceOfChooser(javaType));
 	}
 	
-	public <T extends IBindingBase> T addChoice(T choice, IChooser selector) {
+	public <T extends IBinding> T addChoice(T choice, IChooser selector) {
 		this.choices.put(selector, choice);
 		choice.setParent(this); //maintain bidirectional relationship
 		return choice;
 	}
 	
-	private IBindingBase selectBinding(Object javaContext) {
-		for (Entry<IChooser, IBindingBase> entry: this.choices.entrySet()) {
+	private IBinding selectBinding(Object javaContext) {
+		for (Entry<IChooser, IBinding> entry: this.choices.entrySet()) {
 			if (entry.getKey().matches(javaContext)) {
 				return entry.getValue();
 			}
@@ -98,7 +98,7 @@ public class ChoiceBinding extends AbstractSingleBinding {
         
         //mixed content is not yet supported -- there are either child elements or there is content
         javaContext = getProperty(javaContext);
-        IBindingBase selected = selectBinding(javaContext);
+        IBinding selected = selectBinding(javaContext);
         boolean isEmptyElement = selected == null;
         if (element != null) {
             staxWriter.writeElement(element, isEmptyElement);
@@ -123,7 +123,7 @@ public class ChoiceBinding extends AbstractSingleBinding {
         
         //Should we start recording to return to this element when necessary - currently this is responsibility of choices
 		Object result = null;
-		for (IBindingBase candidate: this.choices.values()) {
+		for (IBinding candidate: this.choices.values()) {
 			result = candidate.toJava(staxReader, getProperty(javaContext));
 			if (result != null) {
 			    setProperty(javaContext, result);

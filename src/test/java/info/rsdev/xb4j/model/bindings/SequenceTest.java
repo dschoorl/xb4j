@@ -12,9 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertEquals;
+import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.bindings.Root;
+import info.rsdev.xb4j.model.bindings.Sequence;
+import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.test.ObjectC;
 
 import java.io.ByteArrayOutputStream;
@@ -23,14 +27,14 @@ import javax.xml.namespace.QName;
 
 import org.junit.Test;
 
-public class SequenceBindingTest {
+public class SequenceTest {
 	
 	@Test
 	public void testMarshallMultipleElementsNoNamespace() {
-		RootBinding root = new RootBinding(new QName("root"), ObjectC.class);
-		SequenceBinding sequence = root.setChild(new SequenceBinding());
-		sequence.add(new SimpleTypeBinding(new QName("naam")), "name");
-		sequence.add(new SimpleTypeBinding(new QName("omschrijving")), "description");
+		Root root = new Root(new QName("root"), ObjectC.class);
+		Sequence sequence = root.setChild(new Sequence());
+		sequence.add(new SimpleType(new QName("naam")), "name");
+		sequence.add(new SimpleType(new QName("omschrijving")), "description");
 		BindingModel model = new BindingModel().register(root);
 		
 		ObjectC instance = new ObjectC().setName("tester").setDescription("Ik test dingen");

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.converter.IValueConverter;
@@ -33,19 +33,19 @@ import javax.xml.stream.XMLStreamException;
  * 
  * @author Dave Schoorl
  */
-public class SimpleTypeBinding extends AbstractBindingBase {
+public class SimpleType extends AbstractBinding {
 	
 	private IValueConverter converter = NOPConverter.INSTANCE;
     
     /**
-     * Create a new {@link SimpleTypeBinding} with a {@link DefaultElementFetchStrategy}
+     * Create a new {@link SimpleType} with a {@link DefaultElementFetchStrategy}
      * @param element the element 
      */
-    public SimpleTypeBinding(QName element) {
+    public SimpleType(QName element) {
     	super(new DefaultElementFetchStrategy(element), null);
     }
 
-    public SimpleTypeBinding(QName element, IValueConverter converter) {
+    public SimpleType(QName element, IValueConverter converter) {
     	super(new DefaultElementFetchStrategy(element), null);
     	setConverter(converter);
     }
@@ -99,7 +99,7 @@ public class SimpleTypeBinding extends AbstractBindingBase {
 
     @Override
     public String toString() {
-        return String.format("SimpleTypeBinding[element=%s]", getElement());
+        return String.format("SimpleType[element=%s]", getElement());
     }
     
 }

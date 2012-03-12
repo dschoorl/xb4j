@@ -12,11 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.bindings.Element;
+import info.rsdev.xb4j.model.bindings.Root;
+import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectTree;
 
@@ -31,14 +35,14 @@ import org.junit.Test;
  *
  * @author Dave Schoorl
  */
-public class SimpleBindingModelTest {
+public class SimpleBindingTest {
 	
     @Test
     public void testMarshallingToEmptyElementNoNamespace() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new Object();
         BindingModel model = new BindingModel();
-        model.register(new RootBinding(new QName("root"), Object.class));
+        model.register(new Root(new QName("root"), Object.class));
         model.toXml(stream, instance);
         assertEquals("<root/>", stream.toString());
     }
@@ -48,7 +52,7 @@ public class SimpleBindingModelTest {
         byte[] buffer = "<root/>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
         BindingModel model = new BindingModel();
-        model.register(new RootBinding(new QName("root"), Object.class));
+        model.register(new Root(new QName("root"), Object.class));
         Object instance = model.toJava(stream);
         assertNotNull(instance);
         assertSame(Object.class, instance.getClass());
@@ -59,7 +63,7 @@ public class SimpleBindingModelTest {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new Object();
         BindingModel model = new BindingModel();
-        model.register(new RootBinding(new QName("urn:test/namespace", "root", "tst"), Object.class));
+        model.register(new Root(new QName("urn:test/namespace", "root", "tst"), Object.class));
         model.toXml(stream, instance);
         assertEquals("<tst:root xmlns:tst=\"urn:test/namespace\"/>", stream.toString());
     }
@@ -69,7 +73,7 @@ public class SimpleBindingModelTest {
         byte[] buffer = "<tst:root xmlns:tst=\"urn:test/namespace\"/>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
         BindingModel model = new BindingModel();
-        model.register(new RootBinding(new QName("urn:test/namespace", "root", "tst"), Object.class));
+        model.register(new Root(new QName("urn:test/namespace", "root", "tst"), Object.class));
         Object instance = model.toJava(stream);
         assertNotNull(instance);
         assertSame(Object.class, instance.getClass());
@@ -78,8 +82,8 @@ public class SimpleBindingModelTest {
     @Test
     public void testUnmarshalFromNestedXmlWithNamespaces() {
         BindingModel model = new BindingModel();
-        RootBinding binding = new RootBinding(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
-        binding.setChild(new ElementBinding(new QName("urn:test/namespace", "child", "tst"), ObjectA.class), "myObject");
+        Root binding = new Root(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
+        binding.setChild(new Element(new QName("urn:test/namespace", "child", "tst"), ObjectA.class), "myObject");
         model.register(binding);
         
         byte[] buffer = "<tst:root xmlns:tst=\"urn:test/namespace\"><tst:child/></tst:root>".getBytes();
@@ -94,8 +98,8 @@ public class SimpleBindingModelTest {
     @Test
     public void testMarshallNestedBinding() throws Exception {
         BindingModel model = new BindingModel();
-        RootBinding binding = new RootBinding(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
-        binding.setChild(new ElementBinding(new QName("urn:test/namespace", "child", "tst"), ObjectA.class), "myObject");
+        Root binding = new Root(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
+        binding.setChild(new Element(new QName("urn:test/namespace", "child", "tst"), ObjectA.class), "myObject");
         model.register(binding);
         
         ObjectTree instance = new ObjectTree();
@@ -112,8 +116,8 @@ public class SimpleBindingModelTest {
     @Test
     public void testMarshallValue() throws Exception {
         BindingModel model = new BindingModel();
-        RootBinding binding = new RootBinding(new QName("urn:test/namespace", "myobject", "tst"), ObjectA.class);
-        binding.setChild(new SimpleTypeBinding(new QName("name")), "name");
+        Root binding = new Root(new QName("urn:test/namespace", "myobject", "tst"), ObjectA.class);
+        binding.setChild(new SimpleType(new QName("name")), "name");
         model.register(binding);
         
         ObjectA instance = new ObjectA("test");
@@ -127,8 +131,8 @@ public class SimpleBindingModelTest {
     @Test
     public void testUnmarshallValue() throws Exception {
         BindingModel model = new BindingModel();
-        RootBinding binding = new RootBinding(new QName("urn:test/namespace", "myobject", "tst"), ObjectA.class);
-        binding.setChild(new SimpleTypeBinding(new QName("name")), "name");
+        Root binding = new Root(new QName("urn:test/namespace", "myobject", "tst"), ObjectA.class);
+        binding.setChild(new SimpleType(new QName("name")), "name");
         model.register(binding);
         
         byte[] buffer = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>test</name></tst:myobject>".getBytes();

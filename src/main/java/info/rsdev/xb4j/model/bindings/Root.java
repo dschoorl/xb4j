@@ -12,9 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 
 import javax.xml.XMLConstants;
@@ -22,17 +23,17 @@ import javax.xml.namespace.QName;
 
 /**
  * <p>This Binding is at the root of a binding hierarchy. It has a reference to the {@link BindingModel}, so
- * it can lookup {@link ComplexTypeBinding complextype definitions}.</p>
+ * it can lookup {@link ComplexType complextype definitions}.</p>
  * 
  * TODO: set schema on the root type to use validation on stax reader/writer?
  * 
  * @author Dave Schoorl
  */
-public class RootBinding extends ElementBinding implements IModelAware {
+public class Root extends Element implements IModelAware {
 	
     private BindingModel model = null;
     
-	public RootBinding(QName element, Class<?> javaType) {
+	public Root(QName element, Class<?> javaType) {
 		super(element, javaType);
     	super.setOptional(false);
 	}
@@ -43,14 +44,14 @@ public class RootBinding extends ElementBinding implements IModelAware {
 	 * @param original
 	 * @param newElement
 	 */
-	protected RootBinding(RootBinding original, QName newElement) {
+	protected Root(Root original, QName newElement) {
 		//do not copy the BindingModel of original! - we want the flexibility to register the copy with another BindingModel
 		super(original, new DefaultElementFetchStrategy(newElement));
 	}
 	
-	public ComplexTypeBinding getComplexType(String identifier, String namespaceUri) {
+	public ComplexType getComplexType(String identifier, String namespaceUri) {
 	    if (namespaceUri == null) { namespaceUri = XMLConstants.NULL_NS_URI; }
-	    ComplexTypeBinding complexType = this.model.getComplexType(identifier, namespaceUri);
+	    ComplexType complexType = this.model.getComplexType(identifier, namespaceUri);
         if (complexType == null) {
             throw new Xb4jException(String.format("ComplexTypeBinding with identifier=%s and namespace=%s is not" +
                     "registered in the BindingModel", identifier, namespaceUri));
@@ -76,7 +77,7 @@ public class RootBinding extends ElementBinding implements IModelAware {
 	}
 	
 	@Override
-	public IBindingBase setOptional(boolean isOptional) {
+	public IBinding setOptional(boolean isOptional) {
 		throw new Xb4jException("A RootBinding cannot be made optional");
 	}
 	
@@ -88,14 +89,14 @@ public class RootBinding extends ElementBinding implements IModelAware {
     }
     
     /**
-     * Copy this {@link RootBinding}, so it can be registered for another element (E.g. another namespace), but with the same
+     * Copy this {@link Root}, so it can be registered for another element (E.g. another namespace), but with the same
      * structure). The BindingModel of this RootBinding (if any) will not be copied, so you can register this copy also with 
      * another BindingModel.
      * 
      * @param newElementName
-     * @return A copy of this {@link RootBinding}. It still needs to be registered with the {@link BindingModel}
+     * @return A copy of this {@link Root}. It still needs to be registered with the {@link BindingModel}
      */
-    public RootBinding copy(QName newElement) {
-    	return new RootBinding(this, newElement);
+    public Root copy(QName newElement) {
+    	return new Root(this, newElement);
     }
 }

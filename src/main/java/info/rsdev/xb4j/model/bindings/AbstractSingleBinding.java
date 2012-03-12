@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
@@ -25,11 +25,11 @@ import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
  * 
  * @author Dave Schoorl
  */
-public abstract class AbstractSingleBinding extends AbstractBindingBase implements ISingleBinding {
+public abstract class AbstractSingleBinding extends AbstractBinding implements ISingleBinding {
 	
-	private IBindingBase childBinding = null;
+	private IBinding childBinding = null;
 	
-    public <T extends IBindingBase> T setChild(T childBinding, IGetter getter, ISetter setter) {
+    public <T extends IBinding> T setChild(T childBinding, IGetter getter, ISetter setter) {
     	setChild(childBinding);
     	childBinding.setGetter(getter);
         childBinding.setSetter(setter);
@@ -69,7 +69,7 @@ public abstract class AbstractSingleBinding extends AbstractBindingBase implemen
      * @param fieldName
      * @return the childBinding
      */
-    public <T extends IBindingBase> T setChild(T childBinding, String fieldName) {
+    public <T extends IBinding> T setChild(T childBinding, String fieldName) {
         if (fieldName == null) {
         	throw new NullPointerException("Fieldname cannot be null");
         }
@@ -81,7 +81,7 @@ public abstract class AbstractSingleBinding extends AbstractBindingBase implemen
         return childBinding;
     }
 
-    public <T extends IBindingBase> T setChild(T childBinding) {
+    public <T extends IBinding> T setChild(T childBinding) {
     	if (childBinding == null) {
     		throw new NullPointerException("Child IBinding must not be null when you explicitly set it");
     	}
@@ -93,7 +93,7 @@ public abstract class AbstractSingleBinding extends AbstractBindingBase implemen
         return childBinding;
     }
     
-    protected IBindingBase getChildBinding() {
+    protected IBinding getChildBinding() {
     	return this.childBinding;
     }
 	

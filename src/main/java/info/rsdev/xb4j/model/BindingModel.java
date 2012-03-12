@@ -15,6 +15,8 @@
 package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.bindings.ComplexType;
+import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader.Marker;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
@@ -49,11 +51,11 @@ public class BindingModel {
     
     private static final Logger log = LoggerFactory.getLogger(BindingModel.class);
     
-    private Map<Class<?>, LinkedList<RootBinding>> classToXml = new HashMap<Class<?>, LinkedList<RootBinding>>();
+    private Map<Class<?>, LinkedList<Root>> classToXml = new HashMap<Class<?>, LinkedList<Root>>();
     
-    private Map<QName, RootBinding> xmlToClass = new HashMap<QName, RootBinding>();
+    private Map<QName, Root> xmlToClass = new HashMap<QName, Root>();
     
-    private Map<QName, ComplexTypeBinding> complexTypes = new HashMap<QName, ComplexTypeBinding>();
+    private Map<QName, ComplexType> complexTypes = new HashMap<QName, ComplexType>();
 
     /**
      * Marshall a Java instance into xml representation
@@ -69,11 +71,11 @@ public class BindingModel {
         if (instance == null) {
             throw new NullPointerException("Java instance to convert to xml cannot be null");
         }
-        RootBinding binding = getBinding(instance.getClass(), namespaceSpecifier);
+        Root binding = getBinding(instance.getClass(), namespaceSpecifier);
         toXml(stream, instance, binding);
     }
     
-    private void toXml(OutputStream stream, Object instance, RootBinding binding) {
+    private void toXml(OutputStream stream, Object instance, Root binding) {
         if (stream == null) {
             throw new NullPointerException("OutputStream cannot be null");
         }
@@ -120,7 +122,7 @@ public class BindingModel {
                 QName element = staxReader.getName();
                 staxReader.rewindAndPlayback(startMarker);
                 if (xmlToClass.containsKey(element)) {
-                    RootBinding binding = xmlToClass.get(element);
+                    Root binding = xmlToClass.get(element);
                     return binding.toJava(staxReader, null);//context.unmarshall(staxReader, binding, null);
                 }
             }
@@ -139,35 +141,35 @@ public class BindingModel {
     }
     
     /**
-     * Get the {@link RootBinding} that is bound to the supplied type. When multiple bindings are bound to the
+     * Get the {@link Root} that is bound to the supplied type. When multiple bindings are bound to the
      * supplied type, a
      * @param type
-     * @return a {@link RootBinding} or null when no binding is bound to the Java type
+     * @return a {@link Root} or null when no binding is bound to the Java type
      * @throws Xb4jException when multiple bindings are bound to 
      * @see
      */
-    public RootBinding getBinding(Class<?> type) {
+    public Root getBinding(Class<?> type) {
         return getBinding(type, null);
     }
     
-    public RootBinding getBinding(Class<?> type, String namespaceSpecifier) {
+    public Root getBinding(Class<?> type, String namespaceSpecifier) {
         if (!this.classToXml.containsKey(type)) {
             return null;
         }
         
-        LinkedList<RootBinding> bindings = classToXml.get(type);
+        LinkedList<Root> bindings = classToXml.get(type);
         if ((bindings.size() == 1) && (namespaceSpecifier == null)) {
             return bindings.getFirst();
         } else if ((bindings.size() > 1) && (namespaceSpecifier == null)) {
             Set<String> candidates = new HashSet<String>(bindings.size());
-            for (RootBinding candidate: bindings) {
+            for (Root candidate: bindings) {
                 candidates.add(candidate.getElement().getNamespaceURI());
             }
             throw new Xb4jException(String.format("Multiple bindings found. Please specify a namespace to select the required " +
                     "binding (one of: %s)", candidates));
         } else {
-            RootBinding target = null;
-            for (RootBinding candidate: bindings) {
+            Root target = null;
+            for (Root candidate: bindings) {
                 if (candidate.getElement().getNamespaceURI().equals(namespaceSpecifier)) {
                     target = candidate;
                     break;
@@ -177,7 +179,7 @@ public class BindingModel {
         }
     }
     
-    public BindingModel register(RootBinding binding) {
+    public BindingModel register(Root binding) {
     	if (binding == null) {
     		throw new NullPointerException("RootBinding cannot be null when registering it");
     	}
@@ -201,14 +203,14 @@ public class BindingModel {
     	 * able to supply the namespaceUri (based on the namespaceUri of the incoming message).
     	 */
         xmlToClass.put(element, binding);
-        LinkedList<RootBinding> boundToClass = classToXml.get(javaType);
+        LinkedList<Root> boundToClass = classToXml.get(javaType);
         if (boundToClass == null) {
-            boundToClass = new LinkedList<RootBinding>();
+            boundToClass = new LinkedList<Root>();
             classToXml.put(javaType, boundToClass);
         }
         QName newElement = binding.getElement();
         if (!boundToClass.isEmpty()) {
-            for (RootBinding candidate: boundToClass) {
+            for (Root candidate: boundToClass) {
             	QName candidateElement = candidate.getElement();
                 if (!candidateElement.getLocalPart().equals(newElement.getLocalPart())) {
                 	throw new Xb4jException(String.format("Multiple bindings for %s must all use the same element name. Found " +
@@ -225,7 +227,7 @@ public class BindingModel {
         return this;
     }
     
-    public BindingModel register(ComplexTypeBinding complexType, boolean errorIfExists) {
+    public BindingModel register(ComplexType complexType, boolean errorIfExists) {
         if (complexType == null) {
             throw new NullPointerException("ComplexTypeBinding cannot be null");
         }
@@ -249,7 +251,7 @@ public class BindingModel {
         return this;
     }
     
-    public ComplexTypeBinding getComplexType(String identifier, String namespaceUri) {
+    public ComplexType getComplexType(String identifier, String namespaceUri) {
         return this.complexTypes.get(new QName(namespaceUri, identifier));
     }
     

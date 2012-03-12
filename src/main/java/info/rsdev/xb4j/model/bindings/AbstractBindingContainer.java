@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
@@ -30,9 +30,9 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 
-public abstract class AbstractBindingContainer extends AbstractBindingBase implements IBindingContainer {
+public abstract class AbstractBindingContainer extends AbstractBinding implements IBindingContainer {
 
-    private ArrayList<IBindingBase> children = new ArrayList<IBindingBase>();
+    private ArrayList<IBinding> children = new ArrayList<IBinding>();
     
     protected AbstractBindingContainer(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
     	super(elementFetcher, objectCreator);
@@ -44,7 +44,7 @@ public abstract class AbstractBindingContainer extends AbstractBindingBase imple
      * @param childBinding
      * @return the childBinding
      */
-    public <T extends IBindingBase> T add(T childBinding, IGetter getter, ISetter setter) {
+    public <T extends IBinding> T add(T childBinding, IGetter getter, ISetter setter) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
@@ -62,7 +62,7 @@ public abstract class AbstractBindingContainer extends AbstractBindingBase imple
      * @param fieldName
      * @return the childBinding
      */
-    public <T extends IBindingBase> T add(T childBinding, String fieldName) {
+    public <T extends IBinding> T add(T childBinding, String fieldName) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
@@ -77,19 +77,19 @@ public abstract class AbstractBindingContainer extends AbstractBindingBase imple
     }
 
     /**
-     * Add a {@link IBindingBase} to a binding container. A bidirectional relationship will be established between the
+     * Add a {@link IBinding} to a binding container. A bidirectional relationship will be established between the
      * container and the child.
      * 
      * @param childBinding the binding to add to this group
      * @return the childBinding
      */
-    public <T extends IBindingBase> T add(T childBinding) {
+    public <T extends IBinding> T add(T childBinding) {
         this.children.add(childBinding);
         childBinding.setParent(this);   //maintain bidirectional relationship
         return childBinding;
     }
     
-    public Collection<IBindingBase> getChildren() {
+    public Collection<IBinding> getChildren() {
         return Collections.unmodifiableList(this.children);
     }
     
@@ -102,7 +102,7 @@ public abstract class AbstractBindingContainer extends AbstractBindingBase imple
     	}
     	
     	newJavaContext = newInstance();
-        for (IBindingBase child: getChildren()) {
+        for (IBinding child: getChildren()) {
             Object result = child.toJava(staxReader, select(javaContext, newJavaContext));
             setProperty(newJavaContext, result);
         }
@@ -115,13 +115,13 @@ public abstract class AbstractBindingContainer extends AbstractBindingBase imple
         QName element = getElement();
         
         //mixed content is not yet supported -- there are either child elements or there is content
-        Collection<IBindingBase> children = getChildren();
+        Collection<IBinding> children = getChildren();
         boolean isEmptyElement = children.isEmpty();
         if (element != null) {
             staxWriter.writeElement(element, isEmptyElement);
         }
         
-        for (IBindingBase child: children) {
+        for (IBinding child: children) {
             child.toXml(staxWriter, getProperty(javaContext));
         }
         

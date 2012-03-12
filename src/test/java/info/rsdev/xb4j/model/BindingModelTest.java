@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.bindings.Root;
+import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectB;
 
@@ -22,15 +24,15 @@ public class BindingModelTest {
     @Before
     public void setup() {
         model = new BindingModel();
-        RootBinding binding = new RootBinding(new QName("http://1", "a", "up"), ObjectA.class);
-        binding.setChild(new SimpleTypeBinding(new QName("name")), "name");
+        Root binding = new Root(new QName("http://1", "a", "up"), ObjectA.class);
+        binding.setChild(new SimpleType(new QName("name")), "name");
         model.register(binding);
         
-        binding = new RootBinding(new QName("http://2", "a", "lo"), ObjectA.class);
-        binding.setChild(new SimpleTypeBinding(new QName("eman")), "name");
+        binding = new Root(new QName("http://2", "a", "lo"), ObjectA.class);
+        binding.setChild(new SimpleType(new QName("eman")), "name");
         model.register(binding);
         
-        model.register(new RootBinding(new QName("B"), ObjectB.class));
+        model.register(new Root(new QName("B"), ObjectB.class));
     }
     
     @Test
@@ -51,7 +53,7 @@ public class BindingModelTest {
     
     @Test
     public void testGetBindingUniqueWithSpecifier() {
-        RootBinding expected = new RootBinding(new QName("B"), ObjectB.class);
+        Root expected = new Root(new QName("B"), ObjectB.class);
         assertNotNull(model.getBinding(ObjectB.class, XMLConstants.NULL_NS_URI));
         assertEquals(expected, model.getBinding(ObjectB.class, XMLConstants.NULL_NS_URI));
     }
@@ -63,7 +65,7 @@ public class BindingModelTest {
     
     @Test
     public void testGetBindingUniqueNoSpecifier() {
-        RootBinding expected = new RootBinding(new QName("B"), ObjectB.class);
+        Root expected = new Root(new QName("B"), ObjectB.class);
         assertNotNull(model.getBinding(ObjectB.class));
         assertEquals(expected, model.getBinding(ObjectB.class));
     }

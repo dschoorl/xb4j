@@ -14,10 +14,10 @@
  */
 package info.rsdev.xb4j.model.java;
 
-import info.rsdev.xb4j.model.ChoiceBinding;
+import info.rsdev.xb4j.model.bindings.Choice;
 
 /**
- * An {@link IChooser} is used during the marshalling process (from java to xml). It select's the choice from {@link ChoiceBinding} 
+ * An {@link IChooser} is used during the marshalling process (from java to xml). It select's the choice from {@link Choice} 
  * that is applicable for the object currently being marshalled.
  * 
  * @author Dave Schoorl

@@ -12,8 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
+import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
@@ -29,13 +30,13 @@ import javax.xml.stream.XMLStreamException;
 /**
  * <p>This binding can be used as an anonymous type in a RootBinding hierarchy, or it can be
  * registered as a type with a {@link BindingModel}, so that the definition can be reused. Reuse 
- * is accomplished by adding a {@link ComplexTypeReference} into the RootBinding hierarchy, that
+ * is accomplished by adding a {@link Reference} into the RootBinding hierarchy, that
  * references the ComplexTypeBinding.</p>
  * 
- * @see ComplexTypeReference
+ * @see Reference
  * @author Dave Schoorl
  */
-public class ComplexTypeBinding extends AbstractSingleBinding implements IModelAware {
+public class ComplexType extends AbstractSingleBinding implements IModelAware {
     
     private String identifier = null;   //only needed when registered with BindingModel
     
@@ -48,12 +49,12 @@ public class ComplexTypeBinding extends AbstractSingleBinding implements IModelA
      * @param element
      * @param referencedBinding
      */
-    public ComplexTypeBinding(QName element, IBindingBase parent, String fieldName) {
+    public ComplexType(QName element, IBinding parent, String fieldName) {
     	super(new DefaultElementFetchStrategy(element), null);
         if (parent == null) {
             throw new NullPointerException("Parent IBindingBase cannot be null");
         }
-        ComplexTypeReference reference = new ComplexTypeReference(element, this);
+        Reference reference = new Reference(element, this);
         if (parent instanceof ISingleBinding) {
             ((ISingleBinding)parent).setChild(reference);
         } else if (parent instanceof IBindingContainer) {
@@ -67,11 +68,11 @@ public class ComplexTypeBinding extends AbstractSingleBinding implements IModelA
     }
 
     /**
-     * Create a new {@link ComplexTypeBinding} with the purpose to be referenced by a {@link ComplexTypeReference}
+     * Create a new {@link ComplexType} with the purpose to be referenced by a {@link Reference}
      * @param identifier
      * @param namespaceUri
      */
-    public ComplexTypeBinding(String identifier, String namespaceUri) {
+    public ComplexType(String identifier, String namespaceUri) {
     	super(NoElementFetchStrategy.INSTANCE, null);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
@@ -79,10 +80,10 @@ public class ComplexTypeBinding extends AbstractSingleBinding implements IModelA
     }
 
     /**
-     * Copy constructor that creates a copy of ComplexTypeBinding with the given {@link ComplexTypeReference parent}
+     * Copy constructor that creates a copy of ComplexTypeBinding with the given {@link Reference parent}
      * as it's parent 
      */
-    private ComplexTypeBinding(ComplexTypeBinding original) {
+    private ComplexType(ComplexType original) {
         super(original, (IElementFetchStrategy)null);	//dirty hack, I want to do: new FetchFromParentStrategy(this), but cannot pass on this in super contructor call 
         setElementFetchStrategy(new FetchFromParentStrategy(this));
         this.identifier = original.identifier;
@@ -125,12 +126,12 @@ public class ComplexTypeBinding extends AbstractSingleBinding implements IModelA
 	}
 
     /**
-     * Copy the ComplexTypeHierarchy and place it as a child under the supplied  {@link ComplexTypeReference parent}
+     * Copy the ComplexTypeHierarchy and place it as a child under the supplied  {@link Reference parent}
      * @param complexTypeReference the parent in the hierarchy
-     * @return a copy of this {@link ComplexTypeBinding}
+     * @return a copy of this {@link ComplexType}
      */
-    ComplexTypeBinding copy() {
-        return new ComplexTypeBinding(this);
+    ComplexType copy() {
+        return new ComplexType(this);
     }
     
     @Override

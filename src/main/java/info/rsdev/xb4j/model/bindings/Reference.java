@@ -12,8 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
+import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
@@ -21,39 +22,39 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 /**
- * <p>This class is a special {@link ElementBinding}; it can only contain a single {@link ComplexTypeBinding}. The 
+ * <p>This class is a special {@link Element}; it can only contain a single {@link ComplexType}. The 
  * ComplexTypeBinding can be anonymous or a type reference. as it's child so that a binding can be re-used in multiple 
- * {@link RootBinding} hierarchies.</p>
+ * {@link Root} hierarchies.</p>
  * 
  * TODO: setChild methods from ElementBinding are available to the outside world: solve this!
  * 
  * @author Dave Schoorl
  */
-public class ComplexTypeReference extends ElementBinding {
+public class Reference extends Element {
 
     private String identifier = null;
 
     private String namespaceUri = null;
     
-    public ComplexTypeReference(String identifier, String namespaceUri) {
+    public Reference(String identifier, String namespaceUri) {
     	super(NoElementFetchStrategy.INSTANCE, null);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }
 
-    public ComplexTypeReference(QName element, Class<?> javaType, String identifier, String namespaceUri) {
+    public Reference(QName element, Class<?> javaType, String identifier, String namespaceUri) {
         super(element, javaType);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }
 
-    public ComplexTypeReference(Class<?> javaType, String identifier, String namespaceUri) {
+    public Reference(Class<?> javaType, String identifier, String namespaceUri) {
         super(javaType);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }
     
-    public ComplexTypeReference(QName element, String identifier, String namespaceUri) {
+    public Reference(QName element, String identifier, String namespaceUri) {
         super(element);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
@@ -67,7 +68,7 @@ public class ComplexTypeReference extends ElementBinding {
      * @param element
      * @param referencedBinding
      */
-    ComplexTypeReference(QName element, ComplexTypeBinding referencedBinding) {
+    Reference(QName element, ComplexType referencedBinding) {
     	super(new DefaultElementFetchStrategy(element), null);
     	//TODO: simplify -> can we not skip ComplexTypeReference when dealing with anonymous type (just use only a ComplexTypeBinding)
         if (referencedBinding == null) {
@@ -90,11 +91,11 @@ public class ComplexTypeReference extends ElementBinding {
         this.namespaceUri = newNamespaceUri;
     }
     
-    public ComplexTypeBinding getChildBinding() {
-        ComplexTypeBinding referenced = (ComplexTypeBinding)super.getChildBinding();
+    public ComplexType getChildBinding() {
+        ComplexType referenced = (ComplexType)super.getChildBinding();
         if (referenced == null) {
             IModelAware root = getModelAware();
-            ComplexTypeBinding complexType = root.getModel().getComplexType(identifier, namespaceUri);
+            ComplexType complexType = root.getModel().getComplexType(identifier, namespaceUri);
             referenced = complexType.copy();    //copy without parent
             setChild(referenced);
         }

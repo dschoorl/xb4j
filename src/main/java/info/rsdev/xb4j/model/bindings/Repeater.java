@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.accessor.MethodSetter;
@@ -27,33 +27,33 @@ import java.util.Collection;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
-public class CollectionBinding extends AbstractBindingBase {
+public class Repeater extends AbstractBinding {
 	
 	public static final int UNBOUNDED = Integer.MAX_VALUE;
 	
-	private IBindingBase itemBinding = null;
+	private IBinding itemBinding = null;
 	
 	private int maxOccurs = UNBOUNDED;
 	
 	/**
-	 * Create a {@link CollectionBinding} where the underlying collection is of the specified type. The type must be a concrete
+	 * Create a {@link Repeater} where the underlying collection is of the specified type. The type must be a concrete
 	 * class, so it can be created during unmarshalling process (xml to java).
 	 * @param collectionType
 	 */
-	public CollectionBinding(Class<?> collectionType) {
+	public Repeater(Class<?> collectionType) {
 		super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(collectionType));
 	}
 	
-    public CollectionBinding(QName element, Class<?> collectionType) {
+    public Repeater(QName element, Class<?> collectionType) {
     	this(element, collectionType, true);
     }
     
-    public CollectionBinding(QName element, Class<?> collectionType, boolean isOptional) {
+    public Repeater(QName element, Class<?> collectionType, boolean isOptional) {
     	super(new DefaultElementFetchStrategy(element), new DefaultConstructor(collectionType));
         setOptional(isOptional);
     }
     
-	public <T extends IBindingBase> T setItem(T itemBinding) {
+	public <T extends IBinding> T setItem(T itemBinding) {
 		if (itemBinding == null) {
 			throw new NullPointerException("Binding for collection items cannot be null");
 		}
@@ -143,7 +143,7 @@ public class CollectionBinding extends AbstractBindingBase {
         }
 	}
 	
-	public CollectionBinding setMaxOccurs(int newMaxOccurs) {
+	public Repeater setMaxOccurs(int newMaxOccurs) {
 		if (newMaxOccurs <= 1) {
 			throw new Xb4jException("maxOccurs must be 1 or higher: "+newMaxOccurs);
 		}

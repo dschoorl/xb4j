@@ -12,27 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
 /**
  * Group a number of elements where ordering is fixed. Elements can be optional. When an element can occur more than once, you 
- * must wrap them inside a {@link CollectionBinding}. A sequence has no xml or java object eepresentation.
+ * must wrap them inside a {@link Repeater}. A sequence has no xml or java object eepresentation.
  * 
  * @author Dave Schoorl
  */
-public class SequenceBinding extends AbstractBindingContainer {
+public class Sequence extends AbstractBindingContainer {
 	
 	/**
-	 * Create a new {@link SequenceBinding} which inherits it's element and javatype from it's parent
+	 * Create a new {@link Sequence} which inherits it's element and javatype from it's parent
 	 */
-	public SequenceBinding() {
+	public Sequence() {
 		super(NoElementFetchStrategy.INSTANCE, null);
 	}
 	
-	public SequenceBinding(Class<?> javaType) {
+	public Sequence(Class<?> javaType) {
 		super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType));
 	}
     

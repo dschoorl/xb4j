@@ -12,22 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
-import info.rsdev.xb4j.model.java.accessor.IGetter;
-import info.rsdev.xb4j.model.java.accessor.ISetter;
+import info.rsdev.xb4j.model.BindingModel;
 
 /**
- * group a number of bindings together
- * 
+ *
  * @author Dave Schoorl
  */
-public interface IBindingContainer extends IBindingBase {
-	
-	public <T extends IBindingBase> T add(T childBinding);
-	
-	public <T extends IBindingBase> T add(T childBinding, IGetter getter, ISetter setter);
-	
-	public <T extends IBindingBase> T add(T childBinding, String fieldname);
-	
+public interface IModelAware {
+
+    public void setModel(BindingModel model);
+    
+    public BindingModel getModel();
 }

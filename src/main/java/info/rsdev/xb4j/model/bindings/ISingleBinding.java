@@ -12,23 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
-import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.accessor.IGetter;
+import info.rsdev.xb4j.model.java.accessor.ISetter;
 
-import javax.xml.namespace.QName;
-
-import org.junit.Test;
-
-public class RootBindingTest {
+/**
+ * The binding can have only one child
+ * 
+ * @author Dave Schoorl
+ */
+public interface ISingleBinding extends IBinding {
 	
-	/**
-	 * A Rootbinding cannot be optional
-	 */
-	@Test(expected=Xb4jException.class)
-	public void testSetOptionalNotAllowed() {
-		RootBinding root = new RootBinding(new QName("root"), Object.class);
-		root.setOptional(true);
-	}
+	public <T extends IBinding> T setChild(T childContainer);
+	
+	public <T extends IBinding> T setChild(T childBinding, IGetter getter, ISetter setter);
+	
+	public <T extends IBinding> T setChild(T childBinding, String fieldname);
 	
 }

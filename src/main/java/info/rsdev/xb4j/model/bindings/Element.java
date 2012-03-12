@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
@@ -27,10 +27,10 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * <p>An {@link ElementBinding} can represent an element in the xml world. It can also represent a counterpart object in
+ * <p>An {@link Element} can represent an element in the xml world. It can also represent a counterpart object in
  * the Java world. At least one of the two is required. An ElementBinding can hold other bindings, E.g. 
- * a {@link SequenceBinding}, a {@link ComplexTypeReference} or a {@link ChoiceBinding}.</p>
- * <p>An ElementBinding cannot contain text. When you need an element that must contain text, use {@link SimpleTypeBinding} 
+ * a {@link Sequence}, a {@link Reference} or a {@link Choice}.</p>
+ * <p>An ElementBinding cannot contain text. When you need an element that must contain text, use {@link SimpleType} 
  * instead.</p>
  * 
  * TODO: add support for fixed / default values in the xml world?
@@ -38,29 +38,29 @@ import javax.xml.stream.XMLStreamException;
  * 
  * @author Dave Schoorl
  */
-public class ElementBinding extends AbstractSingleBinding {
+public class Element extends AbstractSingleBinding {
 	
     /**
-     * Create a new {@link ElementBinding} with a {@link DefaultElementFetchStrategy}
+     * Create a new {@link Element} with a {@link DefaultElementFetchStrategy}
      * @param element the element 
      */
-    public ElementBinding(QName element) {
+    public Element(QName element) {
     	super(new DefaultElementFetchStrategy(element), null);
     }
     
-    public ElementBinding(Class<?> javaType) {
+    public Element(Class<?> javaType) {
     	super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType));
     }
 
-    public ElementBinding(QName element, Class<?> javaType) {
+    public Element(QName element, Class<?> javaType) {
     	super(new DefaultElementFetchStrategy(element), new DefaultConstructor(javaType));
     }
 
-    public ElementBinding(QName element, ICreator creator) {
+    public Element(QName element, ICreator creator) {
     	super(new DefaultElementFetchStrategy(element), creator);
     }
     
-    public ElementBinding(IElementFetchStrategy elementFetcher, ICreator creator) {
+    public Element(IElementFetchStrategy elementFetcher, ICreator creator) {
     	super(elementFetcher, creator);
     }
     
@@ -70,7 +70,7 @@ public class ElementBinding extends AbstractSingleBinding {
      * @param original
      * @param newElement
      */
-    protected ElementBinding(ElementBinding original, IElementFetchStrategy elementFetcher) {
+    protected Element(Element original, IElementFetchStrategy elementFetcher) {
     	super(original, elementFetcher);
     }
     
@@ -83,7 +83,7 @@ public class ElementBinding extends AbstractSingleBinding {
         }
         
         Object newJavaContext = newInstance();
-    	IBindingBase childBinding = getChildBinding();
+    	IBinding childBinding = getChildBinding();
     	if (childBinding != null) {
     		childBinding.toJava(staxReader, select(javaContext, newJavaContext));
     	}
@@ -102,7 +102,7 @@ public class ElementBinding extends AbstractSingleBinding {
         QName element = getElement();
         
         //mixed content is not yet supported -- there are either child elements or there is content
-    	IBindingBase childBinding = getChildBinding();
+    	IBinding childBinding = getChildBinding();
         boolean isEmptyElement = childBinding == null;
         if (element != null) {
             staxWriter.writeElement(element, isEmptyElement);

@@ -12,9 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertEquals;
+import info.rsdev.xb4j.model.bindings.Choice;
+import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.model.java.InstanceOfChooser;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
@@ -31,13 +33,13 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.junit.Test;
 
-public class ChoiceBindingTest {
+public class ChoiceTest {
 	
 	@Test
 	public void testMarshallChoiceNoNamespaces() throws Exception {
-		ChoiceBinding choice = new ChoiceBinding();
-		choice.addChoice(new SimpleTypeBinding(new QName("elem1")), "name", new InstanceOfChooser(ObjectA.class));
-		choice.addChoice(new SimpleTypeBinding(new QName("elem2")), "value", new InstanceOfChooser(ObjectB.class));
+		Choice choice = new Choice();
+		choice.addChoice(new SimpleType(new QName("elem1")), "name", new InstanceOfChooser(ObjectA.class));
+		choice.addChoice(new SimpleType(new QName("elem2")), "value", new InstanceOfChooser(ObjectB.class));
 		
 		ObjectA instanceA = new ObjectA("test");
 		String expected = "<elem1>test</elem1>";
@@ -58,9 +60,9 @@ public class ChoiceBindingTest {
 	
 	@Test
 	public void testUnmarshallChoiceNoNamespaces() throws Exception {
-		ChoiceBinding choice = new ChoiceBinding();
-		choice.addChoice(new SimpleTypeBinding(new QName("elem1")), "name", new InstanceOfChooser(ObjectA.class));
-		choice.addChoice(new SimpleTypeBinding(new QName("elem2")), "value", new InstanceOfChooser(ObjectB.class));
+		Choice choice = new Choice();
+		choice.addChoice(new SimpleType(new QName("elem1")), "name", new InstanceOfChooser(ObjectA.class));
+		choice.addChoice(new SimpleType(new QName("elem2")), "value", new InstanceOfChooser(ObjectB.class));
 		
 		//unmarshall first option
 		ByteArrayInputStream stream = new ByteArrayInputStream("<elem1>test1</elem1>".getBytes());

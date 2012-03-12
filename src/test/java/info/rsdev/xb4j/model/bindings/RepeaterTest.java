@@ -12,12 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.bindings.Repeater;
+import info.rsdev.xb4j.model.bindings.Root;
+import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.test.ObjectTree;
 
 import java.io.ByteArrayInputStream;
@@ -32,14 +36,14 @@ import org.junit.Test;
  * 
  * @author Dave Schoorl
  */
-public class CollectionBindingTest {
+public class RepeaterTest {
 	
 	@Test
 	public void testMarshallValueCollectionNoContainerElement() {
 		//fixture
-        RootBinding root = new RootBinding(new QName("root"), ObjectTree.class);
-        CollectionBinding collection = (CollectionBinding)root.setChild(new CollectionBinding(ArrayList.class), "messages");
-        collection.setItem(new SimpleTypeBinding(new QName("detail")));
+        Root root = new Root(new QName("root"), ObjectTree.class);
+        Repeater collection = (Repeater)root.setChild(new Repeater(ArrayList.class), "messages");
+        collection.setItem(new SimpleType(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -55,9 +59,9 @@ public class CollectionBindingTest {
     @Test
     public void testMarshallValueCollectionWithContainerElement() {
         //fixture
-        RootBinding root = new RootBinding(new QName("root"), ObjectTree.class);
-        CollectionBinding collection = (CollectionBinding)root.setChild(new CollectionBinding(new QName("collection"), ArrayList.class), "messages");
-        collection.setItem(new SimpleTypeBinding(new QName("detail")));
+        Root root = new Root(new QName("root"), ObjectTree.class);
+        Repeater collection = (Repeater)root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
+        collection.setItem(new SimpleType(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -73,9 +77,9 @@ public class CollectionBindingTest {
 	@Test
 	public void testUnmarshallValueCollectionNoContainerElement() {
 		//fixture
-        RootBinding root = new RootBinding(new QName("root"), ObjectTree.class);
-        CollectionBinding collection = (CollectionBinding)root.setChild(new CollectionBinding(ArrayList.class), "messages");
-        collection.setItem(new SimpleTypeBinding(new QName("detail")));
+        Root root = new Root(new QName("root"), ObjectTree.class);
+        Repeater collection = (Repeater)root.setChild(new Repeater(ArrayList.class), "messages");
+        collection.setItem(new SimpleType(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><detail>bericht1</detail><detail>bericht2</detail></root>".getBytes());
@@ -91,9 +95,9 @@ public class CollectionBindingTest {
     @Test
     public void testUnmarshallValueCollectionWithContainerElement() {
         //fixture
-        RootBinding root = new RootBinding(new QName("root"), ObjectTree.class);
-        CollectionBinding collection = (CollectionBinding)root.setChild(new CollectionBinding(new QName("collection"), ArrayList.class), "messages");
-        collection.setItem(new SimpleTypeBinding(new QName("detail")));
+        Root root = new Root(new QName("root"), ObjectTree.class);
+        Repeater collection = (Repeater)root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
+        collection.setItem(new SimpleType(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><collection><detail>bericht1</detail><detail>bericht2</detail></collection></root>".getBytes());

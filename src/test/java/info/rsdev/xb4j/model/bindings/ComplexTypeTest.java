@@ -12,11 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.bindings.ComplexType;
+import info.rsdev.xb4j.model.bindings.Reference;
+import info.rsdev.xb4j.model.bindings.Root;
+import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectA;
@@ -30,21 +35,21 @@ import javax.xml.namespace.QName;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ComplexTypeBindingTest {
+public class ComplexTypeTest {
     
     private BindingModel model = null;
     
     @Before
     public void setup() {
-        RootBinding root = new RootBinding(new QName("root"), ObjectA.class);   //has element, but class comes from child
-        root.setChild(new ComplexTypeReference("typeO", null), NoGetter.INSTANCE, NoSetter.INSTANCE);
+        Root root = new Root(new QName("root"), ObjectA.class);   //has element, but class comes from child
+        root.setChild(new Reference("typeO", null), NoGetter.INSTANCE, NoSetter.INSTANCE);
         
         //bind complextype to other xml element (same javaclass) -- this is currently not supported by BindingModel
-        RootBinding hoofdmap = new RootBinding(new QName("directory"), ObjectTree.class);   //has element, but class comes from child
-        hoofdmap.setChild(new ComplexTypeReference(ObjectA.class, "typeO", null), "myObject");	//Must create ObjectA when marshalling
+        Root hoofdmap = new Root(new QName("directory"), ObjectTree.class);   //has element, but class comes from child
+        hoofdmap.setChild(new Reference(ObjectA.class, "typeO", null), "myObject");	//Must create ObjectA when marshalling
         
-        ComplexTypeBinding complexType = new ComplexTypeBinding("typeO", null);
-        complexType.setChild(new SimpleTypeBinding(new QName("name")), "name");
+        ComplexType complexType = new ComplexType("typeO", null);
+        complexType.setChild(new SimpleType(new QName("name")), "name");
         
         
         model = new BindingModel();

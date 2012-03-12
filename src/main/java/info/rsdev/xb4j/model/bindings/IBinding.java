@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model;
+package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
@@ -29,7 +29,7 @@ import javax.xml.stream.XMLStreamException;
  * 
  * @author Dave Schoorl
  */
-public interface IBindingBase {
+public interface IBinding {
     
     public Object toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException;
     
@@ -37,11 +37,11 @@ public interface IBindingBase {
     
     /**
      * Bindings are organized in a hierarchy. Call setParent to build the hierarchy of bindings.
-     * @param parent the parent {@link IBindingBase} that this binding is a child of.
+     * @param parent the parent {@link IBinding} that this binding is a child of.
      */
-    public void setParent(IBindingBase parent);
+    public void setParent(IBinding parent);
     
-    public IBindingBase getParent();
+    public IBinding getParent();
     
     public QName getElement();
     
@@ -53,13 +53,13 @@ public interface IBindingBase {
     
     public boolean setProperty(Object contextInstance, Object propertyValue);
     
-    public IBindingBase setGetter(IGetter getter);
+    public IBinding setGetter(IGetter getter);
     
-    public IBindingBase setSetter(ISetter setter);
+    public IBinding setSetter(ISetter setter);
     
     public boolean isOptional();
     
-    public IBindingBase setOptional(boolean isOptional);
+    public IBinding setOptional(boolean isOptional);
     
     public int hashCode();
     
