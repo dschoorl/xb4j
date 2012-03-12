@@ -21,11 +21,11 @@ import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.FactoryConfigurationError;
@@ -62,14 +62,14 @@ public class BindingModel {
      * @param instance
      */
     public void toXml(OutputStream stream, Object instance) {
-        toXml(stream, instance, (QName)null);
+        toXml(stream, instance, (String)null);
     }
     
-    public void toXml(OutputStream stream, Object instance, QName specifier) {
+    public void toXml(OutputStream stream, Object instance, String namespaceSpecifier) {
         if (instance == null) {
             throw new NullPointerException("Java instance to convert to xml cannot be null");
         }
-        RootBinding binding = getBinding(instance.getClass(), specifier);
+        RootBinding binding = getBinding(instance.getClass(), namespaceSpecifier);
         toXml(stream, instance, binding);
     }
     
@@ -150,25 +150,25 @@ public class BindingModel {
         return getBinding(type, null);
     }
     
-    public RootBinding getBinding(Class<?> type, QName specifier) {
+    public RootBinding getBinding(Class<?> type, String namespaceSpecifier) {
         if (!this.classToXml.containsKey(type)) {
             return null;
         }
         
         LinkedList<RootBinding> bindings = classToXml.get(type);
-        if ((bindings.size() == 1) && (specifier == null)) {
+        if ((bindings.size() == 1) && (namespaceSpecifier == null)) {
             return bindings.getFirst();
-        } else if ((bindings.size() > 1) && (specifier == null)) {
-            List<QName> candidates = new ArrayList<QName>(bindings.size());
+        } else if ((bindings.size() > 1) && (namespaceSpecifier == null)) {
+            Set<String> candidates = new HashSet<String>(bindings.size());
             for (RootBinding candidate: bindings) {
-                candidates.add(candidate.getElement());
+                candidates.add(candidate.getElement().getNamespaceURI());
             }
-            throw new Xb4jException(String.format("Multiple bindings found. Please specify a QName to select the required " +
+            throw new Xb4jException(String.format("Multiple bindings found. Please specify a namespace to select the required " +
                     "binding (one of: %s)", candidates));
         } else {
             RootBinding target = null;
             for (RootBinding candidate: bindings) {
-                if (candidate.getElement().equals(specifier)) {
+                if (candidate.getElement().getNamespaceURI().equals(namespaceSpecifier)) {
                     target = candidate;
                     break;
                 }
@@ -193,17 +193,33 @@ public class BindingModel {
     		throw new IllegalArgumentException(String.format("Cannot register '%s', because %s is " +
     				"already registered for %s", binding, xmlToClass.get(element), element));
     	}
-//    	if (classToXml.containsKey(javaType) && !binding.equals(classToXml.get(javaType))) {
-//    		throw new IllegalArgumentException(String.format("Cannot register RootBinding '%s', because %s is " +
-//    				"already registered for %s", binding, classToXml.get(javaType), javaType.getName()));
-//    	}
+    	
+    	/* A Java class can be bound to multiple RootBindings, on the condition that the element of the RootBinding uses
+    	 * the same localpart as al other bindings for the Java class, but a different namespace.
+    	 * The framework is capable of also differenting on localpart, but customers of this framework, E.g. SOAP stacks,
+    	 * will not be able to supply the entire QName to select the RootBinding for marshalling. However, they are likely
+    	 * able to supply the namespaceUri (based on the namespaceUri of the incoming message).
+    	 */
         xmlToClass.put(element, binding);
         LinkedList<RootBinding> boundToClass = classToXml.get(javaType);
         if (boundToClass == null) {
             boundToClass = new LinkedList<RootBinding>();
             classToXml.put(javaType, boundToClass);
         }
-        boundToClass.add(binding);  //TODO: check if another RootBinding is not already registered for this QName?
+        QName newElement = binding.getElement();
+        if (!boundToClass.isEmpty()) {
+            for (RootBinding candidate: boundToClass) {
+            	QName candidateElement = candidate.getElement();
+                if (!candidateElement.getLocalPart().equals(newElement.getLocalPart())) {
+                	throw new Xb4jException(String.format("Multiple bindings for %s must all use the same element name. Found " +
+                			"%s and %s.", javaType.getName(), newElement.getLocalPart(), candidateElement.getLocalPart()));
+                } else if (candidateElement.getNamespaceURI().equals(newElement.getNamespaceURI())) {
+                	throw new Xb4jException(String.format("Multiple bindings for %s must all use a different namespaceUri. Uri" +
+                			"%s is not unique.", javaType.getName(), newElement.getLocalPart()));
+                }
+            }
+        }
+        boundToClass.add(binding);
         
         binding.setModel(this);
         return this;
