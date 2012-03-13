@@ -133,7 +133,7 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
         
         //mixed content is not yet supported -- there are either child elements or there is content
         Collection<IBinding> children = getChildren();
-        boolean isEmptyElement = children.isEmpty();
+        boolean isEmptyElement = children.isEmpty();	//TODO: take isOptional properties into account
         if (element != null) {
             staxWriter.writeElement(element, isEmptyElement);
         }

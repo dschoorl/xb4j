@@ -44,6 +44,11 @@ public class Repeater extends AbstractBinding {
 		super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(collectionType));
 	}
 	
+	public Repeater(Class<?> collectionType, boolean isOptional) {
+		super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(collectionType));
+        setOptional(isOptional);
+	}
+	
     public Repeater(QName element, Class<?> collectionType) {
     	this(element, collectionType, true);
     }
@@ -101,7 +106,7 @@ public class Repeater extends AbstractBinding {
         }
         
         if ((occurences == 0) && !isOptional()) {
-        	throw new Xb4jException("Mandatory collection has no content");
+        	throw new Xb4jException(String.format("Mandatory collection has no content: %s", staxReader.getLocation()));
         }
         
         if (javaContext != null) {

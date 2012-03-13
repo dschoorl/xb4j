@@ -14,6 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
@@ -127,6 +128,13 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 	
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+		if (javaContext == null) {
+			if (isOptional()) {
+				return;
+			} else {
+				throw new Xb4jException(String.format("Mandatory type %s must have a non-null Java context", this));
+			}
+		}
         getChildBinding().toXml(staxWriter, getProperty(javaContext));
 	}
 

@@ -6,7 +6,8 @@ TODO
 - support attributes
 - support namespaces for attributes
 - support any type
-= support mixed content
+- support mixed content
+- support nillable xml types
 - configure binding through xml binding file
 
 

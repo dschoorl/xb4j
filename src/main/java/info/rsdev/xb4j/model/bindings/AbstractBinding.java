@@ -72,6 +72,7 @@ public abstract class AbstractBinding implements IBinding {
         this.objectCreator = original.objectCreator;
         this.getter = original.getter;
         this.setter = original.setter;
+        this.isOptional = original.isOptional;
         this.parent = null;    //clear parent, so that copy can be used in another binding hierarchy
     }
     
