@@ -1,11 +1,12 @@
 TODO
 ----
-- register javaclass with namespace with bindingmodel (allow same class be registered multiple times in different namespaces)
 - allow the java instance to be constructed by a non-default constructor method
 - allow the java instance to be created through a factory method
 - simplify API
 - support attributes
 - support namespaces for attributes
+- support any type
+= support mixed content
 - configure binding through xml binding file
 
 
@@ -15,3 +16,4 @@ DONE
 20120214  allow the element to have namespaces
 20120229  add converter mechanism to convert Java field to and from a String
 20120306  marshall/unmarshall a java object tree
+20120309  register javaclass with namespace with bindingmodel (allow same class be registered multiple times in different namespaces)

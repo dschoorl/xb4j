@@ -57,8 +57,10 @@ public class SimpleType extends AbstractBinding {
     	boolean startTagFound = false;
     	if (expectedElement != null) {
     		if (!staxReader.isAtElementStart(expectedElement)) {
-	    		if (!isOptional()) {
-	    			return DefaultResponse.newMissingElement(expectedElement);
+	    		if (isOptional()) {
+                    return DefaultResponse.MISSING_OPTIONAL_ELEMENT;
+	    		} else {
+                    return DefaultResponse.newMissingElement(expectedElement);
 	    		}
     		} else {
     			startTagFound = true;
@@ -66,7 +68,7 @@ public class SimpleType extends AbstractBinding {
     	}
         
         Object value = this.converter.toObject(staxReader.getElementText());	//this also reads the end element
-        setProperty(javaContext, value);
+        boolean isValueHandled = setProperty(javaContext, value);
         if (startTagFound && staxReader.isAtElement()) {
         	if (!expectedElement.equals(staxReader.getName())) {
         		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
@@ -75,7 +77,7 @@ public class SimpleType extends AbstractBinding {
         	}
         }
         
-        return new DefaultResponse(value);
+        return new DefaultResponse(value, isValueHandled);
     }
     
     @Override

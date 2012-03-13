@@ -40,7 +40,7 @@ public abstract class AbstractBinding implements IBinding {
     
     private IBinding parent = null;
     
-    private boolean isOptional = true;
+    private boolean isOptional = false; //by default, everything is mandatory, unless explicitly made optional
     
     protected AbstractBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
     	setElementFetchStrategy(elementFetcher);

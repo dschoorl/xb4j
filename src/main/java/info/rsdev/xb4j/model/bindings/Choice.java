@@ -133,7 +133,7 @@ public class Choice extends AbstractSingleBinding {
         IUnmarshallResponse result = null;
 		for (IBinding candidate: this.choices.values()) {
 			result = candidate.toJava(staxReader, getProperty(javaContext));
-			if (result.isUnmarshallSuccessful()) {
+			if (result.getUnmarshalledObject() != null) {
 				choiceFound = true;
 				if (result.mustHandleUnmarshalledObject()) {
 					setProperty(javaContext, result.getUnmarshalledObject());

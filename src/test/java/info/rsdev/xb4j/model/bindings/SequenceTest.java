@@ -15,15 +15,18 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import info.rsdev.xb4j.model.BindingModel;
-import info.rsdev.xb4j.model.bindings.Root;
-import info.rsdev.xb4j.model.bindings.Sequence;
-import info.rsdev.xb4j.model.bindings.SimpleType;
+import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.test.ObjectC;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
 
 import org.junit.Test;
 
@@ -43,6 +46,22 @@ public class SequenceTest {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         model.toXml(stream, instance);
         assertEquals(expected, stream.toString());
+	}
+	
+	@Test
+	public void testUnmarshallIncompleteSequence() throws Exception {
+	    Root root = new Root(new QName("root"), ObjectC.class);
+        Sequence sequence = root.setChild(new Sequence());
+        sequence.add(new SimpleType(new QName("name")), "name");
+        sequence.add(new SimpleType(new QName("description")), "description");
+	    
+        ByteArrayInputStream stream = new ByteArrayInputStream("<root><name>Jan</name><initialized>true</initialized></root>".getBytes());
+        RecordAndPlaybackXMLStreamReader staxWriter = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
+        IUnmarshallResponse result = root.toJava(staxWriter, null);
+        assertNotNull(result);
+        assertFalse(result.isUnmarshallSuccessful());
+        assertNull(result.getUnmarshalledObject());
+        assertEquals("Mandatory element not encountered in xml: description", result.getErrorMessage());
 	}
 	
 }
