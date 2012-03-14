@@ -50,7 +50,7 @@ public class IntegerConverter implements IValueConverter {
 	}
 	
 	@Override
-	public Object toObject(String value) {
+	public Integer toObject(String value) {
 		if (value == null) { return null; }
 		return validator.isValid(Integer.valueOf(value));
 	}

@@ -48,7 +48,7 @@ public class DateConverter implements IValueConverter {
 	}
 	
 	@Override
-	public Object toObject(String value) {
+	public Date toObject(String value) {
 		if (value == null) { return null; }
 		try {
 			synchronized(formatter) {

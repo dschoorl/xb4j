@@ -30,7 +30,7 @@ public class LdapNameConverter implements IValueConverter {
 	private LdapNameConverter() {}
 
 	@Override
-	public Object toObject(String value) throws Xb4jException {
+	public LdapName toObject(String value) throws Xb4jException {
 		if (value == null) { return null; }
 		
 		try {
