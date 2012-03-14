@@ -131,6 +131,8 @@ public class BindingModel {
                     	throw new Xb4jException(result.getErrorMessage());
                     }
                     
+                } else {
+                	throw new Xb4jException(String.format("No binding found for xml element %s", element));
                 }
             }
         } catch (XMLStreamException e) {
