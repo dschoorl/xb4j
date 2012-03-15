@@ -114,7 +114,7 @@ public class Choice extends AbstractSingleBinding {
 	}
 	
 	@Override
-	public IUnmarshallResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public DefaultResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
     	boolean startTagFound = false;
@@ -131,7 +131,7 @@ public class Choice extends AbstractSingleBinding {
         //Should we start recording to return to this element when necessary - currently this is responsibility of choices
         boolean choiceFound = false;
         boolean isValueHandled = false;
-        IUnmarshallResponse result = null;
+        DefaultResponse result = null;
 		for (IBinding candidate: this.choices.values()) {
 			result = candidate.toJava(staxReader, getProperty(javaContext));
 			if (result.getUnmarshalledObject() != null) {
@@ -153,7 +153,7 @@ public class Choice extends AbstractSingleBinding {
     				staxReader.getEventName(), encountered));
         }
         
-		return result.setHandled(isValueHandled);
+		return result.setHandled();
 	}
 	
 }

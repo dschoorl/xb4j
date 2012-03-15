@@ -22,16 +22,14 @@ public interface IUnmarshallResponse {
 	
 	public boolean isUnmarshallSuccessful();
 	
-	/**
-	 * Can only return true when unmarshalling yielded a response object
-	 * @return true when the caller must handle the response Object (E.g. set it in the javaContext), or 
-	 */
 	public boolean mustHandleUnmarshalledObject();
+	
+	public boolean isMissingOptional();
 	
 	public Object getUnmarshalledObject();
 	
 	public String getErrorMessage();
 
-	public IUnmarshallResponse setHandled(boolean isValueHandled);
+	public IUnmarshallResponse setHandled();
 	
 }

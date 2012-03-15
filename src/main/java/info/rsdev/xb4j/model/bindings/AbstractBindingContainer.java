@@ -95,7 +95,7 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
     }
     
     @Override
-    public IUnmarshallResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public DefaultResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
     	QName expectedElement = getElement();
     	boolean startTagFound = false;
     	if (expectedElement != null) {
@@ -110,7 +110,7 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
     	
     	Object newJavaContext = newInstance();
         for (IBinding child: getChildren()) {
-        	IUnmarshallResponse result = child.toJava(staxReader, select(javaContext, newJavaContext));
+        	DefaultResponse result = child.toJava(staxReader, select(javaContext, newJavaContext));
         	if (!result.isUnmarshallSuccessful()) { return result; }	//did we encounter the next element from the sequence or are we in the wrong sequence
         	if (result.mustHandleUnmarshalledObject()) {
         		setProperty(newJavaContext, result.getUnmarshalledObject());

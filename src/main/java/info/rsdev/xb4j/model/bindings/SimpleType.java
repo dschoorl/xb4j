@@ -51,9 +51,9 @@ public class SimpleType extends AbstractBinding {
     }
 
     @Override
-    public IUnmarshallResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public DefaultResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
-        QName expectedElement = getElement();
+        QName expectedElement = getElement();	//should never be null for a SimpleType
     	boolean startTagFound = false;
     	if (expectedElement != null) {
     		if (!staxReader.isAtElementStart(expectedElement)) {
@@ -67,8 +67,9 @@ public class SimpleType extends AbstractBinding {
     		}
     	}
         
-        Object value = this.converter.toObject(staxReader.getElementText());	//this also reads the end element
+        Object value = this.converter.toObject(staxReader.getElementText());	//this also consumes the end element
         boolean isValueHandled = setProperty(javaContext, value);
+        
         if (startTagFound && staxReader.isAtElement()) {
         	if (!expectedElement.equals(staxReader.getName())) {
         		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");

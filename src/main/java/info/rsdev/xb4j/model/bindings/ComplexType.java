@@ -113,10 +113,10 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     	this.namespaceUri = newNamespaceUri;
     }
 
-	public IUnmarshallResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public DefaultResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 		Object newJavaContext = newInstance();
 		javaContext = select(javaContext, newJavaContext);
-		IUnmarshallResponse result = getChildBinding().toJava(staxReader, javaContext);
+		DefaultResponse result = getChildBinding().toJava(staxReader, javaContext);
 		if (!result.isUnmarshallSuccessful()) {
 			return result;
 		}

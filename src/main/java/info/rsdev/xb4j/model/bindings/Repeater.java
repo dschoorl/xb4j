@@ -70,7 +70,7 @@ public class Repeater extends AbstractBinding {
 	}
 	
 	@Override
-	public IUnmarshallResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public DefaultResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 	    //TODO: also support addmethod on container class, which will add to underlying collection for us
         Object newJavaContext = newInstance();
         Object collection = select(javaContext, newJavaContext);
@@ -97,7 +97,7 @@ public class Repeater extends AbstractBinding {
         int occurences = 0;
         boolean proceed = true;
         while (proceed) {
-        	IUnmarshallResponse result = itemBinding.toJava(staxReader, collection);
+        	DefaultResponse result = itemBinding.toJava(staxReader, collection);
             proceed = result.isUnmarshallSuccessful();
             if (proceed) {
             	occurences++;

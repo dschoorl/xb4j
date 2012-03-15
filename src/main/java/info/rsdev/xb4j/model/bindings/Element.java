@@ -75,7 +75,7 @@ public class Element extends AbstractSingleBinding {
     }
     
     @Override
-    public IUnmarshallResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public DefaultResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
     	boolean startTagFound = false;
@@ -93,28 +93,34 @@ public class Element extends AbstractSingleBinding {
         
         Object newJavaContext = newInstance();
     	IBinding childBinding = getChildBinding();
-    	boolean isResultHandled = false;
+    	DefaultResponse result = null;
     	if (childBinding != null) {
-    		IUnmarshallResponse result = childBinding.toJava(staxReader, select(javaContext, newJavaContext));
-    		if (!result.isUnmarshallSuccessful()) {
-    			return result;
-    		}
-    		isResultHandled = !result.mustHandleUnmarshalledObject();
-    		if (!isResultHandled) {
-    			isResultHandled = setProperty(javaContext, result.getUnmarshalledObject());
-    			//TODO: error when not handled?
-    		}
+    		result = childBinding.toJava(staxReader, select(javaContext, newJavaContext));
     	}
-    	
-   		boolean isHandled = setProperty(javaContext, newJavaContext);
         
+    	//before processing the result of the unmarshalling, first check if the xml is wellformed
     	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
-    		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+    		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered %s %s", expectedElement,
     				staxReader.getEventName(), encountered));
     	}
         
-        return new DefaultResponse(newJavaContext, isHandled);
+    	//process the UnmarshallResult
+    	if (result != null) {
+			if (!result.isUnmarshallSuccessful()) {
+				return result;
+			} else if (result.mustHandleUnmarshalledObject()) {
+				if (!setProperty(select(javaContext, newJavaContext), result.getUnmarshalledObject())) {
+					//the unmarshalled object could net be set on the (new) java context
+	    			if (newJavaContext == null) { 
+	    				return result;
+	    			} else {
+	    				throw new Xb4jException("Unmarshalled object not set in Java context: "+result.getUnmarshalledObject());
+	    			}
+				}
+			}
+    	}
+        return new DefaultResponse(newJavaContext);
     }
     
     @Override
