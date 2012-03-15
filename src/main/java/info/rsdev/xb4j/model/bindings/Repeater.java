@@ -84,8 +84,10 @@ public class Repeater extends AbstractBinding {
     	boolean startTagFound = false;
     	if (collectionElement != null) {
     		if (!staxReader.isAtElementStart(collectionElement)) {
-	    		if (!isOptional()) {
-	    			return DefaultResponse.newMissingElement(collectionElement);
+	    		if (isOptional()) {
+                    return DefaultResponse.MISSING_OPTIONAL_ELEMENT;
+	    		} else {
+                    return DefaultResponse.newMissingElement(collectionElement);
 	    		}
     		} else {
     			startTagFound = true;
@@ -120,7 +122,7 @@ public class Repeater extends AbstractBinding {
     				staxReader.getEventName(), encountered));
         }
         
-		return new DefaultResponse(newJavaContext);
+		return new DefaultResponse(newJavaContext, true);
 	}
 	
 	@Override

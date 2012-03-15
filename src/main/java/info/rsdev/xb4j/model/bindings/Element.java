@@ -81,8 +81,10 @@ public class Element extends AbstractSingleBinding {
     	boolean startTagFound = false;
     	if (expectedElement != null) {
     		if (!staxReader.isAtElementStart(expectedElement)) {
-	    		if (!isOptional()) {
-	    			return DefaultResponse.newMissingElement(expectedElement);
+	    		if (isOptional()) {
+                    return DefaultResponse.MISSING_OPTIONAL_ELEMENT;
+	    		} else {
+                    return DefaultResponse.newMissingElement(expectedElement);
 	    		}
     		} else {
     			startTagFound = true;
@@ -91,13 +93,20 @@ public class Element extends AbstractSingleBinding {
         
         Object newJavaContext = newInstance();
     	IBinding childBinding = getChildBinding();
+    	boolean isResultHandled = false;
     	if (childBinding != null) {
     		IUnmarshallResponse result = childBinding.toJava(staxReader, select(javaContext, newJavaContext));
     		if (!result.isUnmarshallSuccessful()) {
     			return result;
     		}
+    		isResultHandled = !result.mustHandleUnmarshalledObject();
+    		if (!isResultHandled) {
+    			isResultHandled = setProperty(javaContext, result.getUnmarshalledObject());
+    			//TODO: error when not handled?
+    		}
     	}
-        setProperty(javaContext, newJavaContext);
+    	
+   		boolean isHandled = setProperty(javaContext, newJavaContext);
         
     	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
@@ -105,26 +114,29 @@ public class Element extends AbstractSingleBinding {
     				staxReader.getEventName(), encountered));
     	}
         
-        return new DefaultResponse(newJavaContext);
+        return new DefaultResponse(newJavaContext, isHandled);
     }
     
     @Override
     public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
-        //when this Binding must not output an element, the getElement() method should return null
+        //mixed content is not yet supported -- there are either child elements or there is content
         QName element = getElement();
         
-        //mixed content is not yet supported -- there are either child elements or there is content
-    	IBinding childBinding = getChildBinding();
-        boolean isEmptyElement = childBinding == null;
-        if (element != null) {
-            staxWriter.writeElement(element, isEmptyElement);
+    	//is element empty?
+        IBinding childBinding = getChildBinding();
+        Object elementValue = getProperty(javaContext);
+        boolean isEmpty = (childBinding == null) || (elementValue == null);
+        
+        boolean outputElement = ((element != null) && (!isOptional() || !isEmpty));
+        if (outputElement) {
+        	staxWriter.writeElement(element, isEmpty);
         }
         
-        if (childBinding != null) {
-        	childBinding.toXml(staxWriter, getProperty(javaContext));
+        if (!isEmpty) {
+        	childBinding.toXml(staxWriter, elementValue);
         }
         
-        if (!isEmptyElement && (element != null)) {
+        if (outputElement && !isEmpty) {
             staxWriter.closeElement(element);
         }
     }

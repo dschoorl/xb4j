@@ -66,5 +66,11 @@ public class DefaultResponse implements IUnmarshallResponse {
 	public static final IUnmarshallResponse newMissingElement(QName element) {
 		return new DefaultResponse(String.format("Mandatory element not encountered in xml: %s", element));
 	}
+
+	@Override
+	public IUnmarshallResponse setHandled(boolean isValueHandled) {
+		this.unmarshalledObjectIsHandled = isValueHandled;
+		return this;
+	}
 	
 }

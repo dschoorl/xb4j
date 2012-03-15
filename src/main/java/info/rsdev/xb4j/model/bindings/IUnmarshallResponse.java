@@ -31,5 +31,7 @@ public interface IUnmarshallResponse {
 	public Object getUnmarshalledObject();
 	
 	public String getErrorMessage();
+
+	public IUnmarshallResponse setHandled(boolean isValueHandled);
 	
 }

@@ -57,6 +57,12 @@ public interface IBinding {
     
     public IBinding setSetter(ISetter setter);
     
+    /**
+     * Whether a binding is optional, is only relevant when it has an xml representation. Checking for presence of an element 
+     * in this binding definition must be done by the developer where applicable, prior to calling this method. This method 
+     * simply returns the value of the isOptional indicator.
+     * @return true if the element (when applicable) can appear in the xml, false if it must appear in the xml
+     */
     public boolean isOptional();
     
     public IBinding setOptional(boolean isOptional);

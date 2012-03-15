@@ -86,7 +86,7 @@ public class SimpleType extends AbstractBinding {
         
         Object elementValue = getProperty(javaContext);
         if ((elementValue == null) && (!isOptional())) {
-        	throw new Xb4jException(String.format("No text for mandatory element %s", element));
+        	throw new Xb4jException(String.format("No text for mandatory element %s", element));	//this does not support an empty element
         }
         
         boolean isEmpty = (elementValue == null);

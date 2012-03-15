@@ -130,20 +130,21 @@ public class Choice extends AbstractSingleBinding {
         
         //Should we start recording to return to this element when necessary - currently this is responsibility of choices
         boolean choiceFound = false;
+        boolean isValueHandled = false;
         IUnmarshallResponse result = null;
 		for (IBinding candidate: this.choices.values()) {
 			result = candidate.toJava(staxReader, getProperty(javaContext));
 			if (result.getUnmarshalledObject() != null) {
 				choiceFound = true;
 				if (result.mustHandleUnmarshalledObject()) {
-					setProperty(javaContext, result.getUnmarshalledObject());
+					isValueHandled = setProperty(javaContext, result.getUnmarshalledObject());
 				}
 				break;	//TODO: check ambiguity?
 			}
 		}
 		
 		if (!choiceFound && !isOptional()) {
-			return new DefaultResponse("");
+			return new DefaultResponse(String.format("No matching choice found for mandatory binding: ", this));
 		}
 		
         if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
@@ -152,7 +153,7 @@ public class Choice extends AbstractSingleBinding {
     				staxReader.getEventName(), encountered));
         }
         
-		return result;
+		return result.setHandled(isValueHandled);
 	}
 	
 }

@@ -121,7 +121,13 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 			return result;
 		}
 		if (result.mustHandleUnmarshalledObject()) {
-			setProperty(javaContext, result.getUnmarshalledObject());
+			boolean isValueHandled = setProperty(javaContext, result.getUnmarshalledObject());
+			if (!isValueHandled && (newJavaContext == null)) {
+				return result;
+			} else {
+				throw new Xb4jException(String.format("Unmarshalled value '%s' is not set in the java context %s and will be " +
+						"lost. Please check your bindings: %s", result.getUnmarshalledObject(), javaContext, this));
+			}
 		}
 		return new DefaultResponse(newJavaContext);
 	}

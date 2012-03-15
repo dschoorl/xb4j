@@ -43,13 +43,13 @@ public class MethodSetter implements ISetter {
       	Method method = getMethod(javaContext.getClass(), this.methodname, parameterType);
         try {
             method.invoke(javaContext, propertyValue);
+            return true;
         } catch (RuntimeException e) {
         	throw e;	//to signal FindBugs that I consciously do not handle RuntimeExceptions
         } catch (Exception e) {
             throw new Xb4jException(String.format("Could not set value '%s' in object '%s' through method '%s'", 
                     propertyValue, javaContext, this.methodname));
         }
-        return false;
     }
     
     private Method getMethod(Class<?> objectType, String methodName, Class<?> parameterType) {
