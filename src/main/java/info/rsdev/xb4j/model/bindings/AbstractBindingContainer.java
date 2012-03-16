@@ -95,13 +95,13 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
     }
     
     @Override
-    public DefaultResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
     	QName expectedElement = getElement();
     	boolean startTagFound = false;
     	if (expectedElement != null) {
     		if (!staxReader.isAtElementStart(expectedElement)) {
 	    		if (!isOptional()) {
-	    			return DefaultResponse.newMissingElement(expectedElement);
+	    			return UnmarshallResult.newMissingElement(expectedElement);
 	    		}
     		} else {
     			startTagFound = true;
@@ -110,7 +110,7 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
     	
     	Object newJavaContext = newInstance();
         for (IBinding child: getChildren()) {
-        	DefaultResponse result = child.toJava(staxReader, select(javaContext, newJavaContext));
+        	UnmarshallResult result = child.toJava(staxReader, select(javaContext, newJavaContext));
         	if (!result.isUnmarshallSuccessful()) {
         		return result;
         	}
@@ -125,7 +125,7 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
     				staxReader.getEventName(), encountered));
     	}
     	
-        return new DefaultResponse(newJavaContext);
+        return new UnmarshallResult(newJavaContext);
     }
     
     public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {

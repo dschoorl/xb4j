@@ -75,16 +75,16 @@ public class Element extends AbstractSingleBinding {
     }
     
     @Override
-    public DefaultResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
     	boolean startTagFound = false;
     	if (expectedElement != null) {
     		if (!staxReader.isAtElementStart(expectedElement)) {
 	    		if (isOptional()) {
-                    return DefaultResponse.MISSING_OPTIONAL_ELEMENT;
+                    return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
 	    		} else {
-                    return DefaultResponse.newMissingElement(expectedElement);
+                    return UnmarshallResult.newMissingElement(expectedElement);
 	    		}
     		} else {
     			startTagFound = true;
@@ -93,7 +93,7 @@ public class Element extends AbstractSingleBinding {
         
         Object newJavaContext = newInstance();
     	IBinding childBinding = getChildBinding();
-    	DefaultResponse result = null;
+    	UnmarshallResult result = null;
     	if (childBinding != null) {
     		result = childBinding.toJava(staxReader, select(javaContext, newJavaContext));
     	}
@@ -123,11 +123,11 @@ public class Element extends AbstractSingleBinding {
     	} else {
     		//or set the newly created Java object int he current Java context
     		if (!setProperty(javaContext, newJavaContext)) {
-    	        return new DefaultResponse(newJavaContext);
+    	        return new UnmarshallResult(newJavaContext);
     		}
     	}
     	
-    	return new DefaultResponse(newJavaContext, true);
+    	return new UnmarshallResult(newJavaContext, true);
     }
     
     @Override

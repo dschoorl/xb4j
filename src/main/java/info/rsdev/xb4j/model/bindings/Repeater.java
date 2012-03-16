@@ -70,7 +70,7 @@ public class Repeater extends AbstractBinding {
 	}
 	
 	@Override
-	public DefaultResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 	    //TODO: also support addmethod on container class, which will add to underlying collection for us
         Object newJavaContext = newInstance();
         Object collection = select(javaContext, newJavaContext);
@@ -85,9 +85,9 @@ public class Repeater extends AbstractBinding {
     	if (collectionElement != null) {
     		if (!staxReader.isAtElementStart(collectionElement)) {
 	    		if (isOptional()) {
-                    return DefaultResponse.MISSING_OPTIONAL_ELEMENT;
+                    return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
 	    		} else {
-                    return DefaultResponse.newMissingElement(collectionElement);
+                    return UnmarshallResult.newMissingElement(collectionElement);
 	    		}
     		} else {
     			startTagFound = true;
@@ -97,7 +97,7 @@ public class Repeater extends AbstractBinding {
         int occurences = 0;
         boolean proceed = true;
         while (proceed) {
-        	DefaultResponse result = itemBinding.toJava(staxReader, collection);
+        	UnmarshallResult result = itemBinding.toJava(staxReader, collection);
             proceed = result.isUnmarshallSuccessful();
             if (proceed) {
             	occurences++;
@@ -122,7 +122,7 @@ public class Repeater extends AbstractBinding {
     				staxReader.getEventName(), encountered));
         }
         
-		return new DefaultResponse(newJavaContext, true);
+		return new UnmarshallResult(newJavaContext, true);
 	}
 	
 	@Override

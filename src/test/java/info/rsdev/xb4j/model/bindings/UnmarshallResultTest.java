@@ -10,20 +10,20 @@ import javax.xml.namespace.QName;
 
 import org.junit.Test;
 
-public class DefaultResponseTest {
+public class UnmarshallResultTest {
 
 	@Test
 	public void testMissingOptionalElement() {
-		assertTrue(DefaultResponse.MISSING_OPTIONAL_ELEMENT.isMissingOptional());
-		assertTrue(DefaultResponse.MISSING_OPTIONAL_ELEMENT.isUnmarshallSuccessful());
-		assertFalse(DefaultResponse.MISSING_OPTIONAL_ELEMENT.mustHandleUnmarshalledObject());
-		assertNull(DefaultResponse.MISSING_OPTIONAL_ELEMENT.getUnmarshalledObject());
-		assertNull(DefaultResponse.MISSING_OPTIONAL_ELEMENT.getErrorMessage());
+		assertTrue(UnmarshallResult.MISSING_OPTIONAL_ELEMENT.isMissingOptional());
+		assertTrue(UnmarshallResult.MISSING_OPTIONAL_ELEMENT.isUnmarshallSuccessful());
+		assertFalse(UnmarshallResult.MISSING_OPTIONAL_ELEMENT.mustHandleUnmarshalledObject());
+		assertNull(UnmarshallResult.MISSING_OPTIONAL_ELEMENT.getUnmarshalledObject());
+		assertNull(UnmarshallResult.MISSING_OPTIONAL_ELEMENT.getErrorMessage());
 	}
 	
 	@Test
 	public void testMissingMandatoryElement() {
-		DefaultResponse missingMandatory = DefaultResponse.newMissingElement(new QName("where-am-i"));
+		UnmarshallResult missingMandatory = UnmarshallResult.newMissingElement(new QName("where-am-i"));
 		assertFalse(missingMandatory.isMissingOptional());
 		assertFalse(missingMandatory.isUnmarshallSuccessful());
 		assertFalse(missingMandatory.mustHandleUnmarshalledObject());
@@ -33,7 +33,7 @@ public class DefaultResponseTest {
 
 	@Test
 	public void testReturnUnmarshalledAndUnhandledObject() {
-		DefaultResponse unhandledResponse = new DefaultResponse(new ObjectTree());
+		UnmarshallResult unhandledResponse = new UnmarshallResult(new ObjectTree());
 		assertFalse(unhandledResponse.isMissingOptional());
 		assertTrue(unhandledResponse.isUnmarshallSuccessful());
 		assertFalse(unhandledResponse.mustHandleUnmarshalledObject());

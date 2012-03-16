@@ -114,14 +114,14 @@ public class Choice extends AbstractSingleBinding {
 	}
 	
 	@Override
-	public DefaultResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
     	boolean startTagFound = false;
     	if (expectedElement != null) {
     		if (!staxReader.isAtElementStart(expectedElement)) {
 	    		if (!isOptional()) {
-	    			return DefaultResponse.newMissingElement(expectedElement);
+	    			return UnmarshallResult.newMissingElement(expectedElement);
 	    		}
     		} else {
     			startTagFound = true;
@@ -131,7 +131,7 @@ public class Choice extends AbstractSingleBinding {
         //Should we start recording to return to this element when necessary - currently this is responsibility of choices
         boolean choiceFound = false;
         boolean isValueHandled = false;
-        DefaultResponse result = null;
+        UnmarshallResult result = null;
 		for (IBinding candidate: this.choices.values()) {
 			result = candidate.toJava(staxReader, getProperty(javaContext));
 			if (result.getUnmarshalledObject() != null) {
@@ -144,7 +144,7 @@ public class Choice extends AbstractSingleBinding {
 		}
 		
 		if (!choiceFound && !isOptional()) {
-			return new DefaultResponse(String.format("No matching choice found for mandatory binding: ", this));
+			return new UnmarshallResult(String.format("No matching choice found for mandatory binding: ", this));
 		}
 		
         if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {

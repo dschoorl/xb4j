@@ -57,7 +57,7 @@ public class SequenceTest {
 	    
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><name>Jan</name><initialized>true</initialized></root>".getBytes());
         RecordAndPlaybackXMLStreamReader staxWriter = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
-        DefaultResponse result = root.toJava(staxWriter, null);
+        UnmarshallResult result = root.toJava(staxWriter, null);
         assertNotNull(result);
         assertFalse(result.isUnmarshallSuccessful());
         assertNull(result.getUnmarshalledObject());

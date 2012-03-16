@@ -1,6 +1,5 @@
 TODO
 ----
-- remove interface IUnmarshallResponse and rename DefaultResponse to UnmarshallResult (only 1 implementation will ever exist)
 - allow the java instance to be constructed by a non-default constructor method
 - allow the java instance to be created through a factory method
 - simplify API

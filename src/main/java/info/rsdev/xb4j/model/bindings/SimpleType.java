@@ -51,16 +51,16 @@ public class SimpleType extends AbstractBinding {
     }
 
     @Override
-    public DefaultResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();	//should never be null for a SimpleType
     	boolean startTagFound = false;
     	if (expectedElement != null) {
     		if (!staxReader.isAtElementStart(expectedElement)) {
 	    		if (isOptional()) {
-                    return DefaultResponse.MISSING_OPTIONAL_ELEMENT;
+                    return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
 	    		} else {
-                    return DefaultResponse.newMissingElement(expectedElement);
+                    return UnmarshallResult.newMissingElement(expectedElement);
 	    		}
     		} else {
     			startTagFound = true;
@@ -79,7 +79,7 @@ public class SimpleType extends AbstractBinding {
         	}
         }
         
-        return new DefaultResponse(value, isValueHandled);
+        return new UnmarshallResult(value, isValueHandled);
     }
     
     @Override

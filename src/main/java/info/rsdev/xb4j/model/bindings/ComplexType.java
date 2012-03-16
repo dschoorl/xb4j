@@ -113,10 +113,10 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     	this.namespaceUri = newNamespaceUri;
     }
 
-	public DefaultResponse toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 		Object newJavaContext = newInstance();
 		javaContext = select(javaContext, newJavaContext);
-		DefaultResponse result = getChildBinding().toJava(staxReader, javaContext);
+		UnmarshallResult result = getChildBinding().toJava(staxReader, javaContext);
 		if (!result.isUnmarshallSuccessful()) {
 			return result;
 		}
@@ -129,7 +129,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 						"lost. Please check your bindings: %s", result.getUnmarshalledObject(), javaContext, this));
 			}
 		}
-		return new DefaultResponse(newJavaContext);
+		return new UnmarshallResult(newJavaContext);
 	}
 	
 	@Override
