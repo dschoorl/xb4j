@@ -1,5 +1,6 @@
 TODO
 ----
+- provide proper support for rich variations of xml date formats
 - allow the java instance to be constructed by a non-default constructor method
 - allow the java instance to be created through a factory method
 - simplify API

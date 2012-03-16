@@ -36,7 +36,7 @@ public class DateConverter implements IValueConverter {
 	 * This Singleton instance of {@link DateConverter} allows only a date as YYYY-MM-DDThh:mm:ss, without timezone information.
 	 * The hours are noted in 24hrs format, no AM/PM indicator
 	 */
-	public static final DateConverter DATE_TIME = new DateConverter(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
+	public static final DateConverter DATE_TIME = new DateConverter(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));
 	
 	private final SimpleDateFormat formatter;
 	
@@ -50,6 +50,8 @@ public class DateConverter implements IValueConverter {
 	@Override
 	public Date toObject(String value) {
 		if (value == null) { return null; }
+		
+		value = removeTimezoneSeparator(value);
 		try {
 			synchronized(formatter) {
 				return formatter.parse(value);
@@ -67,8 +69,23 @@ public class DateConverter implements IValueConverter {
 					value.getClass().getName()));
 		}
 		synchronized(formatter) {
-			return formatter.format((Date)value);
+			String result = formatter.format((Date)value);
+			return addTimeZoneSeparator(result);
 		}
+	}
+	
+	/**
+	 * In Java the SimpleDateFormat expects no column between the hours and minutes of the timezone, whereas xml 
+	 * does (+0100 vs. +01:00). This method bridges the gap
+	 * @param value
+	 * @return
+	 */
+	private String removeTimezoneSeparator(String value) {
+		return value.substring(0, 22).concat(value.substring(23));
+	}
+	
+	private String addTimeZoneSeparator(String value) {
+		return value.substring(0, 22).concat(":").concat(value.substring(22));
 	}
 	
 	@Override
