@@ -70,7 +70,8 @@ public class SimpleType extends AbstractBinding {
         Object value = this.converter.toObject(staxReader.getElementText());	//this also consumes the end element
         boolean isValueHandled = setProperty(javaContext, value);
         
-        if (startTagFound && staxReader.isAtElement()) {
+    	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
+//        if (startTagFound && staxReader.isAtElement()) {
         	if (!expectedElement.equals(staxReader.getName())) {
         		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
         		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,

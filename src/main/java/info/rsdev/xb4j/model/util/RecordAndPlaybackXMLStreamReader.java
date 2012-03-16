@@ -101,7 +101,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
      * Stop recording parsing events and throw away all recordings and markers
      */
     public void stopAndWipeRecording() {
-        clearRecordings();
+        clearAllRecordings();
     }
     
     /**
@@ -119,27 +119,39 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         playbackQueue = newPlaybackQueue;
         playbackEvents.clear();
         if (publishedMarkers.isEmpty()) {
-            clearRecordings();
+            clearAllRecordings();
         }
         this.currentEvent = marker.getCurrentEvent();
     }
     
-    private void removeMarker(Marker marker) {
+    /**
+     * Remove the provided {@link Marker marker} and every marker that was set since. When the marker is no longer recorded,
+     * nothing happens
+     * 
+     * @param marker
+     * @return true if the marker was valid and was removed, false otherwise
+     */
+    private boolean removeMarker(Marker marker) {
+    	boolean markerWasValid = false;
         int indexOfMarker = publishedMarkers.indexOf(marker);
         if (indexOfMarker >= 0) {
             //Remove this marker and anyone published after this one
             publishedMarkers.subList(indexOfMarker, publishedMarkers.size()).clear();
         }
+        return markerWasValid;
     }
     
     /**
+     * Indicate that the given {@link Marker marker} (and every marker that was set since) will never be used for rewinding; 
+     * it is no longer needed. However, recorded events will only be removed from the recording queue when there are no more 
+     * markers left, because only then we are certain that a rewind can no longer happen.
      * 
-     * @param marker
+     * @param marker the {@link Marker} to dismiss
      */
     public void stopRecording(Marker marker) {
         removeMarker(marker);
         if (publishedMarkers.isEmpty()) {
-            clearRecordings();
+            clearAllRecordings();
         }
     }
     
@@ -286,13 +298,58 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     	return null;
     }
     
+    /**
+     * Read the text for the given element upto the end element tag. Next read will be the end element event.
+     * @return the text of the text only element
+     * @throws XMLStreamException
+     */
     public String getElementText() throws XMLStreamException {
         if (!playbackQueue.isEmpty()) {
             this.currentEvent = playbackQueue.poll();
+            if (logger.isTraceEnabled()) {
+            	logger.trace(String.format("ParseEvent read from PlaybackQueue: %s", currentEvent));
+            }
         } else {
             //read content of text-only element from staxReader
-            String text = staxReader.getElementText();
-            this.currentEvent = new ParseEventData(CHARACTERS, text, staxReader.getLocation());
+            if (getEvent() != START_ELEMENT) {
+                throw new XMLStreamException("parser must be on START_ELEMENT to read text", getLocation());
+            }
+            
+            QName currentTextElement = getName();
+            
+            int eventType = staxReader.next();
+            StringBuffer content = new StringBuffer();
+            while (eventType != END_ELEMENT) {
+                if (eventType == CHARACTERS || eventType == CDATA || eventType == SPACE || eventType == ENTITY_REFERENCE) {
+                    content.append(staxReader.getText());
+                } else if (eventType == PROCESSING_INSTRUCTION || eventType == COMMENT) {
+                    //ignore
+                } else if (eventType == END_DOCUMENT) {
+                	throw new XMLStreamException(String.format("Malformed xml; reached %s when reading text for <%s>", 
+                			EVENTNAMES[eventType], currentTextElement), staxReader.getLocation());
+                } else if (eventType == XMLStreamConstants.START_ELEMENT) {
+                	//mixed content is currently not supported
+                	throw new XMLStreamException(String.format("Found %s <%s> while reading text for <%s>; mixed content is " +
+                			"currently not supported @ %s", EVENTNAMES[eventType], staxReader.getName(), currentTextElement), 
+                			staxReader.getLocation());
+                } else {
+                    throw new XMLStreamException(String.format("Unexpected %s", EVENTNAMES[eventType]), staxReader.getLocation());
+                }
+                eventType = staxReader.next();	//read END_ELEMENT
+            }
+            
+            if (eventType == END_ELEMENT) {
+            	if (!currentTextElement.equals(staxReader.getName())) {
+            		throw new XMLStreamException(String.format("Malformed xml; expected end element </%s>, but encountered </%s>",
+            				currentTextElement, staxReader.getName()), staxReader.getLocation());
+            	}
+            	playbackQueue.add(ParseEventData.newParseEventData(eventType, staxReader));	//push the end element on the playback queue
+            }
+            
+            this.currentEvent = new ParseEventData(CHARACTERS, content.toString(), staxReader.getLocation());
+            if (logger.isTraceEnabled()) {
+            	logger.trace(String.format("ParseEvent read by StaxReader: %s", currentEvent));
+            }
         }
         
         if (this.recordingQueue != null) {
@@ -306,12 +363,12 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     }
 
     public void close() throws XMLStreamException {
-        clearRecordings();
+        clearAllRecordings();
         this.playbackQueue.clear();
         this.staxReader.close();
     }
     
-    private void clearRecordings() {
+    private void clearAllRecordings() {
         if (this.recordingQueue != null) {
             this.recordingQueue.clear();
             this.recordingQueue = null;

@@ -111,7 +111,9 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
     	Object newJavaContext = newInstance();
         for (IBinding child: getChildren()) {
         	DefaultResponse result = child.toJava(staxReader, select(javaContext, newJavaContext));
-        	if (!result.isUnmarshallSuccessful()) { return result; }	//did we encounter the next element from the sequence or are we in the wrong sequence
+        	if (!result.isUnmarshallSuccessful()) {
+        		return result;
+        	}
         	if (result.mustHandleUnmarshalledObject()) {
         		setProperty(newJavaContext, result.getUnmarshalledObject());
         	}

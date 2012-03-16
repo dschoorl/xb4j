@@ -97,7 +97,12 @@ public class Element extends AbstractSingleBinding {
     	if (childBinding != null) {
     		result = childBinding.toJava(staxReader, select(javaContext, newJavaContext));
     	}
-        
+    	
+    	//TODO: if response contains errorMessage: halt by throwing exception -- or let error bubble up?
+		if ((result != null) && !result.isUnmarshallSuccessful()) {
+			return result;	//let error bubble up
+		}
+		
     	//before processing the result of the unmarshalling, first check if the xml is wellformed
     	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
@@ -106,21 +111,23 @@ public class Element extends AbstractSingleBinding {
     	}
         
     	//process the UnmarshallResult
-    	if (result != null) {
-			if (!result.isUnmarshallSuccessful()) {
-				return result;
-			} else if (result.mustHandleUnmarshalledObject()) {
-				if (!setProperty(select(javaContext, newJavaContext), result.getUnmarshalledObject())) {
-					//the unmarshalled object could net be set on the (new) java context
-	    			if (newJavaContext == null) { 
-	    				return result;
-	    			} else {
-	    				throw new Xb4jException("Unmarshalled object not set in Java context: "+result.getUnmarshalledObject());
-	    			}
-				}
+    	if ((result != null) && result.mustHandleUnmarshalledObject()) {
+			if (!setProperty(select(javaContext, newJavaContext), result.getUnmarshalledObject())) {
+				//the unmarshalled object could net be set on the (new) java context
+    			if (newJavaContext == null) { 
+    				return result;
+    			} else {
+    				throw new Xb4jException("Unmarshalled object not set in Java context: "+result.getUnmarshalledObject());
+    			}
 			}
+    	} else {
+    		//or set the newly created Java object int he current Java context
+    		if (!setProperty(javaContext, newJavaContext)) {
+    	        return new DefaultResponse(newJavaContext);
+    		}
     	}
-        return new DefaultResponse(newJavaContext);
+    	
+    	return new DefaultResponse(newJavaContext, true);
     }
     
     @Override
