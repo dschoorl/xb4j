@@ -69,6 +69,7 @@ public class Repeater extends AbstractBinding {
 		return itemBinding;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 	    //TODO: also support addmethod on container class, which will add to underlying collection for us
@@ -99,6 +100,9 @@ public class Repeater extends AbstractBinding {
         while (proceed) {
         	UnmarshallResult result = itemBinding.toJava(staxReader, collection);
             proceed = result.isUnmarshallSuccessful();
+        	if (result.mustHandleUnmarshalledObject()) {
+        		((Collection<Object>)collection).add(result.getUnmarshalledObject());
+        	}
             if (proceed) {
             	occurences++;
             	if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
@@ -111,10 +115,6 @@ public class Repeater extends AbstractBinding {
         	throw new Xb4jException(String.format("Mandatory collection has no content: %s", staxReader.getLocation()));
         }
         
-        if (javaContext != null) {
-        	setProperty(javaContext, collection);
-        }
-        
         //read end of enclosing collection element (if defined)
         if ((collectionElement != null) && !staxReader.isAtElementEnd(collectionElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
@@ -122,7 +122,11 @@ public class Repeater extends AbstractBinding {
     				staxReader.getEventName(), encountered));
         }
         
-		return new UnmarshallResult(newJavaContext, true);
+        boolean isHandled = false;
+        if (javaContext != null) {
+        	isHandled = setProperty(javaContext, collection);
+        }
+		return new UnmarshallResult(newJavaContext, isHandled);
 	}
 	
 	@Override

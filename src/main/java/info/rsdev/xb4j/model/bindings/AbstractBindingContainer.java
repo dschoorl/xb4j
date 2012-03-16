@@ -115,7 +115,14 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
         		return result;
         	}
         	if (result.mustHandleUnmarshalledObject()) {
-        		setProperty(newJavaContext, result.getUnmarshalledObject());
+        		if (!setProperty(select(javaContext, newJavaContext), result.getUnmarshalledObject())) {
+    				//the unmarshalled object could net be set on the (new) java context
+        			if (newJavaContext == null) { 
+        				return result;
+        			} else {
+        				throw new Xb4jException("Unmarshalled object not set in Java context: "+result.getUnmarshalledObject());
+        			}
+        		}
         	}
         }
         

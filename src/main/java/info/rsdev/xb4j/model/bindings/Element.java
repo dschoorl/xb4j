@@ -122,12 +122,12 @@ public class Element extends AbstractSingleBinding {
 			}
     	} else {
     		//or set the newly created Java object int he current Java context
-    		if (!setProperty(javaContext, newJavaContext)) {
-    	        return new UnmarshallResult(newJavaContext);
+    		if (setProperty(javaContext, newJavaContext)) {
+    	        return new UnmarshallResult(newJavaContext, true);
     		}
     	}
     	
-    	return new UnmarshallResult(newJavaContext, true);
+    	return new UnmarshallResult(newJavaContext);
     }
     
     @Override

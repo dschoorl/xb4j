@@ -115,21 +115,27 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 
 	public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 		Object newJavaContext = newInstance();
-		javaContext = select(javaContext, newJavaContext);
-		UnmarshallResult result = getChildBinding().toJava(staxReader, javaContext);
+		UnmarshallResult result = getChildBinding().toJava(staxReader, select(javaContext, newJavaContext));
 		if (!result.isUnmarshallSuccessful()) {
 			return result;
 		}
 		if (result.mustHandleUnmarshalledObject()) {
-			boolean isValueHandled = setProperty(javaContext, result.getUnmarshalledObject());
-			if (!isValueHandled && (newJavaContext == null)) {
-				return result;
-			} else {
-				throw new Xb4jException(String.format("Unmarshalled value '%s' is not set in the java context %s and will be " +
-						"lost. Please check your bindings: %s", result.getUnmarshalledObject(), javaContext, this));
+			if (!setProperty(javaContext, result.getUnmarshalledObject())) {
+				if (newJavaContext == null) {
+					return result;
+				} else {
+					throw new Xb4jException(String.format("Unmarshalled value '%s' is not set in the java context %s and will be " +
+							"lost. Please check your bindings: %s", result.getUnmarshalledObject(), javaContext, this));
+				}
 			}
-		}
-		return new UnmarshallResult(newJavaContext);
+    	} else {
+    		//or set the newly created Java object int he current Java context
+    		if (setProperty(javaContext, newJavaContext)) {
+    	        return new UnmarshallResult(newJavaContext, true);
+    		}
+    	}
+    	
+    	return new UnmarshallResult(newJavaContext);
 	}
 	
 	@Override

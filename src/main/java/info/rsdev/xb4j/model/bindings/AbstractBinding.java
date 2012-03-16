@@ -97,6 +97,14 @@ public abstract class AbstractBinding implements IBinding {
         return null;
     }
     
+    /**
+     * Select a non-null context (if possible), where the newJavaContext takes precedence over the javaContext, when both of them
+     * are not null.
+     * 
+     * @param javaContext
+     * @param newJavaContext
+     * @return either the javaContext or the newJavaContext
+     */
     protected Object select(Object javaContext, Object newJavaContext) {
         if (newJavaContext != null) {
             return newJavaContext;

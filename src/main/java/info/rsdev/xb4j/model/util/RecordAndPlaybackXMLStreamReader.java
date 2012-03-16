@@ -270,8 +270,10 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         	try {
         		realEvent = nextTag();
         		if (realEvent != END_DOCUMENT) {
+        			if (realEvent == START_ELEMENT || realEvent == END_ELEMENT) {
+        				encounteredName = getName();
+        			}
 		            if (realEvent == eventType) {	//should only be start- or end element
-		            	encounteredName = getName();
 		                matchesExpected = expectedElement.equals(encounteredName);
 		            }
         		}
@@ -279,8 +281,10 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                 if (!matchesExpected) {
                 	rewindAndPlayback(marker);
                 	if (logger.isTraceEnabled()) {
-	                	logger.trace(String.format("Expected %s (%s), but found %s (%s @ %s)", EVENTNAMES[eventType], expectedElement,
-	                			EVENTNAMES[realEvent], encounteredName, getLocation()));
+                		Location location = getLocation();
+                		
+	                	logger.trace(String.format("Expected %s (%s), but found %s (%s @ line %d, column %d)", EVENTNAMES[eventType], expectedElement,
+	                			EVENTNAMES[realEvent], encounteredName, location.getLineNumber(), location.getColumnNumber()));
                 	}
                 } else {
         			stopRecording(marker);

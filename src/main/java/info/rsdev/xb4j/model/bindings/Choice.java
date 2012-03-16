@@ -24,9 +24,8 @@ import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -39,7 +38,8 @@ import javax.xml.stream.XMLStreamException;
  */
 public class Choice extends AbstractSingleBinding {
 	
-	private Map<IChooser, IBinding> choices = new HashMap<IChooser, IBinding>();
+	private List<IBinding> choices = new LinkedList<IBinding>();
+	private List<IChooser> choosers = new LinkedList<IChooser>();
 	
 	/**
 	 * Create a new {@link Choice}. No {@link IElementFetchStrategy} nor {@link IObjectFetchStrategy} are currently
@@ -78,15 +78,16 @@ public class Choice extends AbstractSingleBinding {
 	}
 	
 	public <T extends IBinding> T addChoice(T choice, IChooser selector) {
-		this.choices.put(selector, choice);
+		choices.add(choice);
+		choosers.add(selector);
 		choice.setParent(this); //maintain bidirectional relationship
 		return choice;
 	}
 	
 	private IBinding selectBinding(Object javaContext) {
-		for (Entry<IChooser, IBinding> entry: this.choices.entrySet()) {
-			if (entry.getKey().matches(javaContext)) {
-				return entry.getValue();
+		for (int i=0; i<choosers.size(); i++) {
+			if (choosers.get(i).matches(javaContext)) {
+				return choices.get(i);
 			}
 		}
 		throw new Xb4jException(String.format("%s could not select a choice for java context value %s", this, javaContext));
@@ -130,16 +131,17 @@ public class Choice extends AbstractSingleBinding {
         
         //Should we start recording to return to this element when necessary - currently this is responsibility of choices
         boolean choiceFound = false;
-        boolean isValueHandled = false;
         UnmarshallResult result = null;
-		for (IBinding candidate: this.choices.values()) {
+		for (IBinding candidate: choices) {
 			result = candidate.toJava(staxReader, getProperty(javaContext));
-			if (result.getUnmarshalledObject() != null) {
+			if (result.isUnmarshallSuccessful()) {
 				choiceFound = true;
 				if (result.mustHandleUnmarshalledObject()) {
-					isValueHandled = setProperty(javaContext, result.getUnmarshalledObject());
+					if (setProperty(javaContext, result.getUnmarshalledObject())) {
+						result.setHandled();
+					}
+					break;	//TODO: check ambiguity?
 				}
-				break;	//TODO: check ambiguity?
 			}
 		}
 		
@@ -152,8 +154,7 @@ public class Choice extends AbstractSingleBinding {
     		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
     				staxReader.getEventName(), encountered));
         }
-        
-		return result.setHandled();
+		return result;
 	}
 	
 }

@@ -36,6 +36,16 @@ public class UnmarshallResultTest {
 		UnmarshallResult unhandledResponse = new UnmarshallResult(new ObjectTree());
 		assertFalse(unhandledResponse.isMissingOptional());
 		assertTrue(unhandledResponse.isUnmarshallSuccessful());
+		assertTrue(unhandledResponse.mustHandleUnmarshalledObject());
+		assertNotNull(unhandledResponse.getUnmarshalledObject());
+		assertNull(unhandledResponse.getErrorMessage());
+	}
+	
+	@Test
+	public void testReturnUnmarshalledAndHandledObject() {
+		UnmarshallResult unhandledResponse = new UnmarshallResult(new ObjectTree(), true);
+		assertFalse(unhandledResponse.isMissingOptional());
+		assertTrue(unhandledResponse.isUnmarshallSuccessful());
 		assertFalse(unhandledResponse.mustHandleUnmarshalledObject());
 		assertNotNull(unhandledResponse.getUnmarshalledObject());
 		assertNull(unhandledResponse.getErrorMessage());

@@ -16,6 +16,9 @@ package info.rsdev.xb4j.model.bindings;
 
 import javax.xml.namespace.QName;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class passes back the results from the unmarshalling process from a child binding to it's calling
  * (parent) binding. It contains the resulting object (if any) and meta information about the unmarshalling
@@ -24,6 +27,8 @@ import javax.xml.namespace.QName;
  * @author Dave Schoorl
  */
 public class UnmarshallResult {
+	
+	private static final Logger logger = LoggerFactory.getLogger(UnmarshallResult.class);
 	
 	/**
 	 * A singleton instance that indicates that the unmarshalling process encountered a missing
@@ -35,7 +40,7 @@ public class UnmarshallResult {
 	
 	private Object unmarshalledObject = null;
 	
-	private boolean unmarshalledObjectIsHandled = true;
+	private boolean unmarshalledObjectIsHandled = false;
 	
 	private boolean isMissingOptional = false;
 	
@@ -52,10 +57,13 @@ public class UnmarshallResult {
 	/**
 	 * Create a new {@link UnmarshallResult} that represents a failing unmarshall process. A missing optional element
 	 * is not considered to be a failure
-	 * @param errorMessage the message that will passed down to the caller of the unmarshall process
+	 * @param msg the message that will passed down to the caller of the unmarshall process
 	 */
-	public UnmarshallResult(String errorMessage) {
-		this.errorMessage = errorMessage;
+	public UnmarshallResult(String msg) {
+		if (logger.isTraceEnabled()) {
+			logger.trace("Error UnmarshalResult created; message=".concat(msg==null?"null":msg));
+		}
+		this.errorMessage = msg;
 	}
 	
 	/**
@@ -64,7 +72,7 @@ public class UnmarshallResult {
 	 * @param unmarshalledObject the result of the unmarshalling process. Could be null.
 	 */
 	public UnmarshallResult(Object unmarshalledObject) {
-		this(unmarshalledObject, true);
+		this(unmarshalledObject, false);
 	}
 
 	/**
@@ -80,7 +88,7 @@ public class UnmarshallResult {
 
 	/**
 	 * Indicator whether or not the unmarshall process was aborted due to an error
-	 * @return true if the unmarshalling process resulted in an Object that was constructed, false otherwise
+	 * @return false if the unmarshalling process was aborted with an error, true otherwise
 	 */
 	public boolean isUnmarshallSuccessful() {
 		return errorMessage == null;
