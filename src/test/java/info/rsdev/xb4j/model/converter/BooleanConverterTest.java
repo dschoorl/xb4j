@@ -12,13 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.java.converter;
+package info.rsdev.xb4j.model.converter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import info.rsdev.xb4j.exceptions.ValidationException;
+import info.rsdev.xb4j.model.converter.BooleanConverter;
 
 import org.junit.Test;
 

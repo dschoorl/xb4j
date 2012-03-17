@@ -15,8 +15,8 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
-import info.rsdev.xb4j.model.java.converter.IValueConverter;
-import info.rsdev.xb4j.model.java.converter.NOPConverter;
+import info.rsdev.xb4j.model.converter.IValueConverter;
+import info.rsdev.xb4j.model.converter.NOPConverter;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;

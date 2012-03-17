@@ -12,19 +12,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.java.converter;
+package info.rsdev.xb4j.model.converter;
+
+import info.rsdev.xb4j.exceptions.ValidationException;
 
 /**
- * Convert a String to a specific Java object and vice versa
- * 
+ * This {@link IValidator} performs no validation and will never throw a {@link ValidationException}
+ *  
  * @author Dave Schoorl
  */
-public interface IValueConverter {
+public class NoValidator implements IValidator {
 	
-	public Object toObject(String value);
+	/**
+	 * Singleton version of this implementation
+	 */
+	public static final NoValidator INSTANCE = new NoValidator();
 	
-	public String toText(Object value);
+	/**
+	 * Do not create a new instance every time, but reuse {@link #INSTANCE}
+	 */
+	private NoValidator() {}
 	
-	public Class<?> getJavaType();
+	@Override
+	public <T> T isValid(T instance) throws ValidationException {
+		return instance;
+	}
 	
 }

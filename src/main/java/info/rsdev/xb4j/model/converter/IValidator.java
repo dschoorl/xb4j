@@ -12,30 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.java.converter;
+package info.rsdev.xb4j.model.converter;
 
 import info.rsdev.xb4j.exceptions.ValidationException;
 
 /**
- * This {@link IValidator} performs no validation and will never throw a {@link ValidationException}
- *  
+ * 
  * @author Dave Schoorl
  */
-public class NoValidator implements IValidator {
+public interface IValidator {
 	
 	/**
-	 * Singleton version of this implementation
+	 * Check if the provided instance is valid, and returns the supplied instance when it is. If the instance is not
+	 * valid, a {@link ValidationException} will be thrown.
+	 * @param instance the value to validate
+	 * @return the supplied instance, unmodified.
+	 * @throws ValidationException when the instance is not valid
 	 */
-	public static final NoValidator INSTANCE = new NoValidator();
-	
-	/**
-	 * Do not create a new instance every time, but reuse {@link #INSTANCE}
-	 */
-	private NoValidator() {}
-	
-	@Override
-	public <T> T isValid(T instance) throws ValidationException {
-		return instance;
-	}
+	public <T> T isValid(T instance) throws ValidationException ;
 	
 }

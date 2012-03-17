@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.java.converter;
+package info.rsdev.xb4j.model.converter;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 
