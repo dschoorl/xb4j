@@ -28,8 +28,6 @@ import javax.xml.bind.DatatypeConverter;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
-import com.sun.xml.internal.bind.WhiteSpaceProcessor;
-
 /**
  * Abstract class for converting the xml schema types dateTime, date and time to Java objects and back again. Subclasses
  * must implement the abstract methods for the specific Java type, E.g. {@link Date} or {@link Calendar} to convert to.
@@ -82,8 +80,7 @@ public abstract class AbstractDateConverter implements IValueConverter {
 		if (value == null) { return null; }
 		
 		try {
-	        String val = WhiteSpaceProcessor.trim(value).toString();
-	        GregorianCalendar aMoment = datatypeFactory.newXMLGregorianCalendar(val).toGregorianCalendar(timeZone, null, null);
+	        GregorianCalendar aMoment = datatypeFactory.newXMLGregorianCalendar(value.trim()).toGregorianCalendar(timeZone, null, null);
 			return fromCalendar(validator.isValid(aMoment));
 		} catch (IllegalArgumentException e) {
 			throw new ValidationException("Invalid date format representation", e);
