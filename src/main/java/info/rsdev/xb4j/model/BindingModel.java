@@ -261,7 +261,12 @@ public class BindingModel {
     }
     
     public ComplexType getComplexType(String identifier, String namespaceUri) {
-        return this.complexTypes.get(new QName(namespaceUri, identifier));
+    	QName identification = new QName(namespaceUri, identifier);
+    	if (!complexTypes.containsKey(identification)) {
+    		throw new Xb4jException(String.format("No ComplexType registered with identifier='%s' and namespaceUri='%s'", 
+    				identifier, namespaceUri));
+    	}
+        return this.complexTypes.get(identification);
     }
     
 }

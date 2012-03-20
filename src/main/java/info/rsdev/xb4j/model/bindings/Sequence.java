@@ -14,12 +14,15 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import javax.xml.namespace.QName;
+
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
+import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
 /**
  * Group a number of elements where ordering is fixed. Elements can be optional. When an element can occur more than once, you 
- * must wrap them inside a {@link Repeater}. A sequence has no xml or java object eepresentation.
+ * must wrap them inside a {@link Repeater}.
  * 
  * @author Dave Schoorl
  */
@@ -32,8 +35,22 @@ public class Sequence extends AbstractBindingContainer {
 		super(NoElementFetchStrategy.INSTANCE, null);
 	}
 	
+    public Sequence(QName element) {
+    	super(new DefaultElementFetchStrategy(element), null);
+    }
+
 	public Sequence(Class<?> javaType) {
 		super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType));
 	}
     
+    public Sequence(QName element, Class<?> javaType) {
+    	super(new DefaultElementFetchStrategy(element), new DefaultConstructor(javaType));
+    }
+    
+    @Override
+    public Sequence setOptional(boolean isOptional) {
+    	super.setOptional(isOptional);
+    	return this;
+    }
+
 }

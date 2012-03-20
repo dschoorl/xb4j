@@ -100,8 +100,10 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
     	boolean startTagFound = false;
     	if (expectedElement != null) {
     		if (!staxReader.isAtElementStart(expectedElement)) {
-	    		if (!isOptional()) {
-	    			return UnmarshallResult.newMissingElement(expectedElement);
+	    		if (isOptional()) {
+                    return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
+	    		} else {
+                    return UnmarshallResult.newMissingElement(expectedElement);
 	    		}
     		} else {
     			startTagFound = true;

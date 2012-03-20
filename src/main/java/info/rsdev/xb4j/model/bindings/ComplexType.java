@@ -175,4 +175,10 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
         return this.model;
     }
     
+    @Override
+    public ComplexType setOptional(boolean isOptional) {
+    	super.setOptional(isOptional);
+    	return this;
+    }
+    
 }

@@ -27,6 +27,8 @@ public class NOPConverter implements IValueConverter {
 	
 	public static final NOPConverter INSTANCE = new NOPConverter();
 	
+	private IValidator validator = NoValidator.INSTANCE;
+	
 	@Override
 	public Object toObject(String value) {
 		if (value == null) { return null; }
@@ -40,7 +42,7 @@ public class NOPConverter implements IValueConverter {
 			throw new Xb4jException(String.format("Expected a %s, but encountered a %s", String.class.getName(), 
 					value.getClass().getName()));
 		}
-		return (String)value;
+		return validator.isValid((String)value);
 	}
 	
 	public Class<?> getJavaType() {
