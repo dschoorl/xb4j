@@ -60,7 +60,7 @@ public class SimpleType extends AbstractBinding {
 	    		if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
 	    		} else {
-                    return UnmarshallResult.newMissingElement(expectedElement);
+                    return UnmarshallResult.newMissingElement(this);
 	    		}
     		} else {
     			startTagFound = true;

@@ -14,8 +14,6 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import javax.xml.namespace.QName;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Dave Schoorl
  */
-public class UnmarshallResult {
+public class UnmarshallResult implements ErrorCodes {
 	
 	private static final Logger logger = LoggerFactory.getLogger(UnmarshallResult.class);
 	
@@ -36,13 +34,19 @@ public class UnmarshallResult {
 	 */
 	public static final UnmarshallResult MISSING_OPTIONAL_ELEMENT = new UnmarshallResult();
 	
+	/**
+	 * errorCode is a code that indicates the type of error. There are two codes known by this class:
+	 * (1) a missing optional element and (2) a missing mandatory element.
+	 */
+	private Integer errorCode = null;	//null means: no error
+	
 	private String errorMessage = null;
+	
+	private IBinding bindingWithError = null;
 	
 	private Object unmarshalledObject = null;
 	
 	private boolean unmarshalledObjectIsHandled = false;
-	
-	private boolean isMissingOptional = false;
 	
 	/**
 	 * Create a new {@link UnmarshallResult} that indicates that the unmarshalling process encountered a missing
@@ -51,7 +55,7 @@ public class UnmarshallResult {
 	 * @param isOptionalElementMissing 
 	 */
 	private UnmarshallResult() {
-		this.isMissingOptional = true;
+		this.errorCode = MISSING_OPTIONAL_ERROR;
 	}
 	
 	/**
@@ -59,10 +63,15 @@ public class UnmarshallResult {
 	 * is not considered to be a failure
 	 * @param msg the message that will passed down to the caller of the unmarshall process
 	 */
-	public UnmarshallResult(String msg) {
+	public UnmarshallResult(Integer errorCode, String msg, IBinding bindingWithError) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Error UnmarshalResult created; message=".concat(msg==null?"null":msg));
 		}
+		if (errorCode == null) { 
+			throw new NullPointerException("errorCode cannot be null when creating an error UnmarshallResult"); 
+		}
+		this.errorCode = errorCode;
+		this.bindingWithError = bindingWithError;
 		this.errorMessage = msg;
 	}
 	
@@ -91,7 +100,7 @@ public class UnmarshallResult {
 	 * @return false if the unmarshalling process was aborted with an error, true otherwise
 	 */
 	public boolean isUnmarshallSuccessful() {
-		return errorMessage == null;
+		return (errorCode == null) || (errorCode.equals(MISSING_OPTIONAL_ERROR));
 	}
 
 	/**
@@ -120,6 +129,18 @@ public class UnmarshallResult {
 		return errorMessage;
 	}
 	
+	public Integer getErrorCode() {
+		return errorCode;
+	}
+	
+	/**
+	 * The binding context where the error occurred
+	 * @return
+	 */
+	public IBinding getBindingWithError() {
+		return bindingWithError;
+	}
+	
 	/**
 	 * Indicate that the unmarshalled object has been handled
 	 * 
@@ -136,11 +157,11 @@ public class UnmarshallResult {
 	 * @return true if the optional xml representation was missing, false otherwise 
 	 */
 	public boolean isMissingOptional() {
-		return isMissingOptional;
+		return MISSING_OPTIONAL_ERROR.equals(errorCode);
 	}
 	
-	public static final UnmarshallResult newMissingElement(QName element) {
-		return new UnmarshallResult(String.format("Mandatory element not encountered in xml: %s", element));
+	public static final UnmarshallResult newMissingElement(IBinding bindingWithError) {
+		return new UnmarshallResult(MISSING_MANDATORY_ERROR, String.format("Mandatory element not encountered in xml: %s", bindingWithError.getElement()), bindingWithError);
 	}
 
 }

@@ -88,7 +88,7 @@ public class Repeater extends AbstractBinding {
 	    		if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
 	    		} else {
-                    return UnmarshallResult.newMissingElement(collectionElement);
+                    return UnmarshallResult.newMissingElement(this);
 	    		}
     		} else {
     			startTagFound = true;
@@ -96,9 +96,10 @@ public class Repeater extends AbstractBinding {
     	}
         
         int occurences = 0;
+        UnmarshallResult result = null;
         boolean proceed = true;
         while (proceed) {
-        	UnmarshallResult result = itemBinding.toJava(staxReader, collection);
+        	result = itemBinding.toJava(staxReader, collection);
             proceed = result.isUnmarshallSuccessful();
         	if (result.mustHandleUnmarshalledObject()) {
         		((Collection<Object>)collection).add(result.getUnmarshalledObject());
@@ -109,6 +110,11 @@ public class Repeater extends AbstractBinding {
             		throw new Xb4jException(String.format("Found %d occurences, but no mare than %d are allowed", occurences, maxOccurs));
             	}
             }
+        }
+        
+        //determine if the childBinding has no more occurences or whether the xml fragment of the childBinding is incomplete
+        if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode()) && !result.getBindingWithError().equals(itemBinding)) {
+        	return result;
         }
         
         if ((occurences == 0) && !isOptional()) {

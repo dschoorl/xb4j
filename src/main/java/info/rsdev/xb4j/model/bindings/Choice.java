@@ -122,7 +122,7 @@ public class Choice extends AbstractSingleBinding {
     	if (expectedElement != null) {
     		if (!staxReader.isAtElementStart(expectedElement)) {
 	    		if (!isOptional()) {
-	    			return UnmarshallResult.newMissingElement(expectedElement);
+	    			return UnmarshallResult.newMissingElement(this);
 	    		}
     		} else {
     			startTagFound = true;
@@ -146,7 +146,7 @@ public class Choice extends AbstractSingleBinding {
 		}
 		
 		if (!choiceFound && !isOptional()) {
-			return new UnmarshallResult(String.format("No matching choice found for mandatory binding: ", this));
+			return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR, String.format("No matching choice found for mandatory binding: ", this), this);
 		}
 		
         if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {

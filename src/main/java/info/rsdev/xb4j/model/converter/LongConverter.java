@@ -51,9 +51,9 @@ public class LongConverter implements IValueConverter {
 	}
 	
 	@Override
-	public Integer toObject(String value) {
+	public Long toObject(String value) {
 		if (value == null) { return null; }
-		return validator.isValid(Integer.valueOf(value));
+		return validator.isValid(Long.valueOf(value));
 	}
 	
 	@Override

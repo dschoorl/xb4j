@@ -45,6 +45,9 @@ public class DefaultConstructor implements ICreator {
     }
     
     private Constructor<?> getDefaultConstructor(Class<?> javaType) {
+    	if (javaType == null) {
+    		throw new NullPointerException("Java type to create cannot be null");
+    	}
         Constructor<?> defaultConstructor = null;
         try {
             defaultConstructor = javaType.getDeclaredConstructor();
@@ -53,7 +56,8 @@ public class DefaultConstructor implements ICreator {
                 defaultConstructor.setAccessible(true);
             }
         } catch (NoSuchMethodException e) {
-            throw new Xb4jException("Can not obtain a default constructor", e);
+            throw new Xb4jException(String.format("'%s' has no default constructor. Please add one to your code or use another " +
+            		"way to construct the class.", javaType.getName()), e);
         }
         return defaultConstructor;
     }

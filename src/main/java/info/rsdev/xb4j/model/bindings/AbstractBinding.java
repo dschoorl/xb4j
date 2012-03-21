@@ -146,6 +146,10 @@ public abstract class AbstractBinding implements IBinding {
         return this;
     }
     
+    public boolean hasSetter() {
+    	return (this.setter != null) && !(this.setter instanceof NoSetter);
+    }
+    
     public void setParent(IBinding parent) {
     	if (parent == null) {
     		throw new NullPointerException("Parent IBinding cannot be null");

@@ -14,21 +14,15 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
-import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 
 
 public abstract class AbstractBindingContainer extends AbstractBinding implements IBindingContainer {
@@ -92,69 +86,6 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
     
     public Collection<IBinding> getChildren() {
         return Collections.unmodifiableList(this.children);
-    }
-    
-    @Override
-    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
-    	QName expectedElement = getElement();
-    	boolean startTagFound = false;
-    	if (expectedElement != null) {
-    		if (!staxReader.isAtElementStart(expectedElement)) {
-	    		if (isOptional()) {
-                    return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
-	    		} else {
-                    return UnmarshallResult.newMissingElement(expectedElement);
-	    		}
-    		} else {
-    			startTagFound = true;
-    		}
-    	}
-    	
-    	Object newJavaContext = newInstance();
-        for (IBinding child: getChildren()) {
-        	UnmarshallResult result = child.toJava(staxReader, select(javaContext, newJavaContext));
-        	if (!result.isUnmarshallSuccessful()) {
-        		return result;
-        	}
-        	if (result.mustHandleUnmarshalledObject()) {
-        		if (!setProperty(select(javaContext, newJavaContext), result.getUnmarshalledObject())) {
-    				//the unmarshalled object could net be set on the (new) java context
-        			if (newJavaContext == null) { 
-        				return result;
-        			} else {
-        				throw new Xb4jException("Unmarshalled object not set in Java context: "+result.getUnmarshalledObject());
-        			}
-        		}
-        	}
-        }
-        
-    	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
-    		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
-    		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
-    				staxReader.getEventName(), encountered));
-    	}
-    	
-        return new UnmarshallResult(newJavaContext);
-    }
-    
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
-        //when this Binding must not output an element, the getElement() method should return null
-        QName element = getElement();
-        
-        //mixed content is not yet supported -- there are either child elements or there is content
-        Collection<IBinding> children = getChildren();
-        boolean isEmptyElement = children.isEmpty();	//TODO: take isOptional properties into account
-        if (element != null) {
-            staxWriter.writeElement(element, isEmptyElement);
-        }
-        
-        for (IBinding child: children) {
-            child.toXml(staxWriter, getProperty(javaContext));
-        }
-        
-        if (!isEmptyElement && (element != null)) {
-            staxWriter.closeElement(element);
-        }
     }
     
 }

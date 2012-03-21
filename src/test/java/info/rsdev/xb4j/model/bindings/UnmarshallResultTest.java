@@ -23,7 +23,7 @@ public class UnmarshallResultTest {
 	
 	@Test
 	public void testMissingMandatoryElement() {
-		UnmarshallResult missingMandatory = UnmarshallResult.newMissingElement(new QName("where-am-i"));
+		UnmarshallResult missingMandatory = UnmarshallResult.newMissingElement(new Element(new QName("where-am-i")));
 		assertFalse(missingMandatory.isMissingOptional());
 		assertFalse(missingMandatory.isUnmarshallSuccessful());
 		assertFalse(missingMandatory.mustHandleUnmarshalledObject());
