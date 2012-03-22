@@ -59,16 +59,16 @@ public class LongConverter implements IValueConverter {
 	@Override
 	public String toText(Object value) {
 		if (value == null) { return null; }
-		if (!(value instanceof Integer)) {
-			throw new Xb4jException(String.format("Expected a %s, but was a %s", Integer.class.getName(), 
+		if (!(value instanceof Long)) {
+			throw new Xb4jException(String.format("Expected a %s, but was a %s", Long.class.getName(), 
 					value.getClass().getName()));
 		}
-		return validator.isValid((Integer)value).toString();
+		return validator.isValid((Long)value).toString();
 	}
 	
 	@Override
 	public Class<?> getJavaType() {
-		return Integer.class;
+		return Long.class;
 	}
 	
 	
