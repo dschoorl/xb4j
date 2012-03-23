@@ -1,5 +1,6 @@
 TODO
 ----
+- determine if childBinding in toXml will output anything to stream with hasContentlike method
 - provide converters between data types of Java/xml world for all defined xml schema data types, including facets etc.
 - allow the java instance to be constructed by a non-default constructor method
 - allow the java instance to be created through a factory method

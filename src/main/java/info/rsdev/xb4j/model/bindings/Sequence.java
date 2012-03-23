@@ -117,6 +117,7 @@ public class Sequence extends AbstractBindingContainer {
         //mixed content is not yet supported -- there are either child elements or there is content
         Collection<IBinding> children = getChildren();
         boolean isEmptyElement = children.isEmpty();	//TODO: take isOptional properties into account
+        //TODO: reliably determine if child bindings have output -- new API method hasContent?
         if (element != null) {
             staxWriter.writeElement(element, isEmptyElement);
         }
@@ -128,6 +129,19 @@ public class Sequence extends AbstractBindingContainer {
         if (!isEmptyElement && (element != null)) {
             staxWriter.closeElement(element);
         }
+    }
+    
+    /**
+     * Determine if the container has any childbindings that will output anything to xmlStream, so that we can no if we have
+     * to output an empty mandatory container tag, or suppress an empty optional container tag. This method must be added to
+     * the IBinding interface.
+     * 
+     * @param javaContext
+     * @return
+     */
+    public boolean isEmptyElement(Object javaContext) {
+    	//TODO: implement
+    	return false;
     }
     
 }

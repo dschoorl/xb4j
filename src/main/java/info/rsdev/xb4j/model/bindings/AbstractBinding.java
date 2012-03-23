@@ -181,6 +181,9 @@ public abstract class AbstractBinding implements IBinding {
     }
     
     public Object getProperty(Object contextInstance) {
+    	if (contextInstance == null) {
+    		return null;
+    	}
         return this.getter.get(contextInstance);
     }
     
