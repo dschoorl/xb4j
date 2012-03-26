@@ -81,23 +81,32 @@ public class SimpleType extends AbstractBinding {
     
     @Override
     public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    	if (!generatesOutput(javaContext)) { return; }
+    			
         QName element = getElement();
-        
-        Object elementValue = getProperty(javaContext);
-        if ((elementValue == null) && (!isOptional())) {
-        	throw new Xb4jException(String.format("No text for mandatory element %s", element));	//this does not support an empty element
+        javaContext = getProperty(javaContext);
+        boolean isEmpty = (javaContext == null);
+        if (isEmpty && !isOptional()) {	//TODO: check if element is nillable and output nill value for this element
+        	throw new Xb4jException(String.format("No content for mandatory element %s", element));	//this does not support an empty element
         }
         
-        boolean isEmpty = (elementValue == null);
         if (!isOptional() || !isEmpty) {
         	staxWriter.writeElement(element, isEmpty);	//suppress empty optional elements
         }
         
         if (!isEmpty) {
-            staxWriter.writeContent(this.converter.toText(elementValue));
+            staxWriter.writeContent(this.converter.toText(javaContext));
             staxWriter.closeElement(element);
         }
-        
+    }
+    
+    @Override
+    public boolean generatesOutput(Object javaContext) {
+    	javaContext = getProperty(javaContext);
+    	if (javaContext != null) {
+    		return true;
+    	}
+    	return (getElement() != null) && !isOptional();	//suppress optional empty elements
     }
     
     private void setConverter(IValueConverter converter) {

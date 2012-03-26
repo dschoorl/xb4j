@@ -137,19 +137,21 @@ public class Repeater extends AbstractBinding {
 	
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+		if (!generatesOutput(javaContext)) { return; }
+		
+        Object collection = getProperty(javaContext);
+        if ((collection != null) && (!(collection instanceof Collection<?>))) {
+        	throw new Xb4jException(String.format("Not a Collection: %s", collection));
+        }
+        
         //when this Binding must not output an element, the getElement() method should return null
         QName element = getElement();
-        Object collection = getProperty(javaContext);
-        if (collection == null) {
+        if ((collection == null) || ((Collection<?>)collection).isEmpty()) {
             if (isOptional()) {
                 return;
             } else {
                 throw new Xb4jException(String.format("This collection is not optional: %s", this));
             }
-        }
-        
-        if (!(collection instanceof Collection<?>)) {
-        	throw new Xb4jException(String.format("Not a Collection: %s", javaContext));
         }
         
         boolean isEmptyElement = (itemBinding == null) || (javaContext == null);
@@ -166,6 +168,21 @@ public class Repeater extends AbstractBinding {
         if (!isEmptyElement && (element != null)) {
             staxWriter.closeElement(element);
         }
+	}
+	
+	@Override
+	public boolean generatesOutput(Object javaContext) {
+        Object collection = getProperty(javaContext);
+        if ((collection != null) && (collection instanceof Collection<?>) && !((Collection<?>)collection).isEmpty()) {
+        	for (Object item: (Collection<?>)collection) {
+            	if (itemBinding.generatesOutput(item)) {
+            		return true;
+            	}
+        	}
+        }
+        
+		//At this point, the we established that the itemBinding will not output content
+		return (getElement() != null) && !isOptional();	//suppress optional empty elements
 	}
 	
 	public Repeater setMaxOccurs(int newMaxOccurs) {

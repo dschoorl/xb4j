@@ -84,6 +84,10 @@ public abstract class AbstractBindingContainer extends AbstractBinding implement
         return childBinding;
     }
     
+    /**
+     * Get the children for this container or an empty list when there are none. The Collection of children cannot be changed.
+     * @return an unmodifiable collection of child {@link IBinding bindings}
+     */
     public Collection<IBinding> getChildren() {
         return Collections.unmodifiableList(this.children);
     }

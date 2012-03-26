@@ -44,13 +44,11 @@ public class ComplexTypeTest {
         Root root = new Root(new QName("root"), ObjectA.class);   //has element, but class comes from child
         root.setChild(new Reference("typeO", null), NoGetter.INSTANCE, NoSetter.INSTANCE);
         
-        //bind complextype to other xml element (same javaclass) -- this is currently not supported by BindingModel
-        Root hoofdmap = new Root(new QName("directory"), ObjectTree.class);   //has element, but class comes from child
-        hoofdmap.setChild(new Reference(ObjectA.class, "typeO", null), "myObject");	//Must create ObjectA when marshalling
+        Root hoofdmap = new Root(new QName("directory"), ObjectTree.class);
+        hoofdmap.setChild(new Reference(ObjectA.class, "typeO", null), "myObject");
         
         ComplexType complexType = new ComplexType("typeO", null);
         complexType.setChild(new SimpleType(new QName("name")), "name");
-        
         
         model = new BindingModel();
         model.register(complexType, true);

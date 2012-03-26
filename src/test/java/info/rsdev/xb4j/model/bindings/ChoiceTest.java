@@ -15,6 +15,9 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import info.rsdev.xb4j.model.bindings.Choice;
 import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.model.java.InstanceOfChooser;
@@ -31,16 +34,22 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class ChoiceTest {
 	
-	@Test
-	public void testMarshallChoiceNoNamespaces() throws Exception {
-		Choice choice = new Choice();
+	private Choice choice = null;
+	
+	@Before
+	public void setup() {
+		choice = new Choice();
 		choice.addChoice(new SimpleType(new QName("elem1")), "name", new InstanceOfChooser(ObjectA.class));
 		choice.addChoice(new SimpleType(new QName("elem2")), "value", new InstanceOfChooser(ObjectB.class));
-		
+	}
+	
+	@Test
+	public void testMarshallChoiceNoNamespaces() throws Exception {
 		ObjectA instanceA = new ObjectA("test");
 		String expected = "<elem1>test</elem1>";
 		
@@ -60,10 +69,6 @@ public class ChoiceTest {
 	
 	@Test
 	public void testUnmarshallChoiceNoNamespaces() throws Exception {
-		Choice choice = new Choice();
-		choice.addChoice(new SimpleType(new QName("elem1")), "name", new InstanceOfChooser(ObjectA.class));
-		choice.addChoice(new SimpleType(new QName("elem2")), "value", new InstanceOfChooser(ObjectB.class));
-		
 		//unmarshall first option
 		ByteArrayInputStream stream = new ByteArrayInputStream("<elem1>test1</elem1>".getBytes());
 		RecordAndPlaybackXMLStreamReader staxWriter = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
@@ -77,6 +82,24 @@ public class ChoiceTest {
 		ObjectB javaContextB = new ObjectB("");
 		choice.toJava(staxWriter, javaContextB);
 		assertEquals("test2", javaContextB.getValue());
+	}
+	
+	@Test
+	public void testChoiceWithoutContentNorElementGeneratesNoOutput() {
+		assertFalse(choice.generatesOutput(null));
+	}
+	
+	@Test
+	public void testChoiceWithoutContentWithMandatoryElementGeneratesOutput() {
+		choice = new Choice(new QName("mandatory"));
+		assertTrue(choice.generatesOutput(null));
+	}
+	
+	@Test
+	public void testChoiceWithoutContentWithOptionalElementGeneratesNoOutput() {
+		choice = new Choice(new QName("optional"));
+		choice.setOptional(true);
+		assertFalse(choice.generatesOutput(null));
 	}
 	
 }

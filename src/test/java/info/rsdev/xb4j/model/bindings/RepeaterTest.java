@@ -16,12 +16,12 @@ package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import info.rsdev.xb4j.model.BindingModel;
-import info.rsdev.xb4j.model.bindings.Repeater;
-import info.rsdev.xb4j.model.bindings.Root;
-import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.test.ObjectTree;
 
 import java.io.ByteArrayInputStream;
@@ -110,4 +110,27 @@ public class RepeaterTest {
         assertArrayEquals(new String[] {"bericht1", "bericht2"}, tree.getMessages().toArray());
     }
     
+    @Test
+    public void testRepeaterNoCollectionNoElementGeneratesNoOutput() {
+    	Repeater repeater = new Repeater(ArrayList.class);
+    	assertFalse(repeater.generatesOutput(null));
+    }
+    
+    @Test
+    public void testRepeaterEmptyCollectionNoElementGeneratesNoOutput() {
+    	Repeater repeater = new Repeater(ArrayList.class);
+    	assertFalse(repeater.generatesOutput(new ArrayList<String>()));
+    }
+    
+    @Test
+    public void testRepeaterEmptyCollectionOptionalElementGeneratesNoOutput() {
+    	Repeater repeater = new Repeater(new QName("optional"), ArrayList.class, true);
+    	assertFalse(repeater.generatesOutput(new ArrayList<String>()));
+    }
+    
+    @Test
+    public void testRepeaterEmptyCollectionMandatoryElementGeneratesNoOutput() {
+    	Repeater repeater = new Repeater(new QName("mandatory"), ArrayList.class, false);
+    	assertTrue(repeater.generatesOutput(new ArrayList<String>()));
+    }
 }

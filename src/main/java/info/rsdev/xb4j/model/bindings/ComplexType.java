@@ -140,16 +140,41 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 	
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
-		if (javaContext == null) {
-			if (isOptional()) {
-				return;
-			} else {
-				throw new Xb4jException(String.format("Mandatory type %s must have a non-null Java context", this));
-			}
-		}
-        getChildBinding().toXml(staxWriter, getProperty(javaContext));
+		if (!generatesOutput(javaContext)) { return; }
+		
+        //mixed content is not yet supported -- there are either child elements or there is content
+        QName element = getElement();
+    	//is element empty?
+        IBinding child = getChildBinding();
+        boolean isEmpty = (child == null) || !child.generatesOutput(javaContext);
+        boolean outputElement = ((element != null) && (!isOptional() || !isEmpty));
+        if (outputElement) {
+        	staxWriter.writeElement(element, isEmpty);
+        }
+        
+        if (!isEmpty) {
+        	child.toXml(staxWriter, getProperty(javaContext));
+        }
+        
+        if (outputElement && !isEmpty) {
+            staxWriter.closeElement(element);
+        }
 	}
 
+    @Override
+    public boolean generatesOutput(Object javaContext) {
+    	javaContext = getProperty(javaContext);
+    	if (javaContext != null) {
+    		IBinding child = getChildBinding();
+    		if ((child != null) && child.generatesOutput(javaContext)) {
+    			return true;
+    		}
+    	}
+    	
+		//At this point, the childBinding will have no output
+		return (getElement() != null) && !isOptional();	//suppress optional empty elements
+    }
+    
     /**
      * Copy the ComplexTypeHierarchy and place it as a child under the supplied  {@link Reference parent}
      * @param complexTypeReference the parent in the hierarchy

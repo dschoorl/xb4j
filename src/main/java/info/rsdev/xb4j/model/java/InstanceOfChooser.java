@@ -37,6 +37,7 @@ public class InstanceOfChooser implements IChooser {
 	
 	@Override
 	public boolean matches(Object javaContext) {
+		if (javaContext == null) { return false; }
 		return this.instanceOf.isAssignableFrom(javaContext.getClass());
 	}
 	

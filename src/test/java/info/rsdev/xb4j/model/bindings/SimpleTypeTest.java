@@ -15,8 +15,11 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.Element;
 import info.rsdev.xb4j.model.bindings.Root;
@@ -35,7 +38,7 @@ import org.junit.Test;
  *
  * @author Dave Schoorl
  */
-public class SimpleBindingTest {
+public class SimpleTypeTest {
 	
     @Test
     public void testMarshallingToEmptyElementNoNamespace() {
@@ -143,4 +146,23 @@ public class SimpleBindingTest {
         assertSame(ObjectA.class, instance.getClass());
         assertEquals("test", ((ObjectA)instance).getName());
     }
+    
+    @Test
+    public void testOptionalSimpleTypeNoContentGeneratesNoOutput() {
+    	IBinding simple = new SimpleType(new QName("optional")).setOptional(true);
+    	assertFalse(simple.generatesOutput(null));
+    }
+    
+    @Test
+    public void testManadatorySimpleTypeNoContentGeneratesOutput() {
+    	IBinding simple = new SimpleType(new QName("mandatory"));
+    	assertTrue(simple.generatesOutput(null));
+    }
+    
+    @Test
+    public void testOptionalSimpleTypeWithContentGeneratesOutput() {
+    	IBinding simple = new SimpleType(new QName("optional")).setOptional(true);
+    	assertTrue(simple.generatesOutput("a value"));
+    }
+    
 }

@@ -90,28 +90,8 @@ public class Choice extends AbstractSingleBinding {
 				return choices.get(i);
 			}
 		}
-		throw new Xb4jException(String.format("%s could not select a choice for java context value %s", this, javaContext));
-	}
-	
-	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
-        QName element = getElement();
-        
-        //mixed content is not yet supported -- there are either child elements or there is content
-        javaContext = getProperty(javaContext);
-        IBinding selected = selectBinding(javaContext);
-        boolean isEmptyElement = selected == null;
-        if (element != null) {
-            staxWriter.writeElement(element, isEmptyElement);
-        }
-        
-        if (selected != null) {
-            selected.toXml(staxWriter, javaContext);
-        }
-        
-        if (!isEmptyElement && (element != null)) {
-            staxWriter.closeElement(element);
-        }
+		
+		return null;
 	}
 	
 	@Override
@@ -155,6 +135,42 @@ public class Choice extends AbstractSingleBinding {
     				staxReader.getEventName(), encountered));
         }
 		return result;
+	}
+	
+	@Override
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+		if (!generatesOutput(javaContext)) { return; }
+		
+        //mixed content is not yet supported -- there are either child elements or there is content
+        QName element = getElement();
+        javaContext = getProperty(javaContext);
+        IBinding selected = selectBinding(javaContext);
+        boolean isEmptyElement = selected == null;
+        if (element != null) {
+            staxWriter.writeElement(element, isEmptyElement);
+        }
+        
+        if (selected != null) {
+            selected.toXml(staxWriter, javaContext);
+        }
+        
+        if (!isEmptyElement && (element != null)) {
+            staxWriter.closeElement(element);
+        }
+	}
+	
+	@Override
+	public boolean generatesOutput(Object javaContext) {
+        javaContext = getProperty(javaContext);
+		if (javaContext != null) {
+			IBinding child = selectBinding(javaContext);
+			if ((child != null) && child.generatesOutput(javaContext)) {
+				return true;
+			}
+		}
+		
+		//At this point, there is no childBinding to output content
+		return (getElement() != null) && !isOptional();	//suppress optional empty elements
 	}
 	
 }

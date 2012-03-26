@@ -36,6 +36,14 @@ public interface IBinding {
     public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException;
     
     /**
+     * Determine if the binding will output anything to xmlStream, so that we can no if we have to output an empty mandatory 
+     * container tag, or suppress an empty optional container tag. Or, ofcourse, output a non-empty element to the xml stream.
+     * @param javaContext
+     * @return
+     */
+    public boolean generatesOutput(Object javaContext);
+    
+    /**
      * Bindings are organized in a hierarchy. Call setParent to build the hierarchy of bindings.
      * @param parent the parent {@link IBinding} that this binding is a child of.
      */

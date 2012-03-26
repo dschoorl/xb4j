@@ -111,6 +111,8 @@ public class Sequence extends AbstractBindingContainer {
     }
     
     public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    	if (!generatesOutput(javaContext)) { return; }
+    	
         //when this Binding must not output an element, the getElement() method should return null
         QName element = getElement();
         
@@ -139,9 +141,18 @@ public class Sequence extends AbstractBindingContainer {
      * @param javaContext
      * @return
      */
-    public boolean isEmptyElement(Object javaContext) {
-    	//TODO: implement
-    	return false;
+    public boolean generatesOutput(Object javaContext) {
+    	javaContext = getProperty(javaContext);
+    	if (javaContext != null) {
+	    	for (IBinding child: getChildren()) {
+	    		if (child.generatesOutput(javaContext)) {
+	    			return true;
+	    		}
+	    	}
+    	}
+    	
+    	//At this point, the children will produce no output
+    	return (getElement() != null) && !isOptional();
     }
     
 }

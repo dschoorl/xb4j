@@ -121,7 +121,7 @@ public class Element extends AbstractSingleBinding {
     			}
 			}
     	} else {
-    		//or set the newly created Java object int he current Java context
+    		//or set the newly created Java object in the current Java context
     		if (setProperty(javaContext, newJavaContext)) {
     	        return new UnmarshallResult(newJavaContext, true);
     		}
@@ -132,26 +132,39 @@ public class Element extends AbstractSingleBinding {
     
     @Override
     public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    	if (!generatesOutput(javaContext)) { return; }
+    	
         //mixed content is not yet supported -- there are either child elements or there is content
         QName element = getElement();
-        
     	//is element empty?
-        IBinding childBinding = getChildBinding();
-        Object elementValue = getProperty(javaContext);
-        boolean isEmpty = (childBinding == null) || (elementValue == null);
-        
+        IBinding child = getChildBinding();
+        boolean isEmpty = (child == null) || !child.generatesOutput(getProperty(javaContext));
         boolean outputElement = ((element != null) && (!isOptional() || !isEmpty));
         if (outputElement) {
         	staxWriter.writeElement(element, isEmpty);
         }
         
         if (!isEmpty) {
-        	childBinding.toXml(staxWriter, elementValue);
+        	child.toXml(staxWriter, getProperty(javaContext));
         }
         
         if (outputElement && !isEmpty) {
             staxWriter.closeElement(element);
         }
+    }
+    
+    @Override
+    public boolean generatesOutput(Object javaContext) {
+    	javaContext = getProperty(javaContext);
+    	if (javaContext != null) {
+    		IBinding child = getChildBinding();
+    		if ((child != null) && child.generatesOutput(javaContext)) {
+    			return true;
+    		}
+    	}
+    	
+		//At this point, the childBinding will have no output
+		return (getElement() != null) && !isOptional();	//suppress optional empty elements
     }
     
 }
