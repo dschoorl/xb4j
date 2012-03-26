@@ -369,7 +369,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     public void close() throws XMLStreamException {
         clearAllRecordings();
         this.playbackQueue.clear();
-        this.staxReader.close();
+//        this.staxReader.close();
     }
     
     private void clearAllRecordings() {
@@ -447,7 +447,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         @Override
         public String toString() {
             String data = text==null?name.toString():text;
-            return String.format("ParseEventData[eventType=%S, data=%s, hascode=%d]", EVENTNAMES[eventType], data, hashCode());
+            return String.format("ParseEventData[eventType=%S, data=%s, hashcode=%d]", EVENTNAMES[eventType], data, hashCode());
         }
 
         @Override
