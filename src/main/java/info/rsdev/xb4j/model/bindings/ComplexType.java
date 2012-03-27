@@ -20,8 +20,6 @@ import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
-import info.rsdev.xb4j.model.xml.FetchFromParentStrategy;
-import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
 import javax.xml.XMLConstants;
@@ -85,8 +83,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      * as it's parent 
      */
     private ComplexType(ComplexType original) {
-        super(original, (IElementFetchStrategy)null);	//dirty hack, I want to do: new FetchFromParentStrategy(this), but cannot pass on this in super contructor call 
-        setElementFetchStrategy(new FetchFromParentStrategy(this));
+        super(original, NoElementFetchStrategy.INSTANCE);	//dirty hack, I want to do: new FetchFromParentStrategy(this), but cannot pass on this in super contructor call 
         this.identifier = original.identifier;
         this.namespaceUri = original.namespaceUri;
     }

@@ -92,4 +92,22 @@ public class ComplexTypeTest {
         assertEquals("test", tree.getMyObject().getName());
     }
     
+    @Test
+    public void testMarshallReferenceWithElement() {
+    	//Setup the binding model
+        BindingModel model = new BindingModel();
+        Root root = new Root(new QName("root"), ObjectA.class);
+        root.setChild(new Reference(new QName("reference"), "complexType", null), NoGetter.INSTANCE, NoSetter.INSTANCE);
+        model.register(root);
+        
+        ComplexType complexType = new ComplexType("complexType", null);
+        complexType.setChild(new SimpleType(new QName("name")), "name");
+        model.register(complexType, true);
+    	
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        ObjectA instance = new ObjectA("test");
+        model.toXml(stream, instance);
+        assertEquals("<root><reference><name>test</name></reference></root>", stream.toString());
+    }
+    
 }
