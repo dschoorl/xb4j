@@ -366,10 +366,13 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         return this.currentEvent.text;
     }
 
-    public void close() throws XMLStreamException {
+    /**
+     * Cleanup the resources created by this object. This does not close the underlying {@link XMLStreamReader}; it's the 
+     * responsibility of the creator of the {@link XMLStreamReader} to close it.
+     */
+    public void close() {
         clearAllRecordings();
         this.playbackQueue.clear();
-//        this.staxReader.close();
     }
     
     private void clearAllRecordings() {

@@ -16,8 +16,8 @@ package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.bindings.ComplexType;
-import info.rsdev.xb4j.model.bindings.UnmarshallResult;
 import info.rsdev.xb4j.model.bindings.Root;
+import info.rsdev.xb4j.model.bindings.UnmarshallResult;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader.Marker;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -88,7 +87,9 @@ public class BindingModel {
             if (binding == null) {
                 throw new IllegalArgumentException("No binding found for: ".concat(instance.getClass().getName()));
             }
-            binding.toXml(new SimplifiedXMLStreamWriter(staxWriter), instance);
+            SimplifiedXMLStreamWriter simpleWriter = new SimplifiedXMLStreamWriter(staxWriter);
+            binding.toXml(simpleWriter, instance);
+            simpleWriter.close();
             staxWriter.writeEndDocument();
         } catch (XMLStreamException e) {
             log.error("Exception occured when writing instance to xml stream: ".concat(instance.toString()), e);
@@ -103,17 +104,43 @@ public class BindingModel {
         }
     }
     
+    /**
+     * Create an {@link XMLStreamReader} from the given {@link InputStream} and call {@link #toJava(XMLStreamReader)}. The 
+     * {@link XMLStreamReader} is closed, but the {@link InputStream} is not; it's the responsibility of the caller to close 
+     * the {@link InputStream}
+     * 
+     * @param stream the xml provided as an {@link InputStream}
+     * @return the Java object tree read from the xml stream
+     * @throws Xb4jException any unmarshalling exception that may occur is propogated
+     */
     public Object toJava(InputStream stream) {
+    	XMLStreamReader xmlStream = null;
         try {
-            return toJava(XMLInputFactory.newInstance().createXMLStreamReader(stream));
+        	xmlStream = XMLInputFactory.newInstance().createXMLStreamReader(stream);
+            return toJava(xmlStream);
         } catch (XMLStreamException e) {
-            log.error("Exception occured when reading instance from xml stream", e);
-        } catch (FactoryConfigurationError e) {
-            log.error("Exception occured when creating reader for xml stream", e);
+        	throw new Xb4jException("Exception occured when creating XMLStreamReader from InputStream", e);
+        } finally {
+        	if (xmlStream != null) {
+        		try {
+					xmlStream.close();
+				} catch (XMLStreamException e) {
+					log.error("Exception occured when closing xml stream", e);
+				}
+        	}
         }
-        return null;
     }
     
+    /**
+     * <p>Read Java object tree from the given xml stream. At least the first start element is read, in order to determine if
+     * this {@link BindingModel} knows how to construct the given Java object tree for that element. When this {@link BindingModel}
+     * does not know how to handle the element, an {@link Xb4jException} is thrown. At least part of the xml stream will be consumed 
+     * nonetheless.</p>
+     * <p>The {@link XMLStreamReader} is not closed; that is the responsibility of the caller.</p>
+     * @param reader the xml stream reader
+     * @return the Java object tree read from the xml stream
+     * @throws Xb4jException when something went wrong during unmarshalling of the xml stream
+     */
     public Object toJava(XMLStreamReader reader) {
         RecordAndPlaybackXMLStreamReader staxReader = null;
         try {
@@ -136,14 +163,10 @@ public class BindingModel {
                 }
             }
         } catch (XMLStreamException e) {
-            log.error("Exception occured when reading instance from xml stream", e);
+        	throw new Xb4jException("Exception occured when reading from xml stream", e);
         } finally {
         	if (staxReader != null) {
-	            try {
-	                staxReader.close();
-	            } catch (XMLStreamException e) {
-	                log.error("Exception occured when closing xml stream", e);
-	            }
+                staxReader.close();
         	}
         }
         return null;

@@ -105,4 +105,10 @@ public class SimplifiedXMLStreamWriter {
         }
     }
     
+    public void close() {
+    	namespacesInContext.clear();
+    	generatedPrefixCounter = 0;
+    	staxWriter = null;	//do not close the underlying staxWriter, because we do not control it
+    }
+    
 }
