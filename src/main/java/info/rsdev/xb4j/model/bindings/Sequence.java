@@ -78,6 +78,8 @@ public class Sequence extends AbstractBindingContainer {
     	
     	UnmarshallResult result = null;
     	Object newJavaContext = newInstance();
+        attributesToJava(staxReader, select(javaContext, newJavaContext));
+
         for (IBinding child: getChildren()) {
         	result = child.toJava(staxReader, select(javaContext, newJavaContext));
         	if (!result.isUnmarshallSuccessful()) {
@@ -110,7 +112,7 @@ public class Sequence extends AbstractBindingContainer {
         return new UnmarshallResult(newJavaContext);
     }
     
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    public void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
     	if (!generatesOutput(javaContext)) { return; }
     	
         //when this Binding must not output an element, the getElement() method should return null
@@ -121,7 +123,7 @@ public class Sequence extends AbstractBindingContainer {
         boolean isEmptyElement = children.isEmpty();	//TODO: take isOptional properties into account
         //TODO: reliably determine if child bindings have output -- new API method hasContent?
         if (element != null) {
-            staxWriter.writeElement(element, isEmptyElement);
+            staxWriter.writeElement(element, getAttributes(), isEmptyElement);
         }
         
         for (IBinding child: children) {
@@ -152,7 +154,7 @@ public class Sequence extends AbstractBindingContainer {
     	}
     	
     	//At this point, the children will produce no output
-    	return (getElement() != null) && !isOptional();
+		return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
     }
     
 }

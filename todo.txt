@@ -1,16 +1,15 @@
 TODO
 ----
-- determine if childBinding in toXml will output anything to stream with hasContentlike method
 - provide converters between data types of Java/xml world for all defined xml schema data types, including facets etc.
 - allow the java instance to be constructed by a non-default constructor method
 - allow the java instance to be created through a factory method
-- simplify API
-- support attributes
-- support namespaces for attributes
+- simplify API -- where possible
+- support atributegroups
 - support any type
 - support mixed content
 - support nillable xml types
-- configure binding through xml binding file
+- support key / keyref (aka ID / IDREF) xml types
+- configure binding through xml binding file (TBD: are we gonna support this?)
 
 
 DONE
@@ -20,3 +19,4 @@ DONE
 20120229  add converter mechanism to convert Java field to and from a String
 20120306  marshall/unmarshall a java object tree
 20120309  register javaclass with namespace with bindingmodel (allow same class be registered multiple times in different namespaces)
+20120427  added rudimentary support for attributes (incl. namespaces for atrtibutes)

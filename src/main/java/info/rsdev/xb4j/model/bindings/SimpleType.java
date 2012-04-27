@@ -67,6 +67,8 @@ public class SimpleType extends AbstractBinding {
     		}
     	}
         
+        attributesToJava(staxReader, javaContext);
+
         Object value = this.converter.toObject(staxReader.getElementText());	//this also consumes the end element
         boolean isValueHandled = setProperty(javaContext, value);
         
@@ -80,7 +82,7 @@ public class SimpleType extends AbstractBinding {
     }
     
     @Override
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    public void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
     	if (!generatesOutput(javaContext)) { return; }
     			
         QName element = getElement();
@@ -91,7 +93,7 @@ public class SimpleType extends AbstractBinding {
         }
         
         if (!isOptional() || !isEmpty) {
-        	staxWriter.writeElement(element, isEmpty);	//suppress empty optional elements
+        	staxWriter.writeElement(element, getAttributes(), isEmpty);	//suppress empty optional elements
         }
         
         if (!isEmpty) {
@@ -106,7 +108,7 @@ public class SimpleType extends AbstractBinding {
     	if (javaContext != null) {
     		return true;
     	}
-    	return (getElement() != null) && !isOptional();	//suppress optional empty elements
+		return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
     }
     
     private void setConverter(IValueConverter converter) {

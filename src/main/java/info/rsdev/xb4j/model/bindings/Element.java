@@ -92,6 +92,8 @@ public class Element extends AbstractSingleBinding {
     	}
         
         Object newJavaContext = newInstance();
+        attributesToJava(staxReader, select(javaContext, newJavaContext));
+    	
     	IBinding childBinding = getChildBinding();
     	UnmarshallResult result = null;
     	if (childBinding != null) {
@@ -131,7 +133,7 @@ public class Element extends AbstractSingleBinding {
     }
     
     @Override
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    public void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
     	if (!generatesOutput(javaContext)) { return; }
     	
         //mixed content is not yet supported -- there are either child elements or there is content
@@ -141,7 +143,7 @@ public class Element extends AbstractSingleBinding {
         boolean isEmpty = (child == null) || !child.generatesOutput(getProperty(javaContext));
         boolean outputElement = ((element != null) && (!isOptional() || !isEmpty));
         if (outputElement) {
-        	staxWriter.writeElement(element, isEmpty);
+        	staxWriter.writeElement(element, getAttributes(), isEmpty);
         }
         
         if (!isEmpty) {
@@ -164,7 +166,7 @@ public class Element extends AbstractSingleBinding {
     	}
     	
 		//At this point, the childBinding will have no output
-		return (getElement() != null) && !isOptional();	//suppress optional empty elements
+		return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
     }
     
 }

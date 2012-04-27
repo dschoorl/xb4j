@@ -15,14 +15,24 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
+import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 /**
  *
@@ -39,6 +49,8 @@ public abstract class AbstractBinding implements IBinding {
     private ISetter setter = null;
     
     private IBinding parent = null;
+    
+    private List<Attribute> attributes = null;
     
     private boolean isOptional = false; //by default, everything is mandatory, unless explicitly made optional
     
@@ -73,7 +85,44 @@ public abstract class AbstractBinding implements IBinding {
         this.getter = original.getter;
         this.setter = original.setter;
         this.isOptional = original.isOptional;
+        if (original.attributes != null) {
+        	this.attributes = new LinkedList<Attribute>(original.attributes);
+        }
         this.parent = null;    //clear parent, so that copy can be used in another binding hierarchy
+    }
+    
+    @Override
+    public IBinding addAttribute(Attribute attribute, String fieldName) {
+    	if (attribute == null) {
+    		throw new NullPointerException(String.format("Attribute cannot be null (binding=%s)", this));
+    	}
+    	if (getElement() == null) {
+    		throw new Xb4jException(String.format("No element defined to bind attributes to (binding=%s)", this));
+    	}
+    	Collection<Attribute> attributes = getAttributes();
+    	if (attributes.contains(attribute)) {
+    		throw new Xb4jException(String.format("Attribute %s already defined (binding=%s)", attribute, this));
+    	}
+        if (fieldName == null) {
+        	throw new NullPointerException("Fieldname cannot be null");
+        }
+        FieldAccessProvider provider = new FieldAccessProvider(fieldName);
+        attribute.setGetter(provider);
+        attribute.setSetter(provider);
+    	attributes.add(attribute);
+    	return this;
+    }
+    
+    public Collection<Attribute> getAttributes() {
+    	if ((this.attributes == null) && (getElement() != null)) {
+    		//only create new collection, when there is an element to bind them to
+    		this.attributes = new LinkedList<Attribute>();
+    	}
+    	return this.attributes;
+    }
+    
+    public boolean hasAttributes() {
+    	return (this.attributes != null) && !this.attributes.isEmpty();
     }
     
     public QName getElement() {
@@ -201,6 +250,40 @@ public abstract class AbstractBinding implements IBinding {
     public IBinding setOptional(boolean isOptional) {
         this.isOptional = isOptional;
         return this;
+    }
+    
+    @Override
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    	//This class provides a default implementation - template style
+    	elementToXml(staxWriter, javaContext);
+    	attributesToXml(staxWriter, javaContext);
+    }
+    
+    public abstract void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException;
+    
+    public void attributesToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    	if ((attributes != null) && !attributes.isEmpty()) {
+    		for (Attribute attribute: this.attributes) {
+    			attribute.toXml(staxWriter, javaContext, getElement());
+    		}
+    	}
+    }
+    
+    public void attributesToJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    	Collection<Attribute> expectedAttributes = getAttributes();
+    	if ((expectedAttributes != null) && !expectedAttributes.isEmpty()) {
+    		Map<QName, String> attributes = staxReader.getAttributes();
+    		if (attributes != null) {
+    			attributes = new HashMap<QName, String>(attributes);	//copy attributes that were encountered in xml
+    			for (Attribute attribute: expectedAttributes) {
+    				if (!attributes.containsKey(attribute.getAttributeName()) && attribute.isRequired()) {
+    					throw new Xb4jException(String.format("%s is required but not found in xml for %s", attribute, this));
+    				}
+    				String value = attributes.get(attribute.getAttributeName());
+    				attribute.toJava(value, javaContext);
+    			}
+    		}
+    	}
     }
     
     @Override

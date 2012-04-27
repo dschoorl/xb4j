@@ -112,6 +112,8 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 
 	public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 		Object newJavaContext = newInstance();
+        attributesToJava(staxReader, select(javaContext, newJavaContext));
+
 		UnmarshallResult result = getChildBinding().toJava(staxReader, select(javaContext, newJavaContext));
 		if (!result.isUnmarshallSuccessful()) {
 			return result;
@@ -136,7 +138,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 	}
 	
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+	public void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
 		if (!generatesOutput(javaContext)) { return; }
 		
         //mixed content is not yet supported -- there are either child elements or there is content
@@ -146,7 +148,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
         boolean isEmpty = (child == null) || !child.generatesOutput(javaContext);
         boolean outputElement = ((element != null) && (!isOptional() || !isEmpty));
         if (outputElement) {
-        	staxWriter.writeElement(element, isEmpty);
+        	staxWriter.writeElement(element, getAttributes(), isEmpty);
         }
         
         if (!isEmpty) {
@@ -169,7 +171,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     	}
     	
 		//At this point, the childBinding will have no output
-		return (getElement() != null) && !isOptional();	//suppress optional empty elements
+		return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
     }
     
     /**

@@ -17,8 +17,10 @@ package info.rsdev.xb4j.model.util;
 import info.rsdev.xb4j.exceptions.Xb4jException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -180,6 +182,13 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     public boolean isAtElement() {
     	int currentEvent = getEvent();
     	return currentEvent==XMLStreamConstants.START_ELEMENT||currentEvent==XMLStreamConstants.END_ELEMENT;
+    }
+    
+    public Map<QName, String> getAttributes() {
+    	if (currentEvent != null) {
+    		return currentEvent.attributes;
+    	}
+    	return null;
     }
     
     public String getEventName() {
@@ -423,6 +432,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         private QName name = null;
         private int eventType = -1;
         private String text = null;
+        private Map<QName, String> attributes = null;
         
         private ParseEventData(int eventType, String elementText, Location location) {
             this.eventType = eventType;
@@ -430,19 +440,28 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
             this.location = location;
         }
         
-        private ParseEventData(int eventType, QName elementName, Location location) {
+        private ParseEventData(int eventType, QName elementName, Map<QName, String> attributes, Location location) {
             this.eventType = eventType;
             this.name = elementName;
             this.location = location;
+            this.attributes = attributes;
         }
         
         private static ParseEventData newParseEventData(int eventType, XMLStreamReader staxReader) throws XMLStreamException {
             if ((eventType != START_ELEMENT) && (eventType != END_ELEMENT)) {
                 throw new XMLStreamException("This type of event is currently unsupported: "+eventType);
             }
-            
-            ParseEventData eventData = new ParseEventData(eventType, staxReader.getName(), staxReader.getLocation());
-            //TODO: possibly set more data
+            Map<QName, String> attributes = null;
+            if (eventType == START_ELEMENT) {
+            	int attributeCount = staxReader.getAttributeCount();
+            	if (attributeCount > 0) {
+            		attributes = new HashMap<QName, String>(attributeCount);
+	            	for (int i=0; i < attributeCount; i++) {
+	            		attributes.put(staxReader.getAttributeName(i), staxReader.getAttributeValue(i));
+	            	}
+            	}
+            }
+            ParseEventData eventData = new ParseEventData(eventType, staxReader.getName(), attributes, staxReader.getLocation());
             return eventData;
         }
         

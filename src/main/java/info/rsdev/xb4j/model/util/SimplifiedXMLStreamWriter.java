@@ -14,7 +14,9 @@
  */
 package info.rsdev.xb4j.model.util;
 
-import java.util.HashMap;
+import info.rsdev.xb4j.model.bindings.Attribute;
+
+import java.util.Collection;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -22,28 +24,24 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 public class SimplifiedXMLStreamWriter {
+	
+	private static final String EMPTY = "";
 
-    private static final String DEFAULT_NS_PREFIX = "ns"; 
-    
-    private int generatedPrefixCounter = 0;
-    
     private XMLStreamWriter staxWriter = null;
     
-    /**
-     * keys are namespaceUri's and values are prefixes
-     */
-    private HashMap<String, String> namespacesInContext = new HashMap<String, String>();
+    private NamespaceContext namespaceContext = new NamespaceContext();
     
     public SimplifiedXMLStreamWriter(XMLStreamWriter staxWriter) {
         if (staxWriter == null) {
             throw new NullPointerException("XMLStreamWriter cannot be null");
         }
         this.staxWriter = staxWriter;
+        staxWriter.getNamespaceContext();
     }
     
-    public void writeElement(QName element, boolean isEmptyElement) throws XMLStreamException {
+    public void writeElement(QName element, Collection<Attribute> attributes, boolean isEmptyElement) throws XMLStreamException {
         String namespace = element.getNamespaceURI();
-        boolean nsIsKnown = namespacesInContext.containsKey(namespace);
+        boolean nsIsKnown = namespaceContext.isRegistered(namespace);
         if (namespace.equals(XMLConstants.NULL_NS_URI)) {
             if (isEmptyElement) {
                 staxWriter.writeEmptyElement(element.getLocalPart());
@@ -51,7 +49,7 @@ public class SimplifiedXMLStreamWriter {
                 staxWriter.writeStartElement(element.getLocalPart());
             }
         } else {
-            String prefix = getAndPutPrefix(namespace, element.getPrefix());
+            String prefix = namespaceContext.registerNamespace(element);
             if (isEmptyElement) {
                 if (nsIsKnown) {
                     staxWriter.writeEmptyElement(namespace, element.getLocalPart());
@@ -71,32 +69,29 @@ public class SimplifiedXMLStreamWriter {
         }
     }
     
-    public void closeElement(QName element) throws XMLStreamException {
-        staxWriter.writeEndElement();
-        String namespace = element.getNamespaceURI();
-        boolean nsIsKnown = namespacesInContext.containsKey(namespace);
-        if (!nsIsKnown && (namespace != null)) {
-            namespacesInContext.remove(namespace);
-        }
-    }
-
-    private String getAndPutPrefix(String namespaceUri, String suggestedPrefix) {
-        String prefix = null;
-        if (namespaceUri != null) {
-            prefix = this.namespacesInContext.get(namespaceUri);
-            if (prefix == null) {
-                if ((suggestedPrefix != null) && !this.namespacesInContext.containsValue(suggestedPrefix)) {
-                    prefix = suggestedPrefix;
-                } else {
-                    do {
-                        prefix = DEFAULT_NS_PREFIX + this.generatedPrefixCounter;
-                        this.generatedPrefixCounter++;
-                    } while (!this.namespacesInContext.containsValue(prefix));
-                }
-                this.namespacesInContext.put(namespaceUri, prefix);
+    public void writeAttribute(QName elementName, QName attributeName, String value) throws XMLStreamException {
+    	if (value == null) { value = EMPTY; }
+        String namespace = attributeName.getNamespaceURI();
+        boolean nsIsKnown = namespaceContext.isRegistered(namespace);
+        if (namespace.equals(XMLConstants.NULL_NS_URI)) {
+            staxWriter.writeAttribute(attributeName.getLocalPart(), value);
+        } else {
+            String prefix = namespaceContext.registerNamespace(elementName, namespace, attributeName.getPrefix());
+            if (nsIsKnown) {
+                staxWriter.writeAttribute(namespace, attributeName.getLocalPart(), value);
+            } else {
+                staxWriter.writeAttribute(prefix, namespace, attributeName.getLocalPart(), value);
+            }
+                
+            if (!nsIsKnown) {
+                staxWriter.writeNamespace(prefix, namespace);
             }
         }
-        return prefix;
+    }
+    
+    public void closeElement(QName element) throws XMLStreamException {
+        staxWriter.writeEndElement();
+        namespaceContext.unregisterNamespacesFor(element);
     }
 
     public void writeContent(String content) throws XMLStreamException {
@@ -106,8 +101,7 @@ public class SimplifiedXMLStreamWriter {
     }
     
     public void close() {
-    	namespacesInContext.clear();
-    	generatedPrefixCounter = 0;
+    	namespaceContext.clear();
     	staxWriter = null;	//do not close the underlying staxWriter, because we do not control it
     }
     

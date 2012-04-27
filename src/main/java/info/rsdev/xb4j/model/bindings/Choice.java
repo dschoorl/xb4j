@@ -62,6 +62,12 @@ public class Choice extends AbstractSingleBinding {
 		return addChoice(choice, selector);
 	}
 	
+	@Override
+	public IBinding addAttribute(Attribute attribute, String fieldName) {
+		throw new Xb4jException(String.format("You cannot add attributes to the Choice-binding itself; you must add it to " +
+				"the options instead (%s)", attribute));
+	}
+	
 	/**
 	 * Convenience method. The {@link IBinding choice} will be registered with this {@link Choice}, and an {@link InstanceOfChooser} 
 	 * will be generated for selection of this choice when marshalling. 
@@ -138,7 +144,7 @@ public class Choice extends AbstractSingleBinding {
 	}
 	
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+	public void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
 		if (!generatesOutput(javaContext)) { return; }
 		
         //mixed content is not yet supported -- there are either child elements or there is content
@@ -147,7 +153,7 @@ public class Choice extends AbstractSingleBinding {
         IBinding selected = selectBinding(javaContext);
         boolean isEmptyElement = selected == null;
         if (element != null) {
-            staxWriter.writeElement(element, isEmptyElement);
+            staxWriter.writeElement(element, getAttributes(), isEmptyElement);
         }
         
         if (selected != null) {
@@ -170,7 +176,7 @@ public class Choice extends AbstractSingleBinding {
 		}
 		
 		//At this point, there is no childBinding to output content
-		return (getElement() != null) && !isOptional();	//suppress optional empty elements
+		return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
 	}
 	
 }

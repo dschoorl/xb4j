@@ -95,6 +95,8 @@ public class Repeater extends AbstractBinding {
     		}
     	}
         
+        attributesToJava(staxReader, select(javaContext, newJavaContext));
+
         int occurences = 0;
         UnmarshallResult result = null;
         boolean proceed = true;
@@ -136,7 +138,7 @@ public class Repeater extends AbstractBinding {
 	}
 	
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+	public void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
 		if (!generatesOutput(javaContext)) { return; }
 		
         Object collection = getProperty(javaContext);
@@ -156,7 +158,7 @@ public class Repeater extends AbstractBinding {
         
         boolean isEmptyElement = (itemBinding == null) || (javaContext == null);
         if (element != null) {
-            staxWriter.writeElement(element, isEmptyElement);
+            staxWriter.writeElement(element, getAttributes(), isEmptyElement);
         }
         
         if (itemBinding != null) {
@@ -182,7 +184,7 @@ public class Repeater extends AbstractBinding {
         }
         
 		//At this point, the we established that the itemBinding will not output content
-		return (getElement() != null) && !isOptional();	//suppress optional empty elements
+		return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
 	}
 	
 	public Repeater setMaxOccurs(int newMaxOccurs) {
