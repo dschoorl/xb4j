@@ -14,25 +14,28 @@
  */
 package info.rsdev.xb4j.model.java;
 
+import java.util.Collection;
+
 import info.rsdev.xb4j.model.bindings.Choice;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 
 /**
- * Follow the option coupled with this {@link PropertyNotNullChooser}, when the java context has a matching property that is not 
- * null.
+ * Follow the option coupled with this {@link CollectionNotEmptyChooser}, when the java context has a matching property that is a 
+ * collection which has at least one element. This {@link IChooser} implementation is null safe.
  * 
  * @author Dave Schoorl
  */
-public class PropertyNotNullChooser implements IChooser {
+public class CollectionNotEmptyChooser implements IChooser {
 	
 	private FieldAccessProvider fieldAccessor = null;
 	
 	/**
-	 * Create a new {@link PropertyNotNullChooser} instance that will match the coupled option from the {@link Choice} binding 
-	 * with the java context when the context object has a field with the given fieldName that is not null.
-	 * @param fieldName the name of the field that should not be null for this {@link IChooser} to match the java context at hand
+	 * Create a new {@link CollectionNotEmptyChooser} instance that will match the coupled option from the {@link Choice} binding 
+	 * with the java context when the context object has a field with the given fieldName that is a {@link Collection} with at 
+	 * least one element (not empty).
+	 * @param fieldName the name of the field that should be a non-empty collection for this {@link IChooser} to match the java context at hand
 	 */
-	public PropertyNotNullChooser(String fieldName) {
+	public CollectionNotEmptyChooser(String fieldName) {
 		this.fieldAccessor = new FieldAccessProvider(fieldName);
 	}
 	
@@ -42,7 +45,10 @@ public class PropertyNotNullChooser implements IChooser {
 		 * and thus we respond with false */
 	    if (javaContext == null) { return false; }
 		Object fieldValue = fieldAccessor.get(javaContext);
-		return fieldValue != null;
+		boolean matches = fieldValue != null;
+		matches = matches && (fieldValue instanceof Collection<?>);
+		matches = matches && !(((Collection<?>)fieldValue).isEmpty());
+		return matches;
 	}
 	
 }

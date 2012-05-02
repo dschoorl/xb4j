@@ -18,8 +18,6 @@ import info.rsdev.xb4j.model.converter.IValueConverter;
 import info.rsdev.xb4j.model.converter.NOPConverter;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
-import info.rsdev.xb4j.model.java.constructor.ICreator;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 
 import javax.xml.namespace.QName;
@@ -33,8 +31,6 @@ public class Attribute {
 	
 	private IValueConverter converter = NOPConverter.INSTANCE;
     
-	private ICreator objectCreator = null;
-	
     private IGetter getter = null;
     
     private ISetter setter = null;
@@ -102,6 +98,11 @@ public class Attribute {
     
     public boolean isRequired() {
     	return this.isRequired;
+    }
+    
+    public Attribute setRequired(boolean isRequired) {
+    	this.isRequired = isRequired;
+    	return this;
     }
     
     @Override

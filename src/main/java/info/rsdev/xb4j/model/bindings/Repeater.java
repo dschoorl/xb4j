@@ -120,7 +120,8 @@ public class Repeater extends AbstractBinding {
         }
         
         if ((occurences == 0) && !isOptional()) {
-        	throw new Xb4jException(String.format("Mandatory collection has no content: %s", staxReader.getLocation()));
+        	throw new Xb4jException(String.format("Mandatory collection expected '%s' element items, but has no content: %s", 
+        			itemBinding.getElement(), staxReader.getLocation()));
         }
         
         //read end of enclosing collection element (if defined)
