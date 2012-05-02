@@ -25,6 +25,7 @@ import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -204,7 +205,7 @@ public abstract class AbstractBinding implements IBinding {
     		throw new NullPointerException("Parent IBinding cannot be null");
     	}
     	if ((this.parent != null) && !this.parent.equals(parent)) {
-    	    throw new IllegalArgumentException(String.format("This binding '%s' is already is part of a binding tree.", this));
+    	    throw new IllegalArgumentException(String.format("This binding '%s' is already part of a binding tree.", this));
     	}
     	this.parent = parent;
     }
@@ -288,10 +289,43 @@ public abstract class AbstractBinding implements IBinding {
     
     @Override
     public String toString() {
-        String fqClassName = getClass().getName();
-        int dotIndex = Math.max(0, fqClassName.lastIndexOf('.') + 1);
-        String typename = (getJavaType()==null?null:getJavaType().getName());
-        return String.format("%s[element=%s, javaType=%s]", fqClassName.substring(dotIndex), getElement(), typename);
+    	StringBuffer sb = new StringBuffer();
+    	sb.append(getClass().getSimpleName()).append("[");
+    	String separator = "";
+    	QName element = getElement();
+    	if (element != null) {
+    		sb.append(separator).append("element=");
+    		sb.append(element.toString());
+    		separator = ",";
+    	}
+    	Class<?> collectionType = getJavaType();
+    	if (collectionType != null) {
+    		sb.append(separator).append("javaType=").append(collectionType.getName());
+    		separator = ",";
+    	}
+    	
+    	sb.append(separator).append("path=").append(getPath()).append("]");
+        return sb.toString();
+    }
+    
+    @Override
+    public String getPath() {
+    	List<String> pathToRoot = new ArrayList<String>();
+    	IBinding binding = this;
+    	while (binding != null) {
+    		String bindingType = binding.getClass().getSimpleName();
+    		if (binding.getElement() != null) {
+    			bindingType = bindingType.concat("<").concat(binding.getElement().getLocalPart()).concat(">");
+    		}
+   			pathToRoot.add(bindingType);
+    		binding = binding.getParent();
+    	}
+    	
+    	StringBuffer sb = new StringBuffer();
+    	for (int i=pathToRoot.size() - 1; i >= 0; i--) {
+    		sb.append("/").append(pathToRoot.get(i));
+    	}
+    	return sb.toString();
     }
 
 	@Override

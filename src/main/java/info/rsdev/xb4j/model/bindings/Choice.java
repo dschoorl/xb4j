@@ -53,6 +53,12 @@ public class Choice extends AbstractSingleBinding {
 		super(new DefaultElementFetchStrategy(element), null);
     }
     
+	@Override
+	public IBinding addAttribute(Attribute attribute, String fieldName) {
+		throw new Xb4jException(String.format("You cannot add attributes to the Choice-binding itself; you must add it to " +
+				"the options instead (%s)", attribute));
+	}
+	
 	public IBinding addChoice(IBinding choice, String fieldName, IChooser selector) {
 		//Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
 		FieldAccessProvider provider = new FieldAccessProvider(fieldName);
@@ -60,12 +66,6 @@ public class Choice extends AbstractSingleBinding {
 		choice.setSetter(provider);
 		
 		return addChoice(choice, selector);
-	}
-	
-	@Override
-	public IBinding addAttribute(Attribute attribute, String fieldName) {
-		throw new Xb4jException(String.format("You cannot add attributes to the Choice-binding itself; you must add it to " +
-				"the options instead (%s)", attribute));
 	}
 	
 	/**
@@ -126,13 +126,13 @@ public class Choice extends AbstractSingleBinding {
 					if (setProperty(javaContext, result.getUnmarshalledObject())) {
 						result.setHandled();
 					}
-					break;	//TODO: check ambiguity?
 				}
+				break;	//TODO: check ambiguity?
 			}
 		}
 		
 		if (!choiceFound && !isOptional()) {
-			return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR, String.format("No matching choice found for mandatory binding: ", this), this);
+			return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR, String.format("No matching option found in xml for mandatory %s", this), this);
 		}
 		
         if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {

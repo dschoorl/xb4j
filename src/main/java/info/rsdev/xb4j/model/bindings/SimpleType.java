@@ -125,7 +125,7 @@ public class SimpleType extends AbstractBinding {
 
     @Override
     public String toString() {
-        return String.format("SimpleType[element=%s]", getElement());
+        return String.format("SimpleType[path=%s]", getPath());
     }
     
 }

@@ -105,9 +105,7 @@ public class Reference extends Element {
     @Override
     public String toString() {
         if (this.identifier != null) {
-            String fqClassName = getClass().getName();
-            int dotIndex = Math.max(0, fqClassName.lastIndexOf('.') + 1);
-            return String.format("%s[references complexType: identifier=%s, namespace=%s]", fqClassName.substring(dotIndex), identifier, namespaceUri);
+            return String.format("%s[references complexType: identifier=%s, namespace=%s]", getClass().getSimpleName(), identifier, namespaceUri);
         } else {
             return super.toString();
         }

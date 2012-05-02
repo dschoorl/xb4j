@@ -115,13 +115,12 @@ public class Repeater extends AbstractBinding {
         }
         
         //determine if the childBinding has no more occurences or whether the xml fragment of the childBinding is incomplete
-        if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode()) && !result.getBindingWithError().equals(itemBinding)) {
+        if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode()) && !result.getBindingWithError().equals(resolveItemBinding(itemBinding))) {
         	return result;
         }
         
         if ((occurences == 0) && !isOptional()) {
-        	throw new Xb4jException(String.format("Mandatory collection expected '%s' element items, but has no content: %s", 
-        			itemBinding.getElement(), staxReader.getLocation()));
+        	throw new Xb4jException(String.format("Mandatory %s has no content: %s", this, staxReader.getLocation()));
         }
         
         //read end of enclosing collection element (if defined)
@@ -136,6 +135,37 @@ public class Repeater extends AbstractBinding {
         	isHandled = setProperty(javaContext, collection);
         }
 		return new UnmarshallResult(newJavaContext, isHandled);
+	}
+	
+	/**
+	 * Get the binding for the items in this collection. Normally, this is {@link #itemBinding} defined on this {@link Repeater},
+	 * but that could be a {@link Reference}, in which case we need to look a little further to find the real {@link IBinding} for 
+	 * the collection items.
+	 * @return the {@link IBinding} for the collection items
+	 */
+	private IBinding resolveItemBinding(IBinding itemBinding) {
+		if (!(itemBinding instanceof Reference)) {
+			return itemBinding;
+		}
+		
+		if (itemBinding.getElement() != null) {
+			return itemBinding;	//the element name is defined on the Reference
+		}
+		
+		Reference reference = (Reference)itemBinding;
+		itemBinding = reference.getChildBinding();	//itemBinding now is a ComplexType
+		if (itemBinding.getElement() != null) {
+			return itemBinding;	//the element name is defined in the ComplexType
+		}
+		
+		itemBinding = ((ComplexType)itemBinding).getChildBinding();
+		if (itemBinding instanceof Reference) {
+			if (reference.equals(itemBinding)) {
+				throw new Xb4jException("Encountered cirsular reference; Reference pointing to itself: ".concat(reference.toString()));
+			}
+			return resolveItemBinding(itemBinding);	//silly situation: a Reference pointing to a Reference, but support it anyway
+		}
+		return itemBinding;
 	}
 	
 	@Override
@@ -195,5 +225,30 @@ public class Repeater extends AbstractBinding {
 		this.maxOccurs = newMaxOccurs;
 		return this;
 	}
+	
+    @Override
+    public String toString() {
+    	StringBuffer sb = new StringBuffer();
+    	sb.append(getClass().getSimpleName()).append("[");
+    	String separator = "";
+    	QName element = getElement();
+    	if (element != null) {
+    		sb.append(separator).append("element=");
+    		sb.append(element.toString());
+    		separator = ",";
+    	}
+    	Class<?> collectionType = getJavaType();
+    	if (collectionType != null) {
+    		sb.append(separator).append("collectionType=").append(collectionType.getName());
+    		separator = ",";
+    	}
+    	IBinding item = resolveItemBinding(itemBinding);
+    	if (item != null) {
+    		sb.append(separator).append("item=").append(item.toString());
+    		separator = ",";
+    	}
+    	sb.append("]");
+        return sb.toString();
+    }
 	
 }

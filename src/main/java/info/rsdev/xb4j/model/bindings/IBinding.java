@@ -80,4 +80,7 @@ public interface IBinding {
     public int hashCode();
     
     public boolean equals(Object obj);
+    
+    public String getPath();
+    
 }
