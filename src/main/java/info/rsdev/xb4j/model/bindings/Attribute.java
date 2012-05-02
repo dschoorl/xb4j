@@ -64,7 +64,12 @@ public class Attribute {
         QName attributeName = getAttributeName();
         String value = this.converter.toText(getProperty(javaContext));
         if (isRequired || (value != null)) {
-			staxWriter.writeAttribute(elementName, attributeName, value);
+        	try {
+        		staxWriter.writeAttribute(elementName, attributeName, value);
+        	} catch(XMLStreamException e) {
+        		System.out.printf("Error writing attribute %s for element %s%n", attributeName, elementName);
+        		throw e;
+        	}
         }
     }
     

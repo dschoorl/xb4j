@@ -82,7 +82,7 @@ public class SimpleType extends AbstractBinding {
     }
     
     @Override
-    public void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
     	if (!generatesOutput(javaContext)) { return; }
     			
         QName element = getElement();
@@ -93,7 +93,8 @@ public class SimpleType extends AbstractBinding {
         }
         
         if (!isOptional() || !isEmpty) {
-        	staxWriter.writeElement(element, getAttributes(), isEmpty);	//suppress empty optional elements
+        	staxWriter.writeElement(element, isEmpty);	//suppress empty optional elements
+            attributesToXml(staxWriter, javaContext);
         }
         
         if (!isEmpty) {

@@ -144,7 +144,7 @@ public class Choice extends AbstractSingleBinding {
 	}
 	
 	@Override
-	public void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
 		if (!generatesOutput(javaContext)) { return; }
 		
         //mixed content is not yet supported -- there are either child elements or there is content
@@ -153,7 +153,8 @@ public class Choice extends AbstractSingleBinding {
         IBinding selected = selectBinding(javaContext);
         boolean isEmptyElement = selected == null;
         if (element != null) {
-            staxWriter.writeElement(element, getAttributes(), isEmptyElement);
+            staxWriter.writeElement(element, isEmptyElement);
+            attributesToXml(staxWriter, javaContext);
         }
         
         if (selected != null) {

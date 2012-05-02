@@ -169,7 +169,7 @@ public class Repeater extends AbstractBinding {
 	}
 	
 	@Override
-	public void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
 		if (!generatesOutput(javaContext)) { return; }
 		
         Object collection = getProperty(javaContext);
@@ -189,7 +189,8 @@ public class Repeater extends AbstractBinding {
         
         boolean isEmptyElement = (itemBinding == null) || (javaContext == null);
         if (element != null) {
-            staxWriter.writeElement(element, getAttributes(), isEmptyElement);
+            staxWriter.writeElement(element, isEmptyElement);
+            attributesToXml(staxWriter, javaContext);
         }
         
         if (itemBinding != null) {

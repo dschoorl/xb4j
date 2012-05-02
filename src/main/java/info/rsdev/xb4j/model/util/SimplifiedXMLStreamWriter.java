@@ -39,7 +39,7 @@ public class SimplifiedXMLStreamWriter {
         staxWriter.getNamespaceContext();
     }
     
-    public void writeElement(QName element, Collection<Attribute> attributes, boolean isEmptyElement) throws XMLStreamException {
+    public void writeElement(QName element, boolean isEmptyElement) throws XMLStreamException {
         String namespace = element.getNamespaceURI();
         boolean nsIsKnown = namespaceContext.isRegistered(namespace);
         if (namespace.equals(XMLConstants.NULL_NS_URI)) {

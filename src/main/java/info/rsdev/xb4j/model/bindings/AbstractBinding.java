@@ -253,15 +253,6 @@ public abstract class AbstractBinding implements IBinding {
         return this;
     }
     
-    @Override
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
-    	//This class provides a default implementation - template style
-    	elementToXml(staxWriter, javaContext);
-    	attributesToXml(staxWriter, javaContext);
-    }
-    
-    public abstract void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException;
-    
     public void attributesToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
     	if ((attributes != null) && !attributes.isEmpty()) {
     		for (Attribute attribute: this.attributes) {

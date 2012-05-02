@@ -112,7 +112,7 @@ public class Sequence extends AbstractBindingContainer {
         return new UnmarshallResult(newJavaContext);
     }
     
-    public void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
     	if (!generatesOutput(javaContext)) { return; }
     	
         //when this Binding must not output an element, the getElement() method should return null
@@ -123,7 +123,8 @@ public class Sequence extends AbstractBindingContainer {
         boolean isEmptyElement = children.isEmpty();	//TODO: take isOptional properties into account
         //TODO: reliably determine if child bindings have output -- new API method hasContent?
         if (element != null) {
-            staxWriter.writeElement(element, getAttributes(), isEmptyElement);
+            staxWriter.writeElement(element, isEmptyElement);
+            attributesToXml(staxWriter, javaContext);
         }
         
         for (IBinding child: children) {

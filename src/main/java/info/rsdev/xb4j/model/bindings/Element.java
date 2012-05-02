@@ -133,7 +133,7 @@ public class Element extends AbstractSingleBinding {
     }
     
     @Override
-    public void elementToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
     	if (!generatesOutput(javaContext)) { return; }
     	
         //mixed content is not yet supported -- there are either child elements or there is content
@@ -143,7 +143,8 @@ public class Element extends AbstractSingleBinding {
         boolean isEmpty = (child == null) || !child.generatesOutput(getProperty(javaContext));
         boolean outputElement = ((element != null) && (!isOptional() || !isEmpty));
         if (outputElement) {
-        	staxWriter.writeElement(element, getAttributes(), isEmpty);
+        	staxWriter.writeElement(element, isEmpty);
+            attributesToXml(staxWriter, javaContext);
         }
         
         if (!isEmpty) {
