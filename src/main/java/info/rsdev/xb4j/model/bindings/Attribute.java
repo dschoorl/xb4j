@@ -39,9 +39,16 @@ public class Attribute {
 	
 	private boolean isRequired = false;
 	
+	private String defaultValue = null;
+	
     public Attribute(QName attributeName) {
     	setAttributeName(attributeName);
     	setConverter(NOPConverter.INSTANCE);
+    }
+    
+    public Attribute(QName attributeName, IValueConverter converter) {
+    	setAttributeName(attributeName);
+    	setConverter(converter);
     }
     
     public QName getAttributeName() {
@@ -56,6 +63,9 @@ public class Attribute {
     }
     
     public void toJava(String valueAsText, Object javaContext) throws XMLStreamException {
+    	if ((valueAsText == null) && (this.defaultValue != null)) {
+    		valueAsText = this.defaultValue;
+    	}
         Object value = this.converter.toObject(valueAsText);
         setProperty(javaContext, value);
     }
@@ -63,6 +73,9 @@ public class Attribute {
     public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext, QName elementName) throws XMLStreamException {
         QName attributeName = getAttributeName();
         String value = this.converter.toText(getProperty(javaContext));
+        if ((value == null) && (defaultValue != null)) {
+        	value = defaultValue;
+        }
         if (isRequired || (value != null)) {
         	try {
         		staxWriter.writeAttribute(elementName, attributeName, value);
@@ -75,7 +88,7 @@ public class Attribute {
     
     public Object getProperty(Object contextInstance) {
     	if (contextInstance == null) {
-    		return null;
+    		return defaultValue;
     	}
         return this.getter.get(contextInstance);
     }
@@ -107,6 +120,14 @@ public class Attribute {
     
     public Attribute setRequired(boolean isRequired) {
     	this.isRequired = isRequired;
+    	return this;
+    }
+    
+    public Attribute setDefault(String defaultValue) {
+    	if (defaultValue == null) {
+    		throw new NullPointerException("No value provided for default value");
+    	}
+    	this.defaultValue = defaultValue;
     	return this;
     }
     
