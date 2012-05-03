@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.java.IChooser;
 import info.rsdev.xb4j.model.java.InstanceOfChooser;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
@@ -30,6 +31,9 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * From the children in this group, only one can be choosen. However, a choice can be placed in a {@link Sequence} and
  * be repeatable.
@@ -37,6 +41,8 @@ import javax.xml.stream.XMLStreamException;
  * @author Dave Schoorl
  */
 public class Choice extends AbstractSingleBinding {
+	
+	private Logger logger = LoggerFactory.getLogger(Choice.class);
 	
 	private List<IBinding> choices = new LinkedList<IBinding>();
 	private List<IChooser> choosers = new LinkedList<IChooser>();
@@ -92,8 +98,18 @@ public class Choice extends AbstractSingleBinding {
 	
 	private IBinding selectBinding(Object javaContext) {
 		for (int i=0; i<choosers.size(); i++) {
-			if (choosers.get(i).matches(javaContext)) {
-				return choices.get(i);
+			IChooser candidate = choosers.get(i);
+			if (logger.isDebugEnabled()) {
+				logger.debug(String.format("[Marshal] Trying option %d (%s) of %s", i+1, candidate, this));
+			}
+			if (candidate.matches(javaContext)) {
+				IBinding selectedBinding = choices.get(i);
+				if (logger.isDebugEnabled()) {
+					logger.debug(String.format("[Marshal] Option %d (%s) selected, taking route: %s", i+1, candidate, selectedBinding));
+				}
+				return selectedBinding;
+			} else if (logger.isDebugEnabled()) {
+				logger.debug(String.format("[Marshal] Option %d (%s) is not a match for %s:", i+1, candidate, this));
 			}
 		}
 		
@@ -118,17 +134,27 @@ public class Choice extends AbstractSingleBinding {
         //Should we start recording to return to this element when necessary - currently this is responsibility of choices
         boolean choiceFound = false;
         UnmarshallResult result = null;
+        int optionCounter = 1;
 		for (IBinding candidate: choices) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(String.format("[Unmarshal] Trying option %d of %s", optionCounter, this));
+			}
 			result = candidate.toJava(staxReader, getProperty(javaContext));
 			if (result.isUnmarshallSuccessful()) {
 				choiceFound = true;
+				if (logger.isDebugEnabled()) {
+					logger.debug(String.format("[Unmarshal] Option %d for %s works out fine -- won't look any further", optionCounter, this));
+				}
 				if (result.mustHandleUnmarshalledObject()) {
 					if (setProperty(javaContext, result.getUnmarshalledObject())) {
 						result.setHandled();
 					}
 				}
 				break;	//TODO: check ambiguity?
+			} else if (logger.isDebugEnabled()) {
+				logger.debug(String.format("[Unmarshal] Option %d is not a match for %s: %s", optionCounter, this, result.getErrorMessage()));
 			}
+			optionCounter++;
 		}
 		
 		if (!choiceFound && !isOptional()) {
@@ -137,8 +163,8 @@ public class Choice extends AbstractSingleBinding {
 		
         if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
-    		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
-    				staxReader.getEventName(), encountered));
+    		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+    				staxReader.getEventName(), encountered), this);
         }
 		return result;
 	}
@@ -168,6 +194,12 @@ public class Choice extends AbstractSingleBinding {
 	
 	@Override
 	public boolean generatesOutput(Object javaContext) {
+		//a quick check: when the element is not optional or it has attributes, generate output, regardless if the element has content
+		if ((getElement() != null) && (hasAttributes() || !isOptional())) {
+			return true;
+		}
+		
+		//check if the element has any contents
         javaContext = getProperty(javaContext);
 		if (javaContext != null) {
 			IBinding child = selectBinding(javaContext);
@@ -176,8 +208,7 @@ public class Choice extends AbstractSingleBinding {
 			}
 		}
 		
-		//At this point, there is no childBinding to output content
-		return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
+		return false;
 	}
 	
 }

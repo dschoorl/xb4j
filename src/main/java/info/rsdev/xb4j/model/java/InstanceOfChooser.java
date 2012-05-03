@@ -43,8 +43,6 @@ public class InstanceOfChooser implements IChooser {
 	
 	@Override
 	public String toString() {
-        String fqClassName = getClass().getName();
-        int dotIndex = Math.max(0, fqClassName.lastIndexOf('.') + 1);
-        return String.format("%s[type=%s]", fqClassName.substring(dotIndex), this.instanceOf.getName());
+        return String.format("%s[type=%s]", getClass().getSimpleName(), this.instanceOf.getName());
 	}
 }

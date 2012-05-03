@@ -14,7 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
@@ -123,8 +123,8 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 				if (newJavaContext == null) {
 					return result;
 				} else {
-					throw new Xb4jException(String.format("Unmarshalled value '%s' is not set in the java context %s and will be " +
-							"lost. Please check your bindings: %s", result.getUnmarshalledObject(), javaContext, this));
+					throw new Xb4jUnmarshallException(String.format("Unmarshalled value '%s' is not set in the java context %s and will be " +
+							"lost. Please check your bindings: %s", result.getUnmarshalledObject(), javaContext, this), this);
 				}
 			}
     	} else {

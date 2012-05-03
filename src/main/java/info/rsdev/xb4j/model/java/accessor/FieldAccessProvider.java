@@ -120,6 +120,8 @@ public class FieldAccessProvider implements ISetter, IGetter {
 		return true;
 	}
 	
-	
+	public String getFieldname() {
+		return this.fieldName;
+	}
 
 }

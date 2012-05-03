@@ -21,7 +21,7 @@ import info.rsdev.xb4j.model.bindings.IBinding;
  * 
  * @author Dave Schoorl
  */
-public class Xb4jUnmarshallException extends Xb4jException {
+public class Xb4jMarshallException extends Xb4jException {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -33,12 +33,12 @@ public class Xb4jUnmarshallException extends Xb4jException {
 	@SuppressWarnings("unused")
 	private transient IBinding bindingContext = null; 
 
-	public Xb4jUnmarshallException(String message, IBinding binding) {
+	public Xb4jMarshallException(String message, IBinding binding) {
 		super(message);
 		this.bindingContext = binding;
 	}
 
-	public Xb4jUnmarshallException(String message, IBinding binding, Throwable cause) {
+	public Xb4jMarshallException(String message, IBinding binding, Throwable cause) {
 		super(message, cause);
 		this.bindingContext = binding;
 	}

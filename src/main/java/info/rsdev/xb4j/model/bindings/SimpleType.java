@@ -14,7 +14,8 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
+import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.converter.IValueConverter;
 import info.rsdev.xb4j.model.converter.NOPConverter;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
@@ -74,8 +75,8 @@ public class SimpleType extends AbstractBinding {
         
     	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
-    		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
-    				staxReader.getEventName(), encountered));
+    		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+    				staxReader.getEventName(), encountered), this);
         }
         
         return new UnmarshallResult(value, isValueHandled);
@@ -89,7 +90,7 @@ public class SimpleType extends AbstractBinding {
         javaContext = getProperty(javaContext);
         boolean isEmpty = (javaContext == null);
         if (isEmpty && !isOptional()) {	//TODO: check if element is nillable and output nill value for this element
-        	throw new Xb4jException(String.format("No content for mandatory element %s", element));	//this does not support an empty element
+        	throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
         }
         
         if (!isOptional() || !isEmpty) {

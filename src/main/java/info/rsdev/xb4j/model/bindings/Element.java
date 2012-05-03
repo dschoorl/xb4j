@@ -14,7 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
@@ -108,8 +108,8 @@ public class Element extends AbstractSingleBinding {
     	//before processing the result of the unmarshalling, first check if the xml is wellformed
     	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
-    		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered %s %s", expectedElement,
-    				staxReader.getEventName(), encountered));
+    		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered %s %s", expectedElement,
+    				staxReader.getEventName(), encountered), this);
     	}
         
     	//process the UnmarshallResult
@@ -119,7 +119,7 @@ public class Element extends AbstractSingleBinding {
     			if (newJavaContext == null) { 
     				return result;
     			} else {
-    				throw new Xb4jException("Unmarshalled object not set in Java context: "+result.getUnmarshalledObject());
+    				throw new Xb4jUnmarshallException("Unmarshalled object not set in Java context: "+result.getUnmarshalledObject(), this);
     			}
 			}
     	} else {

@@ -45,4 +45,13 @@ public class PropertyNotNullChooser implements IChooser {
 		return fieldValue != null;
 	}
 	
+	@Override
+	public String toString() {
+		String fieldname = null;
+		if (fieldAccessor != null) {
+			fieldname = fieldAccessor.getFieldname();
+		}
+		return String.format("%s[field=%s]", getClass().getSimpleName(), fieldname);
+	}
+	
 }

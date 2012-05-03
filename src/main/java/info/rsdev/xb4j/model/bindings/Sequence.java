@@ -101,8 +101,8 @@ public class Sequence extends AbstractBindingContainer {
     	//before processing the result of the unmarshalling, first check if the xml is wellformed
     	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
-    		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
-    				staxReader.getEventName(), encountered));
+    		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+    				staxReader.getEventName(), encountered), this);
     	}
     	
 		//or set the newly created Java object int he current Java context

@@ -15,6 +15,8 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
+import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.java.accessor.MethodSetter;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
@@ -77,7 +79,7 @@ public class Repeater extends AbstractBinding {
         Object collection = select(javaContext, newJavaContext);
         
         if (!(collection instanceof Collection<?>)) {
-            throw new Xb4jException(String.format("Not a Collection: %s", collection));
+            throw new Xb4jUnmarshallException(String.format("Not a Collection: %s", collection), this);
         }
         
         //read enclosing collection element (if defined)
@@ -109,7 +111,7 @@ public class Repeater extends AbstractBinding {
             if (proceed) {
             	occurences++;
             	if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
-            		throw new Xb4jException(String.format("Found %d occurences, but no mare than %d are allowed", occurences, maxOccurs));
+            		throw new Xb4jUnmarshallException(String.format("Found %d occurences, but no mare than %d are allowed", occurences, maxOccurs), this);
             	}
             }
         }
@@ -120,14 +122,15 @@ public class Repeater extends AbstractBinding {
         }
         
         if ((occurences == 0) && !isOptional()) {
-        	throw new Xb4jException(String.format("Mandatory %s has no content: %s", this, staxReader.getLocation()));
+        	return new UnmarshallResult(UnmarshallResult.MISSING_MANDATORY_ERROR, String.format("Mandatory %s has no content: %s", 
+        			this, staxReader.getLocation()), this);
         }
         
         //read end of enclosing collection element (if defined)
         if ((collectionElement != null) && !staxReader.isAtElementEnd(collectionElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
-    		throw new Xb4jException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", collectionElement,
-    				staxReader.getEventName(), encountered));
+    		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", collectionElement,
+    				staxReader.getEventName(), encountered), this);
         }
         
         boolean isHandled = false;
@@ -174,7 +177,7 @@ public class Repeater extends AbstractBinding {
 		
         Object collection = getProperty(javaContext);
         if ((collection != null) && (!(collection instanceof Collection<?>))) {
-        	throw new Xb4jException(String.format("Not a Collection: %s", collection));
+        	throw new Xb4jMarshallException(String.format("Not a Collection: %s", collection), this);
         }
         
         //when this Binding must not output an element, the getElement() method should return null
@@ -183,7 +186,7 @@ public class Repeater extends AbstractBinding {
             if (isOptional()) {
                 return;
             } else {
-                throw new Xb4jException(String.format("This collection is not optional: %s", this));
+                throw new Xb4jMarshallException(String.format("This collection is not optional: %s", this), this);
             }
         }
         
