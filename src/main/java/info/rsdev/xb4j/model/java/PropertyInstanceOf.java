@@ -14,41 +14,45 @@
  */
 package info.rsdev.xb4j.model.java;
 
-import info.rsdev.xb4j.model.bindings.Choice;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 
 /**
- * Follow the option coupled with this {@link PropertyNotNullChooser}, when the java context has a matching property that is not 
- * null.
+ * A match is made when the actual property of the given javaContext is of the given java type. If the field is null, this is
+ * considered to be a mismatch.
  * 
  * @author Dave Schoorl
  */
-public class PropertyNotNullChooser implements IChooser {
+public class PropertyInstanceOf implements IChooser {
 	
 	private IGetter propertyAccessor = null;
 	
+	private Class<?> instanceOf = null;
+
 	/**
-	 * Create a new {@link PropertyNotNullChooser} instance that will match the coupled option from the {@link Choice} binding 
-	 * with the java context when the context object has a field with the given fieldName that is not null.
-	 * @param fieldName the name of the field that should not be null for this {@link IChooser} to match the java context at hand
+	 * Create a new instance of {@link PropertyInstanceOf}. This implementation of {@link IChooser} will match a choice when a 
+	 * certain property of the current java context matches the given javaType
+	 * @param javaType the type that the property in the java context object must have for the {@link IChooser} to match this choice
 	 */
-	public PropertyNotNullChooser(String fieldName) {
+	public PropertyInstanceOf(String fieldName, Class<?> javaType) {
+		if (javaType == null) {
+			throw new NullPointerException("Class cannot be null");
+		}
+		this.instanceOf = javaType;
 		this.propertyAccessor = new FieldAccessProvider(fieldName);
 	}
 	
 	@Override
 	public boolean matches(Object javaContext) {
-		/* When the javaContext is null, we cannot establish the Object has the requested field 
-		 * and thus we respond with false */
 	    if (javaContext == null) { return false; }
 		Object fieldValue = propertyAccessor.get(javaContext);
-		return fieldValue != null;
+		boolean matches = fieldValue != null;
+		matches = matches && (this.instanceOf.isAssignableFrom(fieldValue.getClass()));
+		return matches;
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("%s[getter=%s]", getClass().getSimpleName(), propertyAccessor);
+        return String.format("%s[getter=%s, type=%s]", getClass().getSimpleName(), this.propertyAccessor, this.instanceOf.getName());
 	}
-	
 }

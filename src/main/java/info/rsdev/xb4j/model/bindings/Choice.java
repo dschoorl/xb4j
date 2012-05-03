@@ -17,7 +17,7 @@ package info.rsdev.xb4j.model.bindings;
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.java.IChooser;
-import info.rsdev.xb4j.model.java.InstanceOfChooser;
+import info.rsdev.xb4j.model.java.ContextInstanceOf;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
@@ -75,7 +75,7 @@ public class Choice extends AbstractSingleBinding {
 	}
 	
 	/**
-	 * Convenience method. The {@link IBinding choice} will be registered with this {@link Choice}, and an {@link InstanceOfChooser} 
+	 * Convenience method. The {@link IBinding choice} will be registered with this {@link Choice}, and an {@link ContextInstanceOf} 
 	 * will be generated for selection of this choice when marshalling. 
 	 * @param choice
 	 * @return
@@ -86,7 +86,7 @@ public class Choice extends AbstractSingleBinding {
 			throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the choice '%s' does not define " +
 					"a Java type", choice));
 		}
-		return addChoice(choice, new InstanceOfChooser(javaType));
+		return addChoice(choice, new ContextInstanceOf(javaType));
 	}
 	
 	public <T extends IBinding> T addChoice(T choice, IChooser selector) {

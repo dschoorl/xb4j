@@ -15,20 +15,20 @@
 package info.rsdev.xb4j.model.java;
 
 /**
- * A match is made on the basis of the Java types
+ * A match is made when the current javaContext is of the given java type
  * 
  * @author Dave Schoorl
  */
-public class InstanceOfChooser implements IChooser {
+public class ContextInstanceOf implements IChooser {
 	
 	private Class<?> instanceOf = null;
 
 	/**
-	 * Create a new instance of {@link InstanceOfChooser}. This implementation of {@link IChooser} will match a choice when the 
+	 * Create a new instance of {@link ContextInstanceOf}. This implementation of {@link IChooser} will match a choice when the 
 	 * type of the current java context matches this javaType
 	 * @param javaType the type that the java context object must have for the {@link IChooser} to match this choice
 	 */
-	public InstanceOfChooser(Class<?> javaType) {
+	public ContextInstanceOf(Class<?> javaType) {
 		if (javaType == null) {
 			throw new NullPointerException("Class cannot be null");
 		}

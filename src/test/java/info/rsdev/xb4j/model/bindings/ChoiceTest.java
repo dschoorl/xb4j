@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 import info.rsdev.xb4j.model.bindings.Choice;
 import info.rsdev.xb4j.model.bindings.SimpleType;
-import info.rsdev.xb4j.model.java.InstanceOfChooser;
+import info.rsdev.xb4j.model.java.ContextInstanceOf;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.test.ObjectA;
@@ -44,8 +44,8 @@ public class ChoiceTest {
 	@Before
 	public void setup() {
 		choice = new Choice();
-		choice.addChoice(new SimpleType(new QName("elem1")), "name", new InstanceOfChooser(ObjectA.class));
-		choice.addChoice(new SimpleType(new QName("elem2")), "value", new InstanceOfChooser(ObjectB.class));
+		choice.addChoice(new SimpleType(new QName("elem1")), "name", new ContextInstanceOf(ObjectA.class));
+		choice.addChoice(new SimpleType(new QName("elem2")), "value", new ContextInstanceOf(ObjectB.class));
 	}
 	
 	@Test

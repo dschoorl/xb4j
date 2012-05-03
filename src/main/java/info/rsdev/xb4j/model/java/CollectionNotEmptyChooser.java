@@ -14,10 +14,11 @@
  */
 package info.rsdev.xb4j.model.java;
 
-import java.util.Collection;
-
 import info.rsdev.xb4j.model.bindings.Choice;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
+import info.rsdev.xb4j.model.java.accessor.IGetter;
+
+import java.util.Collection;
 
 /**
  * Follow the option coupled with this {@link CollectionNotEmptyChooser}, when the java context has a matching property that is a 
@@ -27,7 +28,7 @@ import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
  */
 public class CollectionNotEmptyChooser implements IChooser {
 	
-	private FieldAccessProvider fieldAccessor = null;
+	private IGetter propertyAccessor = null;
 	
 	/**
 	 * Create a new {@link CollectionNotEmptyChooser} instance that will match the coupled option from the {@link Choice} binding 
@@ -36,7 +37,7 @@ public class CollectionNotEmptyChooser implements IChooser {
 	 * @param fieldName the name of the field that should be a non-empty collection for this {@link IChooser} to match the java context at hand
 	 */
 	public CollectionNotEmptyChooser(String fieldName) {
-		this.fieldAccessor = new FieldAccessProvider(fieldName);
+		this.propertyAccessor = new FieldAccessProvider(fieldName);
 	}
 	
 	@Override
@@ -44,7 +45,7 @@ public class CollectionNotEmptyChooser implements IChooser {
 		/* When the javaContext is null, we cannot establish the Object has the requested field 
 		 * and thus we respond with false */
 	    if (javaContext == null) { return false; }
-		Object fieldValue = fieldAccessor.get(javaContext);
+		Object fieldValue = propertyAccessor.get(javaContext);
 		boolean matches = fieldValue != null;
 		matches = matches && (fieldValue instanceof Collection<?>);
 		matches = matches && !(((Collection<?>)fieldValue).isEmpty());
@@ -53,11 +54,7 @@ public class CollectionNotEmptyChooser implements IChooser {
 	
 	@Override
 	public String toString() {
-		String fieldname = null;
-		if (fieldAccessor != null) {
-			fieldname = fieldAccessor.getFieldname();
-		}
-		return String.format("%s[field=%s]", getClass().getSimpleName(), fieldname);
+		return String.format("%s[getter=%s]", getClass().getSimpleName(), this.propertyAccessor);
 	}
 	
 }
