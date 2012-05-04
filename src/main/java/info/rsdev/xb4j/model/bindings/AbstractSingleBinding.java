@@ -15,7 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
-import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
+import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
@@ -74,7 +74,7 @@ public abstract class AbstractSingleBinding extends AbstractBinding implements I
         	throw new NullPointerException("Fieldname cannot be null");
         }
         setChild(childBinding);
-        FieldAccessProvider provider = new FieldAccessProvider(fieldName);
+        FieldAccessor provider = new FieldAccessor(fieldName);
         childBinding.setGetter(provider);
         childBinding.setSetter(provider);
         

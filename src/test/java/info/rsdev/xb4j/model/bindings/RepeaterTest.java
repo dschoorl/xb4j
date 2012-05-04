@@ -42,7 +42,7 @@ public class RepeaterTest {
 	public void testMarshallValueCollectionNoContainerElement() {
 		//fixture
         Root root = new Root(new QName("root"), ObjectTree.class);
-        Repeater collection = (Repeater)root.setChild(new Repeater(ArrayList.class), "messages");
+        Repeater collection = root.setChild(new Repeater(ArrayList.class), "messages");
         collection.setItem(new SimpleType(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         
@@ -60,7 +60,7 @@ public class RepeaterTest {
     public void testMarshallValueCollectionWithContainerElement() {
         //fixture
         Root root = new Root(new QName("root"), ObjectTree.class);
-        Repeater collection = (Repeater)root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
+        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
         collection.setItem(new SimpleType(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         
@@ -78,7 +78,7 @@ public class RepeaterTest {
 	public void testUnmarshallValueCollectionNoContainerElement() {
 		//fixture
         Root root = new Root(new QName("root"), ObjectTree.class);
-        Repeater collection = (Repeater)root.setChild(new Repeater(ArrayList.class), "messages");
+        Repeater collection = root.setChild(new Repeater(ArrayList.class), "messages");
         collection.setItem(new SimpleType(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         
@@ -96,7 +96,7 @@ public class RepeaterTest {
     public void testUnmarshallValueCollectionWithContainerElement() {
         //fixture
         Root root = new Root(new QName("root"), ObjectTree.class);
-        Repeater collection = (Repeater)root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
+        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
         collection.setItem(new SimpleType(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         

@@ -16,7 +16,7 @@ package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.BindingModel;
-import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
+import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
@@ -61,7 +61,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
         }
         
         //In the case of anonymous ComplexType, the setter must be on the ComplexType
-        FieldAccessProvider provider = new FieldAccessProvider(fieldName);
+        FieldAccessor provider = new FieldAccessor(fieldName);
         setGetter(provider);
         setSetter(provider);
     }

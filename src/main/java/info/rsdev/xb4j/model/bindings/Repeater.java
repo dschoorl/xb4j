@@ -29,6 +29,12 @@ import java.util.Collection;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
+/**
+ * This class is called an {@link Repeater} and not a {@link Collection}, in order to avoid name collission with the Java 
+ * Collections interface.
+ * 
+ * @author dschoorl
+ */
 public class Repeater extends AbstractBinding {
 	
 	public static final int UNBOUNDED = Integer.MAX_VALUE;

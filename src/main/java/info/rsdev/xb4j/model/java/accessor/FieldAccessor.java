@@ -26,11 +26,11 @@ import javax.lang.model.SourceVersion;
  * Get or set the value of a class property by accessing it's {@link Field} by fieldname
  * @author Dave Schoorl
  */
-public class FieldAccessProvider implements ISetter, IGetter {
+public class FieldAccessor implements ISetter, IGetter {
 	
 	private String fieldName = null;
 	
-	public FieldAccessProvider(String fieldName) {
+	public FieldAccessor(String fieldName) {
 		this.fieldName = validate(fieldName);
 	}
 	
@@ -97,7 +97,7 @@ public class FieldAccessProvider implements ISetter, IGetter {
 	
 	@Override
 	public String toString() {
-	    return String.format("FieldAccessProvider[field=%s]", fieldName);
+	    return String.format("%s[field=%s]", getClass().getSimpleName(), fieldName);
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class FieldAccessProvider implements ISetter, IGetter {
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		FieldAccessProvider other = (FieldAccessProvider) obj;
+		FieldAccessor other = (FieldAccessor) obj;
 		if (this.fieldName == null) {
 			if (other.fieldName != null) return false;
 		} else if (!this.fieldName.equals(other.fieldName)) return false;

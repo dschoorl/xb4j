@@ -15,7 +15,7 @@
 package info.rsdev.xb4j.model.java;
 
 import info.rsdev.xb4j.model.bindings.Choice;
-import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
+import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 
 /**
@@ -34,7 +34,7 @@ public class PropertyNotNullChooser implements IChooser {
 	 * @param fieldName the name of the field that should not be null for this {@link IChooser} to match the java context at hand
 	 */
 	public PropertyNotNullChooser(String fieldName) {
-		this.propertyAccessor = new FieldAccessProvider(fieldName);
+		this.propertyAccessor = new FieldAccessor(fieldName);
 	}
 	
 	@Override

@@ -15,7 +15,7 @@
 package info.rsdev.xb4j.model.java;
 
 import info.rsdev.xb4j.model.bindings.Choice;
-import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
+import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 
 import java.util.Collection;
@@ -37,7 +37,7 @@ public class CollectionNotEmptyChooser implements IChooser {
 	 * @param fieldName the name of the field that should be a non-empty collection for this {@link IChooser} to match the java context at hand
 	 */
 	public CollectionNotEmptyChooser(String fieldName) {
-		this.propertyAccessor = new FieldAccessProvider(fieldName);
+		this.propertyAccessor = new FieldAccessor(fieldName);
 	}
 	
 	@Override

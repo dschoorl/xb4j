@@ -14,7 +14,7 @@
  */
 package info.rsdev.xb4j.model.java;
 
-import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
+import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 
 /**
@@ -39,7 +39,7 @@ public class PropertyInstanceOf implements IChooser {
 			throw new NullPointerException("Class cannot be null");
 		}
 		this.instanceOf = javaType;
-		this.propertyAccessor = new FieldAccessProvider(fieldName);
+		this.propertyAccessor = new FieldAccessor(fieldName);
 	}
 	
 	@Override

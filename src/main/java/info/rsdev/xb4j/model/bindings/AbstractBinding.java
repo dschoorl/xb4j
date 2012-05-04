@@ -15,7 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
-import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
+import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
@@ -107,7 +107,7 @@ public abstract class AbstractBinding implements IBinding {
         if (fieldName == null) {
         	throw new NullPointerException("Fieldname cannot be null");
         }
-        FieldAccessProvider provider = new FieldAccessProvider(fieldName);
+        FieldAccessor provider = new FieldAccessor(fieldName);
         attribute.setGetter(provider);
         attribute.setSetter(provider);
     	attributes.add(attribute);

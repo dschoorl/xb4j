@@ -18,7 +18,7 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.java.IChooser;
 import info.rsdev.xb4j.model.java.ContextInstanceOf;
-import info.rsdev.xb4j.model.java.accessor.FieldAccessProvider;
+import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
@@ -67,7 +67,7 @@ public class Choice extends AbstractSingleBinding {
 	
 	public IBinding addChoice(IBinding choice, String fieldName, IChooser selector) {
 		//Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
-		FieldAccessProvider provider = new FieldAccessProvider(fieldName);
+		FieldAccessor provider = new FieldAccessor(fieldName);
 		choice.setGetter(provider);
 		choice.setSetter(provider);
 		
