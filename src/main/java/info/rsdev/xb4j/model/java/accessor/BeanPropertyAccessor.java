@@ -16,7 +16,12 @@ package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.lang.model.SourceVersion;
 
@@ -28,6 +33,18 @@ import javax.lang.model.SourceVersion;
  */
 public class BeanPropertyAccessor implements ISetter, IGetter {
 	
+    private static final Map<Class<?>, Class<?>> autoboxingSupport = new HashMap<Class<?>, Class<?>>(8);
+    static {
+        autoboxingSupport.put(byte.class, Byte.class);
+        autoboxingSupport.put(short.class, Short.class);
+        autoboxingSupport.put(int.class, Integer.class);
+        autoboxingSupport.put(long.class, Long.class);
+        autoboxingSupport.put(double.class, Double.class);
+        autoboxingSupport.put(float.class, Float.class);
+        autoboxingSupport.put(char.class, Character.class);
+        autoboxingSupport.put(boolean.class, Boolean.class);
+    }
+    
 	private String propertyName = null;
 	
 	public BeanPropertyAccessor(String propertyName) {
@@ -37,7 +54,9 @@ public class BeanPropertyAccessor implements ISetter, IGetter {
 	@Override
 	public boolean set(Object contextInstance, Object propertyValue) {
 		try {
-			getSetter(contextInstance.getClass(), this.propertyName).invoke(contextInstance, propertyValue);
+		    Class<?> parameterType = (propertyValue == null?null:propertyValue.getClass());
+			Method setter = getSetter(contextInstance.getClass(), this.propertyName, parameterType);
+			setter.invoke(contextInstance, propertyValue);
 			return true;
 		} catch (Exception e) {
 			throw new Xb4jException(String.format("Could not set field '%s' with value '%s' in object '%s'", 
@@ -55,57 +74,6 @@ public class BeanPropertyAccessor implements ISetter, IGetter {
 	}
 	
 	
-	private Method getGetter(Class<?> contextType, String propertyName) {
-		if (contextType == null) {
-			throw new NullPointerException("Type must be provided");
-		}
-		//TODO: implement
-		return null;
-	}
-	
-	
-	private Method getSetter(Class<?> contextType, String propertyName) {
-		if (contextType == null) {
-			throw new NullPointerException("Type must be provided");
-		}
-		//TODO: implement
-		return null;
-	}
-	
-//	private Field getField(Class<?> contextType, String fieldName) {
-//		if (contextType == null) {
-//			throw new NullPointerException("Type must be provided");
-//		}
-//		if (fieldName == null) {
-//			throw new NullPointerException("The name of the Field must be provided");
-//		}
-//		
-//		Field targetField = null;
-//		Class<?> candidateClass = contextType;
-//		while (targetField == null) {
-//			for (Field candidate: candidateClass.getDeclaredFields()) {
-//				if (candidate.getName().equals(fieldName)) {
-//					targetField = candidate;
-//					break;
-//				}
-//			}
-//			if (targetField ==  null) {
-//				candidateClass = candidateClass.getSuperclass();
-//				if (candidateClass == null) {
-//					throw new IllegalStateException(String.format("Field '%s' is not definied in the entire class hierarchy " +
-//							"of '%s'.",fieldName, contextType.getName()));
-//				}
-//			}
-//		}
-//		
-//		if (!Modifier.isPublic(((Member)targetField).getModifiers()) || !Modifier.isPublic(((Member)targetField).getDeclaringClass().getModifiers())) {
-//			targetField.setAccessible(true);
-//		}
-//		//TODO: check if the field is final? warn if static?
-//		
-//		return targetField;
-//	}
-	
 	private String validate(String propertyName) {
 		if (!SourceVersion.isIdentifier(propertyName)) {
 			throw new IllegalArgumentException(String.format("Not a valid name for a property: %s", propertyName));
@@ -113,6 +81,82 @@ public class BeanPropertyAccessor implements ISetter, IGetter {
 		return propertyName;
 	}
 	
+    private Method getGetter(Class<?> contextType, String propertyName) {
+        Method targetGetter = null;
+        String capitalizedPropertyName = capitalize(propertyName);
+        Class<?> candidateClass = contextType;
+        while ((candidateClass != null) && (targetGetter == null)) {
+            for (Method method : candidateClass.getDeclaredMethods()) {
+                String methodName = method.getName();
+                if (methodName.endsWith(capitalizedPropertyName)) {
+                    if (method.getParameterTypes().length == 0) {
+                        Class<?> returnType = method.getReturnType();
+                        if (((returnType.equals(Boolean.class) || returnType.equals(boolean.class)) &&
+                                methodName.equals("is".concat(capitalizedPropertyName))) ||
+                                methodName.equals("get".concat(capitalizedPropertyName))) {
+                            targetGetter = method;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (targetGetter == null) {
+                candidateClass = candidateClass.getSuperclass();
+            }
+        }
+        if (targetGetter != null) {
+            setAccessible(targetGetter);
+        }
+        return targetGetter;
+    }
+    
+    private Method getSetter(Class<?> contextType, String propertyName, Class<?> parameterType) throws Exception {
+        Method targetSetter = null;
+        String setterName = "set".concat(capitalize(propertyName));
+        Class<?> candidateClass = contextType;
+        while ((candidateClass != null) && (targetSetter == null)) {
+            for (Method method : candidateClass.getDeclaredMethods()) {
+                if (method.getName().equals(setterName)) {
+                    Class<?>[] methodParameterTypes = method.getParameterTypes();    
+                    if (methodParameterTypes.length == 1) {
+                        Class<?> declaredParameterType = methodParameterTypes[0];
+                        if (declaredParameterType.isPrimitive() && (parameterType == null)) {
+                            break;    //a primitive value can not be set to null: no match
+                        }
+                        
+                        if ((declaredParameterType.isPrimitive()) && (!declaredParameterType.equals(void.class))) {
+                            declaredParameterType = autoboxingSupport.get(declaredParameterType);
+                        }
+                        
+                        if ((parameterType == null) || declaredParameterType.isAssignableFrom(parameterType)) {
+                            targetSetter = method;  //exact match, taking autoboxing into account
+                            break;
+                        }
+                    }
+                }
+            }
+            if (targetSetter == null) {
+                candidateClass = candidateClass.getSuperclass();
+            }
+        }
+        if (targetSetter != null) {
+            setAccessible(targetSetter);
+        }
+        return targetSetter;
+    }
+    
+    private void setAccessible(AccessibleObject member) {
+        if (!Modifier.isPublic(((Member)member).getModifiers()) || !Modifier.isPublic(((Member)member).getDeclaringClass().getModifiers())) {
+            member.setAccessible(true);
+        }
+    }
+    
+    private String capitalize(String propertyName) {
+        StringBuffer capitalizedPropertyName = new StringBuffer(propertyName.trim());
+        capitalizedPropertyName.setCharAt(0, Character.toUpperCase(capitalizedPropertyName.charAt(0)));
+        return capitalizedPropertyName.toString();
+    }
+    
 	@Override
 	public String toString() {
 	    return String.format("%s[property=%s]", getClass().getSimpleName(), propertyName);

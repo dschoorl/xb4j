@@ -80,7 +80,7 @@ public class ComplexTypeTest {
         Object instance = model.toJava(stream);
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
-        assertEquals("test", ((ObjectA)instance).getName());
+        assertEquals("test", ((ObjectA)instance).getAName());
         
         //unmarshall ObjectTree
         stream = new ByteArrayInputStream("<directory><name>test</name></directory>".getBytes());
@@ -89,7 +89,7 @@ public class ComplexTypeTest {
         assertSame(ObjectTree.class, instance.getClass());
         ObjectTree tree = (ObjectTree)instance;
         assertNotNull(tree.getMyObject());
-        assertEquals("test", tree.getMyObject().getName());
+        assertEquals("test", tree.getMyObject().getAName());
     }
     
     @Test

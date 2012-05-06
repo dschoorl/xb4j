@@ -144,7 +144,7 @@ public class SimpleTypeTest {
         Object instance = model.toJava(stream);
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
-        assertEquals("test", ((ObjectA)instance).getName());
+        assertEquals("test", ((ObjectA)instance).getAName());
     }
     
     @Test

@@ -74,7 +74,7 @@ public class ChoiceTest {
 		RecordAndPlaybackXMLStreamReader staxWriter = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
 		ObjectA javaContext = new ObjectA("");
 		choice.toJava(staxWriter, javaContext);
-		assertEquals("test1", javaContext.getName());
+		assertEquals("test1", javaContext.getAName());
 		
 		//unmarshall second option
 		stream = new ByteArrayInputStream("<elem2>test2</elem2>".getBytes());

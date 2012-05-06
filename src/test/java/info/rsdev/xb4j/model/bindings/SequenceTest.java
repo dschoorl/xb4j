@@ -40,7 +40,7 @@ public class SequenceTest {
 		sequence.add(new SimpleType(new QName("omschrijving")), "description");
 		BindingModel model = new BindingModel().register(root);
 		
-		ObjectC instance = new ObjectC().setName("tester").setDescription("Ik test dingen");
+		ObjectC instance = new ObjectC().setAName("tester").setDescription("Ik test dingen");
 		
 		String expected = "<root><naam>tester</naam><omschrijving>Ik test dingen</omschrijving></root>";
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();

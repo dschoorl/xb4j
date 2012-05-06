@@ -43,8 +43,8 @@ public class ObjectC extends ObjectA {
 		return this;
 	}
 
-	public ObjectC setName(String name) {
-		super.setName(name);
+	public ObjectC setAName(String name) {
+		super.setAName(name);
 		return this;
 	}
 
@@ -57,7 +57,7 @@ public class ObjectC extends ObjectA {
 		return this;
 	}
 
-	public List<String> getDetails() {
+	protected List<String> getDetails() {
 		return this.details;
 	}
 

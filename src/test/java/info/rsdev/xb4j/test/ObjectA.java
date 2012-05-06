@@ -24,11 +24,11 @@ public class ObjectA {
         this.name = name;
     }
     
-    public String getName() {
+    public String getAName() {
         return this.name;
     }
     
-    protected ObjectA setName(String newName) {
+    protected ObjectA setAName(String newName) {
         if (newName == null) {
             throw new NullPointerException("Name cannot be null");
         }

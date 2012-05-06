@@ -57,7 +57,7 @@ public class AttributeTest {
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
         ObjectA a = (ObjectA)instance;
-        assertEquals("test", a.getName());
+        assertEquals("test", a.getAName());
     }
     
 	@Test
