@@ -32,7 +32,21 @@ public class UnmarshallResult implements ErrorCodes {
 	 * A singleton instance that indicates that the unmarshalling process encountered a missing
 	 * optional xml representation
 	 */
-	public static final UnmarshallResult MISSING_OPTIONAL_ELEMENT = new UnmarshallResult();
+	public static final UnmarshallResult MISSING_OPTIONAL_ELEMENT = new UnmarshallResult() {
+		public UnmarshallResult setHandled() { 
+			throw new UnsupportedOperationException("The MISSING_OPTIONAL_ELEMENT UnmarshallResult Singleton is immutable");
+		};
+	};
+	
+	/**
+	 * A Singleton instance that indicates that the unmarshalling process was successfull, but 
+	 * yielded no Java result object
+	 */
+	public static final UnmarshallResult NO_RESULT = new UnmarshallResult(null) {
+		public UnmarshallResult setHandled() { 
+			throw new UnsupportedOperationException("The NO_RESULT UnmarshallResult Singleton is immutable");
+		};
+	};
 	
 	/**
 	 * errorCode is a code that indicates the type of error. There are two codes known by this class:

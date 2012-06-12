@@ -17,14 +17,13 @@ package info.rsdev.xb4j.model.bindings;
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
-import info.rsdev.xb4j.model.java.accessor.MethodSetter;
+import info.rsdev.xb4j.model.java.accessor.BeanPropertyAccessor;
+import info.rsdev.xb4j.model.java.accessor.IGetter;
+import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
-import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
-
-import java.util.Collection;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -34,11 +33,15 @@ import javax.xml.stream.XMLStreamException;
  * 
  * @author dschoorl
  */
-public class Recursor extends AbstractBinding {
+public class Recursor extends AbstractSingleBinding {
 	
 	public static final int UNBOUNDED = Integer.MAX_VALUE;
 	
 	private IBinding contentBinding = null;
+	
+	private IGetter recursiveGetter = null;
+	
+	private ISetter recursiveSetter = null;
 	
 	private int maxOccurs = UNBOUNDED;
 	
@@ -52,165 +55,134 @@ public class Recursor extends AbstractBinding {
     
     public Recursor(QName element, Class<?> recursiveType, String propertyName, boolean isOptional) {
     	super(new DefaultElementFetchStrategy(element), new DefaultConstructor(recursiveType));
+    	BeanPropertyAccessor accessor = new BeanPropertyAccessor(propertyName);
+    	this.recursiveGetter = accessor;
+    	this.recursiveSetter = accessor;
         setOptional(isOptional);
     }
     
-	public <T extends IBinding> T setItem(T itemBinding) {
-		if (itemBinding == null) {
-			throw new NullPointerException("Binding for collection items cannot be null");
-		}
-		
-		this.contentBinding = itemBinding;
-		this.contentBinding.setParent(this);
-		itemBinding.setSetter(new MethodSetter("add"));   //default add method for Collection interface;
-		return itemBinding;
-	}
-	
 	@Override
 	public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
-	    //TODO: also support addmethod on container class, which will add to underlying collection for us
-        Object newJavaContext = newInstance();
-        
-        //read enclosing collection element (if defined)
-        QName collectionElement = getElement();
-    	boolean startTagFound = false;
-    	if (collectionElement != null) {
-    		if (!staxReader.isAtElementStart(collectionElement)) {
-	    		if (isOptional()) {
-                    return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
-	    		} else {
-                    return UnmarshallResult.newMissingElement(this);
-	    		}
-    		} else {
-    			startTagFound = true;
-    		}
-    	}
-        
-        attributesToJava(staxReader, select(javaContext, newJavaContext));
-
-        int occurences = 0;
-        UnmarshallResult result = null;
-        boolean proceed = true;
-        while (proceed) {
-        	result = contentBinding.toJava(staxReader, newJavaContext);
-            proceed = result.isUnmarshallSuccessful();
-        	if (result.mustHandleUnmarshalledObject()) {
-        	    //TODO: use property accessor
-//        		((Collection<Object>)collection).add(result.getUnmarshalledObject());
-        	}
-            if (proceed) {
-            	occurences++;
-            	if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
-            		throw new Xb4jUnmarshallException(String.format("Found %d occurences, but no mare than %d are allowed", occurences, maxOccurs), this);
-            	}
-            }
-        }
-        
-        //determine if the childBinding has no more occurences or whether the xml fragment of the childBinding is incomplete
-        if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode()) && !result.getBindingWithError().equals(resolveItemBinding(contentBinding))) {
-        	return result;
-        }
-        
-        if ((occurences == 0) && !isOptional()) {
-        	return new UnmarshallResult(UnmarshallResult.MISSING_MANDATORY_ERROR, String.format("Mandatory %s has no content: %s", 
-        			this, staxReader.getLocation()), this);
-        }
-        
-        //read end of enclosing collection element (if defined)
-        if ((collectionElement != null) && !staxReader.isAtElementEnd(collectionElement) && startTagFound) {
-    		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
-    		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", collectionElement,
-    				staxReader.getEventName(), encountered), this);
-        }
-        
-        boolean isHandled = false;
-        if (javaContext != null) {
-        	isHandled = setProperty(javaContext, newJavaContext);
-        }
-		return new UnmarshallResult(newJavaContext, isHandled);
+		UnmarshallResult result = toJava(staxReader, 0);
+		if (result.mustHandleUnmarshalledObject()) {
+			if (setProperty(javaContext, result.getUnmarshalledObject())) {
+				result.setHandled();
+			}
+		}
+		return result;
 	}
 	
-	/**
-	 * Get the binding for the items in this collection. Normally, this is {@link #contentBinding} defined on this {@link Recursor},
-	 * but that could be a {@link Reference}, in which case we need to look a little further to find the real {@link IBinding} for 
-	 * the collection items.
-	 * @return the {@link IBinding} for the collection items
-	 */
-	private IBinding resolveItemBinding(IBinding itemBinding) {
-		if (!(itemBinding instanceof Reference)) {
-			return itemBinding;
-		}
+	private UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, int recurrenceCount) throws XMLStreamException {
 		
-		if (itemBinding.getElement() != null) {
-			return itemBinding;	//the element name is defined on the Reference
+        QName element = getElement();	//can this be null for a Recursor? - No!
+        if (element == null) {
+        	throw new Xb4jUnmarshallException("A recursive property must always have an xml element representation", this);
+        }
+        
+		if (!staxReader.isAtElementStart(element)) {
+    		if (recurrenceCount == 0) {
+    			if (isOptional()) {
+                    return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
+        		} else {
+                    return UnmarshallResult.newMissingElement(this);
+        		}
+    		} else {
+    			return UnmarshallResult.NO_RESULT;
+    		}
 		}
-		
-		Reference reference = (Reference)itemBinding;
-		itemBinding = reference.getChildBinding();	//itemBinding now is a ComplexType
-		if (itemBinding.getElement() != null) {
-			return itemBinding;	//the element name is defined in the ComplexType
-		}
-		
-		itemBinding = ((ComplexType)itemBinding).getChildBinding();
-		if (itemBinding instanceof Reference) {
-			if (reference.equals(itemBinding)) {
-				throw new Xb4jException("Encountered cirsular reference; Reference pointing to itself: ".concat(reference.toString()));
-			}
-			return resolveItemBinding(itemBinding);	//silly situation: a Reference pointing to a Reference, but support it anyway
-		}
-		return itemBinding;
+        
+        Object nestedObject = newInstance();
+        attributesToJava(staxReader, nestedObject);
+        
+        if (contentBinding != null) {
+        	UnmarshallResult result = contentBinding.toJava(staxReader, nestedObject);
+            if (!result.isUnmarshallSuccessful()) {
+            	return result;
+            }
+        	if (result.mustHandleUnmarshalledObject()) {
+        		//we expect that the contentBinding has set it's constructed artifacts in the object tree... so, throw an exception
+        		throw new Xb4jUnmarshallException("Unmarshalled result should have been handled by the ContentBinding", this);
+        	}
+        }
+        
+    	recurrenceCount++;
+    	if ((maxOccurs != UNBOUNDED) && (recurrenceCount > maxOccurs)) {
+    		throw new Xb4jUnmarshallException(String.format("Found %d nested occurences of element <%s>, but no mare than %d " +
+    				"levels are allowed", recurrenceCount, element, maxOccurs), this);
+    	}
+    	
+    	//Recurse -- create one level deeper nested object
+    	UnmarshallResult result = toJava(staxReader, recurrenceCount);
+    	if (!result.isUnmarshallSuccessful()) {
+    		return result;
+    	}
+    	
+    	//handle nested child object -- add to object tree
+    	if (result.mustHandleUnmarshalledObject()) {
+        	if (!setChild(nestedObject, result.getUnmarshalledObject())) {
+        		throw new Xb4jUnmarshallException("Cannot set nested element into it's parent object", this);
+        	}
+        }
+        
+    	//check that element close is encountered and return unmarshalled result if appropriate
+    	if (!staxReader.isAtElementEnd(element)) {
+    		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
+    		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered %s %s", element,
+    				staxReader.getEventName(), encountered), this);
+    	}
+    	
+		return new UnmarshallResult(nestedObject);
 	}
 	
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
-		if (!generatesOutput(javaContext)) { return; }
+        toXml(staxWriter, getProperty(javaContext), 0);
+	}
+	
+	private void toXml(SimplifiedXMLStreamWriter staxWriter, Object recurringObject, int recurrenceCount) throws XMLStreamException {
+		if (!generatesOutput(recurringObject, recurrenceCount)) { return; }
 		
-        Object collection = getProperty(javaContext);
-        if ((collection != null) && (!(collection instanceof Collection<?>))) {
-        	throw new Xb4jMarshallException(String.format("Not a Collection: %s", collection), this);
-        }
-        
         //when this Binding must not output an element, the getElement() method should return null
         QName element = getElement();
-        if ((collection == null) || ((Collection<?>)collection).isEmpty()) {
-            if (isOptional()) {
-                return;
-            } else {
-                throw new Xb4jMarshallException(String.format("This collection is not optional: %s", this), this);
-            }
-        }
-        
-        boolean isEmptyElement = (contentBinding == null) || (javaContext == null);
+        boolean isEmptyElement = !generatesOutput(getChild(recurringObject), recurrenceCount+1);
         if (element != null) {
             staxWriter.writeElement(element, isEmptyElement);
-            attributesToXml(staxWriter, javaContext);
+            attributesToXml(staxWriter, recurringObject);
         }
         
         if (contentBinding != null) {
-        	for (Object item: (Collection<?>)collection) {
-            	contentBinding.toXml(staxWriter, item);
-        	}
+        	contentBinding.toXml(staxWriter, recurringObject);
         }
         
+        recurrenceCount++;
+    	if (recurrenceCount > maxOccurs) {
+    		throw new Xb4jMarshallException(String.format("More recurring instances (%d) encountered than allowed: %d", 
+    				recurrenceCount, maxOccurs), this);
+    	}
+    	
+    	toXml(staxWriter, getChild(recurringObject), recurrenceCount);
+    	
         if (!isEmptyElement && (element != null)) {
             staxWriter.closeElement(element);
         }
+        
 	}
 	
 	@Override
 	public boolean generatesOutput(Object javaContext) {
-        Object collection = getProperty(javaContext);
-        if ((collection != null) && (collection instanceof Collection<?>) && !((Collection<?>)collection).isEmpty()) {
-        	for (Object item: (Collection<?>)collection) {
-            	if (contentBinding.generatesOutput(item)) {
-            		return true;
-            	}
+		return generatesOutput(getProperty(javaContext), 0);
+	}
+	
+	public boolean generatesOutput(Object recurringObject, int recurrenceCount) {
+        if ((recurringObject != null) && (contentBinding != null)) {
+        	if (contentBinding.generatesOutput(recurringObject)) {
+        		return true;
         	}
         }
         
-		//At this point, the we established that the itemBinding will not output content
-		return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
-	}
+		//At this point, we established that the contentBinding will not output content
+        return (recurringObject != null) && (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
+    }
 	
 	public Recursor setMaxOccurs(int newMaxOccurs) {
 		if (newMaxOccurs <= 1) {
@@ -220,29 +192,15 @@ public class Recursor extends AbstractBinding {
 		return this;
 	}
 	
-    @Override
-    public String toString() {
-    	StringBuffer sb = new StringBuffer();
-    	sb.append(getClass().getSimpleName()).append("[");
-    	String separator = "";
-    	QName element = getElement();
-    	if (element != null) {
-    		sb.append(separator).append("element=");
-    		sb.append(element.toString());
-    		separator = ",";
-    	}
-    	Class<?> collectionType = getJavaType();
-    	if (collectionType != null) {
-    		sb.append(separator).append("collectionType=").append(collectionType.getName());
-    		separator = ",";
-    	}
-    	IBinding item = resolveItemBinding(contentBinding);
-    	if (item != null) {
-    		sb.append(separator).append("item=").append(item.toString());
-    		separator = ",";
-    	}
-    	sb.append("]");
-        return sb.toString();
+	private Object getChild(Object recurringObject) {
+		if (recurringObject == null) {
+			return null;
+		}
+		return this.recursiveGetter.get(recurringObject);
+	}
+	
+	private boolean setChild(Object recurringObject, Object propertyValue) {
+        return this.recursiveSetter.set(recurringObject, propertyValue);
     }
 	
 }

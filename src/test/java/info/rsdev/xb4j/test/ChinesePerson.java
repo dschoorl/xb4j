@@ -16,7 +16,9 @@ package info.rsdev.xb4j.test;
 
 public class ChinesePerson {
 
-    private String name = null;
+    private String firstName = null;
+    
+    private String sirName = null;
     
     private ChinesePerson parent = null;
     
@@ -24,12 +26,17 @@ public class ChinesePerson {
     
     protected ChinesePerson() {}
     
-    public ChinesePerson(String name) {
-        this.name = name;
+    public ChinesePerson(String firstName, String sirName) {
+        this.firstName = firstName;
+        this.sirName = sirName;
     }
     
-    public String getName() {
-        return this.name;
+    public String getFirstName() {
+        return this.firstName;
+    }
+    
+    public String getSirName() {
+    	return this.sirName;
     }
     
     public ChinesePerson getChild() {
@@ -40,8 +47,23 @@ public class ChinesePerson {
         return this.parent;
     }
     
-    public void setParent(ChinesePerson parent) {
-        this.parent = parent;
-        parent.child = this;    //maintain bidirectional relationship
+    /**
+     * @param child
+     * @return return this instance
+     */
+    public ChinesePerson setChild(ChinesePerson child) {
+        this.child = child;
+        child.parent = this;    //maintain bidirectional relationship
+        return this;
+    }
+    
+    public int getFamilyTreeDepth() {
+    	if (child == null) { return 1; }
+    	return child.getFamilyTreeDepth() + 1;
+    }
+    
+    @Override
+    public String toString() {
+    	return String.format("ChinesePerson[firstName=%s, sirName=%s]", this.firstName, this.sirName);
     }
 }

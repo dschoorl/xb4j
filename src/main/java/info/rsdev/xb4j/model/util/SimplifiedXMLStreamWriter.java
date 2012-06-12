@@ -14,10 +14,6 @@
  */
 package info.rsdev.xb4j.model.util;
 
-import info.rsdev.xb4j.model.bindings.Attribute;
-
-import java.util.Collection;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;

@@ -14,18 +14,17 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import java.util.Collection;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-
-import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
+
+import java.util.Collection;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Group a number of elements where ordering is fixed. Elements can be optional. When an element can occur more than once, you 
