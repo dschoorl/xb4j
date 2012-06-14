@@ -19,7 +19,7 @@ import info.rsdev.xb4j.exceptions.ValidationException;
 import java.util.Locale;
 
 /**
- * Convert a string to and from a boolean value
+ * Convert a string to and from a {@link Locale}
  * 
  * @author Dave Schoorl
  */
