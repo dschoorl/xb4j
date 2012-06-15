@@ -270,6 +270,36 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         return isAt;
     }
     
+    public boolean skipToElementEnd() throws XMLStreamException {
+    	if (getEvent() != START_ELEMENT) {
+    		Location location = getLocation();
+    		throw new XMLStreamException(String.format("Can only skip to element end when we are currently on element start. " +
+    				"Current event is '%s' @ line %d, column %d).", EVENTNAMES[getEvent()], location.getLineNumber(), location.getColumnNumber()));
+    	}
+    	
+    	QName expectedElement = getName();
+    	int xmlElementLevelCount = 0;
+    	while (xmlElementLevelCount >= 0) {
+	    	int eventType = nextTag();
+	    	if (eventType == START_ELEMENT) {
+	    		xmlElementLevelCount++;
+	    	} else if (eventType == END_ELEMENT) {
+	    		xmlElementLevelCount--;
+	    	} else if (eventType == END_DOCUMENT) {
+	    		throw new XMLStreamException(String.format("Unexpectedly reached end of xml document while searching for end " +
+	    				"element (%s)", expectedElement));
+	    	}
+    	}
+    	
+    	//the current event should now be the expected end element tag. Let's check this
+    	if (!getName().equals(expectedElement)) {
+    		throw new XMLStreamException(String.format("Expected end element %s, but encountered unexpected end element %s ", 
+    				expectedElement, getName()), getLocation());
+    	}
+    	
+    	return true;
+    }
+    
     private boolean isAtElement(QName expectedElement, int eventType) throws XMLStreamException {
         if (expectedElement != null) {
         	boolean matchesExpected = false;
@@ -291,7 +321,6 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                 	rewindAndPlayback(marker);
                 	if (logger.isTraceEnabled()) {
                 		Location location = getLocation();
-                		
 	                	logger.trace(String.format("Expected %s (%s), but found %s (%s @ line %d, column %d)", EVENTNAMES[eventType], expectedElement,
 	                			EVENTNAMES[realEvent], encounteredName, location.getLineNumber(), location.getColumnNumber()));
                 	}
