@@ -17,6 +17,7 @@ package info.rsdev.xb4j.model.java.accessor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.lang.model.SourceVersion;
 
@@ -25,6 +26,8 @@ import javax.lang.model.SourceVersion;
  * @author Dave Schoorl
  */
 public abstract class AbstractFieldAccessor {
+	
+	private ConcurrentHashMap<Class<?>, Field> cachedFields =new ConcurrentHashMap<Class<?>, Field>();
 	
 	private String fieldName = null;
 	
@@ -42,6 +45,11 @@ public abstract class AbstractFieldAccessor {
 		}
 		if (fieldName == null) {
 			throw new NullPointerException("The name of the Field must be provided");
+		}
+		
+		//return cached instance when applicable
+		if (cachedFields.containsKey(contextType)) {
+			return cachedFields.get(contextType);
 		}
 		
 		Field targetField = null;
@@ -67,6 +75,7 @@ public abstract class AbstractFieldAccessor {
 		}
 		//TODO: check if the field is final? warn if static?
 		
+		cachedFields.putIfAbsent(contextType, targetField);
 		return targetField;
 	}
 	
