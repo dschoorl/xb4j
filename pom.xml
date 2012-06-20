@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>info.rsdev.xb4j</groupId>
 	<artifactId>xb4j</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>xb4j</name>
 	<description>Xml databinding for Java</description>
@@ -134,7 +134,7 @@
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>
-						<phase>deploy</phase>
+						<phase>verify</phase>
 						<goals>
 							<goal>sign</goal>
 						</goals>
