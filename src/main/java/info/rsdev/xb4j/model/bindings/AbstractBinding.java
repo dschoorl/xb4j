@@ -20,6 +20,7 @@ import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
+import info.rsdev.xb4j.model.java.action.IAction;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
@@ -44,6 +45,8 @@ public abstract class AbstractBinding implements IBinding {
 	private IElementFetchStrategy elementFetcher = null;
 	
 	private ICreator objectCreator = null;
+	
+	private IAction actionAfterUnmarshalling = null;
 	
     private IGetter getter = null;
     
@@ -196,6 +199,19 @@ public abstract class AbstractBinding implements IBinding {
         return this;
     }
     
+    @Override
+    public IBinding setActionAfterUnmarshalling(IAction action) {
+    	if (action == null) {
+    		throw new NullPointerException("You must provide an IAction implementation");
+    	}
+    	this.actionAfterUnmarshalling = action;
+    	return this;
+    }
+    
+    protected IAction getActionAfterUnmarshalling() {
+    	return this.actionAfterUnmarshalling;
+    }
+    
     public boolean hasSetter() {
     	return (this.setter != null) && !(this.setter instanceof NoSetter);
     }
@@ -277,6 +293,18 @@ public abstract class AbstractBinding implements IBinding {
     		}
     	}
     }
+    
+    @Override
+    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    	UnmarshallResult result = unmarshall(staxReader, javaContext);
+    	if (this.actionAfterUnmarshalling != null) {
+    		Object actionContext = javaContext==null?result.getUnmarshalledObject():javaContext;
+    		this.actionAfterUnmarshalling.execute(actionContext);
+    	}
+    	return result;
+    }
+    
+    public abstract UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException;
     
     @Override
     public String toString() {

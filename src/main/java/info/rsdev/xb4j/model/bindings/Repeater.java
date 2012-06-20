@@ -79,7 +79,7 @@ public class Repeater extends AbstractBinding {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
 	    //TODO: also support addmethod on container class, which will add to underlying collection for us
         Object newJavaContext = newInstance();
         Object collection = select(javaContext, newJavaContext);

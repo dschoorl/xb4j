@@ -62,8 +62,8 @@ public class Recursor extends AbstractSingleBinding {
     }
     
 	@Override
-	public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
-		UnmarshallResult result = toJava(staxReader, 0);
+	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+		UnmarshallResult result = unmarshall(staxReader, 0);
 		if (result.mustHandleUnmarshalledObject()) {
 			if (setProperty(javaContext, result.getUnmarshalledObject())) {
 				result.setHandled();
@@ -72,7 +72,7 @@ public class Recursor extends AbstractSingleBinding {
 		return result;
 	}
 	
-	private UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, int recurrenceCount) throws XMLStreamException {
+	private UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, int recurrenceCount) throws XMLStreamException {
 		
         QName element = getElement();	//can this be null for a Recursor? - No!
         if (element == null) {
@@ -112,7 +112,7 @@ public class Recursor extends AbstractSingleBinding {
     	}
     	
     	//Recurse -- create one level deeper nested object
-    	UnmarshallResult result = toJava(staxReader, recurrenceCount);
+    	UnmarshallResult result = unmarshall(staxReader, recurrenceCount);
     	if (!result.isUnmarshallSuccessful()) {
     		return result;
     	}

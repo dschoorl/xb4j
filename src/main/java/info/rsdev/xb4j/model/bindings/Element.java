@@ -75,7 +75,7 @@ public class Element extends AbstractSingleBinding {
     }
     
     @Override
-    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
     	boolean startTagFound = false;

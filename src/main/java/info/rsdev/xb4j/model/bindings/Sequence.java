@@ -60,7 +60,7 @@ public class Sequence extends AbstractBindingContainer {
     }
 
     @Override
-    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
     	QName expectedElement = getElement();
     	boolean startTagFound = false;
     	if (expectedElement != null) {

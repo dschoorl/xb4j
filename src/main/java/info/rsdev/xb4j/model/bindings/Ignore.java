@@ -2,6 +2,7 @@ package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
+import info.rsdev.xb4j.model.java.action.IAction;
 import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 
@@ -24,6 +25,8 @@ public class Ignore implements IBinding {
     private IBinding parent = null;
     
     private boolean isOptional = false; //by default, everything is mandatory, unless explicitly made optional
+    
+    private IAction actionAfterUnmarshalling = null;
     
     public Ignore(QName element) {
     	this(element, false);
@@ -51,6 +54,10 @@ public class Ignore implements IBinding {
 		//start tag is found: consume and ignore xml stream until end tag
 		staxReader.skipToElementEnd();
         
+		if (actionAfterUnmarshalling != null) {
+			actionAfterUnmarshalling.execute(javaContext);
+		}
+		
 		return UnmarshallResult.NO_RESULT;
 	}
 	
@@ -131,6 +138,15 @@ public class Ignore implements IBinding {
 		return this;
 	}
 
+    @Override
+    public IBinding setActionAfterUnmarshalling(IAction action) {
+    	if (action == null) {
+    		throw new NullPointerException("You must provide an IAction implementation");
+    	}
+    	this.actionAfterUnmarshalling = action;
+    	return this;
+    }
+    
 	@Override
 	public String getPath() {
     	List<String> pathToRoot = new ArrayList<String>();
