@@ -37,8 +37,6 @@ public class Recursor extends AbstractSingleBinding {
 	
 	public static final int UNBOUNDED = Integer.MAX_VALUE;
 	
-	private IBinding contentBinding = null;
-	
 	private IGetter recursiveGetter = null;
 	
 	private ISetter recursiveSetter = null;
@@ -94,8 +92,8 @@ public class Recursor extends AbstractSingleBinding {
         Object nestedObject = newInstance();
         attributesToJava(staxReader, nestedObject);
         
-        if (contentBinding != null) {
-        	UnmarshallResult result = contentBinding.toJava(staxReader, nestedObject);
+        if (getChildBinding() != null) {
+        	UnmarshallResult result = getChildBinding().toJava(staxReader, nestedObject);
             if (!result.isUnmarshallSuccessful()) {
             	return result;
             }
@@ -150,8 +148,8 @@ public class Recursor extends AbstractSingleBinding {
             attributesToXml(staxWriter, recurringObject);
         }
         
-        if (contentBinding != null) {
-        	contentBinding.toXml(staxWriter, recurringObject);
+        if (getChildBinding() != null) {
+        	getChildBinding().toXml(staxWriter, recurringObject);
         }
         
         recurrenceCount++;
@@ -174,8 +172,8 @@ public class Recursor extends AbstractSingleBinding {
 	}
 	
 	public boolean generatesOutput(Object recurringObject, int recurrenceCount) {
-        if ((recurringObject != null) && (contentBinding != null)) {
-        	if (contentBinding.generatesOutput(recurringObject)) {
+        if ((recurringObject != null) && (getChildBinding() != null)) {
+        	if (getChildBinding().generatesOutput(recurringObject)) {
         		return true;
         	}
         }

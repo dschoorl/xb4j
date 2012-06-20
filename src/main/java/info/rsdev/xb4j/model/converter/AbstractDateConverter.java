@@ -39,7 +39,8 @@ public abstract class AbstractDateConverter implements IValueConverter {
 	public static final String DATE_ONLY = "xs:date";
 	public static final String TIME_ONLY = "xs:time";
 	public static final String DATE_TIME = "xs:dateTime";
-	public static final List<String> supportedXmlDateTypes = Arrays.asList(DATE_ONLY, TIME_ONLY, DATE_TIME);
+	private static final List<String> supportedXmlDateTypes = Arrays.asList(DATE_ONLY, TIME_ONLY, DATE_TIME);
+	
 	/**
 	 * For datetime conversions, we do not rely on the {@link DatatypeConverter} implementation of JAXB, because then
 	 * the the output will be formatted in the default timezone, while we want to control the timezone when running

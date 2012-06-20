@@ -8,7 +8,7 @@ public class IntegerConverterTest {
 	
 	@Test
 	public void testToObjectWithPadding() {
-		assertEquals("01", new IntegerConverter(NoValidator.INSTANCE, 2).toText(new Integer(1)));
+		assertEquals("01", new IntegerConverter(NoValidator.INSTANCE, 2).toText(Integer.valueOf(1)));
 	}
 	
 }

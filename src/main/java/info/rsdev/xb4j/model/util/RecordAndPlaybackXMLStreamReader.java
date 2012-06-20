@@ -372,8 +372,8 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                 } else if (eventType == XMLStreamConstants.START_ELEMENT) {
                 	//mixed content is currently not supported
                 	throw new XMLStreamException(String.format("Found %s <%s> while reading text for <%s>; mixed content is " +
-                			"currently not supported @ %s", EVENTNAMES[eventType], staxReader.getName(), currentTextElement), 
-                			staxReader.getLocation());
+                			"currently not supported @ %s", EVENTNAMES[eventType], staxReader.getName(), currentTextElement, 
+                			staxReader.getLocation()));
                 } else {
                     throw new XMLStreamException(String.format("Unexpected %s", EVENTNAMES[eventType]), staxReader.getLocation());
                 }

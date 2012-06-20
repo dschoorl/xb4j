@@ -15,7 +15,7 @@ public class NamespaceContextTest {
 	private NamespaceContext context = null;
 	
 	@Before
-	public void setUp() throws Exception {
+	public void setup() throws Exception {
 		this.context = new NamespaceContext();
 		this.context.registerNamespace(new QName("http://root", "root", "rt"));
 	}

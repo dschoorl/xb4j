@@ -18,7 +18,7 @@ import org.junit.Test;
 public class IgnoreTest {
 	
 	@Before
-	public void setUp() throws Exception {
+	public void setup() throws Exception {
 		BindingModel model = new BindingModel();
 		Root root = new Root(new QName("root"), ObjectA.class);
 		root.setChild(new Ignore(new QName("ignore-me")));
