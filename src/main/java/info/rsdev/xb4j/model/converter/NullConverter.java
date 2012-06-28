@@ -16,7 +16,8 @@ package info.rsdev.xb4j.model.converter;
 
 
 /**
- * Convert anything and everything to null. The sole purpose of this converter at the moment of inception is to aid unit testing.
+ * Convert anything and everything to null, allways. The sole purpose of this converter at the moment of inception is to aid
+ * automated testing.
  * 
  * @author Dave Schoorl
  */

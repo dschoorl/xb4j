@@ -56,6 +56,8 @@ public interface IBinding {
     
     public IBinding addAttribute(IAttribute attribute, String fieldName);
     
+    public IBinding addAttribute(IAttribute attribute, IGetter getter, ISetter setter);
+    
     public Class<?> getJavaType();
     
     public Object newInstance();

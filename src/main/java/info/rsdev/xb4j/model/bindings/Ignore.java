@@ -96,6 +96,11 @@ public class Ignore implements IBinding {
 	public IBinding addAttribute(IAttribute attribute, String fieldName) {
 		return this;
 	}
+	
+	@Override
+	public IBinding addAttribute(IAttribute attribute, IGetter getter, ISetter setter) {
+		return this;
+	}
 
 	@Override
 	public Class<?> getJavaType() {

@@ -23,7 +23,7 @@ import javax.xml.stream.XMLStreamException;
 
 /**
  * 
- * @author dschoorl
+ * @author Dave Schoorl
  */
 public class Attribute extends AbstractAttribute {
 	
@@ -32,12 +32,11 @@ public class Attribute extends AbstractAttribute {
     private String defaultValue = null;
 	
     public Attribute(QName attributeName) {
-    	setAttributeName(attributeName);
-    	setConverter(NOPConverter.INSTANCE);
+    	this(attributeName, NOPConverter.INSTANCE);
     }
     
     public Attribute(QName attributeName, IValueConverter converter) {
-    	setAttributeName(attributeName);
+    	super(attributeName);
     	setConverter(converter);
     }
     
@@ -57,13 +56,8 @@ public class Attribute extends AbstractAttribute {
         if ((value == null) && (defaultValue != null)) {
         	value = defaultValue;
         }
-        if (isRequired || (value != null)) {
-        	try {
-        		staxWriter.writeAttribute(elementName, attributeName, value);
-        	} catch(XMLStreamException e) {
-        		System.out.printf("Error writing attribute %s for element %s%n", attributeName, elementName);
-        		throw e;
-        	}
+        if (isRequired() || (value != null)) {
+       		staxWriter.writeAttribute(elementName, attributeName, value);
         }
     }
     

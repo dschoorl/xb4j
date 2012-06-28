@@ -97,6 +97,15 @@ public abstract class AbstractBinding implements IBinding {
     
     @Override
     public IBinding addAttribute(IAttribute attribute, String fieldName) {
+        if (fieldName == null) {
+        	throw new NullPointerException("Fieldname cannot be null");
+        }
+        FieldAccessor fieldAccessor = new FieldAccessor(fieldName);
+        return addAttribute(attribute, fieldAccessor, fieldAccessor);
+    }
+    
+    @Override
+    public IBinding addAttribute(IAttribute attribute, IGetter getter, ISetter setter) {
     	if (attribute == null) {
     		throw new NullPointerException(String.format("Attribute cannot be null (binding=%s)", this));
     	}
@@ -107,12 +116,8 @@ public abstract class AbstractBinding implements IBinding {
     	if (attributes.contains(attribute)) {
     		throw new Xb4jException(String.format("Attribute %s already defined (binding=%s)", attribute, this));
     	}
-        if (fieldName == null) {
-        	throw new NullPointerException("Fieldname cannot be null");
-        }
-        FieldAccessor provider = new FieldAccessor(fieldName);
-        attribute.setGetter(provider);
-        attribute.setSetter(provider);
+        attribute.setGetter(getter);
+        attribute.setSetter(setter);
     	attributes.add(attribute);
     	return this;
     }
