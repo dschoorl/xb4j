@@ -32,7 +32,7 @@ import javax.xml.stream.XMLStreamException;
  * 
  * @author Dave Schoorl
  */
-public class Sequence extends AbstractBindingContainer {
+public class Sequence extends AbstractContainerBinding {
 	
 	/**
 	 * Create a new {@link Sequence} which inherits it's element and javatype from it's parent

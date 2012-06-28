@@ -25,11 +25,11 @@ import java.util.Collection;
 import java.util.Collections;
 
 
-public abstract class AbstractBindingContainer extends AbstractBinding implements IContainerBinding {
+public abstract class AbstractContainerBinding extends AbstractBinding implements IContainerBinding {
 
     private ArrayList<IBinding> children = new ArrayList<IBinding>();
     
-    protected AbstractBindingContainer(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
+    protected AbstractContainerBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
     	super(elementFetcher, objectCreator);
     }
     
