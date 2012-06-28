@@ -19,11 +19,11 @@ import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.java.IChooser;
 import info.rsdev.xb4j.model.java.ContextInstanceOf;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
-import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 import java.util.LinkedList;
 import java.util.List;

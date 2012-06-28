@@ -18,9 +18,9 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.bindings.ComplexType;
 import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.model.bindings.UnmarshallResult;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader.Marker;
-import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.Marker;
 
 import java.io.InputStream;
 import java.io.OutputStream;

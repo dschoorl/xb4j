@@ -12,14 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.util;
+package info.rsdev.xb4j.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader.Marker;
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.Marker;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

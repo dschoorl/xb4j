@@ -21,10 +21,10 @@ import static org.junit.Assert.assertTrue;
 import info.rsdev.xb4j.model.bindings.Choice;
 import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.model.java.ContextInstanceOf;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
-import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectB;
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;

@@ -15,7 +15,7 @@
 package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.model.bindings.IBinding;
-import info.rsdev.xb4j.model.util.SimplifiedXMLStreamWriter;
+import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 /**
  * An {@link IGetter} is used during the marshalling process (from java to xml). It extracts from the current 

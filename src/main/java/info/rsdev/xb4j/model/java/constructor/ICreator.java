@@ -16,7 +16,7 @@ package info.rsdev.xb4j.model.java.constructor;
 
 import info.rsdev.xb4j.model.bindings.IBinding;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 
 /**
  * An {@link ICreator} is used during the unmarshalling process (from xml to java). It creates a new javaContext for 

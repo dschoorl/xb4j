@@ -15,7 +15,7 @@
 package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.model.bindings.IBinding;
-import info.rsdev.xb4j.model.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 
 /**
  * An {@link ISetter} is used during the unmarshalling process (from xml to java). It will set the result that was 
