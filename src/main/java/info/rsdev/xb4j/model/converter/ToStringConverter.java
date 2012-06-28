@@ -14,20 +14,29 @@
  */
 package info.rsdev.xb4j.model.converter;
 
-import info.rsdev.xb4j.exceptions.Xb4jException;
 
 /**
- * Convenience class. It does not perform any conversion; it only casts an Object to a String and a String to an Object.
- * When the Object is not a String, an exception is thrown. The existence of this class can make operations nullsafe, 
- * without performing a null check.
+ * Converts the object add hand to a String, by calling the {@link #toString()} method on the value. The Singleton  
+ * {@link ToStringConverter#INSTANCE} does not perform any validation.
  * 
  * @author Dave Schoorl
  */
-public class NOPConverter implements IValueConverter {
+public class ToStringConverter implements IValueConverter {
 	
-	public static final NOPConverter INSTANCE = new NOPConverter();
+	public static final ToStringConverter INSTANCE = new ToStringConverter();
 	
-	private IValidator validator = NoValidator.INSTANCE;
+	private final IValidator validator;
+	
+	private ToStringConverter() {
+		this.validator = NoValidator.INSTANCE;
+	}
+	
+	public ToStringConverter(IValidator validator) {
+		if (validator == null) {
+			throw new NullPointerException("you must provide a IValidator implementation");
+		}
+		this.validator = validator;
+	}
 	
 	@Override
 	public Object toObject(String value) {
@@ -36,12 +45,7 @@ public class NOPConverter implements IValueConverter {
 	
 	@Override
 	public String toText(Object value) {
-		if (value == null) { return null; }
-		if (!(value instanceof String)) {
-			throw new Xb4jException(String.format("Expected a %s, but encountered a %s", String.class.getName(), 
-					value.getClass().getName()));
-		}
-		return validator.isValid((String)value);
+		return validator.isValid(value==null?null:value.toString());
 	}
 	
 	public Class<?> getJavaType() {

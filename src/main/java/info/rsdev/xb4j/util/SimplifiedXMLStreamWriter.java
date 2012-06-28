@@ -96,7 +96,8 @@ public class SimplifiedXMLStreamWriter {
         }
     }
     
-    public void close() {
+    public void close() throws XMLStreamException {
+		staxWriter.writeEndDocument();
     	namespaceContext.clear();
     	staxWriter = null;	//do not close the underlying staxWriter, because we do not control it
     }

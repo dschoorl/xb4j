@@ -14,17 +14,16 @@
  */
 package info.rsdev.xb4j.model.bindings.action;
 
-import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
+import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 
 /**
- * Extension point that allows users of this framework to manipulate the java context, without the input from the xml
- * stream. This allows you E.g. to set values in the Java domain that have no counterpart in the xml domain, or who's value 
- * is a derived value etc.  
+ * Extension point that allows users of this framework to generate a value for an xml element or an attribute, where the
+ * implementor has the freedom to generate the value that must be inserted in the xml stream.
  * 
  * @author Dave Schoorl
  */
-public interface IUnmarshallingAction {
+public interface IMarshallingAction {
 	
-	public void execute(Object javaContext) throws Xb4jUnmarshallException;
+	public String execute(Object javaContext) throws Xb4jMarshallException;
 	
 }

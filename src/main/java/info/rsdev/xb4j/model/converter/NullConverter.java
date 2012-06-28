@@ -12,19 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.bindings.action;
+package info.rsdev.xb4j.model.converter;
 
-import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 
 /**
- * Extension point that allows users of this framework to manipulate the java context, without the input from the xml
- * stream. This allows you E.g. to set values in the Java domain that have no counterpart in the xml domain, or who's value 
- * is a derived value etc.  
+ * Convert anything and everything to null. The sole purpose of this converter at the moment of inception is to aid unit testing.
  * 
  * @author Dave Schoorl
  */
-public interface IUnmarshallingAction {
+public class NullConverter implements IValueConverter {
 	
-	public void execute(Object javaContext) throws Xb4jUnmarshallException;
+	public static final NullConverter INSTANCE = new NullConverter();
+	
+	private NullConverter() {}
+	
+	@Override
+	public Object toObject(String value) {
+		return null;
+	}
+	
+	@Override
+	public String toText(Object value) {
+		return null;
+	}
+	
+	public Class<?> getJavaType() {
+	    return Object.class;
+	}
 	
 }

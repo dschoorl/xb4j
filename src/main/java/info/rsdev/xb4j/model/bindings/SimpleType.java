@@ -88,8 +88,9 @@ public class SimpleType extends AbstractBinding {
     			
         QName element = getElement();
         javaContext = getProperty(javaContext);
-        boolean isEmpty = (javaContext == null);
-        if (isEmpty && !isOptional()) {	//TODO: check if element is nillable and output nill value for this element
+        String value = this.converter.toText(javaContext);
+        boolean isEmpty = (value == null);
+        if (isEmpty && !hasAttributes() && !isOptional()) {	//TODO: check if element is nillable and output nill value for this element
         	throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
         }
         
@@ -99,7 +100,7 @@ public class SimpleType extends AbstractBinding {
         }
         
         if (!isEmpty) {
-            staxWriter.writeContent(this.converter.toText(javaContext));
+            staxWriter.writeContent(value);
             staxWriter.closeElement(element);
         }
     }

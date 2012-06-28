@@ -90,7 +90,6 @@ public class BindingModel {
             SimplifiedXMLStreamWriter simpleWriter = new SimplifiedXMLStreamWriter(staxWriter);
             binding.toXml(simpleWriter, instance);
             simpleWriter.close();
-            staxWriter.writeEndDocument();
         } catch (XMLStreamException e) {
             log.error("Exception occured when writing instance to xml stream: ".concat(instance.toString()), e);
         } finally {

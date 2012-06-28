@@ -19,18 +19,18 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-
 import info.rsdev.xb4j.model.BindingModel;
-import info.rsdev.xb4j.model.bindings.Element;
-import info.rsdev.xb4j.model.bindings.Root;
-import info.rsdev.xb4j.model.bindings.SimpleType;
+import info.rsdev.xb4j.model.converter.NullConverter;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectTree;
+import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
 
 import org.junit.Test;
 
@@ -165,4 +165,16 @@ public class SimpleTypeTest {
     	assertTrue(simple.generatesOutput("a value"));
     }
     
+    @Test
+    public void testMarshallMandatorySimpleTypeNoTextWithAttributes() throws Exception {
+    	StringWriter writer = new StringWriter();
+    	SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+    	
+    	SimpleType simple = new SimpleType(new QName("Simple"), NullConverter.INSTANCE);
+    	simple.addAttribute(new Attribute(new QName("name")), "name");
+    	simple.toXml(staxWriter, new ObjectA("soul"));
+    	staxWriter.close();
+    	
+    	assertEquals("<Simple name=\"soul\"/>",writer.toString());
+    }
 }
