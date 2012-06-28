@@ -16,8 +16,6 @@ package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.model.converter.IValueConverter;
 import info.rsdev.xb4j.model.converter.NOPConverter;
-import info.rsdev.xb4j.model.java.accessor.IGetter;
-import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 import javax.xml.namespace.QName;
@@ -27,19 +25,11 @@ import javax.xml.stream.XMLStreamException;
  * 
  * @author dschoorl
  */
-public class Attribute {
+public class Attribute extends AbstractAttribute {
 	
 	private IValueConverter converter = NOPConverter.INSTANCE;
     
-    private IGetter getter = null;
-    
-    private ISetter setter = null;
-    
-	private QName attributeName = null;
-	
-	private boolean isRequired = false;
-	
-	private String defaultValue = null;
+    private String defaultValue = null;
 	
     public Attribute(QName attributeName) {
     	setAttributeName(attributeName);
@@ -51,18 +41,8 @@ public class Attribute {
     	setConverter(converter);
     }
     
-    public QName getAttributeName() {
-    	return this.attributeName;
-    }
-    
-    private void setAttributeName(QName attributeName) {
-    	if (attributeName == null) {
-    		throw new NullPointerException("Attribute QName cannot be null");
-    	}
-    	this.attributeName = attributeName;
-    }
-    
-    public void toJava(String valueAsText, Object javaContext) throws XMLStreamException {
+    @Override
+	public void toJava(String valueAsText, Object javaContext) throws XMLStreamException {
     	if ((valueAsText == null) && (this.defaultValue != null)) {
     		valueAsText = this.defaultValue;
     	}
@@ -70,7 +50,8 @@ public class Attribute {
         setProperty(javaContext, value);
     }
     
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext, QName elementName) throws XMLStreamException {
+    @Override
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext, QName elementName) throws XMLStreamException {
         QName attributeName = getAttributeName();
         String value = this.converter.toText(getProperty(javaContext));
         if ((value == null) && (defaultValue != null)) {
@@ -86,17 +67,6 @@ public class Attribute {
         }
     }
     
-    public Object getProperty(Object contextInstance) {
-    	if (contextInstance == null) {
-    		return defaultValue;
-    	}
-        return this.getter.get(contextInstance);
-    }
-    
-    public boolean setProperty(Object contextInstance, Object propertyValue) {
-        return this.setter.set(contextInstance, propertyValue);
-    }
-    
     private void setConverter(IValueConverter converter) {
     	if (converter == null) {
     		throw new NullPointerException("IValueConverter cannot be null");
@@ -104,36 +74,18 @@ public class Attribute {
     	this.converter = converter;
     }
     
-    public Attribute setGetter(IGetter getter) {
-        this.getter = getter;
-        return this;
-    }
-
-    public Attribute setSetter(ISetter setter) {
-        this.setter = setter;
-        return this;
-    }
-    
-    public boolean isRequired() {
-    	return this.isRequired;
-    }
-    
-    public Attribute setRequired(boolean isRequired) {
-    	this.isRequired = isRequired;
-    	return this;
-    }
-    
-    public Attribute setDefault(String defaultValue) {
+    @Override
+	public IAttribute setDefault(String defaultValue) {
     	if (defaultValue == null) {
     		throw new NullPointerException("No value provided for default value");
     	}
     	this.defaultValue = defaultValue;
     	return this;
     }
-    
-    @Override
-    public String toString() {
-        return String.format("Attribute[name=%s]", this.attributeName);
-    }
+
+	@Override
+	public String getDefaultValue() {
+		return this.defaultValue;
+	}
     
 }

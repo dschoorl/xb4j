@@ -54,7 +54,7 @@ public abstract class AbstractBinding implements IBinding {
     
     private IBinding parent = null;
     
-    private List<Attribute> attributes = null;
+    private List<IAttribute> attributes = null;
     
     private boolean isOptional = false; //by default, everything is mandatory, unless explicitly made optional
     
@@ -90,20 +90,20 @@ public abstract class AbstractBinding implements IBinding {
         this.setter = original.setter;
         this.isOptional = original.isOptional;
         if (original.attributes != null) {
-        	this.attributes = new LinkedList<Attribute>(original.attributes);
+        	this.attributes = new LinkedList<IAttribute>(original.attributes);
         }
         this.parent = null;    //clear parent, so that copy can be used in another binding hierarchy
     }
     
     @Override
-    public IBinding addAttribute(Attribute attribute, String fieldName) {
+    public IBinding addAttribute(IAttribute attribute, String fieldName) {
     	if (attribute == null) {
     		throw new NullPointerException(String.format("Attribute cannot be null (binding=%s)", this));
     	}
     	if (getElement() == null) {
     		throw new Xb4jException(String.format("No element defined to bind attributes to (binding=%s)", this));
     	}
-    	Collection<Attribute> attributes = getAttributes();
+    	Collection<IAttribute> attributes = getAttributes();
     	if (attributes.contains(attribute)) {
     		throw new Xb4jException(String.format("Attribute %s already defined (binding=%s)", attribute, this));
     	}
@@ -117,10 +117,10 @@ public abstract class AbstractBinding implements IBinding {
     	return this;
     }
     
-    public Collection<Attribute> getAttributes() {
+    public Collection<IAttribute> getAttributes() {
     	if ((this.attributes == null) && (getElement() != null)) {
     		//only create new collection, when there is an element to bind them to
-    		this.attributes = new LinkedList<Attribute>();
+    		this.attributes = new LinkedList<IAttribute>();
     	}
     	return this.attributes;
     }
@@ -271,19 +271,19 @@ public abstract class AbstractBinding implements IBinding {
     
     public void attributesToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
     	if ((attributes != null) && !attributes.isEmpty()) {
-    		for (Attribute attribute: this.attributes) {
+    		for (IAttribute attribute: this.attributes) {
     			attribute.toXml(staxWriter, javaContext, getElement());
     		}
     	}
     }
     
     public void attributesToJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
-    	Collection<Attribute> expectedAttributes = getAttributes();
+    	Collection<IAttribute> expectedAttributes = getAttributes();
     	if ((expectedAttributes != null) && !expectedAttributes.isEmpty()) {
     		Map<QName, String> attributes = staxReader.getAttributes();
     		if (attributes != null) {
     			attributes = new HashMap<QName, String>(attributes);	//copy attributes that were encountered in xml
-    			for (Attribute attribute: expectedAttributes) {
+    			for (IAttribute attribute: expectedAttributes) {
     				if (!attributes.containsKey(attribute.getAttributeName()) && attribute.isRequired()) {
     					throw new Xb4jException(String.format("%s is required but not found in xml for %s", attribute, this));
     				}

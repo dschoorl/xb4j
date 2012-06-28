@@ -54,7 +54,7 @@ public interface IBinding {
     
     public QName getElement();
     
-    public IBinding addAttribute(Attribute attribute, String fieldName);
+    public IBinding addAttribute(IAttribute attribute, String fieldName);
     
     public Class<?> getJavaType();
     

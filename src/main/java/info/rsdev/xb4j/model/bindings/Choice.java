@@ -60,7 +60,7 @@ public class Choice extends AbstractSingleBinding {
     }
     
 	@Override
-	public IBinding addAttribute(Attribute attribute, String fieldName) {
+	public IBinding addAttribute(IAttribute attribute, String fieldName) {
 		throw new Xb4jException(String.format("You cannot add attributes to the Choice-binding itself; you must add it to " +
 				"the options instead (%s)", attribute));
 	}

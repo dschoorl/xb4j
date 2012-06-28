@@ -93,7 +93,7 @@ public class Ignore implements IBinding {
 	}
 
 	@Override
-	public IBinding addAttribute(Attribute attribute, String fieldName) {
+	public IBinding addAttribute(IAttribute attribute, String fieldName) {
 		return this;
 	}
 
