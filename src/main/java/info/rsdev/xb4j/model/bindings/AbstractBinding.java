@@ -20,7 +20,7 @@ import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
-import info.rsdev.xb4j.model.java.action.IAction;
+import info.rsdev.xb4j.model.java.action.IUnmarshallingAction;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
@@ -46,7 +46,7 @@ public abstract class AbstractBinding implements IBinding {
 	
 	private ICreator objectCreator = null;
 	
-	private IAction actionAfterUnmarshalling = null;
+	private IUnmarshallingAction actionAfterUnmarshalling = null;
 	
     private IGetter getter = null;
     
@@ -200,7 +200,7 @@ public abstract class AbstractBinding implements IBinding {
     }
     
     @Override
-    public IBinding setActionAfterUnmarshalling(IAction action) {
+    public IBinding setActionAfterUnmarshalling(IUnmarshallingAction action) {
     	if (action == null) {
     		throw new NullPointerException("You must provide an IAction implementation");
     	}
@@ -208,7 +208,7 @@ public abstract class AbstractBinding implements IBinding {
     	return this;
     }
     
-    protected IAction getActionAfterUnmarshalling() {
+    protected IUnmarshallingAction getActionAfterUnmarshalling() {
     	return this.actionAfterUnmarshalling;
     }
     

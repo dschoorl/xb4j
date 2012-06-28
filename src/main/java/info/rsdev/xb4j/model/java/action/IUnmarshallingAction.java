@@ -18,7 +18,7 @@ package info.rsdev.xb4j.model.java.action;
  * 
  * @author Dave Schoorl
  */
-public interface IAction {
+public interface IUnmarshallingAction {
 	
 	public void execute(Object javaContext);
 	

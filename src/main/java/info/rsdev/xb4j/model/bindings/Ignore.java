@@ -2,7 +2,7 @@ package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
-import info.rsdev.xb4j.model.java.action.IAction;
+import info.rsdev.xb4j.model.java.action.IUnmarshallingAction;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
@@ -26,7 +26,7 @@ public class Ignore implements IBinding {
     
     private boolean isOptional = false; //by default, everything is mandatory, unless explicitly made optional
     
-    private IAction actionAfterUnmarshalling = null;
+    private IUnmarshallingAction actionAfterUnmarshalling = null;
     
     public Ignore(QName element) {
     	this(element, false);
@@ -139,7 +139,7 @@ public class Ignore implements IBinding {
 	}
 
     @Override
-    public IBinding setActionAfterUnmarshalling(IAction action) {
+    public IBinding setActionAfterUnmarshalling(IUnmarshallingAction action) {
     	if (action == null) {
     		throw new NullPointerException("You must provide an IAction implementation");
     	}
