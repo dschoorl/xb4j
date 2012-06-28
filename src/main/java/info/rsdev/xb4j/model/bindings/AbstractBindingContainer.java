@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 
-public abstract class AbstractBindingContainer extends AbstractBinding implements IBindingContainer {
+public abstract class AbstractBindingContainer extends AbstractBinding implements IContainerBinding {
 
     private ArrayList<IBinding> children = new ArrayList<IBinding>();
     

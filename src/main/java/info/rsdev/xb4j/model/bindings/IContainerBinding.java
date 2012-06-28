@@ -22,7 +22,7 @@ import info.rsdev.xb4j.model.java.accessor.ISetter;
  * 
  * @author Dave Schoorl
  */
-public interface IBindingContainer extends IBinding {
+public interface IContainerBinding extends IBinding {
 	
 	public <T extends IBinding> T add(T childBinding);
 	

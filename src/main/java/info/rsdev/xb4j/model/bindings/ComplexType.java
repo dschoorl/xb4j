@@ -56,8 +56,8 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
         Reference reference = new Reference(element, this);
         if (parent instanceof ISingleBinding) {
             ((ISingleBinding)parent).setChild(reference);
-        } else if (parent instanceof IBindingContainer) {
-            ((IBindingContainer)parent).add(reference);
+        } else if (parent instanceof IContainerBinding) {
+            ((IContainerBinding)parent).add(reference);
         }
         
         //In the case of anonymous ComplexType, the setter must be on the ComplexType
