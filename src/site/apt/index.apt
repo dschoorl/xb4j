@@ -1,0 +1,6 @@
+Introduction
+
+  The useradmin service implements a delegated user administration service. An administrator can add users and roles to the area
+that he is responsible for and the changed configuration is passed on to the OpenAM Access and Identity Management (AIM) software package. 
+It's functionality is comparable to the who-are-u service that was tailored towards the HP Select Access AIM software. OpenAM 
+replaced HP Select Access in August 2012.
