@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.java;
+package info.rsdev.xb4j.model.bindings.chooser;
 
 import info.rsdev.xb4j.model.bindings.Choice;
 

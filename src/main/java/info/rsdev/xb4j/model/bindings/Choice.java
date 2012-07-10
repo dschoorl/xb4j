@@ -16,8 +16,8 @@ package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
-import info.rsdev.xb4j.model.java.IChooser;
-import info.rsdev.xb4j.model.java.ContextInstanceOf;
+import info.rsdev.xb4j.model.bindings.chooser.ContextInstanceOf;
+import info.rsdev.xb4j.model.bindings.chooser.IChooser;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;

@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 import info.rsdev.xb4j.model.bindings.Choice;
 import info.rsdev.xb4j.model.bindings.SimpleType;
-import info.rsdev.xb4j.model.java.ContextInstanceOf;
+import info.rsdev.xb4j.model.bindings.chooser.ContextInstanceOf;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectB;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;

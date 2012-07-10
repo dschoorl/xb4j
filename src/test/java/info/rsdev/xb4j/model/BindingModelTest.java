@@ -70,4 +70,11 @@ public class BindingModelTest {
         assertEquals(expected, model.getBinding(ObjectB.class));
     }
     
+    @Test(expected=Xb4jException.class)
+    public void testBindJavaclassTwiceToDifferentLocalParts() throws Exception {
+    	BindingModel aModel = new BindingModel();
+    	aModel.register(new Root(new QName("http://bkwi.nl/1", "versie1"), ObjectA.class));
+    	aModel.register(new Root(new QName("http://bkwi.nl/2", "versie2"), ObjectA.class));	//same class must use same localPart, if not: Xb4jException is thrown
+    }
+    
 }

@@ -16,6 +16,11 @@ public class AttributeInjector extends AbstractAttribute {
 	
 	private IMarshallingAction valueProvider = null;
 	
+	/**
+	 * Create a new {@link AttributeInjector}
+	 * @param element
+	 * @param valueProvider
+	 */
 	public AttributeInjector(QName element, IMarshallingAction valueProvider) {
 		super(element);
 		setMarshallingAction(valueProvider);

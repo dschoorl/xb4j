@@ -227,10 +227,11 @@ public class BindingModel {
     				"already registered for %s", binding, xmlToClass.get(element), element));
     	}
     	
-    	/* A Java class can be bound to multiple RootBindings, on the condition that the element of the RootBinding uses
+    	/* A Java class can be bound to multiple Root-bindings, on the condition that the element of the RootBinding uses
     	 * the same localpart as al other bindings for the Java class, but a different namespace.
-    	 * The framework is capable of also differenting on localpart, but customers of this framework, E.g. SOAP stacks,
-    	 * will not be able to supply the entire QName to select the RootBinding for marshalling. However, they are likely
+    	 * 
+    	 * The xb4j framework is capable of also differenting on localpart, but customers of this framework, E.g. SOAP stacks,
+    	 * will not be able to supply the entire QName to select the Root-binding for marshalling. However, they are likely
     	 * able to supply the namespaceUri (based on the namespaceUri of the incoming message).
     	 */
         xmlToClass.put(element, binding);

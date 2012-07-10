@@ -20,7 +20,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.test.ObjectTree;
 
@@ -30,6 +29,7 @@ import java.util.ArrayList;
 
 import javax.xml.namespace.QName;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -133,4 +133,24 @@ public class RepeaterTest {
     	Repeater repeater = new Repeater(new QName("mandatory"), ArrayList.class, false);
     	assertTrue(repeater.generatesOutput(new ArrayList<String>()));
     }
+    
+    @Test @Ignore("Prepare this feature by first implementing JavaContext class")
+    public void testMarshallCollectionIndexAsAttribute() throws Exception {
+    	//work on a collection of Strings
+    	BindingModel model = new BindingModel();
+        Root root = new Root(new QName("root"), ObjectTree.class);
+        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
+    	SimpleType item = collection.setItem(new SimpleType(new QName("item")));
+    	item.addAttribute(new AttributeInjector(new QName("seqnr"), /*IndexGrabber"*/ null), "");	//is this the best way...?	-- the simpletype does not know about collection when attribute is set
+
+    	ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        ArrayList<String> strings = new ArrayList<String>(2);
+        strings.add("string1");
+        strings.add("string2");
+        
+        model.toXml(stream, strings);
+        String result = stream.toString();
+        assertEquals("<root><collection><item seqnr=\"0\">string1</item><item seqnr=\"1\">string2</item></collection></root>", result);
+    }
+    
 }
