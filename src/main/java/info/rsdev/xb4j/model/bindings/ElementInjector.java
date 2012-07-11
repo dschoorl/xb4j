@@ -16,6 +16,7 @@ package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.model.bindings.action.IMarshallingAction;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
@@ -49,7 +50,7 @@ public class ElementInjector extends AbstractBinding {
 	}
 
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
         QName element = getElement();	//never null for an ElementInjector
         javaContext = getProperty(javaContext);
         String value = this.valueProvider.execute(javaContext);
@@ -75,12 +76,12 @@ public class ElementInjector extends AbstractBinding {
 	}
 	
 	@Override
-	public boolean generatesOutput(Object javaContext) {
+	public boolean generatesOutput(JavaContext javaContext) {
 		return true;
 	}
 	
 	@Override
-	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
 		return UnmarshallResult.NO_RESULT;	//do nothing
 	}
 	

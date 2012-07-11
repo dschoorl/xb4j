@@ -14,6 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
@@ -29,13 +30,13 @@ public interface IAttribute {
 	
 	public QName getAttributeName();
 	
-	public void toJava(String valueAsText, Object javaContext) throws XMLStreamException;
+	public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException;
 	
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext, QName elementName) throws XMLStreamException;
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException;
 	
-	public Object getProperty(Object contextInstance);
+	public Object getProperty(JavaContext javaContext);
 	
-	public boolean setProperty(Object contextInstance, Object propertyValue);
+	public boolean setProperty(JavaContext javaContext, Object propertyValue);
 	
 	public IAttribute setGetter(IGetter getter);
 	

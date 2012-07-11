@@ -14,6 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 
@@ -50,16 +51,16 @@ public abstract class AbstractAttribute implements IAttribute {
 	}
 
 	@Override
-	public Object getProperty(Object contextInstance) {
-		if (contextInstance == null) {
-			return getDefaultValue();
+	public JavaContext getProperty(JavaContext javaContext) {
+		if (javaContext.getContextObject() == null) {
+			return javaContext.newContext(getDefaultValue());
 		}
-	    return this.getter.get(contextInstance);
+	    return this.getter.get(javaContext);
 	}
 
 	@Override
-	public boolean setProperty(Object contextInstance, Object propertyValue) {
-	    return this.setter.set(contextInstance, propertyValue);
+	public boolean setProperty(JavaContext javaContext, Object propertyValue) {
+	    return this.setter.set(javaContext, propertyValue);
 	}
 
 	@Override

@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings.chooser;
 
 import info.rsdev.xb4j.model.bindings.Choice;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 
@@ -38,11 +39,11 @@ public class PropertyNotNullChooser implements IChooser {
 	}
 	
 	@Override
-	public boolean matches(Object javaContext) {
+	public boolean matches(JavaContext javaContext) {
 		/* When the javaContext is null, we cannot establish the Object has the requested field 
 		 * and thus we respond with false */
-	    if (javaContext == null) { return false; }
-		Object fieldValue = propertyAccessor.get(javaContext);
+	    if (javaContext.getContextObject() == null) { return false; }
+		Object fieldValue = propertyAccessor.get(javaContext).getContextObject();
 		return fieldValue != null;
 	}
 	

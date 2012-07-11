@@ -17,6 +17,7 @@ package info.rsdev.xb4j.model.bindings;
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.MethodSetter;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
@@ -79,14 +80,13 @@ public class Repeater extends AbstractBinding {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
 	    //TODO: also support addmethod on container class, which will add to underlying collection for us
-        Object newJavaContext = newInstance();
-        Object collection = select(javaContext, newJavaContext);
-        
-        if (!(collection instanceof Collection<?>)) {
-            throw new Xb4jUnmarshallException(String.format("Not a Collection: %s", collection), this);
+        JavaContext javaCollectionContext = select(javaContext, javaContext.newContext(newInstance()));
+        if (!(javaCollectionContext.getContextObject() instanceof Collection<?>)) {
+            throw new Xb4jUnmarshallException(String.format("Not a Collection: %s", javaCollectionContext), this);
         }
+        Collection<Object> collection = (Collection<Object>)javaCollectionContext.getContextObject();
         
         //read enclosing collection element (if defined)
         QName collectionElement = getElement();
@@ -103,17 +103,18 @@ public class Repeater extends AbstractBinding {
     		}
     	}
         
-        attributesToJava(staxReader, select(javaContext, newJavaContext));
+        attributesToJava(staxReader, javaCollectionContext);
 
         int occurences = 0;
         UnmarshallResult result = null;
         boolean proceed = true;
         while (proceed) {
-        	result = itemBinding.toJava(staxReader, collection);
+        	result = itemBinding.toJava(staxReader, javaCollectionContext);
             proceed = result.isUnmarshallSuccessful();
-        	if (result.mustHandleUnmarshalledObject()) {
-        		((Collection<Object>)collection).add(result.getUnmarshalledObject());
-        	}
+            if (proceed && result.mustHandleUnmarshalledObject()) {
+            	//the itemBinding has been given the add-method setter when it was set on this Repeater binding
+            	throw new Xb4jException("ItemBinding unexpectedly did not add unmarshalled object to Collection");
+            }
             if (proceed) {
             	occurences++;
             	if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
@@ -140,10 +141,10 @@ public class Repeater extends AbstractBinding {
         }
         
         boolean isHandled = false;
-        if (javaContext != null) {
+        if (javaContext.getContextObject() != null) {
         	isHandled = setProperty(javaContext, collection);
         }
-		return new UnmarshallResult(newJavaContext, isHandled);
+		return new UnmarshallResult(collection, isHandled);
 	}
 	
 	/**
@@ -178,10 +179,10 @@ public class Repeater extends AbstractBinding {
 	}
 	
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
 		if (!generatesOutput(javaContext)) { return; }
 		
-        Object collection = getProperty(javaContext);
+        Object collection = getProperty(javaContext).getContextObject();
         if ((collection != null) && (!(collection instanceof Collection<?>))) {
         	throw new Xb4jMarshallException(String.format("Not a Collection: %s", collection), this);
         }
@@ -204,7 +205,7 @@ public class Repeater extends AbstractBinding {
         
         if (itemBinding != null) {
         	for (Object item: (Collection<?>)collection) {
-            	itemBinding.toXml(staxWriter, item);
+            	itemBinding.toXml(staxWriter, javaContext.newContext(item));
         	}
         }
         
@@ -214,11 +215,11 @@ public class Repeater extends AbstractBinding {
 	}
 	
 	@Override
-	public boolean generatesOutput(Object javaContext) {
-        Object collection = getProperty(javaContext);
+	public boolean generatesOutput(JavaContext javaContext) {
+        Object collection = getProperty(javaContext).getContextObject();
         if ((collection != null) && (collection instanceof Collection<?>) && !((Collection<?>)collection).isEmpty()) {
         	for (Object item: (Collection<?>)collection) {
-            	if (itemBinding.generatesOutput(item)) {
+            	if (itemBinding.generatesOutput(javaContext.newContext(item))) {
             		return true;
             	}
         	}

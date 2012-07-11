@@ -18,6 +18,7 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.bindings.chooser.ContextInstanceOf;
 import info.rsdev.xb4j.model.bindings.chooser.IChooser;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
@@ -96,7 +97,7 @@ public class Choice extends AbstractSingleBinding {
 		return choice;
 	}
 	
-	private IBinding selectBinding(Object javaContext) {
+	private IBinding selectBinding(JavaContext javaContext) {
 		for (int i=0; i<choosers.size(); i++) {
 			IChooser candidate = choosers.get(i);
 			if (logger.isDebugEnabled()) {
@@ -117,7 +118,7 @@ public class Choice extends AbstractSingleBinding {
 	}
 	
 	@Override
-	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
     	boolean startTagFound = false;
@@ -170,7 +171,7 @@ public class Choice extends AbstractSingleBinding {
 	}
 	
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
 		if (!generatesOutput(javaContext)) { return; }
 		
         //mixed content is not yet supported -- there are either child elements or there is content
@@ -193,7 +194,7 @@ public class Choice extends AbstractSingleBinding {
 	}
 	
 	@Override
-	public boolean generatesOutput(Object javaContext) {
+	public boolean generatesOutput(JavaContext javaContext) {
 		//a quick check: when the element is not optional or it has attributes, generate output, regardless if the element has content
 		if ((getElement() != null) && (hasAttributes() || !isOptional())) {
 			return true;

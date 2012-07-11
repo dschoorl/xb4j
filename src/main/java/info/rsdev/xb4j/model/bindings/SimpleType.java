@@ -18,6 +18,7 @@ import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.converter.IValueConverter;
 import info.rsdev.xb4j.model.converter.NOPConverter;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
@@ -52,7 +53,7 @@ public class SimpleType extends AbstractBinding {
     }
 
     @Override
-    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();	//should never be null for a SimpleType
     	boolean startTagFound = false;
@@ -83,7 +84,7 @@ public class SimpleType extends AbstractBinding {
     }
     
     @Override
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
     	if (!generatesOutput(javaContext)) { return; }
     			
         QName element = getElement();
@@ -92,7 +93,7 @@ public class SimpleType extends AbstractBinding {
         	throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
         }
         
-        String value = this.converter.toText(javaContext);
+        String value = this.converter.toText(javaContext.getContextObject());
         boolean isEmpty = (value == null);
         if (!isOptional() || !isEmpty) {
         	staxWriter.writeElement(element, isEmpty);	//suppress empty optional elements
@@ -106,9 +107,9 @@ public class SimpleType extends AbstractBinding {
     }
     
     @Override
-    public boolean generatesOutput(Object javaContext) {
+    public boolean generatesOutput(JavaContext javaContext) {
     	javaContext = getProperty(javaContext);
-    	if (javaContext != null) {
+    	if (javaContext.getContextObject() != null) {
     		return true;
     	}
 		return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)

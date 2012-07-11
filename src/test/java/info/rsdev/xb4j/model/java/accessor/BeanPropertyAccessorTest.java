@@ -19,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectC;
 import info.rsdev.xb4j.test.SubclassedObjectA;
@@ -35,7 +36,7 @@ public class BeanPropertyAccessorTest {
         
         ObjectA context = new ObjectA("test");
         assertEquals("test", context.getAName());
-        assertTrue(accessor.set(context, "Hello"));
+        assertTrue(accessor.set(new JavaContext(context), "Hello"));
         assertEquals("Hello", context.getAName());
     }
     
@@ -45,7 +46,7 @@ public class BeanPropertyAccessorTest {
         
         ObjectC context = new ObjectC();
         assertFalse(context.isInitialized());
-        assertTrue(accessor.set(context, true));
+        assertTrue(accessor.set(new JavaContext(context), true));
         assertTrue(context.isInitialized());
     }
     
@@ -55,7 +56,7 @@ public class BeanPropertyAccessorTest {
         
         SubclassedObjectA context = new SubclassedObjectA("test");
         assertEquals("test", context.getAName());
-        assertTrue(accessor.set(context, "Hello"));
+        assertTrue(accessor.set(new JavaContext(context), "Hello"));
         assertEquals("Hello", context.getAName());
     }
     
@@ -68,7 +69,7 @@ public class BeanPropertyAccessorTest {
         
         ObjectC context = new ObjectC();
         context.setDetails(details);
-        assertEquals(details, accessor.get(context));
+        assertEquals(details, accessor.get(new JavaContext(context)).getContextObject());
     }
     
     @Test
@@ -78,7 +79,7 @@ public class BeanPropertyAccessorTest {
         ObjectC context = new ObjectC();
         context.setInitialized(true);
         
-        Object property = accessor.get(context);
+        Object property = accessor.get(new JavaContext(context)).getContextObject();
         assertNotNull(property);
         assertSame(Boolean.class, property.getClass()); //value is autoboxed? Why??
         assertEquals(Boolean.TRUE, property);
@@ -89,7 +90,7 @@ public class BeanPropertyAccessorTest {
         BeanPropertyAccessor accessor = new BeanPropertyAccessor("aName");
         
         SubclassedObjectA context = new SubclassedObjectA("test");
-        assertEquals("test", accessor.get(context));
+        assertEquals("test", accessor.get(new JavaContext(context)).getContextObject());
     }
     
 }

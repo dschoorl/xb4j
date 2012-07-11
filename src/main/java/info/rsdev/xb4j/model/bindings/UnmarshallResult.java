@@ -14,6 +14,8 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import info.rsdev.xb4j.model.java.JavaContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,6 +107,9 @@ public class UnmarshallResult implements ErrorCodes {
 	 * @param unmarshalledObjectIsHandled true if the unmarshalledObject is already set in the Java context, false otherwise
 	 */
 	public UnmarshallResult(Object unmarshalledObject, boolean unmarshalledObjectIsHandled) {
+		if (unmarshalledObject instanceof JavaContext) {
+			throw new IllegalStateException("Unmarshalled Object can never be of type ".concat(JavaContext.class.getName()));
+		}
 		this.unmarshalledObject = unmarshalledObject;
 		this.unmarshalledObjectIsHandled = unmarshalledObjectIsHandled;
 	}
@@ -176,6 +181,14 @@ public class UnmarshallResult implements ErrorCodes {
 	
 	public static final UnmarshallResult newMissingElement(IBinding bindingWithError) {
 		return new UnmarshallResult(MISSING_MANDATORY_ERROR, String.format("Mandatory element not encountered in xml: %s", bindingWithError.getElement()), bindingWithError);
+	}
+	
+	@Override
+	public String toString() {
+		if (errorCode != null) {
+			return String.format("%s[error=%s, message=%s]", getClass().getSimpleName(), errorCode, errorMessage);
+		}			
+		return String.format("%s[result=%s, handled=%b]", getClass().getSimpleName(), unmarshalledObject, unmarshalledObjectIsHandled);
 	}
 
 }

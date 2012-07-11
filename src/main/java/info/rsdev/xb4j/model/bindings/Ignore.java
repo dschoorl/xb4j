@@ -1,6 +1,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.model.bindings.action.IUnmarshallingAction;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
@@ -41,7 +42,7 @@ public class Ignore implements IBinding {
     }
     
 	@Override
-	public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         QName expectedElement = getElement();
 		if (!staxReader.isAtElementStart(expectedElement)) {
     		if (isOptional()) {
@@ -62,12 +63,12 @@ public class Ignore implements IBinding {
 	}
 	
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
 		//do nothing, i.o.w: ignore!
 	}
 	
 	@Override
-	public boolean generatesOutput(Object javaContext) {
+	public boolean generatesOutput(JavaContext javaContext) {
 		return false;
 	}
 
@@ -113,12 +114,12 @@ public class Ignore implements IBinding {
 	}
 
 	@Override
-	public Object getProperty(Object contextInstance) {
-		return null;
+	public JavaContext getProperty(JavaContext javaContext) {
+		return javaContext;
 	}
 
 	@Override
-	public boolean setProperty(Object contextInstance, Object propertyValue) {
+	public boolean setProperty(JavaContext contextInstance, Object propertyValue) {
 		return false;
 	}
 

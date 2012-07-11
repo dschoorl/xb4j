@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.model.bindings.IBinding;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 
 /**
@@ -26,7 +27,7 @@ import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
  */
 public interface ISetter {
 	
-	boolean set(Object javaContext, Object propertyValue);
+	boolean set(JavaContext javaContext, Object propertyValue);
 	
     public int hashCode();
     

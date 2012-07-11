@@ -21,6 +21,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.converter.NullConverter;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
@@ -150,19 +151,19 @@ public class SimpleTypeTest {
     @Test
     public void testOptionalSimpleTypeNoContentGeneratesNoOutput() {
     	IBinding simple = new SimpleType(new QName("optional")).setOptional(true);
-    	assertFalse(simple.generatesOutput(null));
+    	assertFalse(simple.generatesOutput(new JavaContext(null)));
     }
     
     @Test
     public void testManadatorySimpleTypeNoContentGeneratesOutput() {
     	IBinding simple = new SimpleType(new QName("mandatory"));
-    	assertTrue(simple.generatesOutput(null));
+    	assertTrue(simple.generatesOutput(new JavaContext(null)));
     }
     
     @Test
     public void testOptionalSimpleTypeWithContentGeneratesOutput() {
     	IBinding simple = new SimpleType(new QName("optional")).setOptional(true);
-    	assertTrue(simple.generatesOutput("a value"));
+    	assertTrue(simple.generatesOutput(new JavaContext("a value")));
     }
     
     @Test
@@ -172,7 +173,7 @@ public class SimpleTypeTest {
     	
     	SimpleType simple = new SimpleType(new QName("Simple"), NullConverter.INSTANCE);
     	simple.addAttribute(new Attribute(new QName("name")), "name");
-    	simple.toXml(staxWriter, new ObjectA("soul"));
+    	simple.toXml(staxWriter, new JavaContext(new ObjectA("soul")));
     	staxWriter.close();
     	
     	assertEquals("<Simple name=\"soul\"/>",writer.toString());

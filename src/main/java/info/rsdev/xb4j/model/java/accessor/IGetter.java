@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.model.bindings.IBinding;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 /**
@@ -26,7 +27,7 @@ import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
  */
 public interface IGetter {
 	
-	public Object get(Object javaContext);
+	public JavaContext get(JavaContext javaContext);
 	
     public int hashCode();
     

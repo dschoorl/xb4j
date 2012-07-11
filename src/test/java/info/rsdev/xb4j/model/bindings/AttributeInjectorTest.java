@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.model.bindings.action.IMarshallingAction;
 import info.rsdev.xb4j.model.converter.NullConverter;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectA;
@@ -29,7 +30,7 @@ public class AttributeInjectorTest {
 	public void setUp() throws Exception {
 		action = new IMarshallingAction() {
 			@Override
-			public String execute(Object javaContext) throws Xb4jMarshallException {
+			public String execute(JavaContext javaContext) throws Xb4jMarshallException {
 				return "Fixed value";
 			}
 		};
@@ -41,7 +42,7 @@ public class AttributeInjectorTest {
 	public void testToXml() throws Exception {
 		SimpleType simpleElement = new SimpleType(new QName("Simple"), NullConverter.INSTANCE);
 		simpleElement.addAttribute(new AttributeInjector(new QName("attribute"), action), NoGetter.INSTANCE, NoSetter.INSTANCE);
-		simpleElement.toXml(staxWriter, new ObjectA("true"));
+		simpleElement.toXml(staxWriter, new JavaContext(new ObjectA("true")));
 		staxWriter.close();
 		
 		assertEquals("<Simple attribute=\"Fixed value\"/>", this.writer.toString());

@@ -14,6 +14,8 @@
  */
 package info.rsdev.xb4j.model.java.accessor;
 
+import info.rsdev.xb4j.model.java.JavaContext;
+
 public class NoGetter implements IGetter {
 	
 	public static final NoGetter INSTANCE = new NoGetter();
@@ -21,7 +23,7 @@ public class NoGetter implements IGetter {
 	private NoGetter() {}
 	
 	@Override
-	public Object get(Object javaContext) {
+	public JavaContext get(JavaContext javaContext) {
 		return javaContext;
 	}
 	

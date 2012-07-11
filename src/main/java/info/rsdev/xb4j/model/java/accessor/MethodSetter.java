@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -38,17 +39,17 @@ public class MethodSetter implements ISetter {
     }
 
     @Override
-    public boolean set(Object javaContext, Object propertyValue) {
+    public boolean set(JavaContext javaContext, Object propertyValue) {
       	Class<?> parameterType = (propertyValue==null?null:propertyValue.getClass());
-      	Method method = getMethod(javaContext.getClass(), this.methodname, parameterType);
+      	Method method = getMethod(javaContext.getContextObject().getClass(), this.methodname, parameterType);
         try {
-            method.invoke(javaContext, propertyValue);
+            method.invoke(javaContext.getContextObject(), propertyValue);
             return true;
         } catch (RuntimeException e) {
         	throw e;	//to signal FindBugs that I consciously do not handle RuntimeExceptions
         } catch (Exception e) {
             throw new Xb4jException(String.format("Could not set value '%s' in object '%s' through method '%s'", 
-                    propertyValue, javaContext, this.methodname));
+                    propertyValue, javaContext.getContextObject(), this.methodname));
         }
     }
     

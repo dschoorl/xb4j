@@ -16,6 +16,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectC;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
@@ -57,7 +58,7 @@ public class SequenceTest {
 		
 		ByteArrayInputStream stream = new ByteArrayInputStream("<root><name>Jan</name><initialized>true</initialized></root>".getBytes());
 		RecordAndPlaybackXMLStreamReader staxReader = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
-		UnmarshallResult result = root.toJava(staxReader, null);
+		UnmarshallResult result = root.toJava(staxReader, new JavaContext(null));
 		assertNotNull(result);
 		assertFalse(result.isUnmarshallSuccessful());
 		assertNull(result.getUnmarshalledObject());
@@ -69,7 +70,7 @@ public class SequenceTest {
 		Sequence sequence = new Sequence(new QName("container")).setOptional(true);
 		sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
 		sequence.add(new SimpleType(new QName("description")), "description");	//mandatory: will output empty description tag??
-		assertFalse(sequence.generatesOutput(null));
+		assertFalse(sequence.generatesOutput(new JavaContext(null)));
 	}
 	
 	@Test
@@ -77,11 +78,11 @@ public class SequenceTest {
 		Sequence sequence = new Sequence(new QName("container")).setOptional(true);
 		sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
 		sequence.add(new SimpleType(new QName("description")).setOptional(true), "description");
-		assertFalse(sequence.generatesOutput(new ObjectC()));
+		assertFalse(sequence.generatesOutput(new JavaContext(new ObjectC())));
 		
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		XMLStreamWriter staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
-		sequence.toXml(new SimplifiedXMLStreamWriter(staxWriter), new ObjectC());
+		sequence.toXml(new SimplifiedXMLStreamWriter(staxWriter), new JavaContext(new ObjectC()));
 		assertEquals("", stream.toString());
 	}
 	
@@ -90,6 +91,6 @@ public class SequenceTest {
 		Sequence sequence = new Sequence(new QName("container")).setOptional(true);
 		sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
 		sequence.add(new SimpleType(new QName("description")), "description");	//mandatory: will output empty description tag??
-		assertTrue(sequence.generatesOutput(new ObjectC()));
+		assertTrue(sequence.generatesOutput(new JavaContext(new ObjectC())));
 	}
 }

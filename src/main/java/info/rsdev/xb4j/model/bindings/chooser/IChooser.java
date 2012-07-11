@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings.chooser;
 
 import info.rsdev.xb4j.model.bindings.Choice;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
  * An {@link IChooser} is used during the marshalling process (from java to xml). It select's the appropriate option from a 
@@ -30,5 +31,5 @@ public interface IChooser {
 	 * @param javaContext the java object tree being marshalled
 	 * @return true when the option coupled to this {@link IChooser} matches the java context, false otherwise
 	 */
-	public boolean matches(Object javaContext);
+	public boolean matches(JavaContext javaContext);
 }

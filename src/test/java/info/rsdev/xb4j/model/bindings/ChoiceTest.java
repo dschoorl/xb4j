@@ -17,10 +17,8 @@ package info.rsdev.xb4j.model.bindings;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import info.rsdev.xb4j.model.bindings.Choice;
-import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.model.bindings.chooser.ContextInstanceOf;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectB;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
@@ -55,7 +53,7 @@ public class ChoiceTest {
 		
         StringWriter writer = new StringWriter();
         XMLStreamWriter staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
-        choice.toXml(new SimplifiedXMLStreamWriter(staxWriter), instanceA);
+        choice.toXml(new SimplifiedXMLStreamWriter(staxWriter), new JavaContext(instanceA));
         assertEquals(expected, writer.toString());
         
 		ObjectB instanceB = new ObjectB("test");
@@ -63,7 +61,7 @@ public class ChoiceTest {
 		
         writer = new StringWriter();
         staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
-        choice.toXml(new SimplifiedXMLStreamWriter(staxWriter), instanceB);
+        choice.toXml(new SimplifiedXMLStreamWriter(staxWriter), new JavaContext(instanceB));
         assertEquals(expected, writer.toString());
 	}
 	
@@ -72,34 +70,34 @@ public class ChoiceTest {
 		//unmarshall first option
 		ByteArrayInputStream stream = new ByteArrayInputStream("<elem1>test1</elem1>".getBytes());
 		RecordAndPlaybackXMLStreamReader staxWriter = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
-		ObjectA javaContext = new ObjectA("");
-		choice.toJava(staxWriter, javaContext);
-		assertEquals("test1", javaContext.getAName());
+		ObjectA contextObject = new ObjectA("");
+		choice.toJava(staxWriter, new JavaContext(contextObject));
+		assertEquals("test1", contextObject.getAName());
 		
 		//unmarshall second option
 		stream = new ByteArrayInputStream("<elem2>test2</elem2>".getBytes());
 		staxWriter = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
-		ObjectB javaContextB = new ObjectB("");
-		choice.toJava(staxWriter, javaContextB);
-		assertEquals("test2", javaContextB.getValue());
+		ObjectB contextObjectB = new ObjectB("");
+		choice.toJava(staxWriter, new JavaContext(contextObjectB));
+		assertEquals("test2", contextObjectB.getValue());
 	}
 	
 	@Test
 	public void testChoiceWithoutContentNorElementGeneratesNoOutput() {
-		assertFalse(choice.generatesOutput(null));
+		assertFalse(choice.generatesOutput(new JavaContext(null)));
 	}
 	
 	@Test
 	public void testChoiceWithoutContentWithMandatoryElementGeneratesOutput() {
 		choice = new Choice(new QName("mandatory"));
-		assertTrue(choice.generatesOutput(null));
+		assertTrue(choice.generatesOutput(new JavaContext(null)));
 	}
 	
 	@Test
 	public void testChoiceWithoutContentWithOptionalElementGeneratesNoOutput() {
 		choice = new Choice(new QName("optional"));
 		choice.setOptional(true);
-		assertFalse(choice.generatesOutput(null));
+		assertFalse(choice.generatesOutput(new JavaContext(null)));
 	}
 	
 }

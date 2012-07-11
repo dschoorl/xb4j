@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings.action;
 
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
  * Extension point that allows users of this framework to generate a value for an xml element or an attribute, where the
@@ -24,6 +25,6 @@ import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
  */
 public interface IMarshallingAction {
 	
-	public String execute(Object javaContext) throws Xb4jMarshallException;
+	public String execute(JavaContext javaContext) throws Xb4jMarshallException;
 	
 }

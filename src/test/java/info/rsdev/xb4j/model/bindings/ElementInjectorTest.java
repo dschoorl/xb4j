@@ -1,9 +1,9 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertEquals;
-
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.model.bindings.action.IMarshallingAction;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
@@ -27,7 +27,7 @@ public class ElementInjectorTest {
 	public void setUp() throws Exception {
 		action = new IMarshallingAction() {
 			@Override
-			public String execute(Object javaContext) throws Xb4jMarshallException {
+			public String execute(JavaContext javaContext) throws Xb4jMarshallException {
 				return "Fixed value";
 			}
 		};
@@ -38,7 +38,7 @@ public class ElementInjectorTest {
 	@Test
 	public void testInjectText() throws Exception {
 		ElementInjector xmlInjector = new ElementInjector(new QName("Injected"), action);
-		xmlInjector.toXml(staxWriter, new ObjectA("true"));
+		xmlInjector.toXml(staxWriter, new JavaContext(new ObjectA("true")));
 		staxWriter.close();
 		
 		assertEquals("<Injected>Fixed value</Injected>", this.writer.toString());
@@ -48,10 +48,10 @@ public class ElementInjectorTest {
 	public void testInjectOptionalElementNoText() throws Exception {
 		ElementInjector xmlInjector = new ElementInjector(new QName("Injected"), new IMarshallingAction() {
 			@Override
-			public String execute(Object javaContext) throws Xb4jMarshallException { return null; }
+			public String execute(JavaContext javaContext) throws Xb4jMarshallException { return null; }
 		});
 		xmlInjector.setOptional(true);
-		xmlInjector.toXml(staxWriter, new ObjectA("true"));
+		xmlInjector.toXml(staxWriter, new JavaContext(new ObjectA("true")));
 		staxWriter.close();
 		
 		assertEquals("", this.writer.toString());
@@ -61,21 +61,21 @@ public class ElementInjectorTest {
 	public void testInjectMandatoryElementNoText() throws Exception {
 		ElementInjector xmlInjector = new ElementInjector(new QName("Injected"), new IMarshallingAction() {
 			@Override
-			public String execute(Object javaContext) throws Xb4jMarshallException { return null; }
+			public String execute(JavaContext javaContext) throws Xb4jMarshallException { return null; }
 		});
 		xmlInjector.setOptional(false);	//default value is mandatory, for clarity, set it explicity
-		xmlInjector.toXml(staxWriter, new ObjectA("true"));
+		xmlInjector.toXml(staxWriter, new JavaContext(new ObjectA("true")));
 	}
 	
 	@Test
 	public void testInjectMandatoryElementNoTextWithAttributes() throws Exception {
 		ElementInjector xmlInjector = new ElementInjector(new QName("Injected"), new IMarshallingAction() {
 			@Override
-			public String execute(Object javaContext) throws Xb4jMarshallException { return null; }
+			public String execute(JavaContext javaContext) throws Xb4jMarshallException { return null; }
 		});
 		xmlInjector.addAttribute(new Attribute(new QName("attributes")), "name");
 		xmlInjector.setOptional(false);	//default value is mandatory, for clarity, set it explicity
-		xmlInjector.toXml(staxWriter, new ObjectA("true"));
+		xmlInjector.toXml(staxWriter, new JavaContext(new ObjectA("true")));
 		staxWriter.close();
 		
 		assertEquals("<Injected attributes=\"true\"/>", this.writer.toString());

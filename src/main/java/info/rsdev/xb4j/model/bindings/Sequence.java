@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
@@ -60,7 +61,7 @@ public class Sequence extends AbstractContainerBinding {
     }
 
     @Override
-    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
     	QName expectedElement = getElement();
     	boolean startTagFound = false;
     	if (expectedElement != null) {
@@ -76,7 +77,8 @@ public class Sequence extends AbstractContainerBinding {
     	}
     	
     	UnmarshallResult result = null;
-    	Object newJavaContext = newInstance();
+    	JavaContext newJavaContext = javaContext.newContext(newInstance());
+    	
         attributesToJava(staxReader, select(javaContext, newJavaContext));
 
         for (IBinding child: getChildren()) {
@@ -88,7 +90,7 @@ public class Sequence extends AbstractContainerBinding {
         		if (!setProperty(select(javaContext, newJavaContext), result.getUnmarshalledObject())) {
         			//the unmarshalled object could not be set on the (new) java context
         			String message = String.format("Unmarshalled object '%s' not set in Java context '%s'. ", 
-    						result.getUnmarshalledObject(), select(javaContext, newJavaContext));
+    						result.getUnmarshalledObject(), select(javaContext, newJavaContext).getContextObject());
         			if (!hasSetter()) {
         				message = message.concat("No ISetter defined.");
         			}
@@ -104,14 +106,14 @@ public class Sequence extends AbstractContainerBinding {
     				staxReader.getEventName(), encountered), this);
     	}
     	
-		//or set the newly created Java object int he current Java context
-		if (setProperty(javaContext, newJavaContext)) {
-	        return new UnmarshallResult(newJavaContext, true);
+		//or set the newly created Java object in the current Java context
+		if (setProperty(javaContext, newJavaContext.getContextObject())) {
+	        return new UnmarshallResult(newJavaContext.getContextObject(), true);
 		}
-        return new UnmarshallResult(newJavaContext);
+        return new UnmarshallResult(newJavaContext.getContextObject());
     }
     
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
     	if (!generatesOutput(javaContext)) { return; }
     	
         //when this Binding must not output an element, the getElement() method should return null
@@ -143,9 +145,9 @@ public class Sequence extends AbstractContainerBinding {
      * @param javaContext
      * @return
      */
-    public boolean generatesOutput(Object javaContext) {
+    public boolean generatesOutput(JavaContext javaContext) {
     	javaContext = getProperty(javaContext);
-    	if (javaContext != null) {
+    	if (javaContext.getContextObject() != null) {
 	    	for (IBinding child: getChildren()) {
 	    		if (child.generatesOutput(javaContext)) {
 	    			return true;

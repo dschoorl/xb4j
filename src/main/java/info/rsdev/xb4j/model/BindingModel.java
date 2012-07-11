@@ -18,9 +18,10 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.bindings.ComplexType;
 import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.model.bindings.UnmarshallResult;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
-import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.Marker;
+import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -88,7 +89,7 @@ public class BindingModel {
                 throw new IllegalArgumentException("No binding found for: ".concat(instance.getClass().getName()));
             }
             SimplifiedXMLStreamWriter simpleWriter = new SimplifiedXMLStreamWriter(staxWriter);
-            binding.toXml(simpleWriter, instance);
+            binding.toXml(simpleWriter, new JavaContext(instance));
             simpleWriter.close();
         } catch (XMLStreamException e) {
             log.error("Exception occured when writing instance to xml stream: ".concat(instance.toString()), e);
@@ -150,7 +151,7 @@ public class BindingModel {
                 staxReader.rewindAndPlayback(startMarker);
                 if (xmlToClass.containsKey(element)) {
                     Root binding = xmlToClass.get(element);
-                    UnmarshallResult result = binding.toJava(staxReader, null);
+                    UnmarshallResult result = binding.toJava(staxReader, new JavaContext(null));
                     if (result.isUnmarshallSuccessful()) {
                     	return result.getUnmarshalledObject();
                     } else {

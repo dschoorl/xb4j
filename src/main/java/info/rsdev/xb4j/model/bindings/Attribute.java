@@ -16,6 +16,7 @@ package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.model.converter.IValueConverter;
 import info.rsdev.xb4j.model.converter.NOPConverter;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 import javax.xml.namespace.QName;
@@ -41,7 +42,7 @@ public class Attribute extends AbstractAttribute {
     }
     
     @Override
-	public void toJava(String valueAsText, Object javaContext) throws XMLStreamException {
+	public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException {
     	if ((valueAsText == null) && (this.defaultValue != null)) {
     		valueAsText = this.defaultValue;
     	}
@@ -50,9 +51,9 @@ public class Attribute extends AbstractAttribute {
     }
     
     @Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext, QName elementName) throws XMLStreamException {
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException {
         QName attributeName = getAttributeName();
-        String value = this.converter.toText(getProperty(javaContext));
+        String value = this.converter.toText(getProperty(javaContext).getContextObject());
         if ((value == null) && (defaultValue != null)) {
         	value = defaultValue;
         }

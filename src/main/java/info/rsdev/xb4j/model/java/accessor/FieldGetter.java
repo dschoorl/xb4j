@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 import java.lang.reflect.Field;
 
@@ -29,11 +30,13 @@ public class FieldGetter extends AbstractFieldAccessor implements IGetter {
 	}
 	
 	@Override
-	public Object get(Object contextInstance) {
+	public JavaContext get(JavaContext javaContext) {
 		try {
-			return getField(contextInstance.getClass(), getFieldname()).get(contextInstance);
+			Object contextObject = javaContext.getContextObject();
+			Object newContextObject = getField(contextObject.getClass(), getFieldname()).get(contextObject);
+			return javaContext.newContext(newContextObject);
 		} catch (Exception e) {
-			throw new Xb4jException(String.format("Could not get field '%s' from object %s", getFieldname(), contextInstance), e);
+			throw new Xb4jException(String.format("Could not get field '%s' from object %s", getFieldname(), javaContext), e);
 		}
 	}
 	

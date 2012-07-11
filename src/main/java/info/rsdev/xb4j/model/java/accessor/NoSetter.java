@@ -14,6 +14,8 @@
  */
 package info.rsdev.xb4j.model.java.accessor;
 
+import info.rsdev.xb4j.model.java.JavaContext;
+
 public class NoSetter implements ISetter {
 	
 	public static final NoSetter INSTANCE = new NoSetter();
@@ -21,7 +23,7 @@ public class NoSetter implements ISetter {
 	private NoSetter() {}
 	
 	@Override
-	public boolean set(Object javaContext, Object propertyValue) {
+	public boolean set(JavaContext javaContext, Object propertyValue) {
 		return false;
 	}
 	

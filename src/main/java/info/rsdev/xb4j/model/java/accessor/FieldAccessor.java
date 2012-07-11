@@ -14,6 +14,8 @@
  */
 package info.rsdev.xb4j.model.java.accessor;
 
+import info.rsdev.xb4j.model.java.JavaContext;
+
 import java.lang.reflect.Field;
 
 /**
@@ -32,12 +34,12 @@ public class FieldAccessor implements ISetter, IGetter {
 	}
 	
 	@Override
-	public boolean set(Object contextInstance, Object propertyValue) {
-		return setter.set(contextInstance, propertyValue);
+	public boolean set(JavaContext javaContext, Object propertyValue) {
+		return setter.set(javaContext, propertyValue);
 	}
 	
 	@Override
-	public Object get(Object contextInstance) {
+	public JavaContext get(JavaContext contextInstance) {
 		return getter.get(contextInstance);
 	}
 	

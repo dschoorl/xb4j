@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
@@ -52,24 +53,26 @@ public class BeanPropertyAccessor implements ISetter, IGetter {
 	}
 	
 	@Override
-	public boolean set(Object contextInstance, Object propertyValue) {
+	public boolean set(JavaContext javaContext, Object propertyValue) {
 		try {
 		    Class<?> parameterType = (propertyValue == null?null:propertyValue.getClass());
-			Method setter = getSetter(contextInstance.getClass(), this.propertyName, parameterType);
-			setter.invoke(contextInstance, propertyValue);
+			Method setter = getSetter(javaContext.getContextObject().getClass(), this.propertyName, parameterType);
+			setter.invoke(javaContext.getContextObject(), propertyValue);
 			return true;
 		} catch (Exception e) {
 			throw new Xb4jException(String.format("Could not set field '%s' with value '%s' in object '%s'", 
-			        propertyName, propertyValue, contextInstance), e);
+			        propertyName, propertyValue, javaContext), e);
 		}
 	}
 	
 	@Override
-	public Object get(Object contextInstance) {
+	public JavaContext get(JavaContext javaContext) {
 		try {
-			return getGetter(contextInstance.getClass(), this.propertyName).invoke(contextInstance);
+			Object contextObject = javaContext.getContextObject();
+			Object newContextObject = getGetter(contextObject.getClass(), this.propertyName).invoke(contextObject);
+			return javaContext.newContext(newContextObject);
 		} catch (Exception e) {
-			throw new Xb4jException(String.format("Could not get field '%s' from object %s", propertyName, contextInstance), e);
+			throw new Xb4jException(String.format("Could not get field '%s' from object %s", propertyName, javaContext), e);
 		}
 	}
 	

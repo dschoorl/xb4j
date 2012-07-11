@@ -1,6 +1,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.model.bindings.action.IMarshallingAction;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 import javax.xml.namespace.QName;
@@ -27,12 +28,12 @@ public class AttributeInjector extends AbstractAttribute {
 	}
 	
 	@Override
-	public void toJava(String valueAsText, Object javaContext) throws XMLStreamException {
+	public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException {
 		//do nothing
 	}
 	
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext, QName elementName) throws XMLStreamException {
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException {
         QName attributeName = getAttributeName();
         String value = valueProvider.execute(getProperty(javaContext));
         if (isRequired() || (value != null)) {

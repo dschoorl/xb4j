@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectTree;
 
 import java.io.ByteArrayInputStream;
@@ -113,25 +114,25 @@ public class RepeaterTest {
     @Test
     public void testRepeaterNoCollectionNoElementGeneratesNoOutput() {
     	Repeater repeater = new Repeater(ArrayList.class);
-    	assertFalse(repeater.generatesOutput(null));
+    	assertFalse(repeater.generatesOutput(new JavaContext(null)));
     }
     
     @Test
     public void testRepeaterEmptyCollectionNoElementGeneratesNoOutput() {
     	Repeater repeater = new Repeater(ArrayList.class);
-    	assertFalse(repeater.generatesOutput(new ArrayList<String>()));
+    	assertFalse(repeater.generatesOutput(new JavaContext(new ArrayList<String>())));
     }
     
     @Test
     public void testRepeaterEmptyCollectionOptionalElementGeneratesNoOutput() {
     	Repeater repeater = new Repeater(new QName("optional"), ArrayList.class, true);
-    	assertFalse(repeater.generatesOutput(new ArrayList<String>()));
+    	assertFalse(repeater.generatesOutput(new JavaContext(new ArrayList<String>())));
     }
     
     @Test
     public void testRepeaterEmptyCollectionMandatoryElementGeneratesNoOutput() {
     	Repeater repeater = new Repeater(new QName("mandatory"), ArrayList.class, false);
-    	assertTrue(repeater.generatesOutput(new ArrayList<String>()));
+    	assertTrue(repeater.generatesOutput(new JavaContext(new ArrayList<String>())));
     }
     
     @Test @Ignore("Prepare this feature by first implementing JavaContext class")

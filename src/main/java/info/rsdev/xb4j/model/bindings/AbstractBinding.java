@@ -16,6 +16,7 @@ package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.bindings.action.IUnmarshallingAction;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
@@ -163,11 +164,11 @@ public abstract class AbstractBinding implements IBinding {
      * @param newJavaContext
      * @return either the javaContext or the newJavaContext
      */
-    protected Object select(Object javaContext, Object newJavaContext) {
-        if (newJavaContext != null) {
+    protected JavaContext select(JavaContext javaContext, JavaContext newJavaContext) {
+        if (newJavaContext.getContextObject() != null) {
             return newJavaContext;
         }
-        return javaContext;	//TODO: must we detect when both are null? That's worth an Exception, right?
+        return javaContext;
     }
     
     protected void setElementFetchStrategy(IElementFetchStrategy elementFetcher) {
@@ -247,15 +248,17 @@ public abstract class AbstractBinding implements IBinding {
         return (IModelAware)modelAwareBinding;
     }
 
-    public boolean setProperty(Object contextInstance, Object propertyValue) {
-        return this.setter.set(contextInstance, propertyValue);
+    @Override
+    public boolean setProperty(JavaContext javaContext, Object propertyValue) {
+        return this.setter.set(javaContext, propertyValue);
     }
     
-    public Object getProperty(Object contextInstance) {
-    	if (contextInstance == null) {
-    		return null;
+    @Override
+    public JavaContext getProperty(JavaContext javaContext) {
+    	if (javaContext.getContextObject() == null) {
+    		return javaContext;
     	}
-        return this.getter.get(contextInstance);
+        return this.getter.get(javaContext);
     }
     
     public boolean isExpected(QName element) {
@@ -274,7 +277,7 @@ public abstract class AbstractBinding implements IBinding {
         return this;
     }
     
-    public void attributesToXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+    public void attributesToXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
     	if ((attributes != null) && !attributes.isEmpty()) {
     		for (IAttribute attribute: this.attributes) {
     			attribute.toXml(staxWriter, javaContext, getElement());
@@ -282,7 +285,7 @@ public abstract class AbstractBinding implements IBinding {
     	}
     }
     
-    public void attributesToJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public void attributesToJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
     	Collection<IAttribute> expectedAttributes = getAttributes();
     	if ((expectedAttributes != null) && !expectedAttributes.isEmpty()) {
     		Map<QName, String> attributes = staxReader.getAttributes();
@@ -300,16 +303,16 @@ public abstract class AbstractBinding implements IBinding {
     }
     
     @Override
-    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
     	UnmarshallResult result = unmarshall(staxReader, javaContext);
     	if (this.actionAfterUnmarshalling != null) {
-    		Object actionContext = javaContext==null?result.getUnmarshalledObject():javaContext;
+    		JavaContext actionContext = javaContext.getContextObject()==null?javaContext.newContext(result.getUnmarshalledObject()):javaContext;
     		this.actionAfterUnmarshalling.execute(actionContext);
     	}
     	return result;
     }
     
-    public abstract UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException;
+    public abstract UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException;
     
     @Override
     public String toString() {

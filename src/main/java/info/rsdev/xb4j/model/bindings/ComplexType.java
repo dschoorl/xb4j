@@ -16,6 +16,7 @@ package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
@@ -110,35 +111,43 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     	this.namespaceUri = newNamespaceUri;
     }
 
-	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
-		Object newJavaContext = newInstance();
+	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
+		/* A ComplexType is linked to a Reference type and we don't know where a new context object is created, or which
+		 * binding has the getter / setter to set the unmarshalled value in the Java object tree.
+		 */
+		JavaContext newJavaContext = javaContext.newContext(newInstance());
         attributesToJava(staxReader, select(javaContext, newJavaContext));
 
 		UnmarshallResult result = getChildBinding().toJava(staxReader, select(javaContext, newJavaContext));
 		if (!result.isUnmarshallSuccessful()) {
 			return result;
 		}
+		
 		if (result.mustHandleUnmarshalledObject()) {
-			if (!setProperty(javaContext, result.getUnmarshalledObject())) {
-				if (newJavaContext == null) {
+			//process the result from the unmarshall step by the childbinding
+			if (!setProperty(select(javaContext, newJavaContext), result.getUnmarshalledObject())) {
+				if (newJavaContext.getContextObject() == null) {
 					return result;
 				} else {
 					throw new Xb4jUnmarshallException(String.format("Unmarshalled value '%s' is not set in the java context %s and will be " +
 							"lost. Please check your bindings: %s", result.getUnmarshalledObject(), javaContext, this), this);
 				}
 			}
-    	} else {
-    		//or set the newly created Java object int he current Java context
-    		if (setProperty(javaContext, newJavaContext)) {
-    	        return new UnmarshallResult(newJavaContext, true);
-    		}
     	}
+		
+		/* The unmarshall result of the childbinding is handled. It is set on the newly created context object, if it is not null,
+		 * otherwise it is set on the existing context object. However, if the new context object is not null, it could be that
+		 * it must be set on the existing context object or being handled by the parent binding 
+		 */
+		if (setProperty(javaContext, newJavaContext.getContextObject())) {
+	        return new UnmarshallResult(newJavaContext.getContextObject(), true);
+		}
     	
-    	return new UnmarshallResult(newJavaContext);
+    	return new UnmarshallResult(newJavaContext.getContextObject());
 	}
 	
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
 		if (!generatesOutput(javaContext)) { return; }
 		
         //mixed content is not yet supported -- there are either child elements or there is content
@@ -162,9 +171,9 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 	}
 
     @Override
-    public boolean generatesOutput(Object javaContext) {
+    public boolean generatesOutput(JavaContext javaContext) {
     	javaContext = getProperty(javaContext);
-    	if (javaContext != null) {
+    	if (javaContext.getContextObject() != null) {
     		IBinding child = getChildBinding();
     		if ((child != null) && child.generatesOutput(javaContext)) {
     			return true;

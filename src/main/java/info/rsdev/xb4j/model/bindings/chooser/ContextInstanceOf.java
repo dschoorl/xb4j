@@ -14,6 +14,8 @@
  */
 package info.rsdev.xb4j.model.bindings.chooser;
 
+import info.rsdev.xb4j.model.java.JavaContext;
+
 /**
  * A match is made when the current javaContext is of the given java type
  * 
@@ -36,9 +38,9 @@ public class ContextInstanceOf implements IChooser {
 	}
 	
 	@Override
-	public boolean matches(Object javaContext) {
-		if (javaContext == null) { return false; }
-		return this.instanceOf.isAssignableFrom(javaContext.getClass());
+	public boolean matches(JavaContext javaContext) {
+		if (javaContext.getContextObject() == null) { return false; }
+		return this.instanceOf.isAssignableFrom(javaContext.getContextObject().getClass());
 	}
 	
 	@Override

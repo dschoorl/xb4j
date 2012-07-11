@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings.action;
 
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
  * Extension point that allows users of this framework to manipulate the java context, without the input from the xml
@@ -25,6 +26,6 @@ import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
  */
 public interface IUnmarshallingAction {
 	
-	public void execute(Object javaContext) throws Xb4jUnmarshallException;
+	public void execute(JavaContext javaContext) throws Xb4jUnmarshallException;
 	
 }

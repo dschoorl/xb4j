@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.model.bindings.action.IUnmarshallingAction;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
@@ -32,9 +33,9 @@ import javax.xml.stream.XMLStreamException;
  */
 public interface IBinding {
     
-    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException;
+    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException;
     
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException;
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException;
     
     /**
      * Determine if the binding will output anything to xmlStream, so that we can no if we have to output an empty mandatory 
@@ -42,7 +43,7 @@ public interface IBinding {
      * @param javaContext
      * @return
      */
-    public boolean generatesOutput(Object javaContext);
+    public boolean generatesOutput(JavaContext javaContext);
     
     /**
      * Bindings are organized in a hierarchy. Call setParent to build the hierarchy of bindings.
@@ -62,9 +63,9 @@ public interface IBinding {
     
     public Object newInstance();
     
-    public Object getProperty(Object contextInstance);
+    public Object getProperty(JavaContext javaContext);
     
-    public boolean setProperty(Object contextInstance, Object propertyValue);
+    public boolean setProperty(JavaContext javaContext, Object propertyValue);
     
     public IBinding setGetter(IGetter getter);
     

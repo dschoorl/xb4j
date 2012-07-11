@@ -17,6 +17,7 @@ package info.rsdev.xb4j.model.bindings;
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.BeanPropertyAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
@@ -60,7 +61,7 @@ public class Recursor extends AbstractSingleBinding {
     }
     
 	@Override
-	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, Object javaContext) throws XMLStreamException {
+	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
 		UnmarshallResult result = unmarshall(staxReader, 0);
 		if (result.mustHandleUnmarshalledObject()) {
 			if (setProperty(javaContext, result.getUnmarshalledObject())) {
@@ -89,11 +90,11 @@ public class Recursor extends AbstractSingleBinding {
     		}
 		}
         
-        Object nestedObject = newInstance();
-        attributesToJava(staxReader, nestedObject);
+        JavaContext nestedObjectContext = new JavaContext(newInstance());
+        attributesToJava(staxReader, nestedObjectContext);
         
         if (getChildBinding() != null) {
-        	UnmarshallResult result = getChildBinding().toJava(staxReader, nestedObject);
+        	UnmarshallResult result = getChildBinding().toJava(staxReader, nestedObjectContext);
             if (!result.isUnmarshallSuccessful()) {
             	return result;
             }
@@ -117,7 +118,7 @@ public class Recursor extends AbstractSingleBinding {
     	
     	//handle nested child object -- add to object tree
     	if (result.mustHandleUnmarshalledObject()) {
-        	if (!setChild(nestedObject, result.getUnmarshalledObject())) {
+        	if (!setChild(nestedObjectContext, result.getUnmarshalledObject())) {
         		throw new Xb4jUnmarshallException("Cannot set nested element into it's parent object", this);
         	}
         }
@@ -129,15 +130,15 @@ public class Recursor extends AbstractSingleBinding {
     				staxReader.getEventName(), encountered), this);
     	}
     	
-		return new UnmarshallResult(nestedObject);
+		return new UnmarshallResult(nestedObjectContext.getContextObject());
 	}
 	
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, Object javaContext) throws XMLStreamException {
+	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
         toXml(staxWriter, getProperty(javaContext), 0);
 	}
 	
-	private void toXml(SimplifiedXMLStreamWriter staxWriter, Object recurringObject, int recurrenceCount) throws XMLStreamException {
+	private void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext recurringObject, int recurrenceCount) throws XMLStreamException {
 		if (!generatesOutput(recurringObject, recurrenceCount)) { return; }
 		
         //when this Binding must not output an element, the getElement() method should return null
@@ -167,11 +168,11 @@ public class Recursor extends AbstractSingleBinding {
 	}
 	
 	@Override
-	public boolean generatesOutput(Object javaContext) {
+	public boolean generatesOutput(JavaContext javaContext) {
 		return generatesOutput(getProperty(javaContext), 0);
 	}
 	
-	public boolean generatesOutput(Object recurringObject, int recurrenceCount) {
+	public boolean generatesOutput(JavaContext recurringObject, int recurrenceCount) {
         if ((recurringObject != null) && (getChildBinding() != null)) {
         	if (getChildBinding().generatesOutput(recurringObject)) {
         		return true;
@@ -179,7 +180,7 @@ public class Recursor extends AbstractSingleBinding {
         }
         
 		//At this point, we established that the contentBinding will not output content
-        return (recurringObject != null) && (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
+        return (recurringObject.getContextObject() != null) && (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
     }
 	
 	public Recursor setMaxOccurs(int newMaxOccurs) {
@@ -190,14 +191,14 @@ public class Recursor extends AbstractSingleBinding {
 		return this;
 	}
 	
-	private Object getChild(Object recurringObject) {
-		if (recurringObject == null) {
-			return null;
+	private JavaContext getChild(JavaContext recurringObject) {
+		if (recurringObject.getContextObject() == null) {
+			return new JavaContext(null);
 		}
 		return this.recursiveGetter.get(recurringObject);
 	}
 	
-	private boolean setChild(Object recurringObject, Object propertyValue) {
+	private boolean setChild(JavaContext recurringObject, Object propertyValue) {
         return this.recursiveSetter.set(recurringObject, propertyValue);
     }
 	

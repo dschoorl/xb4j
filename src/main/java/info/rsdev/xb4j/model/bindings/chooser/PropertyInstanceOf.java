@@ -14,6 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings.chooser;
 
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 
@@ -43,9 +44,9 @@ public class PropertyInstanceOf implements IChooser {
 	}
 	
 	@Override
-	public boolean matches(Object javaContext) {
-	    if (javaContext == null) { return false; }
-		Object fieldValue = propertyAccessor.get(javaContext);
+	public boolean matches(JavaContext javaContext) {
+	    if (javaContext.getContextObject() == null) { return false; }
+		Object fieldValue = propertyAccessor.get(javaContext).getContextObject();
 		boolean matches = fieldValue != null;
 		matches = matches && (this.instanceOf.isAssignableFrom(fieldValue.getClass()));
 		return matches;

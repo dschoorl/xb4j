@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 import java.lang.reflect.Field;
 
@@ -29,13 +30,14 @@ public class FieldSetter extends AbstractFieldAccessor implements ISetter {
 	}
 	
 	@Override
-	public boolean set(Object contextInstance, Object propertyValue) {
+	public boolean set(JavaContext javaContext, Object propertyValue) {
 		try {
-			getField(contextInstance.getClass(), getFieldname()).set(contextInstance, propertyValue);
+			Object contextObject = javaContext.getContextObject();
+			getField(contextObject.getClass(), getFieldname()).set(contextObject, propertyValue);
 			return true;
 		} catch (Exception e) {
 			throw new Xb4jException(String.format("Could not set field '%s' with value '%s' in object '%s'", 
-					getFieldname(), propertyValue, contextInstance), e);
+					getFieldname(), propertyValue, javaContext), e);
 		}
 	}
 	
