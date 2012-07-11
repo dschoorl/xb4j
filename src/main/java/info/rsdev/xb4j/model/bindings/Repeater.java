@@ -204,8 +204,10 @@ public class Repeater extends AbstractBinding {
         }
         
         if (itemBinding != null) {
+        	int index = 0;
         	for (Object item: (Collection<?>)collection) {
-            	itemBinding.toXml(staxWriter, javaContext.newContext(item));
+            	itemBinding.toXml(staxWriter, javaContext.newContext(item, index));
+            	index++;
         	}
         }
         

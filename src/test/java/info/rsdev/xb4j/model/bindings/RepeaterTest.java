@@ -21,7 +21,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.bindings.action.Indexer;
 import info.rsdev.xb4j.model.java.JavaContext;
+import info.rsdev.xb4j.model.java.accessor.NoGetter;
+import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectTree;
 
 import java.io.ByteArrayInputStream;
@@ -30,7 +33,6 @@ import java.util.ArrayList;
 
 import javax.xml.namespace.QName;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -135,23 +137,44 @@ public class RepeaterTest {
     	assertTrue(repeater.generatesOutput(new JavaContext(new ArrayList<String>())));
     }
     
-    @Test @Ignore("Prepare this feature by first implementing JavaContext class")
+    @Test
     public void testMarshallCollectionIndexAsAttribute() throws Exception {
     	//work on a collection of Strings
     	BindingModel model = new BindingModel();
         Root root = new Root(new QName("root"), ObjectTree.class);
         Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
     	SimpleType item = collection.setItem(new SimpleType(new QName("item")));
-    	item.addAttribute(new AttributeInjector(new QName("seqnr"), /*IndexGrabber"*/ null), "");	//is this the best way...?	-- the simpletype does not know about collection when attribute is set
+    	item.addAttribute(new AttributeInjector(new QName("seqnr"), Indexer.INSTANCE), NoGetter.INSTANCE, NoSetter.INSTANCE);
+    	model.register(root);
 
     	ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        ArrayList<String> strings = new ArrayList<String>(2);
-        strings.add("string1");
-        strings.add("string2");
+    	ObjectTree instance = new ObjectTree();
+    	instance.addMessage("string1");
+    	instance.addMessage("string2");
         
-        model.toXml(stream, strings);
+        model.toXml(stream, instance);
         String result = stream.toString();
         assertEquals("<root><collection><item seqnr=\"0\">string1</item><item seqnr=\"1\">string2</item></collection></root>", result);
+    }
+    
+    @Test
+    public void testMarshallCollectionIndexAsElement() throws Exception {
+    	BindingModel model = new BindingModel();
+        Root root = new Root(new QName("root"), ObjectTree.class);
+        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
+        Sequence content = collection.setItem(new Sequence(new QName("item")));
+    	content.add(new SimpleType(new QName("value")));
+    	content.add(new ElementInjector(new QName("seqnr"), Indexer.INSTANCE));
+    	model.register(root);
+
+    	ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    	ObjectTree instance = new ObjectTree();
+    	instance.addMessage("string1");
+    	instance.addMessage("string2");
+        
+        model.toXml(stream, instance);
+        String result = stream.toString();
+        assertEquals("<root><collection><item><value>string1</value><seqnr>0</seqnr></item><item><value>string2</value><seqnr>1</seqnr></item></collection></root>", result);
     }
     
 }

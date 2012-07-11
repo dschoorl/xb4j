@@ -135,10 +135,12 @@ public class Recursor extends AbstractSingleBinding {
 	
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        toXml(staxWriter, getProperty(javaContext), 0);
+		Object contextObject = getProperty(javaContext).getContextObject();
+        marshall(staxWriter, javaContext.newContext(contextObject, 0));
 	}
 	
-	private void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext recurringObject, int recurrenceCount) throws XMLStreamException {
+	private void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext recurringObject) throws XMLStreamException {
+		int recurrenceCount = recurringObject.getIndexInCollection();
 		if (!generatesOutput(recurringObject, recurrenceCount)) { return; }
 		
         //when this Binding must not output an element, the getElement() method should return null
@@ -159,7 +161,7 @@ public class Recursor extends AbstractSingleBinding {
     				recurrenceCount, maxOccurs), this);
     	}
     	
-    	toXml(staxWriter, getChild(recurringObject), recurrenceCount);
+    	marshall(staxWriter, getChild(recurringObject));
     	
         if (!isEmptyElement && (element != null)) {
             staxWriter.closeElement(element);
@@ -192,10 +194,12 @@ public class Recursor extends AbstractSingleBinding {
 	}
 	
 	private JavaContext getChild(JavaContext recurringObject) {
+		int nextOccurrenceCount = recurringObject.getIndexInCollection() + 1;
 		if (recurringObject.getContextObject() == null) {
-			return new JavaContext(null);
+			return recurringObject.newContext(null, nextOccurrenceCount);
 		}
-		return this.recursiveGetter.get(recurringObject);
+		JavaContext newContext = this.recursiveGetter.get(recurringObject);
+		return recurringObject.newContext(newContext.getContextObject(), nextOccurrenceCount);
 	}
 	
 	private boolean setChild(JavaContext recurringObject, Object propertyValue) {

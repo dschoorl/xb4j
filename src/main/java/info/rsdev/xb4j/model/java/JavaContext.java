@@ -14,6 +14,10 @@
  */
 package info.rsdev.xb4j.model.java;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.bindings.Recursor;
+import info.rsdev.xb4j.model.bindings.Repeater;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +31,8 @@ public class JavaContext {
 	private static final Map<String, Object> EMPTY_IMMUTABLE_MAP = Collections.emptyMap();
 	
 	private Object contextObject = null;
+	
+	private int indexInCollection = -1;
 	
 	private Map<String, Object> externalContext = null;
 	
@@ -43,10 +49,22 @@ public class JavaContext {
 	}
 	
 	/**
-	 * Copy constructor
+	 * Copy constructor for a context object that is not an item in a collection
 	 */
 	private JavaContext(Object newContextObject, JavaContext original) {
 		this.contextObject = newContextObject;
+		this.externalContext = original.externalContext;
+	}
+	
+	/**
+	 * Copy constructor for a context object that is an item in a collection
+	 */
+	private JavaContext(Object newContextObject, int index, JavaContext original) {
+		if (index < 0) {
+			throw new Xb4jException("Index of context object into a collection cannot be negative:"+index);
+		}
+		this.contextObject = newContextObject;
+		this.indexInCollection = index;
 		this.externalContext = original.externalContext;
 	}
 	
@@ -60,6 +78,20 @@ public class JavaContext {
 	
 	public JavaContext newContext(Object newContextObject) {
 		return new JavaContext(newContextObject, this);
+	}
+	
+	public JavaContext newContext(Object newContextObject, int index) {
+		return new JavaContext(newContextObject, index, this);
+	}
+	
+	/**
+	 * Get the index of the context object in this JavaContext into the sequential collection of the parent binding (if any). 
+	 * When the  parent binding does not reflect a collection, this method returns -1. Currently, only a {@link Repeater} and 
+	 * a {@link Recursor} bindingd reflect the notion of a sequential collection.
+	 * @return the index into a collection or -1 when the context object is not the item of a sequential collection
+	 */
+	public int getIndexInCollection() {
+		return this.indexInCollection;
 	}
 	
 	@Override
