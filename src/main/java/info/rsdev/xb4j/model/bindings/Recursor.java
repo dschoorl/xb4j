@@ -62,7 +62,7 @@ public class Recursor extends AbstractSingleBinding {
     
 	@Override
 	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
-		UnmarshallResult result = unmarshall(staxReader, 0);
+		UnmarshallResult result = unmarshall(staxReader, javaContext, 0);
 		if (result.mustHandleUnmarshalledObject()) {
 			if (setProperty(javaContext, result.getUnmarshalledObject())) {
 				result.setHandled();
@@ -71,7 +71,7 @@ public class Recursor extends AbstractSingleBinding {
 		return result;
 	}
 	
-	private UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, int recurrenceCount) throws XMLStreamException {
+	private UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext, int recurrenceCount) throws XMLStreamException {
 		
         QName element = getElement();	//can this be null for a Recursor? - No!
         if (element == null) {
@@ -90,7 +90,7 @@ public class Recursor extends AbstractSingleBinding {
     		}
 		}
         
-        JavaContext nestedObjectContext = new JavaContext(newInstance());
+        JavaContext nestedObjectContext = newInstance(javaContext);
         attributesToJava(staxReader, nestedObjectContext);
         
         if (getChildBinding() != null) {
@@ -111,7 +111,7 @@ public class Recursor extends AbstractSingleBinding {
     	}
     	
     	//Recurse -- create one level deeper nested object
-    	UnmarshallResult result = unmarshall(staxReader, recurrenceCount);
+    	UnmarshallResult result = unmarshall(staxReader, nestedObjectContext, recurrenceCount);
     	if (!result.isUnmarshallSuccessful()) {
     		return result;
     	}
@@ -134,12 +134,12 @@ public class Recursor extends AbstractSingleBinding {
 	}
 	
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
+	public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
 		Object contextObject = getProperty(javaContext).getContextObject();
-        marshall(staxWriter, javaContext.newContext(contextObject, 0));
+        marshallRecursor(staxWriter, javaContext.newContext(contextObject, 0));
 	}
 	
-	private void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext recurringObject) throws XMLStreamException {
+	private void marshallRecursor(SimplifiedXMLStreamWriter staxWriter, JavaContext recurringObject) throws XMLStreamException {
 		int recurrenceCount = recurringObject.getIndexInCollection();
 		if (!generatesOutput(recurringObject, recurrenceCount)) { return; }
 		
@@ -161,7 +161,7 @@ public class Recursor extends AbstractSingleBinding {
     				recurrenceCount, maxOccurs), this);
     	}
     	
-    	marshall(staxWriter, getChild(recurringObject));
+    	marshallRecursor(staxWriter, getChild(recurringObject));
     	
         if (!isEmptyElement && (element != null)) {
             staxWriter.closeElement(element);

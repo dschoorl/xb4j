@@ -15,7 +15,9 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
-import info.rsdev.xb4j.model.bindings.action.IUnmarshallingAction;
+import info.rsdev.xb4j.model.bindings.action.ActionManager;
+import info.rsdev.xb4j.model.bindings.action.IPhasedAction;
+import info.rsdev.xb4j.model.bindings.action.IPhasedAction.ExecutionPhase;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
@@ -43,11 +45,11 @@ import javax.xml.stream.XMLStreamException;
  */
 public abstract class AbstractBinding implements IBinding {
     
+	private ActionManager actionManager = null;
+	
 	private IElementFetchStrategy elementFetcher = null;
 	
 	private ICreator objectCreator = null;
-	
-	private IUnmarshallingAction actionAfterUnmarshalling = null;
 	
     private IGetter getter = null;
     
@@ -64,6 +66,7 @@ public abstract class AbstractBinding implements IBinding {
     	this.objectCreator = objectCreator;	//null is allowed
     	this.getter = NoGetter.INSTANCE;
     	this.setter = NoSetter.INSTANCE;
+    	this.actionManager= new ActionManager();
     }
     
     /**
@@ -85,6 +88,7 @@ public abstract class AbstractBinding implements IBinding {
     }
     
     private void copyFields(AbstractBinding original, IElementFetchStrategy elementFetcher) {
+        this.actionManager = original.actionManager;
         this.elementFetcher = elementFetcher;
         this.objectCreator = original.objectCreator;
         this.getter = original.getter;
@@ -149,12 +153,16 @@ public abstract class AbstractBinding implements IBinding {
         return null;
     }
     
-    public Object newInstance() {
+    @Override
+	public JavaContext newInstance(JavaContext currentContext) {
+		Object newContextObject = null;
         if (objectCreator != null) {
-            return objectCreator.newInstance();
+        	newContextObject = objectCreator.newInstance();
         }
-        return null;
-    }
+		JavaContext newContext = currentContext.newContext(newContextObject);
+		this.actionManager.executeActions(ExecutionPhase.AFTER_OBJECT_CREATION, newContext);
+		return newContext;
+	}
     
     /**
      * Select a non-null context (if possible), where the newJavaContext takes precedence over the javaContext, when both of them
@@ -206,16 +214,12 @@ public abstract class AbstractBinding implements IBinding {
     }
     
     @Override
-    public IBinding setActionAfterUnmarshalling(IUnmarshallingAction action) {
+    public IBinding addAction(IPhasedAction action) {
     	if (action == null) {
-    		throw new NullPointerException("You must provide an IAction implementation");
+    		throw new NullPointerException("You must provide an IPhasedAction implementation");
     	}
-    	this.actionAfterUnmarshalling = action;
+    	this.actionManager.addAction(action);
     	return this;
-    }
-    
-    protected IUnmarshallingAction getActionAfterUnmarshalling() {
-    	return this.actionAfterUnmarshalling;
     }
     
     public boolean hasSetter() {
@@ -304,15 +308,28 @@ public abstract class AbstractBinding implements IBinding {
     
     @Override
     public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
+
+		this.actionManager.executeActions(ExecutionPhase.BEFORE_UNMARSHALLING, javaContext);
+		
     	UnmarshallResult result = unmarshall(staxReader, javaContext);
-    	if (this.actionAfterUnmarshalling != null) {
+    	
+    	if (this.actionManager.hasActionsForPhase(ExecutionPhase.AFTER_UNMARSHALLING)) {
     		JavaContext actionContext = javaContext.getContextObject()==null?javaContext.newContext(result.getUnmarshalledObject()):javaContext;
-    		this.actionAfterUnmarshalling.execute(actionContext);
+    		this.actionManager.executeActions(ExecutionPhase.AFTER_UNMARSHALLING, actionContext);
     	}
     	return result;
     }
     
     public abstract UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException;
+    
+    @Override
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
+    	this.actionManager.executeActions(ExecutionPhase.BEFORE_MARSHALLING, javaContext);
+    	marshall(staxWriter, javaContext);
+    	this.actionManager.executeActions(ExecutionPhase.AFTER_MARSHALLING, javaContext);
+    }
+    
+    public abstract void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException;
     
     @Override
     public String toString() {

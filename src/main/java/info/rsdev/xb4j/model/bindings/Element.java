@@ -92,7 +92,7 @@ public class Element extends AbstractSingleBinding {
     		}
     	}
         
-    	JavaContext newJavaContext = javaContext.newContext(newInstance());
+    	JavaContext newJavaContext = newInstance(javaContext);
         attributesToJava(staxReader, select(javaContext, newJavaContext));
     	
     	IBinding childBinding = getChildBinding();
@@ -134,22 +134,23 @@ public class Element extends AbstractSingleBinding {
     }
     
     @Override
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
+    public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
     	if (!generatesOutput(javaContext)) { return; }
     	
         //mixed content is not yet supported -- there are either child elements or there is content
         QName element = getElement();
     	//is element empty?
         IBinding child = getChildBinding();
-        boolean isEmpty = (child == null) || !child.generatesOutput(getProperty(javaContext));
+        JavaContext nextJavaContext = getProperty(javaContext);
+        boolean isEmpty = (child == null) || !child.generatesOutput(nextJavaContext);
         boolean outputElement = ((element != null) && (!isOptional() || !isEmpty));
         if (outputElement) {
         	staxWriter.writeElement(element, isEmpty);
-            attributesToXml(staxWriter, javaContext);
+            attributesToXml(staxWriter, nextJavaContext);
         }
         
         if (!isEmpty) {
-        	child.toXml(staxWriter, getProperty(javaContext));
+        	child.toXml(staxWriter, nextJavaContext);
         }
         
         if (outputElement && !isEmpty) {

@@ -84,7 +84,7 @@ public class SimpleType extends AbstractBinding {
     }
     
     @Override
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
+    public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
     	if (!generatesOutput(javaContext)) { return; }
     			
         QName element = getElement();

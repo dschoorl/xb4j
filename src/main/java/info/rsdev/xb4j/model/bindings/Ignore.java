@@ -1,6 +1,8 @@
 package info.rsdev.xb4j.model.bindings;
 
-import info.rsdev.xb4j.model.bindings.action.IUnmarshallingAction;
+import info.rsdev.xb4j.model.bindings.action.ActionManager;
+import info.rsdev.xb4j.model.bindings.action.IPhasedAction;
+import info.rsdev.xb4j.model.bindings.action.IPhasedAction.ExecutionPhase;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
@@ -21,13 +23,13 @@ import javax.xml.stream.XMLStreamException;
  */
 public class Ignore implements IBinding {
 	
+	private ActionManager actionManager = null;
+	
 	private QName element = null;
 	
     private IBinding parent = null;
     
     private boolean isOptional = false; //by default, everything is mandatory, unless explicitly made optional
-    
-    private IUnmarshallingAction actionAfterUnmarshalling = null;
     
     public Ignore(QName element) {
     	this(element, false);
@@ -39,6 +41,7 @@ public class Ignore implements IBinding {
     	}
     	this.element = element;
     	this.isOptional = isOptional;
+    	this.actionManager = new ActionManager();
     }
     
 	@Override
@@ -52,19 +55,21 @@ public class Ignore implements IBinding {
     		}
 		}
 		
+		this.actionManager.executeActions(ExecutionPhase.BEFORE_UNMARSHALLING, javaContext);
+
 		//start tag is found: consume and ignore xml stream until end tag
 		staxReader.skipToElementEnd();
         
-		if (actionAfterUnmarshalling != null) {
-			actionAfterUnmarshalling.execute(javaContext);
-		}
+		this.actionManager.executeActions(ExecutionPhase.AFTER_UNMARSHALLING, javaContext);
 		
 		return UnmarshallResult.NO_RESULT;
 	}
 	
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-		//do nothing, i.o.w: ignore!
+		this.actionManager.executeActions(ExecutionPhase.BEFORE_MARSHALLING, javaContext);
+		//no marshalling to be done; i.o.w: ignore!
+		this.actionManager.executeActions(ExecutionPhase.AFTER_MARSHALLING, javaContext);
 	}
 	
 	@Override
@@ -109,8 +114,10 @@ public class Ignore implements IBinding {
 	}
 
 	@Override
-	public Object newInstance() {
-		return null;
+	public JavaContext newInstance(JavaContext currentContext) {
+		JavaContext newContext = currentContext.newContext(null);
+		this.actionManager.executeActions(ExecutionPhase.AFTER_OBJECT_CREATION, newContext);
+		return newContext;
 	}
 
 	@Override
@@ -145,11 +152,11 @@ public class Ignore implements IBinding {
 	}
 
     @Override
-    public IBinding setActionAfterUnmarshalling(IUnmarshallingAction action) {
+    public IBinding addAction(IPhasedAction action) {
     	if (action == null) {
-    		throw new NullPointerException("You must provide an IAction implementation");
+    		throw new NullPointerException("You must provide an IPhasedAction implementation");
     	}
-    	this.actionAfterUnmarshalling = action;
+    	this.actionManager.addAction(action);
     	return this;
     }
     

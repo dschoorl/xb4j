@@ -22,11 +22,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * @author Dave Schoorl
  */
 public class JavaContext {
+	
+	private static final Logger log = LoggerFactory.getLogger(JavaContext.class);
 	
 	private static final Map<String, Object> EMPTY_IMMUTABLE_MAP = Collections.emptyMap();
 	
@@ -44,15 +49,15 @@ public class JavaContext {
 		if (externalContext == null) {
 			throw new NullPointerException("External context Map cannot be null");
 		}
-		this.contextObject = contextObject;
 		this.externalContext = new HashMap<String, Object>(externalContext);
+		setContextObject(contextObject);
 	}
 	
 	/**
 	 * Copy constructor for a context object that is not an item in a collection
 	 */
 	private JavaContext(Object newContextObject, JavaContext original) {
-		this.contextObject = newContextObject;
+		setContextObject(newContextObject);
 		this.externalContext = original.externalContext;
 	}
 	
@@ -60,20 +65,34 @@ public class JavaContext {
 	 * Copy constructor for a context object that is an item in a collection
 	 */
 	private JavaContext(Object newContextObject, int index, JavaContext original) {
+		this(newContextObject, original);
 		if (index < 0) {
 			throw new Xb4jException("Index of context object into a collection cannot be negative:"+index);
 		}
-		this.contextObject = newContextObject;
 		this.indexInCollection = index;
-		this.externalContext = original.externalContext;
 	}
 	
 	public Object getContextObject() {
 		return this.contextObject;
 	}
 	
+	private void setContextObject(Object contextObject) {
+		if (contextObject instanceof JavaContext) {
+			throw new IllegalStateException("JavaContext cannot be a context object itself");
+		}
+		this.contextObject = contextObject;
+	}
+	
 	public Object get(String externalContextKey) {
 		return externalContext.get(externalContextKey);
+	}
+	
+	public void set(String externalContextKey, Object externalContextObject) {
+		Object oldValue = this.externalContext.put(externalContextKey, externalContextObject);
+		if (log.isDebugEnabled() && (oldValue != null) && (oldValue != externalContextObject)) {
+			log.debug(String.format("External context object '%s' is stored under key %s and replaced object '%s' ", 
+					externalContextObject, externalContextKey, oldValue));
+		}
 	}
 	
 	public JavaContext newContext(Object newContextObject) {
@@ -96,7 +115,15 @@ public class JavaContext {
 	
 	@Override
 	public String toString() {
-		return String.format("%s[context=%s, external context objectcount=%d]", getClass().getSimpleName(), contextObject, externalContext.size());
+		String contextObjectDescription = null;
+		if (contextObject != null) {
+			try {
+				contextObjectDescription = contextObject.toString();
+			} catch (RuntimeException e) {
+				contextObjectDescription = contextObject.getClass().getName();
+			}
+		}
+		return String.format("%s[context=%s, external context objectcount=%d]", getClass().getSimpleName(), contextObjectDescription, externalContext.size());
 	}
 	
 }

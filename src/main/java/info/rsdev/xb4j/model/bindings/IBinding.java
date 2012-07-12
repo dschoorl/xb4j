@@ -14,7 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import info.rsdev.xb4j.model.bindings.action.IUnmarshallingAction;
+import info.rsdev.xb4j.model.bindings.action.IPhasedAction;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
@@ -61,7 +61,14 @@ public interface IBinding {
     
     public Class<?> getJavaType();
     
-    public Object newInstance();
+    /**
+     * Get the {@link JavaContext} that will be passed on to nested bindings. The new JavaContext is based on the currentContext,
+     * meaning that any external context objects are passed on, and the context object is set with the value created by this
+     * binding. If this binding does not create a new context object, then the value will be set to null.
+     * @param currentContext the current JavaContext that was passed on to the 
+     * @return a new {@link JavaContext} with the context object created by this binding or null when no contex object is created
+     */
+    public JavaContext newInstance(JavaContext currentContext);
     
     public Object getProperty(JavaContext javaContext);
     
@@ -71,7 +78,7 @@ public interface IBinding {
     
     public IBinding setSetter(ISetter setter);
     
-    public IBinding setActionAfterUnmarshalling(IUnmarshallingAction action);
+    public IBinding addAction(IPhasedAction action);
     
     /**
      * Whether a binding is optional, is only relevant when it has an xml representation. Checking for presence of an element 

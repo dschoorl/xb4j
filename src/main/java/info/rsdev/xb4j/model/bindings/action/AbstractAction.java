@@ -14,6 +14,8 @@
  */
 package info.rsdev.xb4j.model.bindings.action;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
+
 /**
  * 
  * @author Dave Schoorl
@@ -29,12 +31,12 @@ public abstract class AbstractAction {
 	 * @throws IllegalArgumentException when the context is not of the expected type
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T narrow(Object context, Class<T> type) {
+	public static <T> T narrow(Object context, Class<T> type) throws Xb4jException {
 		if (context == null) {
 			throw new NullPointerException("Context object cannot be null");
 		}
 		if (!context.getClass().isAssignableFrom(type)) {
-			throw new IllegalArgumentException("Context object is not of expected type ");
+			throw new Xb4jException(String.format("Expected object of type %s, but encountered type %s", type, context.getClass().getName()));
 		}
 		return (T)context;
 	}

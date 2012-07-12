@@ -37,7 +37,7 @@ public class FieldSetter extends AbstractFieldAccessor implements ISetter {
 			return true;
 		} catch (Exception e) {
 			throw new Xb4jException(String.format("Could not set field '%s' with value '%s' in object '%s'", 
-					getFieldname(), propertyValue, javaContext), e);
+					getFieldname(), propertyValue, javaContext.getContextObject()), e);
 		}
 	}
 	

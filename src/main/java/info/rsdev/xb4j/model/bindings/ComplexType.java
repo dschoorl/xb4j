@@ -115,7 +115,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 		/* A ComplexType is linked to a Reference type and we don't know where a new context object is created, or which
 		 * binding has the getter / setter to set the unmarshalled value in the Java object tree.
 		 */
-		JavaContext newJavaContext = javaContext.newContext(newInstance());
+		JavaContext newJavaContext = newInstance(javaContext);
         attributesToJava(staxReader, select(javaContext, newJavaContext));
 
 		UnmarshallResult result = getChildBinding().toJava(staxReader, select(javaContext, newJavaContext));
@@ -147,22 +147,23 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 	}
 	
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
+	public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
 		if (!generatesOutput(javaContext)) { return; }
 		
         //mixed content is not yet supported -- there are either child elements or there is content
         QName element = getElement();
     	//is element empty?
         IBinding child = getChildBinding();
-        boolean isEmpty = (child == null) || !child.generatesOutput(javaContext);
+        JavaContext nextJavaContext = getProperty(javaContext);
+        boolean isEmpty = (child == null) || !child.generatesOutput(nextJavaContext);
         boolean outputElement = ((element != null) && (!isOptional() || !isEmpty));
         if (outputElement) {
         	staxWriter.writeElement(element, isEmpty);
-            attributesToXml(staxWriter, javaContext);
+            attributesToXml(staxWriter, nextJavaContext);
         }
         
         if (!isEmpty) {
-        	child.toXml(staxWriter, getProperty(javaContext));
+        	child.toXml(staxWriter, nextJavaContext);
         }
         
         if (outputElement && !isEmpty) {

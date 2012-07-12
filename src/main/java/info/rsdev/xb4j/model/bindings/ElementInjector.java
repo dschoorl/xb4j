@@ -50,7 +50,7 @@ public class ElementInjector extends AbstractBinding {
 	}
 
 	@Override
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
+	public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
         QName element = getElement();	//never null for an ElementInjector
         javaContext = getProperty(javaContext);
         String value = this.valueProvider.execute(javaContext);
