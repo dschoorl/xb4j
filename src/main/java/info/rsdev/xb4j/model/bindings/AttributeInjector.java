@@ -29,7 +29,7 @@ public class AttributeInjector extends AbstractAttribute {
 	
 	@Override
 	public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException {
-		//do nothing
+		//do nothing -- swallow xml attribute
 	}
 	
 	@Override

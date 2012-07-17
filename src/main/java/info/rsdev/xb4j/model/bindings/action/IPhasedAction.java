@@ -14,7 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings.action;
 
-import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.bindings.IBinding;
 import info.rsdev.xb4j.model.java.JavaContext;
 
@@ -60,7 +60,13 @@ public interface IPhasedAction {
 		AFTER_UNMARSHALLING;
 	}
 	
-	public void execute(JavaContext javaContext) throws Xb4jUnmarshallException;
+	/**
+	 * 
+	 * @param javaContext the JavaContext that the IPhasedAction is executed against
+	 * @return the JavaContext to use in further marshalling or unmarshalling
+	 * @throws Xb4jException 
+	 */
+	public JavaContext execute(JavaContext javaContext) throws Xb4jException;
 	
 	/**
 	 * Determine if this action must execute at the currentPhase or not

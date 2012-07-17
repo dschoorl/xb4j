@@ -38,14 +38,15 @@ public class ActionManager {
 		}
 	}
 	
-	public void executeActions(ExecutionPhase phase, JavaContext javaContext) {
+	public JavaContext executeActions(ExecutionPhase phase, JavaContext javaContext) {
 		if (actions != null) {
 			for (IPhasedAction action: actions) {
 				if (action.executeAt(phase)) {
-					action.execute(javaContext);
+					javaContext = action.execute(javaContext);
 				}
 			}
 		}
+		return javaContext;
 	}
 	
 	public boolean hasActionsForPhase(ExecutionPhase phase) {

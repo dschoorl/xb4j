@@ -37,8 +37,9 @@ public class StoreInContext implements IPhasedAction {
 	}
 	
 	@Override
-	public void execute(JavaContext javaContext) throws Xb4jMarshallException {
+	public JavaContext execute(JavaContext javaContext) throws Xb4jMarshallException {
 		javaContext.set(this.keyIntoExternalContext, javaContext.getContextObject());
+		return javaContext;
 	}
 
 	@Override

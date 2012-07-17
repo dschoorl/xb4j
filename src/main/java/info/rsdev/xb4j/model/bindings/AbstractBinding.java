@@ -309,13 +309,13 @@ public abstract class AbstractBinding implements IBinding {
     @Override
     public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
 
-		this.actionManager.executeActions(ExecutionPhase.BEFORE_UNMARSHALLING, javaContext);
+		javaContext = this.actionManager.executeActions(ExecutionPhase.BEFORE_UNMARSHALLING, javaContext);
 		
     	UnmarshallResult result = unmarshall(staxReader, javaContext);
     	
     	if (this.actionManager.hasActionsForPhase(ExecutionPhase.AFTER_UNMARSHALLING)) {
     		JavaContext actionContext = javaContext.getContextObject()==null?javaContext.newContext(result.getUnmarshalledObject()):javaContext;
-    		this.actionManager.executeActions(ExecutionPhase.AFTER_UNMARSHALLING, actionContext);
+    		javaContext = this.actionManager.executeActions(ExecutionPhase.AFTER_UNMARSHALLING, actionContext);
     	}
     	return result;
     }
@@ -324,9 +324,9 @@ public abstract class AbstractBinding implements IBinding {
     
     @Override
     public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-    	this.actionManager.executeActions(ExecutionPhase.BEFORE_MARSHALLING, javaContext);
+    	javaContext = this.actionManager.executeActions(ExecutionPhase.BEFORE_MARSHALLING, javaContext);
     	marshall(staxWriter, javaContext);
-    	this.actionManager.executeActions(ExecutionPhase.AFTER_MARSHALLING, javaContext);
+    	javaContext = this.actionManager.executeActions(ExecutionPhase.AFTER_MARSHALLING, javaContext);
     }
     
     public abstract void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException;
