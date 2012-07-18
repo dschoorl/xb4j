@@ -18,6 +18,7 @@ import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
+import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
@@ -50,7 +51,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      * @param referencedBinding
      */
     public ComplexType(QName element, IBinding parent, String fieldName) {
-    	super(new DefaultElementFetchStrategy(element), null);
+    	super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
         if (parent == null) {
             throw new NullPointerException("Parent IBindingBase cannot be null");
         }
@@ -73,7 +74,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      * @param namespaceUri
      */
     public ComplexType(String identifier, String namespaceUri) {
-    	super(NoElementFetchStrategy.INSTANCE, null);
+    	super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
         //the element fetch strategy will be replaced by a real one when this 'type' is copied into a binding hierarchy
@@ -115,7 +116,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 		/* A ComplexType is linked to a Reference type and we don't know where a new context object is created, or which
 		 * binding has the getter / setter to set the unmarshalled value in the Java object tree.
 		 */
-		JavaContext newJavaContext = newInstance(javaContext);
+		JavaContext newJavaContext = newInstance(staxReader, javaContext);
         attributesToJava(staxReader, select(javaContext, newJavaContext));
 
 		UnmarshallResult result = getChildBinding().toJava(staxReader, select(javaContext, newJavaContext));

@@ -28,7 +28,12 @@ import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
  */
 public interface ICreator {
     
-    public Object newInstance();
+    /**
+     * 
+     * @param staxReader
+     * @return
+     */
+    public Object newInstance(RecordAndPlaybackXMLStreamReader staxReader);
     
     /**
      * The Java type that this {@link ICreator} will create with a call to {@link #newInstance()}

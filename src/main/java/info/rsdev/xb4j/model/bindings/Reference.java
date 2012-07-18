@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 
@@ -37,7 +38,7 @@ public class Reference extends Element {
     private String namespaceUri = null;
     
     public Reference(String identifier, String namespaceUri) {
-    	super(NoElementFetchStrategy.INSTANCE, null);
+    	super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }

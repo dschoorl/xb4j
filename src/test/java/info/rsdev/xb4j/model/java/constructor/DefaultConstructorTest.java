@@ -27,7 +27,7 @@ public class DefaultConstructorTest {
     @Test
     public void testInstantiatePrivateDefaultConstructor() {
         DefaultConstructor constructor = new DefaultConstructor(ObjectA.class);
-        Object instance = constructor.newInstance();
+        Object instance = constructor.newInstance(null);
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
     }

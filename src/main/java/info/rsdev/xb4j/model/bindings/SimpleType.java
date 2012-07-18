@@ -19,6 +19,7 @@ import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.converter.IValueConverter;
 import info.rsdev.xb4j.model.converter.NOPConverter;
 import info.rsdev.xb4j.model.java.JavaContext;
+import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
@@ -44,11 +45,11 @@ public class SimpleType extends AbstractBinding {
      * @param element the element 
      */
     public SimpleType(QName element) {
-    	super(new DefaultElementFetchStrategy(element), null);
+    	super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
     }
 
     public SimpleType(QName element, IValueConverter converter) {
-    	super(new DefaultElementFetchStrategy(element), null);
+    	super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
     	setConverter(converter);
     }
 

@@ -6,6 +6,7 @@ import info.rsdev.xb4j.model.bindings.action.IPhasedAction.ExecutionPhase;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
+import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
@@ -114,7 +115,7 @@ public class Ignore implements IBinding {
 	}
 
 	@Override
-	public JavaContext newInstance(JavaContext currentContext) {
+	public JavaContext newInstance(RecordAndPlaybackXMLStreamReader staxReader, JavaContext currentContext) {
 		JavaContext newContext = currentContext.newContext(null);
 		this.actionManager.executeActions(ExecutionPhase.AFTER_OBJECT_CREATION, newContext);
 		return newContext;
@@ -183,6 +184,11 @@ public class Ignore implements IBinding {
 	@Override
 	public String toString() {
 		return String.format("%s[%s]", getClass().getSimpleName(), this.element);
+	}
+
+	@Override
+	public void setObjectCreator(ICreator objectCreator) {
+		//do nothing
 	}
 	
 }

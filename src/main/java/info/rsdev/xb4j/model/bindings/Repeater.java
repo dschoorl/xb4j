@@ -82,7 +82,7 @@ public class Repeater extends AbstractBinding {
 	@Override
 	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
 	    //TODO: also support addmethod on container class, which will add to underlying collection for us
-        JavaContext javaCollectionContext = select(javaContext, newInstance(javaContext));
+        JavaContext javaCollectionContext = select(javaContext, newInstance(staxReader, javaContext));
         if (!(javaCollectionContext.getContextObject() instanceof Collection<?>)) {
             throw new Xb4jUnmarshallException(String.format("Not a Collection: %s", javaCollectionContext), this);
         }

@@ -17,6 +17,7 @@ package info.rsdev.xb4j.model.bindings;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
+import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
@@ -39,11 +40,11 @@ public class Sequence extends AbstractContainerBinding {
 	 * Create a new {@link Sequence} which inherits it's element and javatype from it's parent
 	 */
 	public Sequence() {
-		super(NoElementFetchStrategy.INSTANCE, null);
+		super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
 	}
 	
     public Sequence(QName element) {
-    	super(new DefaultElementFetchStrategy(element), null);
+    	super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
     }
 
 	public Sequence(Class<?> javaType) {
@@ -77,7 +78,7 @@ public class Sequence extends AbstractContainerBinding {
     	}
     	
     	UnmarshallResult result = null;
-    	JavaContext newJavaContext = newInstance(javaContext);
+    	JavaContext newJavaContext = newInstance(staxReader, javaContext);
     	
         attributesToJava(staxReader, select(javaContext, newJavaContext));
 

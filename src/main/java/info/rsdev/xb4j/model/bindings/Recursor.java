@@ -90,7 +90,7 @@ public class Recursor extends AbstractSingleBinding {
     		}
 		}
         
-        JavaContext nestedObjectContext = newInstance(javaContext);
+        JavaContext nestedObjectContext = newInstance(staxReader, javaContext);
         attributesToJava(staxReader, nestedObjectContext);
         
         if (getChildBinding() != null) {

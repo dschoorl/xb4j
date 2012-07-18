@@ -63,7 +63,7 @@ public abstract class AbstractBinding implements IBinding {
     
     protected AbstractBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
     	setElementFetchStrategy(elementFetcher);
-    	this.objectCreator = objectCreator;	//null is allowed
+    	setObjectCreator(objectCreator);
     	this.getter = NoGetter.INSTANCE;
     	this.setter = NoSetter.INSTANCE;
     	this.actionManager= new ActionManager();
@@ -147,20 +147,13 @@ public abstract class AbstractBinding implements IBinding {
     }
     
     public Class<?> getJavaType() {
-        if (objectCreator != null) {
-            return objectCreator.getJavaType();
-        }
-        return null;
+        return objectCreator.getJavaType();
     }
     
     @Override
-	public JavaContext newInstance(JavaContext currentContext) {
-		Object newContextObject = null;
-        if (objectCreator != null) {
-        	newContextObject = objectCreator.newInstance();
-        }
-		JavaContext newContext = currentContext.newContext(newContextObject);
-		this.actionManager.executeActions(ExecutionPhase.AFTER_OBJECT_CREATION, newContext);
+	public JavaContext newInstance(RecordAndPlaybackXMLStreamReader staxReader, JavaContext currentContext) {
+		JavaContext newContext = currentContext.newContext(objectCreator.newInstance(staxReader));
+		newContext = this.actionManager.executeActions(ExecutionPhase.AFTER_OBJECT_CREATION, newContext);
 		return newContext;
 	}
     
@@ -193,7 +186,8 @@ public abstract class AbstractBinding implements IBinding {
         return this.elementFetcher;
     }
     
-    protected void setObjectCreator(ICreator objectCreator) {
+    @Override
+    public void setObjectCreator(ICreator objectCreator) {
     	if (objectCreator == null) {
     		throw new NullPointerException("ICreator cannot be null");
     	}
@@ -204,11 +198,17 @@ public abstract class AbstractBinding implements IBinding {
     }
     
     public IBinding setGetter(IGetter getter) {
+    	if (getter == null) {
+    		throw new NullPointerException("IGetter cannot be null");
+    	}
         this.getter = getter;
         return this;
     }
 
     public IBinding setSetter(ISetter setter) {
+    	if (setter == null) {
+    		throw new NullPointerException("ISetter cannot be null");
+    	}
         this.setter = setter;
         return this;
     }

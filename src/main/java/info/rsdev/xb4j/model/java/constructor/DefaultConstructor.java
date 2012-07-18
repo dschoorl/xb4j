@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.java.constructor;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
@@ -34,7 +35,7 @@ public class DefaultConstructor implements ICreator {
     }
 
     @Override
-    public Object newInstance() {
+    public Object newInstance(RecordAndPlaybackXMLStreamReader staxReader) {
         Object instance = null;
         try {
             instance = defaultConstructor.newInstance();

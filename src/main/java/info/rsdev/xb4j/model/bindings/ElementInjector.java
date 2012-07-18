@@ -17,6 +17,7 @@ package info.rsdev.xb4j.model.bindings;
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.model.bindings.action.IMarshallingAction;
 import info.rsdev.xb4j.model.java.JavaContext;
+import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
@@ -35,7 +36,7 @@ public class ElementInjector extends AbstractBinding {
 	private IMarshallingAction valueProvider = null;
 	
 	public ElementInjector(QName element, IMarshallingAction valueProvider) {
-		super(new DefaultElementFetchStrategy(element), null);
+		super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
 		setMarshallingAction(valueProvider);
 	}
 	

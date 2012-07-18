@@ -18,6 +18,7 @@ import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
+import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
@@ -46,7 +47,7 @@ public class Element extends AbstractSingleBinding {
      * @param element the element 
      */
     public Element(QName element) {
-    	super(new DefaultElementFetchStrategy(element), null);
+    	super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
     }
     
     public Element(Class<?> javaType) {
@@ -92,7 +93,7 @@ public class Element extends AbstractSingleBinding {
     		}
     	}
         
-    	JavaContext newJavaContext = newInstance(javaContext);
+    	JavaContext newJavaContext = newInstance(staxReader, javaContext);
         attributesToJava(staxReader, select(javaContext, newJavaContext));
     	
     	IBinding childBinding = getChildBinding();

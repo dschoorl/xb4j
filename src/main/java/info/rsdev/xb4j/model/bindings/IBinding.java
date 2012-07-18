@@ -18,6 +18,7 @@ import info.rsdev.xb4j.model.bindings.action.IPhasedAction;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
+import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
@@ -68,7 +69,7 @@ public interface IBinding {
      * @param currentContext the current JavaContext that was passed on to the 
      * @return a new {@link JavaContext} with the context object created by this binding or null when no contex object is created
      */
-    public JavaContext newInstance(JavaContext currentContext);
+    public JavaContext newInstance(RecordAndPlaybackXMLStreamReader staxReader, JavaContext currentContext);
     
     public Object getProperty(JavaContext javaContext);
     
@@ -77,6 +78,8 @@ public interface IBinding {
     public IBinding setGetter(IGetter getter);
     
     public IBinding setSetter(ISetter setter);
+    
+    public void setObjectCreator(ICreator objectCreator);
     
     public IBinding addAction(IPhasedAction action);
     

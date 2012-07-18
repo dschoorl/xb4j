@@ -20,6 +20,7 @@ import info.rsdev.xb4j.model.bindings.chooser.ContextInstanceOf;
 import info.rsdev.xb4j.model.bindings.chooser.IChooser;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
+import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
@@ -53,11 +54,11 @@ public class Choice extends AbstractSingleBinding {
 	 * set (so this won't work)
 	 */
 	public Choice() {
-		super(NoElementFetchStrategy.INSTANCE, null);
+		super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
 	}
 	
     public Choice(QName element) {
-		super(new DefaultElementFetchStrategy(element), null);
+		super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
     }
     
 	@Override
