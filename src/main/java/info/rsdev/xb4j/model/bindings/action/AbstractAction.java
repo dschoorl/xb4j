@@ -35,7 +35,7 @@ public abstract class AbstractAction {
 		if (context == null) {
 			throw new NullPointerException("Context object cannot be null");
 		}
-		if (!context.getClass().isAssignableFrom(type)) {
+		if (!type.isAssignableFrom(context.getClass())) {
 			throw new Xb4jException(String.format("Expected object of type %s, but encountered type %s", type, context.getClass().getName()));
 		}
 		return (T)context;
