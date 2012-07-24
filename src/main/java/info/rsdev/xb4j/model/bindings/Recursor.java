@@ -206,4 +206,10 @@ public class Recursor extends AbstractSingleBinding {
         return this.recursiveSetter.set(recurringObject, propertyValue);
     }
 	
+	@Override
+	public Recursor setOptional(boolean isOptional) {
+		super.setOptional(isOptional);
+		return this;
+	}
+	
 }

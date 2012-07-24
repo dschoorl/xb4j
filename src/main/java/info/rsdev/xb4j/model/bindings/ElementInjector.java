@@ -83,7 +83,16 @@ public class ElementInjector extends AbstractBinding {
 	
 	@Override
 	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
-		return UnmarshallResult.NO_RESULT;	//do nothing
+		//swallow element if encountered, always treat this element as optional
+        QName expectedElement = getElement();
+		if (!staxReader.isAtElementStart(expectedElement)) {
+            return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
+		}
+		
+		//start tag is found: consume and ignore xml stream until end tag
+		staxReader.skipToElementEnd();
+        
+		return UnmarshallResult.NO_RESULT;
 	}
 	
     private void setMarshallingAction(IMarshallingAction valueProvider) {

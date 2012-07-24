@@ -14,8 +14,6 @@
  */
 package info.rsdev.xb4j.model.java.constructor;
 
-import javax.lang.model.type.NullType;
-
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 
 /**
@@ -37,7 +35,7 @@ public class NullCreator implements ICreator {
 	
 	@Override
 	public Class<?> getJavaType() {
-		return NullType.class;	//Java 1.6 dependency
+		return Object.class;
 	}
 	
 }

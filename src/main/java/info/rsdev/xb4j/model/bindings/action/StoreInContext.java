@@ -26,6 +26,11 @@ public class StoreInContext implements IPhasedAction {
 	
 	private final String keyIntoExternalContext;
 	
+	/**
+	 * Create a new {@link StoreInContext} instance that will store the current context object into the Map
+	 * with external context objects under the given keyName.
+	 * @param keyName the name of the key to store the current context under
+	 */
 	public StoreInContext(String keyName) {
 		if (keyName == null) {
 			throw new NullPointerException("The keyName cannot be null");
