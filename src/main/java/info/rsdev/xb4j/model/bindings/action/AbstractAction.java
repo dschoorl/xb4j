@@ -23,7 +23,7 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 public abstract class AbstractAction {
 	
 	/**
-	 * Cast the context to the 
+	 * Cast the context to the expected type
 	 * @param context
 	 * @param type
 	 * @return
@@ -32,8 +32,11 @@ public abstract class AbstractAction {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T narrow(Object context, Class<T> type) throws Xb4jException {
+		if (type == null) {
+			throw new NullPointerException("Expected type cannot be null");
+		}
 		if (context == null) {
-			throw new NullPointerException("Context object cannot be null");
+			throw new NullPointerException(String.format("Context object of type %s cannot be null", type.getName()));
 		}
 		if (!type.isAssignableFrom(context.getClass())) {
 			throw new Xb4jException(String.format("Expected object of type %s, but encountered type %s", type, context.getClass().getName()));

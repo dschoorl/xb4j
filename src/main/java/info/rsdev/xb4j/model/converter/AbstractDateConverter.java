@@ -16,6 +16,7 @@ package info.rsdev.xb4j.model.converter;
 
 import info.rsdev.xb4j.exceptions.ValidationException;
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -77,7 +78,7 @@ public abstract class AbstractDateConverter implements IValueConverter {
 	}
 	
 	@Override
-	public Object toObject(String value) {
+	public Object toObject(JavaContext javaContext, String value) {
 		if (value == null) { return null; }
 		
 		try {
@@ -89,7 +90,7 @@ public abstract class AbstractDateConverter implements IValueConverter {
 	}
 	
 	@Override
-	public String toText(Object value) {
+	public String toText(JavaContext javaContext, Object value) {
 		if (value == null) { return null; }
 		if (!getJavaType().isAssignableFrom(value.getClass())) {
 			throw new Xb4jException(String.format("Expected a %s, but was a %s", getJavaType().getName(), 

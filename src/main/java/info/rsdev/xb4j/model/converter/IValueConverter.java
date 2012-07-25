@@ -14,6 +14,8 @@
  */
 package info.rsdev.xb4j.model.converter;
 
+import info.rsdev.xb4j.model.java.JavaContext;
+
 /**
  * Convert a String to a specific Java object and vice versa
  * 
@@ -21,9 +23,9 @@ package info.rsdev.xb4j.model.converter;
  */
 public interface IValueConverter {
 	
-	public Object toObject(String value);
+	public Object toObject(JavaContext javaContext, String value);
 	
-	public String toText(Object value);
+	public String toText(JavaContext javaContext, Object value);
 	
 	public Class<?> getJavaType();
 	

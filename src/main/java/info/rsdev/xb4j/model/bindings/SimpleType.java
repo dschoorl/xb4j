@@ -72,7 +72,7 @@ public class SimpleType extends AbstractBinding {
         
         attributesToJava(staxReader, javaContext);
 
-        Object value = this.converter.toObject(staxReader.getElementText());	//this also consumes the end element
+        Object value = this.converter.toObject(javaContext, staxReader.getElementText());	//this also consumes the end element
         boolean isValueHandled = setProperty(javaContext, value);
         
     	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
@@ -94,7 +94,7 @@ public class SimpleType extends AbstractBinding {
         	throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
         }
         
-        String value = this.converter.toText(javaContext.getContextObject());
+        String value = this.converter.toText(javaContext, javaContext.getContextObject());
         boolean isEmpty = (value == null);
         if (!isOptional() || !isEmpty) {
         	staxWriter.writeElement(element, isEmpty);	//suppress empty optional elements

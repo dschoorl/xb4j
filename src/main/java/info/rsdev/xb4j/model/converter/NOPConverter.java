@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.converter;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
  * Convenience class. It does not perform any conversion; it only casts an Object to a String and a String to an Object.
@@ -30,12 +31,12 @@ public class NOPConverter implements IValueConverter {
 	private IValidator validator = NoValidator.INSTANCE;
 	
 	@Override
-	public Object toObject(String value) {
+	public Object toObject(JavaContext javaContext, String value) {
 		return value;
 	}
 	
 	@Override
-	public String toText(Object value) {
+	public String toText(JavaContext javaContext, Object value) {
 		if (value == null) { return null; }
 		if (!(value instanceof String)) {
 			throw new Xb4jException(String.format("Expected a %s, but encountered a %s", String.class.getName(), 

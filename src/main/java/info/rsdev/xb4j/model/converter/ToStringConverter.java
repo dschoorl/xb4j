@@ -14,6 +14,8 @@
  */
 package info.rsdev.xb4j.model.converter;
 
+import info.rsdev.xb4j.model.java.JavaContext;
+
 
 /**
  * Converts the object add hand to a String, by calling the {@link #toString()} method on the value. The Singleton  
@@ -39,12 +41,12 @@ public class ToStringConverter implements IValueConverter {
 	}
 	
 	@Override
-	public Object toObject(String value) {
+	public Object toObject(JavaContext javaContext, String value) {
 		return value;
 	}
 	
 	@Override
-	public String toText(Object value) {
+	public String toText(JavaContext javaContext, Object value) {
 		return validator.isValid(value==null?null:value.toString());
 	}
 	

@@ -14,6 +14,8 @@
  */
 package info.rsdev.xb4j.model.converter;
 
+import info.rsdev.xb4j.model.java.JavaContext;
+
 
 /**
  * Convert anything and everything to null, allways. The sole purpose of this converter at the moment of inception is to aid
@@ -28,12 +30,12 @@ public class NullConverter implements IValueConverter {
 	private NullConverter() {}
 	
 	@Override
-	public Object toObject(String value) {
+	public Object toObject(JavaContext javaContext, String value) {
 		return null;
 	}
 	
 	@Override
-	public String toText(Object value) {
+	public String toText(JavaContext javaContext, Object value) {
 		return null;
 	}
 	

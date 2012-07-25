@@ -46,14 +46,14 @@ public class Attribute extends AbstractAttribute {
     	if ((valueAsText == null) && (this.defaultValue != null)) {
     		valueAsText = this.defaultValue;
     	}
-        Object value = this.converter.toObject(valueAsText);
+        Object value = this.converter.toObject(javaContext, valueAsText);
         setProperty(javaContext, value);
     }
     
     @Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException {
         QName attributeName = getAttributeName();
-        String value = this.converter.toText(getProperty(javaContext).getContextObject());
+        String value = this.converter.toText(javaContext, getProperty(javaContext).getContextObject());
         if ((value == null) && (defaultValue != null)) {
         	value = defaultValue;
         }

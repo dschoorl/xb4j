@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.converter;
 
 import info.rsdev.xb4j.exceptions.ValidationException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
  * Convert a string to and from a boolean value
@@ -28,7 +29,7 @@ public class BooleanConverter implements IValueConverter {
     private BooleanConverter() {}
 
     @Override
-    public Boolean toObject(String value) {
+    public Boolean toObject(JavaContext javaContext, String value) {
         if (value == null) { return null; }
         if (value.equalsIgnoreCase("true")) { return Boolean.TRUE; }
         if (value.equalsIgnoreCase("false")) {return Boolean.FALSE; }
@@ -36,7 +37,7 @@ public class BooleanConverter implements IValueConverter {
     }
 
     @Override
-    public String toText(Object value) {
+    public String toText(JavaContext javaContext, Object value) {
         if (value == null) { return null; }
         if (!(value instanceof Boolean)) {
             throw new ValidationException(String.format("Expected a %s, but was a %s", Boolean.class.getName(), 

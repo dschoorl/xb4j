@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.converter;
 
 import info.rsdev.xb4j.exceptions.ValidationException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 import java.util.Locale;
 
@@ -30,13 +31,13 @@ public class LocaleConverter implements IValueConverter {
     private LocaleConverter() {}
 
     @Override
-    public Locale toObject(String value) {
+    public Locale toObject(JavaContext javaContext, String value) {
         if (value == null) { return null; }
         return parseLocale(value);
     }
 
     @Override
-    public String toText(Object value) {
+    public String toText(JavaContext javaContext, Object value) {
         if (value == null) { return null; }
         if (!(value instanceof Locale)) {
             throw new ValidationException(String.format("Expected a %s, but was a %s", Locale.class.getName(), 

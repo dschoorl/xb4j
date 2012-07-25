@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.converter;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -30,7 +31,7 @@ public class LdapNameConverter implements IValueConverter {
 	private LdapNameConverter() {}
 
 	@Override
-	public LdapName toObject(String value) throws Xb4jException {
+	public LdapName toObject(JavaContext javaContext, String value) throws Xb4jException {
 		if (value == null) { return null; }
 		
 		try {
@@ -41,7 +42,7 @@ public class LdapNameConverter implements IValueConverter {
 	}
 
 	@Override
-	public String toText(Object value) throws Xb4jException {
+	public String toText(JavaContext javaContext, Object value) throws Xb4jException {
 		if (value == null) { return null; }
 		if (!(value instanceof LdapName)) {
 			throw new Xb4jException(String.format("Expected a %s, but was a %s", LdapName.class.getName(), 

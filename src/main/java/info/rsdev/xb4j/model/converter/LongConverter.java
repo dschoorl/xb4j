@@ -16,6 +16,7 @@ package info.rsdev.xb4j.model.converter;
 
 import info.rsdev.xb4j.exceptions.ValidationException;
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
  * Converts between xml text and Java {@link Long} type
@@ -51,13 +52,13 @@ public class LongConverter implements IValueConverter {
 	}
 	
 	@Override
-	public Long toObject(String value) {
+	public Long toObject(JavaContext javaContext, String value) {
 		if (value == null) { return null; }
 		return validator.isValid(Long.valueOf(value));
 	}
 	
 	@Override
-	public String toText(Object value) {
+	public String toText(JavaContext javaContext, Object value) {
 		if (value == null) { return null; }
 		if (!(value instanceof Long)) {
 			throw new Xb4jException(String.format("Expected a %s, but was a %s", Long.class.getName(), 

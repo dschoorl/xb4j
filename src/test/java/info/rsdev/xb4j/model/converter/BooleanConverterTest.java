@@ -19,7 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import info.rsdev.xb4j.exceptions.ValidationException;
-import info.rsdev.xb4j.model.converter.BooleanConverter;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 import org.junit.Test;
 
@@ -27,27 +27,31 @@ public class BooleanConverterTest {
 
     @Test
     public void testToObject() {
-        assertNull(BooleanConverter.INSTANCE.toObject(null));
-        assertTrue(BooleanConverter.INSTANCE.toObject("true"));
-        assertFalse(BooleanConverter.INSTANCE.toObject("false"));
+    	JavaContext javaContext = null;	//not needed in BooleanConverter implementation
+        assertNull(BooleanConverter.INSTANCE.toObject(javaContext, null));
+        assertTrue(BooleanConverter.INSTANCE.toObject(javaContext, "true"));
+        assertFalse(BooleanConverter.INSTANCE.toObject(javaContext, "false"));
     }
     
     @Test(expected=ValidationException.class)
     public void testToObjectNoBoolean() {
-        BooleanConverter.INSTANCE.toObject("some value");
+    	JavaContext javaContext = null;	//not needed in BooleanConverter implementation
+        BooleanConverter.INSTANCE.toObject(javaContext, "some value");
     }
     
     @Test
     public void testToText() {
-        assertNull(BooleanConverter.INSTANCE.toText(null));
-        assertEquals("true", BooleanConverter.INSTANCE.toText(Boolean.TRUE));
-        assertEquals("true", BooleanConverter.INSTANCE.toText(true));
-        assertEquals("false", BooleanConverter.INSTANCE.toText(Boolean.FALSE));
-        assertEquals("false", BooleanConverter.INSTANCE.toText(false));
+    	JavaContext javaContext = null;	//not needed in BooleanConverter implementation
+        assertNull(BooleanConverter.INSTANCE.toText(javaContext, null));
+        assertEquals("true", BooleanConverter.INSTANCE.toText(javaContext, Boolean.TRUE));
+        assertEquals("true", BooleanConverter.INSTANCE.toText(javaContext, true));
+        assertEquals("false", BooleanConverter.INSTANCE.toText(javaContext, Boolean.FALSE));
+        assertEquals("false", BooleanConverter.INSTANCE.toText(javaContext, false));
     }
     
     @Test(expected=ValidationException.class)
     public void testToTextNoBoolean() {
-        BooleanConverter.INSTANCE.toText(new Object());
+    	JavaContext javaContext = null;	//not needed in BooleanConverter implementation
+        BooleanConverter.INSTANCE.toText(javaContext, new Object());
     }
 }

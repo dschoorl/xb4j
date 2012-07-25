@@ -16,6 +16,7 @@ package info.rsdev.xb4j.model.converter;
 
 import info.rsdev.xb4j.exceptions.ValidationException;
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
  * 
@@ -63,7 +64,7 @@ public class IntegerConverter implements IValueConverter {
 	}
 	
 	@Override
-	public Integer toObject(String value) {
+	public Integer toObject(JavaContext javaContext, String value) {
 		if (value == null) { return null; }
 		if ((minLength > 1) && (value.length() < minLength)) {
 			throw new ValidationException(String.format("Value %s is too short: it should have at least %d characters, and not %d",
@@ -73,7 +74,7 @@ public class IntegerConverter implements IValueConverter {
 	}
 	
 	@Override
-	public String toText(Object value) {
+	public String toText(JavaContext javaContext, Object value) {
 		if (value == null) { return null; }
 		if (!(value instanceof Integer)) {
 			throw new Xb4jException(String.format("Expected a %s, but was a %s", Integer.class.getName(), 
