@@ -320,6 +320,14 @@ public abstract class AbstractBinding implements IBinding {
     	return result;
     }
     
+    /**
+     * The implementation of the Xml to Java routine
+     * 
+     * @param staxReader
+     * @param javaContext
+     * @return
+     * @throws XMLStreamException
+     */
     public abstract UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException;
     
     @Override
@@ -329,6 +337,13 @@ public abstract class AbstractBinding implements IBinding {
     	javaContext = this.actionManager.executeActions(ExecutionPhase.AFTER_MARSHALLING, javaContext);
     }
     
+    /**
+     * The implementation of the Java to Xml routine
+     * 
+     * @param staxWriter
+     * @param javaContext
+     * @throws XMLStreamException
+     */
     public abstract void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException;
     
     @Override
