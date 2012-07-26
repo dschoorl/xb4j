@@ -14,6 +14,8 @@
  */
 package info.rsdev.xb4j.util;
 
+import java.io.InputStream;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -83,6 +85,15 @@ public class SimplifiedXMLStreamWriter {
                 staxWriter.writeNamespace(prefix, namespace);
             }
         }
+    }
+    
+    /**
+     * Insert the bytes of the inputStream into the staxWriter
+     * 
+     * @param in
+     */
+    public void elementContentFromInputStream(InputStream in) {
+    	//TODO: implement
     }
     
     public void closeElement(QName element) throws XMLStreamException {

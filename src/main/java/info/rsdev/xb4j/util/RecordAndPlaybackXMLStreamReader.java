@@ -16,6 +16,8 @@ package info.rsdev.xb4j.util;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -34,7 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  * <p>Decorate an XMLStreamReader to add recording/playback functionality, to allow previous XMLStreamReader events 
  * to be replayed once again. Events that are currently recorded are: start- and end element and characters.</p>
- * <p>This class is not thread safe</p>
+ * <p>This class is NOT thread safe</p>
  * 
  * @author Dave Schoorl
  */
@@ -58,7 +60,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     private LinkedList<ParseEventData> recordingQueue = null;
     
     /**
-     * The queue of parsing events that will be surved to the user, when it is not empty. If it is empty, on the 
+     * The queue of parsing events that will be served to the user, when it is not empty. If it is empty, on the 
      * otherhand, then the next events are pulled from the {@link #staxReader} instead.
      */
     private LinkedList<ParseEventData> playbackQueue = new LinkedList<ParseEventData>();
@@ -277,27 +279,96 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     				"Current event is '%s' @ line %d, column %d).", EVENTNAMES[getEvent()], location.getLineNumber(), location.getColumnNumber()));
     	}
     	
-    	QName expectedElement = getName();
-    	int xmlElementLevelCount = 0;
-    	while (xmlElementLevelCount >= 0) {
-	    	int eventType = nextTag();
-	    	if (eventType == START_ELEMENT) {
-	    		xmlElementLevelCount++;
-	    	} else if (eventType == END_ELEMENT) {
-	    		xmlElementLevelCount--;
-	    	} else if (eventType == END_DOCUMENT) {
-	    		throw new XMLStreamException(String.format("Unexpectedly reached end of xml document while searching for end " +
-	    				"element (%s)", expectedElement));
+    	//first disable recording queue, so that skipped elements won't get recorded -- that would not be useful 
+    	LinkedList<ParseEventData> backupRecordingQueue = this.recordingQueue;
+    	this.recordingQueue = null;
+    	try {
+	    	QName expectedElement = getName();
+	    	int xmlElementLevelCount = 0;
+	    	while (xmlElementLevelCount >= 0) {
+		    	int eventType = nextTag();
+		    	if (eventType == START_ELEMENT) {
+		    		xmlElementLevelCount++;
+		    	} else if (eventType == END_ELEMENT) {
+		    		xmlElementLevelCount--;
+		    	} else if (eventType == END_DOCUMENT) {
+		    		throw new XMLStreamException(String.format("Unexpectedly reached end of xml document while searching for end " +
+		    				"element (%s)", expectedElement));
+		    	}
 	    	}
-    	}
     	
-    	//the current event should now be the expected end element tag. Let's check this
-    	if (!getName().equals(expectedElement)) {
-    		throw new XMLStreamException(String.format("Expected end element %s, but encountered unexpected end element %s ", 
-    				expectedElement, getName()), getLocation());
+	    	//the current event should now be the expected end element tag. Let's check this
+	    	if (!getName().equals(expectedElement)) {
+	    		throw new XMLStreamException(String.format("Expected end element %s, but encountered unexpected end element %s ", 
+	    				expectedElement, getName()), getLocation());
+	    	}
+	    	
+    		//add END_ELEMENT of the skipped element to the recording queue
+	    	if (backupRecordingQueue != null) {
+	    		backupRecordingQueue.add(this.currentEvent);
+	    	}
+    	} finally {
+    		this.recordingQueue = backupRecordingQueue;	//restore recording queue
     	}
     	
     	return true;
+    }
+    
+    /**
+     * Read the contents (text only) from the current element and send the bytes to the {@link OutputStream}
+     * 
+     * @param out
+     * @throws XMLStreamException
+     */
+    public void elementContentToOutputStream(OutputStream out) throws XMLStreamException {
+    	if (out == null) {
+    		throw new NullPointerException("OutputStream cannot be null");
+    	}
+    	
+    	if (getEvent() != START_ELEMENT) {
+    		Location location = getLocation();
+    		throw new XMLStreamException(String.format("Can only stream element to output when we are currently on element start. " +
+    				"Current event is '%s' @ line %d, column %d).", EVENTNAMES[getEvent()], location.getLineNumber(), location.getColumnNumber()));
+    	}
+    	
+    	//first disable recording queue, so that content of what's streamed to outputstream won't get recorded -- this possibly is very large
+        QName currentTextElement = getName();
+    	LinkedList<ParseEventData> backupRecordingQueue = this.recordingQueue;
+    	this.recordingQueue = null;
+    	try {
+            //read content of text-only element from staxReader
+            int eventType = staxReader.next();
+            while (eventType != END_ELEMENT) {
+                if (eventType == CHARACTERS || eventType == CDATA || eventType == SPACE || eventType == ENTITY_REFERENCE) {
+                    out.write(staxReader.getText().getBytes());	//TODO: what about encodings etc.
+                } else if (eventType == PROCESSING_INSTRUCTION || eventType == COMMENT) {
+                    //ignore -- really?, because this is strange...
+                } else if (eventType == END_DOCUMENT) {
+                	throw new XMLStreamException(String.format("Malformed xml; reached %s when reading text for <%s>", 
+                			EVENTNAMES[eventType], currentTextElement), staxReader.getLocation());
+                } else if (eventType == XMLStreamConstants.START_ELEMENT) {
+                	//mixed content is currently not supported
+                	throw new XMLStreamException(String.format("Found %s <%s> while reading text for <%s>; mixed content is " +
+                			"currently not supported @ %s", EVENTNAMES[eventType], staxReader.getName(), currentTextElement, 
+                			staxReader.getLocation()));
+                } else {
+                    throw new XMLStreamException(String.format("Unexpected %s", EVENTNAMES[eventType]), staxReader.getLocation());
+                }
+                eventType = staxReader.next();	//read END_ELEMENT
+            }
+            
+            if (eventType == END_ELEMENT) {
+            	if (!currentTextElement.equals(staxReader.getName())) {
+            		throw new XMLStreamException(String.format("Malformed xml; expected end element </%s>, but encountered </%s>",
+            				currentTextElement, staxReader.getName()), staxReader.getLocation());
+            	}
+            	playbackQueue.add(ParseEventData.newParseEventData(eventType, staxReader));	//push the end element on the playback queue
+            }
+    	} catch (IOException e) {
+    		throw new XMLStreamException(String.format("Exception occured when streaming content of element %s to OutputStream", currentTextElement), e);
+    	} finally {
+    		this.recordingQueue = backupRecordingQueue;	//restore recording queue
+    	}
     }
     
     private boolean isAtElement(QName expectedElement, int eventType) throws XMLStreamException {

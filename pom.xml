@@ -61,6 +61,14 @@
 			<scope>optional</scope>
 		</dependency>
 		<dependency>
+			<!-- This dependency is only needed when you use the SimpleFileType binding; please
+				 add it as dependency to your project's pom yourself when you need it -->
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.6</version>
+			<scope>optional</scope>
+		</dependency>
+        <dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.8.2</version>
