@@ -35,7 +35,7 @@ public class AttributeInjector extends AbstractAttribute {
 	@Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException {
         QName attributeName = getAttributeName();
-        String value = valueProvider.execute(getProperty(javaContext));
+        String value = getValue(javaContext);
         if (isRequired() || (value != null)) {
        		staxWriter.writeAttribute(elementName, attributeName, value);
         }
@@ -56,6 +56,11 @@ public class AttributeInjector extends AbstractAttribute {
 			throw new NullPointerException("IMarshallingAction cannot be null");
 		}
 		this.valueProvider  = valueProvider;
+	}
+
+	@Override
+	public String getValue(JavaContext javaContext) {
+		return valueProvider.execute(getProperty(javaContext));
 	}
 
 }

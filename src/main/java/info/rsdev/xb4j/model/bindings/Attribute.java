@@ -53,13 +53,25 @@ public class Attribute extends AbstractAttribute {
     @Override
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException {
         QName attributeName = getAttributeName();
-        String value = this.converter.toText(javaContext, getProperty(javaContext).getContextObject());
-        if ((value == null) && (defaultValue != null)) {
-        	value = defaultValue;
-        }
+        String value = getValue(javaContext);
         if (isRequired() || (value != null)) {
        		staxWriter.writeAttribute(elementName, attributeName, value);
         }
+    }
+    
+    /**
+     * Get the value of this attribute from the {@link JavaContext}, fallback on a possible defaultValue defined by this 
+     * attribute.
+     * 
+     * @param javaContext
+     * @return the value
+     */
+    public String getValue(JavaContext javaContext) {
+        String value = this.converter.toText(javaContext, getProperty(javaContext).getContextObject());
+        if ((value == null) && (getDefaultValue() != null)) {
+        	value = getDefaultValue();
+        }
+        return value;
     }
     
     private void setConverter(IValueConverter converter) {

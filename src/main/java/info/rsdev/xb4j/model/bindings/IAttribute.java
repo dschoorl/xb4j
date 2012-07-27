@@ -34,7 +34,16 @@ public interface IAttribute {
 	
 	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException;
 	
-	public Object getProperty(JavaContext javaContext);
+    /**
+     * Get the value of this attribute from the {@link JavaContext}, fallback on a possible defaultValue defined by this 
+     * attribute.
+     * 
+     * @param javaContext
+     * @return the value
+     */
+    public String getValue(JavaContext javaContext);
+    
+    public Object getProperty(JavaContext javaContext);
 	
 	public boolean setProperty(JavaContext javaContext, Object propertyValue);
 	
