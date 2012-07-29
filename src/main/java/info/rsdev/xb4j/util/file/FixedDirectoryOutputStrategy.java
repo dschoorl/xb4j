@@ -49,7 +49,7 @@ public class FixedDirectoryOutputStrategy implements IFileOutputStrategy {
 	}
 	
 	@Override
-	public File getAndCreateFile(String hint) throws IOException {
+	public File getAndCreateFile(String hint) {
 		//dissect the hint in a name part and an extension part
 		String extension = null;
 		String name = null;
@@ -71,7 +71,11 @@ public class FixedDirectoryOutputStrategy implements IFileOutputStrategy {
 			}
 		}
 
-		return File.createTempFile(name, extension, parentDirectory);
+		try {
+			return File.createTempFile(name, extension, parentDirectory);
+		} catch (IOException e) {
+			throw new Xb4jException("Exception occured when creating an output File on the filesystem", e);
+		}
 	}
 	
 	/**

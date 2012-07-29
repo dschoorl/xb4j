@@ -27,6 +27,8 @@ import info.rsdev.xb4j.util.file.IFileOutputStrategy;
 import info.rsdev.xb4j.util.file.IXmlCodingFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Map;
 
@@ -102,6 +104,10 @@ public class SimpleFileType extends AbstractBinding {
     	this(element, FixedDirectoryOutputStrategy.INSTANCE, DefaultXmlCodingFactory.INSTANCE);
     }
     
+    public SimpleFileType(QName element, IFileOutputStrategy fileOutputStrategy) {
+    	this(element, fileOutputStrategy, DefaultXmlCodingFactory.INSTANCE);
+    }
+    
     /**
      * Create a new {@link SimpleFileType} with a {@link DefaultElementFetchStrategy}
      * @param element the element that contains the file data
@@ -128,8 +134,42 @@ public class SimpleFileType extends AbstractBinding {
 	
 	@Override
 	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
+        QName expectedElement = getElement();	//should never be null for a SimpleType
+    	boolean startTagFound = false;
+    	if (expectedElement != null) {
+    		if (!staxReader.isAtElementStart(expectedElement)) {
+	    		if (isOptional()) {
+                    return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
+	    		} else {
+                    return UnmarshallResult.newMissingElement(this);
+	    		}
+    		} else {
+    			startTagFound = true;
+    		}
+    	}
+        
 		String codingType = getAttributeValue(staxReader, javaContext, this.codingTypeAttributeName, this.codingType, BASE64_CODING);
 		String filenameHint = getAttributeValue(staxReader, javaContext, this.filenameAttributeName, this.filenameHint, "temp");
+		
+        attributesToJava(staxReader, javaContext);
+
+        File outputFile = this.fileOutputStrategy.getAndCreateFile(filenameHint);
+        OutputStream outputStream = null;
+        try {
+            outputStream = this.xmlCodingFactory.getEncodingStream(outputFile, codingType);
+        	staxReader.elementContentToOutputStream(outputStream);
+        } finally {
+        	if (outputStream != null) {
+        		try {
+        			outputStream.close();
+        		} catch (IOException e) {
+        			throw new Xb4jException("Exception closing stream with element content", e);
+        		}
+        	}
+        }
+        
+        //TODO: finish this procedure
+        
 		return null;
 	}
 	

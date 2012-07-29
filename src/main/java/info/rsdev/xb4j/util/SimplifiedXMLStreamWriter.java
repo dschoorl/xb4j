@@ -14,7 +14,10 @@
  */
 package info.rsdev.xb4j.util;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
+
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -29,12 +32,25 @@ public class SimplifiedXMLStreamWriter {
     
     private NamespaceContext namespaceContext = new NamespaceContext();
     
+    private final String encodingOfXmlStream;
+    
     public SimplifiedXMLStreamWriter(XMLStreamWriter staxWriter) {
+    	this(staxWriter, "UTF-8");
+    }
+    
+    /**
+     * @param staxWriter
+     * @param encoding the encoding that the staxWriter is set to
+     */
+    public SimplifiedXMLStreamWriter(XMLStreamWriter staxWriter, String encoding) {
         if (staxWriter == null) {
             throw new NullPointerException("XMLStreamWriter cannot be null");
         }
+        if (encoding == null) {
+        	throw new NullPointerException("Encoding cannot be null");
+        }
         this.staxWriter = staxWriter;
-        staxWriter.getNamespaceContext();
+        this.encodingOfXmlStream = encoding;
     }
     
     public void writeElement(QName element, boolean isEmptyElement) throws XMLStreamException {
@@ -92,8 +108,19 @@ public class SimplifiedXMLStreamWriter {
      * 
      * @param in
      */
-    public void elementContentFromInputStream(InputStream in) {
-    	//TODO: implement
+    public void elementContentFromInputStream(InputStream in) throws Exception {
+    	try {
+        	InputStreamReader reader = new InputStreamReader(in, this.encodingOfXmlStream);
+        	char[] buffer = new char[1024];
+        	int charsRead = 0;
+        	while ((charsRead = reader.read(buffer)) != -1) {
+        		if (charsRead > 0) {
+        			staxWriter.writeCharacters(new String(buffer, 0, charsRead));
+        		}
+        	}
+    	} catch (Exception e) {
+    		throw new Xb4jException("Exception occured when inserting contents from external stream", e);
+    	}
     }
     
     public void closeElement(QName element) throws XMLStreamException {

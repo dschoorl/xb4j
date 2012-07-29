@@ -15,7 +15,6 @@
 package info.rsdev.xb4j.util.file;
 
 import java.io.File;
-import java.io.IOException;
 
 public interface IFileOutputStrategy {
 	
@@ -26,6 +25,6 @@ public interface IFileOutputStrategy {
 	 * @return The File handle to the file created on the filesystem
 	 * @trhows IOException when no {@link File} could be created
 	 */
-	public File getAndCreateFile(String hint) throws IOException;
+	public File getAndCreateFile(String hint);
 	
 }

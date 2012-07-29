@@ -14,6 +14,8 @@
  */
 package info.rsdev.xb4j.util.file;
 
+import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,8 +27,30 @@ import java.io.OutputStream;
  */
 public interface IXmlCodingFactory {
 	
-	public InputStream getDecodingStream(File fromFile, String xmldecodingType);
+	/**
+	 * Create an InputStream that reads bytes from the fromFile, convert the bytes to text, using the
+	 * xmlDecodingType. The {@link InputStream} can then be used to insert the text as element content
+	 * using {@link SimplifiedXMLStreamWriter#elementContentFromInputStream(InputStream)}.
+	 * 
+	 * @param fromFile
+	 * @param xmlDecodingType
+	 * @return
+	 * @throws Xb4jException
+	 */
+	public InputStream getDecodingStream(File fromFile, String xmlDecodingType, Object... parameters);
 	
-	public OutputStream getEncodingStream(File toFile, String xmlEncodingType);
+	/**
+	 * Decorate an existing InputStream, that reads bytes from some source, with decoding capabilities
+	 * according to the xmlDecodingType
+	 * @param in
+	 * @param xmlDecodingType
+	 * @return
+	 */
+	public InputStream getDecodingStream(InputStream in, String xmlDecodingType, Object... parameters);
 	
+	public OutputStream getEncodingStream(File toFile, String xmlEncodingType, Object... parameters);
+	
+	public OutputStream getEncodingStream(OutputStream out, String xmlEncodingType, Object... parameters);
+	
+	public boolean supports(String xmlCodingType);
 }

@@ -14,30 +14,31 @@
  */
 package info.rsdev.xb4j.util.file;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
+import info.rsdev.xb4j.model.BindingModel;
+
+import org.apache.commons.codec.binary.Base32InputStream;
+import org.apache.commons.codec.binary.Base32OutputStream;
+import org.apache.commons.codec.binary.Base64InputStream;
+import org.apache.commons.codec.binary.Base64OutputStream;
 
 /**
+ * Implementation of {@link IXmlCodingFactory}, offering support for Base64 coding. If you use 
+ * this class in your {@link BindingModel}, then you must make sure that Apache Commons-Codec 
+ * (at least version 1.5) is on your runtime classpath.
  * 
- * @author dschoorl
+ * @author Dave Schoorl
  */
-public final class DefaultXmlCodingFactory implements IXmlCodingFactory {
+public class DefaultXmlCodingFactory extends AbstractXmlCodingFactory {
 	
 	public static final DefaultXmlCodingFactory INSTANCE = new DefaultXmlCodingFactory();
 	
-	private DefaultXmlCodingFactory() {}
-	
-	@Override
-	public InputStream getDecodingStream(File fromFile, String xmldecodingType) {
-		// TODO Auto-generated method stub
-		return null;
+	private DefaultXmlCodingFactory() {
+		super();
 	}
 	
-	@Override
-	public OutputStream getEncodingStream(File toFile, String xmlEncodingType) {
-		// TODO Auto-generated method stub
-		return null;
+	protected void registerCodingTypes() {
+		registerCoding("Base64", Base64InputStream.class, Base64OutputStream.class);
+		registerCoding("Base32", Base32InputStream.class, Base32OutputStream.class);
 	}
 	
 }
