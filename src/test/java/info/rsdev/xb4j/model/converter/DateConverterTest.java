@@ -2,7 +2,6 @@ package info.rsdev.xb4j.model.converter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-
 import info.rsdev.xb4j.model.java.JavaContext;
 
 import java.util.Calendar;

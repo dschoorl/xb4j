@@ -15,6 +15,8 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
+import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.converter.IValueConverter;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.constructor.NullCreator;
@@ -26,14 +28,21 @@ import info.rsdev.xb4j.util.file.FixedDirectoryOutputStrategy;
 import info.rsdev.xb4j.util.file.IFileOutputStrategy;
 import info.rsdev.xb4j.util.file.IXmlCodingFactory;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>This element is meant to support sending files inside the SOAP request and/or response and not via Webservice standards, 
@@ -49,17 +58,14 @@ import javax.xml.stream.XMLStreamException;
  */
 public class SimpleFileType extends AbstractBinding {
 	
+	private static final Logger logger = LoggerFactory.getLogger(SimpleFileType.class);
+	
 	private static final QName DEFAULT_CODINGTYPE_ATTRIBUTENAME = new QName("Encoding"); 
 	
 	private static final QName DEFAULT_FILENAME_ATTRIBUTENAME = new QName("Name");
 
-	private static final QName DEFAULT_MIMETYPE_ATTRIBUTENAME = new QName("MimeType");
+	public static final String BASE64_CODING = DefaultXmlCodingFactory.BASE64_CODING;
 	
-	public static final String BASE64_CODING = "base64";
-	
-	private static final String MIMETYPE_BINARY = "application/octet-stream";	
-	private static final String MIMETYPE_ZIP = "application/zip";
-
 	/**
 	 * The name of the attribute that contains the coding of the element. Base64 coding is assumed when it cannot
 	 * be determined from the attributes.
@@ -80,17 +86,6 @@ public class SimpleFileType extends AbstractBinding {
 	 * A sugestion for the filename
 	 */
 	private String filenameHint = null;
-	
-	/**
-	 * The name of the attribute that will hold the mimeType (mainly used for responses)
-	 */
-	private QName mimeTypeAttributeName = null;
-	
-	/**
-	 * MimeType is primarely important for sending files in responses to Suwinet-Inkijk, where it has to be forwarded to the 
-	 * webbrowser. This value is used when it can not be determined dynamically (from the element's attribues)
-	 */
-	private String mimeTpe = null;
 	
 	private IFileOutputStrategy fileOutputStrategy = null; 
 	
@@ -122,14 +117,27 @@ public class SimpleFileType extends AbstractBinding {
     	}
     	this.fileOutputStrategy = fileOutputStrategy;
     	this.xmlCodingFactory = xmlCodingFactory;
-    	this.codingType = BASE64_CODING;
-    	this.mimeTpe = MIMETYPE_BINARY;
+    	setCodingtypeFrom(DEFAULT_CODINGTYPE_ATTRIBUTENAME, BASE64_CODING);
+    	setFilenameHintFrom(DEFAULT_FILENAME_ATTRIBUTENAME, "temp.bin");
     }
 
 	@Override
 	public boolean generatesOutput(JavaContext javaContext) {
-		// TODO Auto-generated method stub
-		return false;
+		javaContext = getProperty(javaContext);
+        Object inputObject = javaContext.getContextObject();
+        if ((inputObject != null) && !(inputObject instanceof File)) {
+        	if (logger.isDebugEnabled()) {
+        		logger.debug(String.format("Expected an instance of File, but encountered %s", inputObject));
+        	}
+        	return false;	//no file -- no output
+        }
+        File inputFile = (File)inputObject;
+        boolean isEmpty = (inputFile == null) || !inputFile.isFile() || (inputFile.length() == 0);
+        if (isEmpty && logger.isDebugEnabled()) {
+        	String path = (inputFile == null?null:inputFile.getAbsolutePath());
+        	logger.debug(String.format("No data will be obtained for File %s", path));
+        }
+        return !isOptional() || !isEmpty;
 	}
 	
 	@Override
@@ -156,27 +164,68 @@ public class SimpleFileType extends AbstractBinding {
         File outputFile = this.fileOutputStrategy.getAndCreateFile(filenameHint);
         OutputStream outputStream = null;
         try {
-            outputStream = this.xmlCodingFactory.getEncodingStream(outputFile, codingType);
+            outputStream = this.xmlCodingFactory.getDecodingStream(outputFile, codingType);
         	staxReader.elementContentToOutputStream(outputStream);
         } finally {
         	if (outputStream != null) {
         		try {
         			outputStream.close();
         		} catch (IOException e) {
-        			throw new Xb4jException("Exception closing stream with element content", e);
+        			throw new Xb4jException("Exception while closing stream from element content", e);
         		}
         	}
         }
         
-        //TODO: finish this procedure
+    	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
+    		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
+    		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+    				staxReader.getEventName(), encountered), this);
+        }
         
-		return null;
+        boolean isValueHandled = setProperty(javaContext, outputFile);
+        return new UnmarshallResult(outputFile, isValueHandled);
 	}
 	
 	@Override
 	public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-		// TODO Auto-generated method stub
+    	if (!generatesOutput(javaContext)) { return; }
 		
+        QName element = getElement();
+        javaContext = getProperty(javaContext);
+        if ((javaContext == null) && !isOptional()) {	//TODO: check if element is nillable and output nill value for this element
+        	throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
+        }
+        
+        Object inputObject = javaContext.getContextObject();
+        if ((inputObject != null) && !(inputObject instanceof File)) {
+        	throw new Xb4jMarshallException(String.format("Expected a File instance, but encountered '%s'", inputObject), this);
+        }
+        File inputFile = (File)inputObject; 
+        boolean isEmpty = (inputFile == null) || !inputFile.isFile() || (inputFile.length() == 0);
+        if (!isOptional() || !isEmpty) {
+        	staxWriter.writeElement(element, isEmpty);
+            attributesToXml(staxWriter, javaContext);
+        }
+        
+        if (!isEmpty) {
+            InputStream inputStream = null;
+            try {
+            	inputStream = new BufferedInputStream(new FileInputStream(inputFile));
+                inputStream = this.xmlCodingFactory.getEncodingStream(inputStream, codingType);
+            	staxWriter.elementContentFromInputStream(inputStream);
+            } catch (FileNotFoundException e) {
+            	throw new Xb4jMarshallException(String.format("Could not open input stream to file %s", inputStream), this);
+            } finally {
+            	if (inputStream != null) {
+            		try {
+            			inputStream.close();
+            		} catch (IOException e) {
+            			throw new Xb4jException("Exception while closing stream to element content", e);
+            		}
+            	}
+            }
+            staxWriter.closeElement(element);
+        }
 	}
 	
 	@Override
@@ -187,12 +236,6 @@ public class SimpleFileType extends AbstractBinding {
 	public SimpleFileType setCodingtypeFrom(QName attributeName, String fallbackValue) {
 		this.codingTypeAttributeName = attributeName;
 		this.codingType = fallbackValue;
-		return this;
-	}
-	
-	public SimpleFileType setMimetypeFrom(QName attributeName, String fallbackValue) {
-		this.mimeTypeAttributeName = attributeName;
-		this.mimeTpe = fallbackValue;
 		return this;
 	}
 	
@@ -232,8 +275,10 @@ public class SimpleFileType extends AbstractBinding {
 					} else {
 						//we are unmarshalling from Xml to Java
 			    		Map<QName, String> attributes = staxReader.getAttributes();
-			    		if (attributes != null) {
+			    		if ((attributes != null) && attributes.containsKey(attributeSource)) {
 			    			value = attributes.get(attributeSource);
+			    		} else {
+			    			value = attributeDefinition.getValue(javaContext);
 			    		}
 					}
 				}

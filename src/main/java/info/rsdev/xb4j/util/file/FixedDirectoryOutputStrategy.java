@@ -60,7 +60,7 @@ public class FixedDirectoryOutputStrategy implements IFileOutputStrategy {
 			if (lastDotIndex >= 0) {
 				name = hint.substring(0, lastDotIndex);
 				if (lastDotIndex < hint.length()) {
-					extension = hint.substring(lastDotIndex + 1);
+					extension = hint.substring(lastDotIndex);	//including the dot
 				}
 			} else {
 				name = hint;

@@ -12,23 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.bindings;
+package info.rsdev.xb4j.test;
 
-import info.rsdev.xb4j.exceptions.Xb4jException;
+import java.io.File;
 
-import javax.xml.namespace.QName;
-
-import org.junit.Test;
-
-public class RootTest {
+/**
+ * A DTO for a File object (for testing purposes)
+ * 
+ * @author Dave Schoorl
+ */
+public class ObjectF {
 	
-	/**
-	 * A Rootbinding cannot be optional
-	 */
-	@Test(expected=Xb4jException.class)
-	public void testSetOptionalNotAllowed() {
-		Root root = new Root(new QName("root"), Object.class);
-		root.setOptional(true);
+	private File file = null;
+	
+	protected ObjectF() {}
+	
+	public ObjectF(File file) {
+		this.file = file;
 	}
 	
+	public File getFile() {
+		return this.file;
+	}
 }

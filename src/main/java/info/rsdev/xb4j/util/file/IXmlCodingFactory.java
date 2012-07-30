@@ -14,6 +14,7 @@
  */
 package info.rsdev.xb4j.util.file;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 import java.io.File;
@@ -28,29 +29,29 @@ import java.io.OutputStream;
 public interface IXmlCodingFactory {
 	
 	/**
-	 * Create an InputStream that reads bytes from the fromFile, convert the bytes to text, using the
-	 * xmlDecodingType. The {@link InputStream} can then be used to insert the text as element content
+	 * Create an InputStream that reads binary data from the fromFile, encodes the bytes to text, using the
+	 * xmlEncodingType. The {@link InputStream} can then be used to insert the binary data as element content
 	 * using {@link SimplifiedXMLStreamWriter#elementContentFromInputStream(InputStream)}.
 	 * 
 	 * @param fromFile
-	 * @param xmlDecodingType
+	 * @param xmlEncodingType
 	 * @return
 	 * @throws Xb4jException
 	 */
-	public InputStream getDecodingStream(File fromFile, String xmlDecodingType, Object... parameters);
+	public InputStream getEncodingStream(File fromFile, String xmlEncodingType, Object... parameters);
 	
 	/**
-	 * Decorate an existing InputStream, that reads bytes from some source, with decoding capabilities
-	 * according to the xmlDecodingType
+	 * Decorate an existing InputStream, that reads binary data from some source, with encoding capabilities
+	 * according to the xmlEncodingType
 	 * @param in
-	 * @param xmlDecodingType
+	 * @param xmlEncodingType
 	 * @return
 	 */
-	public InputStream getDecodingStream(InputStream in, String xmlDecodingType, Object... parameters);
+	public InputStream getEncodingStream(InputStream in, String xmlEncodingType, Object... parameters);
 	
-	public OutputStream getEncodingStream(File toFile, String xmlEncodingType, Object... parameters);
+	public OutputStream getDecodingStream(File toFile, String xmlDecodingType, Object... parameters);
 	
-	public OutputStream getEncodingStream(OutputStream out, String xmlEncodingType, Object... parameters);
+	public OutputStream getDecodingStream(OutputStream out, String xmlDecodingType, Object... parameters);
 	
 	public boolean supports(String xmlCodingType);
 }

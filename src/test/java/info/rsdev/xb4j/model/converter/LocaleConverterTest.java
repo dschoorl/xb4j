@@ -3,7 +3,6 @@ package info.rsdev.xb4j.model.converter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-
 import info.rsdev.xb4j.model.java.JavaContext;
 
 import java.util.Locale;

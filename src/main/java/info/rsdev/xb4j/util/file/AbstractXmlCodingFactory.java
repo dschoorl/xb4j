@@ -37,6 +37,18 @@ import java.util.Map;
  */
 public abstract class AbstractXmlCodingFactory implements IXmlCodingFactory {
 	
+	private static final Map<Class<?>, Class<?>> autoboxingSupport = new HashMap<Class<?>, Class<?>>(8);
+	static {
+		autoboxingSupport.put(byte.class, Byte.class);
+		autoboxingSupport.put(short.class, Short.class);
+		autoboxingSupport.put(int.class, Integer.class);
+		autoboxingSupport.put(long.class, Long.class);
+		autoboxingSupport.put(double.class, Double.class);
+		autoboxingSupport.put(float.class, Float.class);
+		autoboxingSupport.put(char.class, Character.class);
+		autoboxingSupport.put(boolean.class, Boolean.class);
+	}
+	
 	private Map<String, StreamTypePair> supportedTypes = null;
 	
 	protected AbstractXmlCodingFactory() {
@@ -51,21 +63,21 @@ public abstract class AbstractXmlCodingFactory implements IXmlCodingFactory {
 	}
 	
 	@Override
-	public InputStream getDecodingStream(File fromFile, String xmlDecodingType, Object... parameters) {
+	public InputStream getEncodingStream(File fromFile, String xmlDecodingType, Object... parameters) {
 		if (fromFile == null) {
 			throw new NullPointerException("Input File cannot be null");
 		}
 		validateCodingType(xmlDecodingType);	//prevent opening streams to file when not necessary
 		try {
 			InputStream in = new BufferedInputStream(new FileInputStream(fromFile));
-			return getDecodingStream(in, xmlDecodingType, parameters);
+			return getEncodingStream(in, xmlDecodingType, parameters);
 		} catch (IOException e) {
 			throw new Xb4jException(String.format("Could not create an InputStream for File %s", fromFile), e);
 		}
 	}
 	
 	@Override
-	public InputStream getDecodingStream(InputStream in, String xmlDecodingType, Object... parameters) {
+	public InputStream getEncodingStream(InputStream in, String xmlDecodingType, Object... parameters) {
 		if (in == null) {
 			throw new NullPointerException("InputStream cannot be null");
 		}
@@ -78,21 +90,21 @@ public abstract class AbstractXmlCodingFactory implements IXmlCodingFactory {
 	}
 	
 	@Override
-	public OutputStream getEncodingStream(File toFile, String xmlEncodingType, Object... parameters) {
+	public OutputStream getDecodingStream(File toFile, String xmlEncodingType, Object... parameters) {
 		if (toFile == null) {
 			throw new NullPointerException("Output File cannot be null");
 		}
 		validateCodingType(xmlEncodingType);	//prevent opening streams to file when not necessary
 		try {
 			OutputStream out = new BufferedOutputStream(new FileOutputStream(toFile));
-			return getEncodingStream(out, xmlEncodingType, parameters);
+			return getDecodingStream(out, xmlEncodingType, parameters);
 		} catch (IOException e) {
 			throw new Xb4jException(String.format("Could not create an OutputStream to File %s", toFile), e);
 		}
 	}
 
 	@Override
-	public OutputStream getEncodingStream(OutputStream out, String xmlEncodingType, Object... parameters) {
+	public OutputStream getDecodingStream(OutputStream out, String xmlEncodingType, Object... parameters) {
 		if (out == null) {
 			throw new NullPointerException("OutputStream cannot be null");
 		}
@@ -117,7 +129,6 @@ public abstract class AbstractXmlCodingFactory implements IXmlCodingFactory {
 	
 	@SuppressWarnings("unchecked")
 	private <T> T getInstance(Class<T> type, Object stream, Object... parameters) {
-		//TODO: construct new parameters with stream as first parameter
 		int newSize = (parameters==null?0:parameters.length) + 1;
 		Object[] callParameters = new Object[newSize];
 		callParameters[0] = stream;
@@ -132,7 +143,12 @@ public abstract class AbstractXmlCodingFactory implements IXmlCodingFactory {
 				boolean noneMatchingParameterFound = false;
 				Class<?>[] formalParameters = candidate.getParameterTypes();
 				for (int i=0; i<formalParameters.length; i++) {
-					if ((callParameters[i] != null) && !formalParameters[i].isAssignableFrom(callParameters[i].getClass())) {
+					Class<?> formalParameter = formalParameters[i];
+					if (formalParameter.isPrimitive() && (!formalParameter.equals(void.class))) {
+						formalParameter = autoboxingSupport.get(formalParameter);
+					}
+						
+					if ((callParameters[i] != null) && !formalParameter.isAssignableFrom(callParameters[i].getClass())) {
 						noneMatchingParameterFound = true;
 						break;
 					}

@@ -16,6 +16,10 @@ package info.rsdev.xb4j.util.file;
 
 import info.rsdev.xb4j.model.BindingModel;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import org.apache.commons.codec.binary.Base32InputStream;
 import org.apache.commons.codec.binary.Base32OutputStream;
 import org.apache.commons.codec.binary.Base64InputStream;
@@ -30,6 +34,9 @@ import org.apache.commons.codec.binary.Base64OutputStream;
  */
 public class DefaultXmlCodingFactory extends AbstractXmlCodingFactory {
 	
+	public static final String BASE64_CODING = "base64";
+	public static final String BASE32_CODING = "base32";
+	
 	public static final DefaultXmlCodingFactory INSTANCE = new DefaultXmlCodingFactory();
 	
 	private DefaultXmlCodingFactory() {
@@ -37,8 +44,34 @@ public class DefaultXmlCodingFactory extends AbstractXmlCodingFactory {
 	}
 	
 	protected void registerCodingTypes() {
-		registerCoding("Base64", Base64InputStream.class, Base64OutputStream.class);
-		registerCoding("Base32", Base32InputStream.class, Base32OutputStream.class);
+		registerCoding(BASE64_CODING, Base64InputStream.class, Base64OutputStream.class);
+		registerCoding(BASE32_CODING, Base32InputStream.class, Base32OutputStream.class);
 	}
 	
+	@Override
+	public InputStream getEncodingStream(File fromFile, String xmlDecodingType, Object... parameters) {
+		return super.getEncodingStream(fromFile, xmlDecodingType, prependParameter(Boolean.TRUE, parameters));
+	}
+
+	public InputStream getEncodingStream(InputStream in, String xmlEncodingType, Object... parameters) {
+		return super.getEncodingStream(in, xmlEncodingType, prependParameter(Boolean.TRUE, parameters));
+	}
+	
+	@Override
+	public OutputStream getDecodingStream(File toFile, String xmlEncodingType, Object... parameters) {
+		return super.getDecodingStream(toFile, xmlEncodingType, prependParameter(Boolean.FALSE, parameters));
+	}
+	
+	@Override
+	public OutputStream getDecodingStream(OutputStream out, String xmlDecodingType, Object... parameters) {
+		return super.getDecodingStream(out, xmlDecodingType, prependParameter(Boolean.FALSE, parameters));
+	}
+	
+	private Object[] prependParameter(Object value, Object[] parameters) {
+		if ((parameters == null) || (parameters.length == 0)) {
+			parameters = new Object[] { value };
+		}
+		return parameters;
+	}
+
 }

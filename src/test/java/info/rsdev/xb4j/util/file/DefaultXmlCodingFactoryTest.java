@@ -18,7 +18,7 @@ public class DefaultXmlCodingFactoryTest {
 	public void testGetDecodingStream() throws Exception {
 		byte[] buffer = "SGVsbG8gd29ybGQh".getBytes();	//Base64 encoded version of 'Hello world!'
 		ByteArrayInputStream in = new ByteArrayInputStream(buffer);
-		InputStream decodingStream = DefaultXmlCodingFactory.INSTANCE.getDecodingStream(in, "Base64");
+		InputStream decodingStream = DefaultXmlCodingFactory.INSTANCE.getEncodingStream(in, "base64", Boolean.FALSE);	//Force decoding by setting doEncode to false via contructorParam
 		assertNotNull(decodingStream);
 		assertSame(Base64InputStream.class, decodingStream.getClass());
 		

@@ -108,7 +108,7 @@ public class SimplifiedXMLStreamWriter {
      * 
      * @param in
      */
-    public void elementContentFromInputStream(InputStream in) throws Exception {
+    public void elementContentFromInputStream(InputStream in) {
     	try {
         	InputStreamReader reader = new InputStreamReader(in, this.encodingOfXmlStream);
         	char[] buffer = new char[1024];

@@ -3,7 +3,6 @@ package info.rsdev.xb4j.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import info.rsdev.xb4j.util.NamespaceContext;
 
 import javax.xml.namespace.QName;
 

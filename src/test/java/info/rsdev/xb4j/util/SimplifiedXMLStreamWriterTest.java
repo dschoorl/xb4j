@@ -1,6 +1,6 @@
 package info.rsdev.xb4j.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.StringWriter;
 
