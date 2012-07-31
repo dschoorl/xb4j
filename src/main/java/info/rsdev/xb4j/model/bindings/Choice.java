@@ -67,13 +67,13 @@ public class Choice extends AbstractSingleBinding {
 				"the options instead (%s)", attribute));
 	}
 	
-	public IBinding addChoice(IBinding choice, String fieldName, IChooser selector) {
+	public <T extends IBinding> T  addOption(T choice, String fieldName, IChooser selector) {
 		//Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
 		FieldAccessor provider = new FieldAccessor(fieldName);
 		choice.setGetter(provider);
 		choice.setSetter(provider);
 		
-		return addChoice(choice, selector);
+		return addOption(choice, selector);
 	}
 	
 	/**
@@ -82,16 +82,16 @@ public class Choice extends AbstractSingleBinding {
 	 * @param choice
 	 * @return
 	 */
-	public <T extends IBinding> T addChoice(T choice) {
+	public <T extends IBinding> T addOption(T choice) {
 		Class<?> javaType = choice.getJavaType();
 		if (javaType == null) {
 			throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the choice '%s' does not define " +
 					"a Java type", choice));
 		}
-		return addChoice(choice, new ContextInstanceOf(javaType));
+		return addOption(choice, new ContextInstanceOf(javaType));
 	}
 	
-	public <T extends IBinding> T addChoice(T choice, IChooser selector) {
+	public <T extends IBinding> T addOption(T choice, IChooser selector) {
 		choices.add(choice);
 		choosers.add(selector);
 		choice.setParent(this); //maintain bidirectional relationship
