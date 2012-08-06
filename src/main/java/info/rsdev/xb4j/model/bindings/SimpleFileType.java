@@ -191,12 +191,12 @@ public class SimpleFileType extends AbstractBinding {
     	if (!generatesOutput(javaContext)) { return; }
 		
         QName element = getElement();
-        javaContext = getProperty(javaContext);
-        if ((javaContext == null) && !isOptional()) {	//TODO: check if element is nillable and output nill value for this element
+        JavaContext newJavaContext = getProperty(javaContext);
+        if ((newJavaContext == null) && !isOptional()) {	//TODO: check if element is nillable and output nill value for this element
         	throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
         }
         
-        Object inputObject = javaContext.getContextObject();
+        Object inputObject = newJavaContext.getContextObject();
         if ((inputObject != null) && !(inputObject instanceof File)) {
         	throw new Xb4jMarshallException(String.format("Expected a File instance, but encountered '%s'", inputObject), this);
         }

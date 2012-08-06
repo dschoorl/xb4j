@@ -64,7 +64,7 @@ public class SimpleFileTypeTest {
 		this.model = new BindingModel();
 		Root root = new Root(new QName("Root"), ObjectF.class);
 		SimpleFileType fileType = root.setChild(new SimpleFileType(new QName("File")), "file");
-		fileType.addAttribute(new StaticAttribute(new QName("Encoding"), SimpleFileType.BASE64_CODING), NoGetter.INSTANCE, NoSetter.INSTANCE);
+		fileType.addAttribute(new Attribute(new QName("Encoding")), "xmlEncoding");
 		fileType.addAttribute(new StaticAttribute(new QName("Name"), "temp.zip"), NoGetter.INSTANCE, NoSetter.INSTANCE);
 		fileType.addAttribute(new StaticAttribute(new QName("MimeType"), "application/octet-stream"), NoGetter.INSTANCE, NoSetter.INSTANCE);
 		this.model.register(root);
@@ -73,7 +73,7 @@ public class SimpleFileTypeTest {
 	@Test
 	public void testMarshallFileElement() throws Exception {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        ObjectF instance = new ObjectF(zipFile.getCanonicalFile());
+        ObjectF instance = new ObjectF(zipFile.getCanonicalFile(), SimpleFileType.BASE64_CODING);
         this.model.toXml(stream, instance);
         XMLUnit.setIgnoreWhitespace(true);
         XMLAssert.assertXMLEqual("<Root><File Encoding=\"base64\" Name=\"temp.zip\" MimeType=\"application/octet-stream\">".concat(base64EncodedZipfile).concat("</File></Root>"), stream.toString());
