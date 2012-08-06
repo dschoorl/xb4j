@@ -212,7 +212,11 @@ public class SimpleFileType extends AbstractBinding {
             try {
             	inputStream = new BufferedInputStream(new FileInputStream(inputFile));
                 inputStream = this.xmlCodingFactory.getEncodingStream(inputStream, codingType);
-            	staxWriter.elementContentFromInputStream(inputStream);
+            	int charsToXml = staxWriter.elementContentFromInputStream(inputStream);
+            	if (logger.isDebugEnabled()) {
+            		logger.debug(String.format("%d characters written to xml stream (element %s) for %s encoded file content", 
+            				charsToXml, element, codingType));
+            	}
             } catch (FileNotFoundException e) {
             	throw new Xb4jMarshallException(String.format("Could not open input stream to file %s", inputStream), this);
             } finally {

@@ -67,9 +67,12 @@ public class DefaultXmlCodingFactory extends AbstractXmlCodingFactory {
 		return super.getDecodingStream(out, xmlDecodingType, prependParameter(Boolean.FALSE, parameters));
 	}
 	
-	private Object[] prependParameter(Object value, Object[] parameters) {
+	private Object[] prependParameter(Boolean doEncoding, Object[] parameters) {
 		if ((parameters == null) || (parameters.length == 0)) {
-			parameters = new Object[] { value };
+			parameters = new Object[3];
+			parameters[0] = doEncoding;
+			parameters[1] = Integer.valueOf(-1);	//indicate no separation in lines
+			parameters[2] = null;		// line separator not necessary
 		}
 		return parameters;
 	}

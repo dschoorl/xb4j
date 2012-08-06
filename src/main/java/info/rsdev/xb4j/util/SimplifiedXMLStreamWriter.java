@@ -108,12 +108,14 @@ public class SimplifiedXMLStreamWriter {
      * 
      * @param in
      */
-    public void elementContentFromInputStream(InputStream in) {
+    public int elementContentFromInputStream(InputStream in) {
+    	int totalCharsRead = 0;
     	try {
         	InputStreamReader reader = new InputStreamReader(in, this.encodingOfXmlStream);
         	char[] buffer = new char[1024];
         	int charsRead = 0;
         	while ((charsRead = reader.read(buffer)) != -1) {
+        		totalCharsRead += charsRead;
         		if (charsRead > 0) {
         			staxWriter.writeCharacters(new String(buffer, 0, charsRead));
         		}
@@ -121,6 +123,7 @@ public class SimplifiedXMLStreamWriter {
     	} catch (Exception e) {
     		throw new Xb4jException("Exception occured when inserting contents from external stream", e);
     	}
+    	return totalCharsRead;
     }
     
     public void closeElement(QName element) throws XMLStreamException {
