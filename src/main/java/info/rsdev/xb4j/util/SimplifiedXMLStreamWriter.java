@@ -111,10 +111,11 @@ public class SimplifiedXMLStreamWriter {
     public int elementContentFromInputStream(InputStream in) {
     	int totalCharsRead = 0;
     	try {
-        	InputStreamReader reader = new InputStreamReader(in, this.encodingOfXmlStream);
-        	char[] buffer = new char[1024];
+//        	InputStreamReader reader = new InputStreamReader(in, this.encodingOfXmlStream);
+        	byte[] buffer = new byte[1024];
         	int charsRead = 0;
-        	while ((charsRead = reader.read(buffer)) != -1) {
+//        	while (reader.ready() && (charsRead = reader.read(buffer)) != -1) {
+           	while ((charsRead = in.read(buffer)) != -1) {
         		totalCharsRead += charsRead;
         		if (charsRead > 0) {
         			staxWriter.writeCharacters(new String(buffer, 0, charsRead));

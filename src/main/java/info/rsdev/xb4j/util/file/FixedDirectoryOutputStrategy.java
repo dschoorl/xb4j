@@ -20,8 +20,8 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * This class is responsible for providing {@link File} instances pointing to empty but existing files to which the application
- * can write. 
+ * This class is responsible for providing temporary {@link File} instances pointing to empty but existing files to which 
+ * the application can write. The files created are marked {@link File#deleteOnExit()}. 
  *  
  * @author Dave Schoorl
  */
@@ -72,7 +72,9 @@ public class FixedDirectoryOutputStrategy implements IFileOutputStrategy {
 		}
 
 		try {
-			return File.createTempFile(name, extension, parentDirectory);
+			File tempFile = File.createTempFile(name, extension, parentDirectory);
+			tempFile.deleteOnExit();
+			return tempFile;
 		} catch (IOException e) {
 			throw new Xb4jException("Exception occured when creating an output File on the filesystem", e);
 		}
