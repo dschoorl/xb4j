@@ -139,7 +139,7 @@ public class Choice extends AbstractSingleBinding {
         int optionCounter = 1;
 		for (IBinding candidate: choices) {
 			if (logger.isDebugEnabled()) {
-				logger.debug(String.format("[Unmarshal] Trying option %d of %s", optionCounter, this));
+				logger.debug(String.format("[Unmarshal] Trying option %d from %d of %s", optionCounter, choices.size(), this));
 			}
 			result = candidate.toJava(staxReader, getProperty(javaContext));
 			if (result.isUnmarshallSuccessful()) {
