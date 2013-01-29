@@ -28,17 +28,17 @@ import java.io.IOException;
 public class FixedDirectoryOutputStrategy implements IFileOutputStrategy {
 	
 	/**
-	 * A {@link FixedDirectoryOutputStrategy} instance that will use the user's temp directory as target.
+	 * A {@link FixedDirectoryOutputStrategy} instance that will use java's temp directory as target.
 	 */
 	public static final FixedDirectoryOutputStrategy INSTANCE = new FixedDirectoryOutputStrategy();
 	
 	private final File parentDirectory;
 	
 	/**
-	 * Create a new {@link FixedDirectoryOutputStrategy} that will use the user's temp directory as target.
+	 * Create a new {@link FixedDirectoryOutputStrategy} that will use java's temp directory as target.
 	 */
 	public FixedDirectoryOutputStrategy() {
-		this.parentDirectory = validateParentDirectory(null);
+		this.parentDirectory = validateParentDirectory(new File(System.getProperty("java.io.tmpdir")));
 	}
 	
 	/**
