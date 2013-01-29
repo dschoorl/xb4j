@@ -47,7 +47,7 @@ public class FixedDirectoryOutputStrategy implements IFileOutputStrategy {
 	private FixedDirectoryOutputStrategy() {
 		String tmpDir = System.getProperty("java.io.tmpdir");
 		if ((tmpDir != null) && tmpDir.trim().isEmpty()) { 
-			tmpDir = null;	//fallback on user home directory when there is no java.io.tmpdir set
+			tmpDir = new File(".").getAbsolutePath();	//fallback on user home directory when there is no java.io.tmpdir set
 		}
 		
 		try {
