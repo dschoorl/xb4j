@@ -19,6 +19,9 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 import java.io.File;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class is responsible for providing temporary {@link File} instances pointing to empty but existing files to which 
  * the application can write. The files created are marked {@link File#deleteOnExit()}. 
@@ -26,6 +29,8 @@ import java.io.IOException;
  * @author Dave Schoorl
  */
 public class FixedDirectoryOutputStrategy implements IFileOutputStrategy {
+	
+	private static final Logger logger = LoggerFactory.getLogger(FixedDirectoryOutputStrategy.class);
 	
 	/**
 	 * A {@link FixedDirectoryOutputStrategy} instance that will use java's temp directory as target.
@@ -35,10 +40,22 @@ public class FixedDirectoryOutputStrategy implements IFileOutputStrategy {
 	private final File parentDirectory;
 	
 	/**
-	 * Create a new {@link FixedDirectoryOutputStrategy} that will use java's temp directory as target.
+	 * Create a new {@link FixedDirectoryOutputStrategy} that will use java's temp directory as target. This constructor is 
+	 * added to create a static {@link FixedDirectoryOutputStrategy} {@link #INSTANCE}, which surpresses exceptions when it can
+	 * not write to that directory.
 	 */
-	public FixedDirectoryOutputStrategy() {
-		this.parentDirectory = validateParentDirectory(new File(System.getProperty("java.io.tmpdir")));
+	private FixedDirectoryOutputStrategy() {
+		String tmpDir = System.getProperty("java.io.tmpdir");
+		if ((tmpDir != null) && tmpDir.trim().isEmpty()) { 
+			tmpDir = null;	//fallback on user home directory when there is no java.io.tmpdir set
+		}
+		
+		try {
+			validateParentDirectory(new File(tmpDir));
+		} catch (Xb4jException e) {
+			logger.error(String.format("Static INSTANCE of %s is unuseable", getClass().getSimpleName()), e);
+		}
+		this.parentDirectory = new File(tmpDir);
 	}
 	
 	/**
