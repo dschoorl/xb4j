@@ -281,8 +281,8 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     	
     	//first disable recording queue, so that skipped elements won't get recorded -- that would not be useful 
     	LinkedList<ParseEventData> backupRecordingQueue = this.recordingQueue;
-    	this.recordingQueue = null;
     	try {
+    		this.recordingQueue = null;
 	    	QName expectedElement = getName();
 	    	int xmlElementLevelCount = 0;
 	    	while (xmlElementLevelCount >= 0) {
@@ -392,8 +392,8 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                 	rewindAndPlayback(marker);
                 	if (logger.isTraceEnabled()) {
                 		Location location = getLocation();
-	                	logger.trace(String.format("Expected %s (%s), but found %s (%s @ line %d, column %d)", EVENTNAMES[eventType], expectedElement,
-	                			EVENTNAMES[realEvent], encounteredName, location.getLineNumber(), location.getColumnNumber()));
+	                	logger.trace(String.format("Expected %s (%s), but found %s (%s @ location %s)", EVENTNAMES[eventType], expectedElement,
+	                			EVENTNAMES[realEvent], encounteredName, location));
                 	}
                 } else {
         			stopRecording(marker);
@@ -482,6 +482,17 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     public void close() {
         clearAllRecordings();
         this.playbackQueue.clear();
+    }
+    
+    public void close(boolean closeXmlStream) {
+    	close();
+    	if (closeXmlStream &&  (staxReader != null)) {
+   			try {
+				staxReader.close();
+			} catch (XMLStreamException e) {
+				logger.error("Exception occured when trying to close the underlying XMLStreamReader", e);
+			}
+    	}
     }
     
     private void clearAllRecordings() {

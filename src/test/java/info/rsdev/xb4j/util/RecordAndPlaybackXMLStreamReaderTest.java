@@ -19,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import info.rsdev.xb4j.test.XMLStreamReaderFactory;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.Marker;
 
 import java.io.ByteArrayInputStream;
@@ -30,10 +31,21 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.junit.After;
 import org.junit.Test;
 
 public class RecordAndPlaybackXMLStreamReaderTest {
+	
+    private RecordAndPlaybackXMLStreamReader staxReader = null;
     
+	@After
+	public void teardown() throws Exception {
+		if (staxReader != null) {
+			staxReader.close(true);	//this also closes the underlying xmlstream
+		}
+		staxReader = null;
+	}
+
     @Test
     public void testReadAndRereadFirstElement() throws XMLStreamException {
         String xml = "<?xml version=\"1.0\"?>" + 
@@ -149,5 +161,23 @@ public class RecordAndPlaybackXMLStreamReaderTest {
         assertEquals("root", staxReader.getName().getLocalPart());
         attributes = staxReader.getAttributes();
         assertEquals(2, attributes.size());
+    }
+    
+    @Test
+    public void testRereadElementContent() throws XMLStreamException {
+    	staxReader = XMLStreamReaderFactory.newReader("<objectd><last>Schoorl</last><first>Dave</first></objectd>");
+    	assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());
+        assertEquals("objectd", staxReader.getName().getLocalPart());
+    	for (int i=0; i<3 ; i++) {
+    		Marker contentsOfObjectD = staxReader.startRecording();
+        	assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());
+            assertEquals("last", staxReader.getName().getLocalPart());
+            assertEquals("Schoorl", staxReader.getElementText());
+        	assertEquals(XMLStreamReader.END_ELEMENT, staxReader.nextTag());
+        	assertEquals(XMLStreamReader.START_ELEMENT, staxReader.nextTag());
+            assertEquals("first", staxReader.getName().getLocalPart());
+            assertEquals("Dave", staxReader.getElementText());
+            staxReader.rewindAndPlayback(contentsOfObjectD);
+    	}
     }
 }
