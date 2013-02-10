@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -170,7 +171,7 @@ public abstract class AbstractXmlCodingFactory implements IXmlCodingFactory {
 		try {
     		return (T) targetConstructor.newInstance(callParameters);
 		} catch (Exception e) {
-			throw new Xb4jException(String.format("Cannot create instance of % with parameters %s", type, callParameters));
+			throw new Xb4jException(String.format("Cannot create instance of %s with parameters %s", type, Arrays.asList(callParameters)), e);
 		}
 	}
 	

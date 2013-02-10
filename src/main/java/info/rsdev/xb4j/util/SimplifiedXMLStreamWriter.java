@@ -17,7 +17,6 @@ package info.rsdev.xb4j.util;
 import info.rsdev.xb4j.exceptions.Xb4jException;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -32,7 +31,8 @@ public class SimplifiedXMLStreamWriter {
     
     private NamespaceContext namespaceContext = new NamespaceContext();
     
-    private final String encodingOfXmlStream;
+    @SuppressWarnings("unused")
+	private final String encodingOfXmlStream;
     
     public SimplifiedXMLStreamWriter(XMLStreamWriter staxWriter) {
     	this(staxWriter, "UTF-8");

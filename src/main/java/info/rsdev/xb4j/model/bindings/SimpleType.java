@@ -110,7 +110,7 @@ public class SimpleType extends AbstractBinding {
     @Override
     public boolean generatesOutput(JavaContext javaContext) {
     	javaContext = getProperty(javaContext);
-    	if (javaContext.getContextObject() != null) {
+    	if ((javaContext != null) && javaContext.getContextObject() != null) {
     		return true;
     	}
 		return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)

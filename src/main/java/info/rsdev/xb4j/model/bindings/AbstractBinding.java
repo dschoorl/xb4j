@@ -315,7 +315,7 @@ public abstract class AbstractBinding implements IBinding {
     	
     	if (this.actionManager.hasActionsForPhase(ExecutionPhase.AFTER_UNMARSHALLING)) {
     		JavaContext actionContext = javaContext.getContextObject()==null?javaContext.newContext(result.getUnmarshalledObject()):javaContext;
-    		javaContext = this.actionManager.executeActions(ExecutionPhase.AFTER_UNMARSHALLING, actionContext);
+    		this.actionManager.executeActions(ExecutionPhase.AFTER_UNMARSHALLING, actionContext);
     	}
     	return result;
     }
@@ -334,7 +334,7 @@ public abstract class AbstractBinding implements IBinding {
     public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
     	javaContext = this.actionManager.executeActions(ExecutionPhase.BEFORE_MARSHALLING, javaContext);
     	marshall(staxWriter, javaContext);
-    	javaContext = this.actionManager.executeActions(ExecutionPhase.AFTER_MARSHALLING, javaContext);
+    	this.actionManager.executeActions(ExecutionPhase.AFTER_MARSHALLING, javaContext);
     }
     
     /**

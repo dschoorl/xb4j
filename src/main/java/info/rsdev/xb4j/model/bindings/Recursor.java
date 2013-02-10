@@ -182,7 +182,7 @@ public class Recursor extends AbstractSingleBinding {
         }
         
 		//At this point, we established that the contentBinding will not output content
-        return (recurringObject.getContextObject() != null) && (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
+        return ((recurringObject != null) && (recurringObject.getContextObject() != null)) && (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
     }
 	
 	public Recursor setMaxOccurs(int newMaxOccurs) {

@@ -1,12 +1,12 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertEquals;
-import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.model.bindings.action.IMarshallingAction;
 import info.rsdev.xb4j.model.converter.NullConverter;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
+import info.rsdev.xb4j.test.FixedValueTestAction;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
@@ -27,13 +27,8 @@ public class AttributeInjectorTest {
 	private SimplifiedXMLStreamWriter staxWriter = null;	
 	
 	@Before
-	public void setUp() throws Exception {
-		action = new IMarshallingAction() {
-			@Override
-			public String execute(JavaContext javaContext) throws Xb4jMarshallException {
-				return "Fixed value";
-			}
-		};
+	public void setup() throws Exception {
+		action = new FixedValueTestAction();
         writer = new StringWriter();
         staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
 	}

@@ -70,7 +70,7 @@ public class Reference extends Element {
      * @param referencedBinding
      */
     Reference(QName element, ComplexType referencedBinding) {
-    	super(new DefaultElementFetchStrategy(element), null);
+    	super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
     	//TODO: simplify -> can we not skip ComplexTypeReference when dealing with anonymous type (just use only a ComplexTypeBinding)
         if (referencedBinding == null) {
             throw new NullPointerException("ComplexTypeBinding cannot be null");
@@ -78,14 +78,14 @@ public class Reference extends Element {
         setChild(referencedBinding);
     }
 
-    private void setIdentifier(String newIdentifier) {
+    private synchronized void setIdentifier(String newIdentifier) {
         if (newIdentifier == null) {
             throw new NullPointerException("Identifier cannot be null");
         }
         this.identifier = newIdentifier;
     }
     
-    private void setNamespaceUri(String newNamespaceUri) {
+    private synchronized void setNamespaceUri(String newNamespaceUri) {
         if (newNamespaceUri == null) {
             newNamespaceUri = XMLConstants.NULL_NS_URI;
         }

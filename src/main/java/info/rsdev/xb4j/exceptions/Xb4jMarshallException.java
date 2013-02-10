@@ -18,6 +18,7 @@ import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.IBinding;
 
 /**
+ * Exception that indicates a problem when marshalling from Java to xml
  * 
  * @author Dave Schoorl
  */

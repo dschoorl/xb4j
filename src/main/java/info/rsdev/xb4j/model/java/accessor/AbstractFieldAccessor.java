@@ -75,8 +75,11 @@ public abstract class AbstractFieldAccessor {
 		}
 		//TODO: check if the field is final? warn if static?
 		
-		cachedFields.putIfAbsent(contextType, targetField);
-		return targetField;
+		Field returnField = cachedFields.putIfAbsent(contextType, targetField);
+		if (returnField == null) {
+			returnField = targetField;
+		}
+		return returnField;
 	}
 	
 	private String validate(String fieldName) {

@@ -196,7 +196,7 @@ public class SimpleFileType extends AbstractBinding {
         	throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
         }
         
-        Object inputObject = newJavaContext.getContextObject();
+        Object inputObject = (newJavaContext == null? null: newJavaContext.getContextObject());
         if ((inputObject != null) && !(inputObject instanceof File)) {
         	throw new Xb4jMarshallException(String.format("Expected a File instance, but encountered '%s'", inputObject), this);
         }
@@ -210,15 +210,14 @@ public class SimpleFileType extends AbstractBinding {
         if (!isEmpty) {
             InputStream inputStream = null;
             try {
-            	inputStream = new BufferedInputStream(new FileInputStream(inputFile));
-                inputStream = this.xmlCodingFactory.getEncodingStream(inputStream, codingType);
+                inputStream = this.xmlCodingFactory.getEncodingStream(new BufferedInputStream(new FileInputStream(inputFile)), codingType);
             	int charsToXml = staxWriter.elementContentFromInputStream(inputStream);
             	if (logger.isDebugEnabled()) {
             		logger.debug(String.format("%d characters written to xml stream (element %s) for %s encoded file content", 
             				charsToXml, element, codingType));
             	}
             } catch (FileNotFoundException e) {
-            	throw new Xb4jMarshallException(String.format("Could not open input stream to file %s", inputStream), this);
+            	throw new Xb4jMarshallException(String.format("Could not open input stream to file %s", inputFile), this);
             } finally {
             	if (inputStream != null) {
             		try {
@@ -265,7 +264,7 @@ public class SimpleFileType extends AbstractBinding {
 			throw new NullPointerException("Either one of RecordAndPlaybackXMLStreamReader or JavaContext must be supplied; both are null");
 		}
 		if (fallbackValue == null) {
-			throw new NullPointerException(String.format("The fallbackValue for attribute % cannot be null", attributeSource));
+			throw new NullPointerException(String.format("The fallbackValue for attribute %s cannot be null", attributeSource));
 		}
 		//read value for the attributeSource
 		String value = null;
