@@ -144,8 +144,8 @@ public class ArgsConstructor implements ICreator, XMLStreamConstants {
 			if (event == START_ELEMENT) { 
 				if (staxReader.getName().equals(childElement)) {
 					return true;
-				} else {
-					staxReader.getElementText();
+//				} else {
+//					staxReader.getElementText();
 				}
 			}
 		}

@@ -205,39 +205,58 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
      */
     public int nextTag() throws XMLStreamException {
         int eventType = 0;
+        ParseEventData eventData = null;
         while ((eventType != START_ELEMENT) && (eventType != END_ELEMENT) && (eventType != END_DOCUMENT)) {
             if (!playbackQueue.isEmpty()) {
-                this.currentEvent = playbackQueue.poll();
-                eventType = currentEvent.eventType;
+            	eventData = playbackQueue.poll();
+                eventType = eventData.eventType;
             } else {
+            	//read from stream
+                eventType = staxReader.next();
                 while ((eventType != START_ELEMENT) && (eventType != END_ELEMENT) && (eventType != END_DOCUMENT)) {
-                    if ((eventType > 0) && (this.currentEvent != null) && (this.currentEvent.eventType == START_ELEMENT)) {
-                    	if (eventType == CHARACTERS) {
-                    		String characters = staxReader.getText().trim();
-                    		if (characters.length() > 0) {
-                    			//TODO: salvage characters to recordingQueue
-                    			if (logger.isTraceEnabled()) {
-                    				logger.trace(String.format("Skipping over stax event %s: %s", EVENTNAMES[eventType], characters));
-                    			}
-                    		}
-                    	} else {
-                    		if (logger.isTraceEnabled()) {
-                    			logger.trace(String.format("Skipping over stax event %s ", EVENTNAMES[eventType]));
-                    		}
-                    	}
-                    }
-                    eventType = staxReader.next();
+                	if (eventType == CHARACTERS || eventType == CDATA || eventType == ENTITY_REFERENCE) {
+                        if ((this.currentEvent != null) && (this.currentEvent.eventType == START_ELEMENT)) {
+                        	@SuppressWarnings("unused")
+							QName currentTextElement = this.currentEvent.name;
+                            StringBuffer content = new StringBuffer();
+                            while (eventType == CHARACTERS || eventType == CDATA || eventType == ENTITY_REFERENCE) {
+                                content.append(staxReader.getText());
+                                eventType = staxReader.next();	//read uptil the proper END_ELEMENT
+                            }
+                            //TODO: check that endtag and starttag match -- or is that not our concern...
+                            eventData = new ParseEventData(CHARACTERS, content.toString(), staxReader.getLocation());
+                			if (logger.isTraceEnabled()) {
+                				logger.trace(String.format("Skipping over stax event %s: %s", EVENTNAMES[eventType], content));
+                			}
+                            if (this.recordingQueue != null) {
+                                this.recordingQueue.add(eventData);
+                            }
+                        } else {
+                    		//ignore characters that do not directly follow a start-element section
+                    		eventType = staxReader.next();
+                        }
+                	} else if ((eventType != START_ELEMENT) && (eventType != END_ELEMENT) && (eventType != END_DOCUMENT)) {
+                		if (logger.isTraceEnabled()) {
+                			logger.trace(String.format("Skipping over stax event %s ", EVENTNAMES[eventType]));
+                		}
+                		eventType = staxReader.next();
+                	}
                 }
+                        
+                //we have just read an 
                 if ((eventType == START_ELEMENT) || (eventType == END_ELEMENT)) {
-                    this.currentEvent = ParseEventData.newParseEventData(eventType, staxReader);
+                	eventData = ParseEventData.newParseEventData(eventType, staxReader);
                 } else if (eventType == END_DOCUMENT) {
-                    this.currentEvent = new ParseEventData(eventType, (String) null, staxReader.getLocation());
+                	eventData = new ParseEventData(eventType, (String) null, staxReader.getLocation());
                 }
             }
+            
             if (this.recordingQueue != null) {
-                this.recordingQueue.add(this.currentEvent);
+                this.recordingQueue.add(eventData);
             }
         }
+        
+        this.currentEvent = eventData;
         return this.currentEvent.eventType;
     }
     
@@ -259,7 +278,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     public boolean isAtElementStart(QName expectedElement) throws XMLStreamException {
         boolean isAt = isAtElement(expectedElement, XMLStreamReader.START_ELEMENT);
         if (isAt && logger.isTraceEnabled()) {
-            logger.trace(String.format("Found expected element <%s> open tag ", expectedElement));
+            logger.trace(String.format("Found expected element <%s> open tag %s", expectedElement, getRowColumn(getLocation())));
         }
     	return isAt;
     }
@@ -267,16 +286,15 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     public boolean isAtElementEnd(QName expectedElement) throws XMLStreamException {
         boolean isAt = isAtElement(expectedElement, XMLStreamReader.END_ELEMENT);
         if (isAt && logger.isTraceEnabled()) {
-            logger.trace(String.format("Found expected element </%s> close tag ", expectedElement));
+            logger.trace(String.format("Found expected element </%s> close tag %s", expectedElement, getRowColumn(getLocation())));
         }
         return isAt;
     }
     
     public boolean skipToElementEnd() throws XMLStreamException {
     	if (getEvent() != START_ELEMENT) {
-    		Location location = getLocation();
     		throw new XMLStreamException(String.format("Can only skip to element end when we are currently on element start. " +
-    				"Current event is '%s' @ line %d, column %d).", EVENTNAMES[getEvent()], location.getLineNumber(), location.getColumnNumber()));
+    				"Current event is '%s' %s).", EVENTNAMES[getEvent()], getRowColumn(getLocation())));
     	}
     	
     	//first disable recording queue, so that skipped elements won't get recorded -- that would not be useful 
@@ -328,7 +346,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     	if (getEvent() != START_ELEMENT) {
     		Location location = getLocation();
     		throw new XMLStreamException(String.format("Can only stream element to output when we are currently on element start. " +
-    				"Current event is '%s' @ line %d, column %d).", EVENTNAMES[getEvent()], location.getLineNumber(), location.getColumnNumber()));
+    				"Current event is '%s' %s).", EVENTNAMES[getEvent()], getRowColumn(getLocation())));
     	}
     	
     	//first disable recording queue, so that content of what's streamed to outputstream won't get recorded -- this possibly is very large
@@ -349,8 +367,8 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                 } else if (eventType == XMLStreamConstants.START_ELEMENT) {
                 	//mixed content is currently not supported
                 	throw new XMLStreamException(String.format("Found %s <%s> while reading text for <%s>; mixed content is " +
-                			"currently not supported @ %s", EVENTNAMES[eventType], staxReader.getName(), currentTextElement, 
-                			staxReader.getLocation()));
+                			"currently not supported %s", EVENTNAMES[eventType], staxReader.getName(), currentTextElement, 
+                			getRowColumn(staxReader.getLocation())));
                 } else {
                     throw new XMLStreamException(String.format("Unexpected %s", EVENTNAMES[eventType]), staxReader.getLocation());
                 }
@@ -391,9 +409,8 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                 if (!matchesExpected) {
                 	rewindAndPlayback(marker);
                 	if (logger.isTraceEnabled()) {
-                		Location location = getLocation();
-	                	logger.trace(String.format("Expected %s (%s), but found %s (%s @ location %s)", EVENTNAMES[eventType], expectedElement,
-	                			EVENTNAMES[realEvent], encounteredName, location));
+	                	logger.trace(String.format("Expected %s (%s), but found %s (%s %s)", EVENTNAMES[eventType], expectedElement,
+	                			EVENTNAMES[realEvent], encounteredName, getRowColumn(getLocation())));
                 	}
                 } else {
         			stopRecording(marker);
@@ -443,8 +460,8 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                 } else if (eventType == XMLStreamConstants.START_ELEMENT) {
                 	//mixed content is currently not supported
                 	throw new XMLStreamException(String.format("Found %s <%s> while reading text for <%s>; mixed content is " +
-                			"currently not supported @ %s", EVENTNAMES[eventType], staxReader.getName(), currentTextElement, 
-                			staxReader.getLocation()));
+                			"currently not supported %s", EVENTNAMES[eventType], staxReader.getName(), currentTextElement, 
+                			getRowColumn(staxReader.getLocation())));
                 } else {
                     throw new XMLStreamException(String.format("Unexpected %s", EVENTNAMES[eventType]), staxReader.getLocation());
                 }
@@ -501,6 +518,11 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
             this.recordingQueue = null;
         }
         this.publishedMarkers.clear();
+    }
+    
+    private String getRowColumn(Location location) {
+    	if (location == null) { return "@ Unknown line/column"; }
+    	return String.format("@ line %d, column %d", location.getLineNumber(), location.getColumnNumber());
     }
     
     @Override
