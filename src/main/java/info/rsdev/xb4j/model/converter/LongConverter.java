@@ -54,7 +54,11 @@ public class LongConverter implements IValueConverter {
 	@Override
 	public Long toObject(JavaContext javaContext, String value) {
 		if (value == null) { return null; }
-		return validator.isValid(Long.valueOf(value));
+		try {
+			return validator.isValid(Long.valueOf(value));
+		} catch (NumberFormatException e) {
+			throw new ValidationException(String.format("Cannot convert to a Long: ", value), e);
+		}
 	}
 	
 	@Override
