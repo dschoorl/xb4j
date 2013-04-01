@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.test.ObjectA;
+import info.rsdev.xb4j.util.XmlStreamFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,7 +40,7 @@ public class AttributeTest {
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		ObjectA instance = new ObjectA("test");
-		model.toXml(stream, instance);
+		model.toXml(XmlStreamFactory.makeWriter(stream), instance);
 		assertEquals("<A name=\"test\"/>", stream.toString());
 	}
 	
@@ -53,7 +54,7 @@ public class AttributeTest {
 		
         byte[] buffer = "<A name=\"test\"/>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
         ObjectA a = (ObjectA)instance;
@@ -70,7 +71,7 @@ public class AttributeTest {
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		ObjectA instance = new ObjectA("test");
-		model.toXml(stream, instance);
+		model.toXml(XmlStreamFactory.makeWriter(stream), instance);
 		assertEquals("<A test:name=\"test\" xmlns:test=\"http://attrib/ns\"/>", stream.toString());
 	}
 	

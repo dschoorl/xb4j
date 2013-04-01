@@ -20,6 +20,7 @@ import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectC;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
+import info.rsdev.xb4j.util.XmlStreamFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -45,7 +46,7 @@ public class SequenceTest {
 		
 		String expected = "<root><naam>tester</naam><omschrijving>Ik test dingen</omschrijving></root>";
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		model.toXml(stream, instance);
+		model.toXml(XmlStreamFactory.makeWriter(stream), instance);
 		assertEquals(expected, stream.toString());
 	}
 	

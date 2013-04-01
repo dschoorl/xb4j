@@ -22,6 +22,7 @@ import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectTree;
+import info.rsdev.xb4j.util.XmlStreamFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -57,14 +58,14 @@ public class ComplexTypeTest {
         //marshall root
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new ObjectA("test");
-        model.toXml(stream, instance);
+        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
         String result = stream.toString();
         assertEquals("<root><name>test</name></root>", result);
         
         //marshall hoofdmap
         stream = new ByteArrayOutputStream();
         instance = new ObjectTree().setMyObject(new ObjectA("test"));
-        model.toXml(stream, instance);
+        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
         result = stream.toString();
         assertEquals("<directory><name>test</name></directory>", result);
     }
@@ -73,14 +74,14 @@ public class ComplexTypeTest {
     public void testUnmarshallComplexType() {
     	//Unmarshall ObjectA
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><name>test</name></root>".getBytes());
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
         assertEquals("test", ((ObjectA)instance).getAName());
         
         //unmarshall ObjectTree
         stream = new ByteArrayInputStream("<directory><name>test</name></directory>".getBytes());
-        instance = model.toJava(stream);
+        instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectTree.class, instance.getClass());
         ObjectTree tree = (ObjectTree)instance;
@@ -102,7 +103,7 @@ public class ComplexTypeTest {
     	
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectA instance = new ObjectA("test");
-        model.toXml(stream, instance);
+        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals("<root><reference><name>test</name></reference></root>", stream.toString());
     }
     

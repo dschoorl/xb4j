@@ -25,6 +25,7 @@ import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
+import info.rsdev.xb4j.util.XmlStreamFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -47,7 +48,7 @@ public class SimpleTypeTest {
         Object instance = new Object();
         BindingModel model = new BindingModel();
         model.register(new Root(new QName("root"), Object.class));
-        model.toXml(stream, instance);
+        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals("<root/>", stream.toString());
     }
     
@@ -57,7 +58,7 @@ public class SimpleTypeTest {
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
         BindingModel model = new BindingModel();
         model.register(new Root(new QName("root"), Object.class));
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(Object.class, instance.getClass());
     }
@@ -68,7 +69,7 @@ public class SimpleTypeTest {
         Object instance = new Object();
         BindingModel model = new BindingModel();
         model.register(new Root(new QName("urn:test/namespace", "root", "tst"), Object.class));
-        model.toXml(stream, instance);
+        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals("<tst:root xmlns:tst=\"urn:test/namespace\"/>", stream.toString());
     }
     
@@ -78,7 +79,7 @@ public class SimpleTypeTest {
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
         BindingModel model = new BindingModel();
         model.register(new Root(new QName("urn:test/namespace", "root", "tst"), Object.class));
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(Object.class, instance.getClass());
     }
@@ -93,7 +94,7 @@ public class SimpleTypeTest {
         byte[] buffer = "<tst:root xmlns:tst=\"urn:test/namespace\"><tst:child/></tst:root>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
         
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectTree.class, instance.getClass());
         assertNotNull(((ObjectTree)instance).getMyObject());
@@ -113,7 +114,7 @@ public class SimpleTypeTest {
                           "</tst:root>";
         
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(stream, instance);
+        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals(expected, stream.toString());
     }
     
@@ -128,7 +129,7 @@ public class SimpleTypeTest {
         
         String expected = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>test</name></tst:myobject>";
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(stream, instance);
+        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals(expected, stream.toString());
     }
     
@@ -142,7 +143,7 @@ public class SimpleTypeTest {
         byte[] buffer = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>test</name></tst:myobject>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
         
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
         assertEquals("test", ((ObjectA)instance).getAName());

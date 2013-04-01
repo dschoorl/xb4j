@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.test.ObjectA;
+import info.rsdev.xb4j.util.XmlStreamFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,7 +53,7 @@ public class IgnoreTest {
 						 "</root>";
 		
         ByteArrayInputStream stream = new ByteArrayInputStream(snippet.getBytes());
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
         assertEquals("Repelsteeltje", ((ObjectA)instance).getAName());
@@ -71,7 +72,7 @@ public class IgnoreTest {
 						 "</root>";
 		
         ByteArrayInputStream stream = new ByteArrayInputStream(snippet.getBytes());
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
         assertEquals("Repelsteeltje", ((ObjectA)instance).getAName());
@@ -88,7 +89,7 @@ public class IgnoreTest {
 		String snippet = "<root name='Repelsteeltje' />";
 		
         ByteArrayInputStream stream = new ByteArrayInputStream(snippet.getBytes());
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
         assertEquals("Repelsteeltje", ((ObjectA)instance).getAName());
@@ -103,7 +104,7 @@ public class IgnoreTest {
 		model.register(root);
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(stream, new ObjectA("Repelsteeltje"));
+        model.toXml(XmlStreamFactory.makeWriter(stream), new ObjectA("Repelsteeltje"));
         String expected = "<root name='Repelsteeltje' />";
         
         XMLAssert.assertXMLEqual(expected, stream.toString());
@@ -118,7 +119,7 @@ public class IgnoreTest {
 		model.register(root);
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(stream, new ObjectA("Repelsteeltje"));
+        model.toXml(XmlStreamFactory.makeWriter(stream), new ObjectA("Repelsteeltje"));
         String expected = "<root name='Repelsteeltje' />";
         
         XMLAssert.assertXMLEqual(expected, stream.toString());

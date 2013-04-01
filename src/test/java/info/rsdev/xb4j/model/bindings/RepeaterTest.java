@@ -26,6 +26,7 @@ import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectTree;
+import info.rsdev.xb4j.util.XmlStreamFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -54,7 +55,7 @@ public class RepeaterTest {
         instance.addMessage("bericht1");
         instance.addMessage("bericht2");
         
-        model.toXml(stream, instance);
+        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
         String result = stream.toString();
         assertEquals("<root><detail>bericht1</detail><detail>bericht2</detail></root>", result);
 	}
@@ -72,7 +73,7 @@ public class RepeaterTest {
         instance.addMessage("bericht1");
         instance.addMessage("bericht2");
         
-        model.toXml(stream, instance);
+        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
         String result = stream.toString();
         assertEquals("<root><collection><detail>bericht1</detail><detail>bericht2</detail></collection></root>", result);
     }
@@ -86,7 +87,7 @@ public class RepeaterTest {
         BindingModel model = new BindingModel().register(root);
         
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><detail>bericht1</detail><detail>bericht2</detail></root>".getBytes());
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectTree.class, instance.getClass());
         ObjectTree tree = (ObjectTree)instance;
@@ -104,7 +105,7 @@ public class RepeaterTest {
         BindingModel model = new BindingModel().register(root);
         
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><collection><detail>bericht1</detail><detail>bericht2</detail></collection></root>".getBytes());
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectTree.class, instance.getClass());
         ObjectTree tree = (ObjectTree)instance;
@@ -152,7 +153,7 @@ public class RepeaterTest {
     	instance.addMessage("string1");
     	instance.addMessage("string2");
         
-        model.toXml(stream, instance);
+        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
         String result = stream.toString();
         assertEquals("<root><collection><item seqnr=\"0\">string1</item><item seqnr=\"1\">string2</item></collection></root>", result);
     }
@@ -172,7 +173,7 @@ public class RepeaterTest {
     	instance.addMessage("string1");
     	instance.addMessage("string2");
         
-        model.toXml(stream, instance);
+        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
         String result = stream.toString();
         assertEquals("<root><collection><item><value>string1</value><seqnr>0</seqnr></item><item><value>string2</value><seqnr>1</seqnr></item></collection></root>", result);
     }

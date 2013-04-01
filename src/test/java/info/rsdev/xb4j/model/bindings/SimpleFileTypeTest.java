@@ -21,6 +21,7 @@ import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectF;
+import info.rsdev.xb4j.util.XmlStreamFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -74,7 +75,7 @@ public class SimpleFileTypeTest {
 	public void testMarshallFileElement() throws Exception {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectF instance = new ObjectF(zipFile.getCanonicalFile(), SimpleFileType.BASE64_CODING);
-        this.model.toXml(stream, instance);
+        this.model.toXml(XmlStreamFactory.makeWriter(stream), instance);
         XMLUnit.setIgnoreWhitespace(true);
         XMLAssert.assertXMLEqual("<Root><File Encoding=\"base64\" Name=\"temp.zip\" MimeType=\"application/octet-stream\">".concat(base64EncodedZipfile).concat("</File></Root>"), stream.toString());
 	}
@@ -83,7 +84,7 @@ public class SimpleFileTypeTest {
 	public void testUnmarshallFileElement() throws Exception {
         byte[] buffer = "<Root><File>".concat(base64EncodedZipfile).concat("</File></Root>").getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
-        Object instance = this.model.toJava(stream);
+        Object instance = this.model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectF.class, instance.getClass());
         

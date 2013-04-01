@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.test.ChinesePerson;
+import info.rsdev.xb4j.util.XmlStreamFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -81,7 +82,7 @@ public class RecursorTest {
 		assertEquals(0, tree.getFamilyTreeDepth());
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(stream, tree);
+        model.toXml(XmlStreamFactory.makeWriter(stream), tree);
         String expected = "<Stamboom />";
         
         XMLAssert.assertXMLEqual(expected, stream.toString());
@@ -94,7 +95,7 @@ public class RecursorTest {
 		assertEquals(1, tree.getFamilyTreeDepth());
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(stream, tree);
+        model.toXml(XmlStreamFactory.makeWriter(stream), tree);
         String expected = "<Stamboom>" +
         				  "  <Kind Voornaam=\"Mao\" Achternaam=\"Zedong\" />" +
         				  "</Stamboom>";
@@ -109,7 +110,7 @@ public class RecursorTest {
 		assertEquals(3, tree.getFamilyTreeDepth());
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(stream, tree);
+        model.toXml(XmlStreamFactory.makeWriter(stream), tree);
         String expected = "<Stamboom>" +
         				  "  <Kind Voornaam=\"Mao\" Achternaam=\"Zedong\">" +
         				  "    <Kind Voornaam=\"Mao Anqing\" Achternaam=\"Zedong\">" +
@@ -125,7 +126,7 @@ public class RecursorTest {
 	public void testUnmarshallNoRecurringElement() {
         String snippet = "<Stamboom />";
         ByteArrayInputStream stream = new ByteArrayInputStream(snippet.getBytes());
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(FamilyTree.class, instance.getClass());
         FamilyTree tree = (FamilyTree)instance;
@@ -138,7 +139,7 @@ public class RecursorTest {
 				  		 "  <Kind Voornaam=\"Mao\" Achternaam=\"Zedong\" />" +
 				  		 "</Stamboom>";
         ByteArrayInputStream stream = new ByteArrayInputStream(snippet.getBytes());
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(FamilyTree.class, instance.getClass());
         FamilyTree tree = (FamilyTree)instance;
@@ -157,7 +158,7 @@ public class RecursorTest {
 				  		 "  </Kind>" +
 				  		 "</Stamboom>";
         ByteArrayInputStream stream = new ByteArrayInputStream(snippet.getBytes());
-        Object instance = model.toJava(stream);
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(FamilyTree.class, instance.getClass());
         FamilyTree tree = (FamilyTree)instance;

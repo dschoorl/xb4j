@@ -8,6 +8,7 @@ import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectB;
+import info.rsdev.xb4j.util.XmlStreamFactory;
 
 import java.io.ByteArrayOutputStream;
 
@@ -38,11 +39,11 @@ public class BindingModelTest {
     @Test
     public void testRegisterJavatypeTwice() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        model.toXml(out, new ObjectA("uppercase A"), "http://1");
+        model.toXml(XmlStreamFactory.makeWriter(out), new ObjectA("uppercase A"), "http://1");
         assertEquals("<up:a xmlns:up=\"http://1\"><name>uppercase A</name></up:a>", out.toString());
         
         out = new ByteArrayOutputStream();
-        model.toXml(out, new ObjectA("lowercase a"), "http://2");
+        model.toXml(XmlStreamFactory.makeWriter(out), new ObjectA("lowercase a"), "http://2");
         assertEquals("<lo:a xmlns:lo=\"http://2\"><eman>lowercase a</eman></lo:a>", out.toString());
     }
     

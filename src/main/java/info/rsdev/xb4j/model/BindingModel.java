@@ -15,7 +15,9 @@
 package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.model.bindings.ComplexType;
+import info.rsdev.xb4j.model.bindings.ISemaphore;
 import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.model.bindings.UnmarshallResult;
 import info.rsdev.xb4j.model.java.JavaContext;
@@ -57,17 +59,50 @@ public class BindingModel {
     private Map<QName, Root> xmlToClass = new HashMap<QName, Root>();
     
     private Map<QName, ComplexType> complexTypes = new HashMap<QName, ComplexType>();
+    
+    private HashMap<Class<?>, XmlStreamer> streamerByClass = new HashMap<Class<?>, XmlStreamer>();
 
+	public XmlStreamer getXmlStreamer(Class<?> type, String namespaceSpecifier) {
+    	XmlStreamer streamer = streamerByClass.get(type);
+    	if (streamer != null) { return streamer; }
+    	
+    	Root binding = getBinding(type, namespaceSpecifier);
+    	if (binding == null) {
+    		throw new Xb4jException(String.format("No binding found for %s within namespace %s", type, namespaceSpecifier));
+    	}
+    	
+    	ISemaphore semaphore = binding.getSemaphore();
+    	semaphore.lock();
+    	try {
+        	binding.makeImmutable();
+        	
+        	//TODO: resolve all complex types and constructor argument references (as far as possible)
+        	
+        	streamer = new XmlStreamer(binding);
+        	streamerByClass.put(type, streamer);
+    		return streamer;
+    	} finally {
+    		semaphore.unlock();
+    	}
+    }
+    
     /**
      * Marshall a Java instance into xml representation
      * 
      * @param stream
      * @param instance
+     * @deprecated use {@link XmlStreamer} instead (obtain with {@link BindingModel#getXmlStreamer(Class, String)}
      */
     public void toXml(OutputStream stream, Object instance) {
         toXml(stream, instance, (String)null);
     }
     
+    /**
+     * @param stream
+     * @param instance
+     * @param namespaceSpecifier
+     * @deprecated use {@link XmlStreamer} instead (obtain with {@link BindingModel#getXmlStreamer(Class, String)}
+     */
     public void toXml(OutputStream stream, Object instance, String namespaceSpecifier) {
         if (instance == null) {
             throw new NullPointerException("Java instance to convert to xml cannot be null");
@@ -76,6 +111,45 @@ public class BindingModel {
         toXml(stream, instance, binding);
     }
     
+    public void toXml(XMLStreamWriter staxWriter, Object instance) {
+    	toXml(staxWriter, instance, null);
+    }
+    
+    public void toXml(XMLStreamWriter staxWriter, Object instance, String namespaceSpecifier) {
+        if (instance == null) {
+            throw new NullPointerException("Java instance to convert to xml cannot be null");
+        }
+        if (staxWriter == null) {
+            throw new NullPointerException("XMLStreamWriter cannot be null");
+        }
+        Root binding = getBinding(instance.getClass(), namespaceSpecifier);
+        if (binding == null) {
+            throw new IllegalArgumentException("No binding found for: ".concat(instance.getClass().getName()));
+        }
+        SimplifiedXMLStreamWriter simpleWriter = null;
+        try {
+        	simpleWriter = new SimplifiedXMLStreamWriter(staxWriter);
+        	binding.toXml(simpleWriter, new JavaContext(instance));
+        } catch (XMLStreamException e) {
+            throw new Xb4jMarshallException(String.format("Exception occured when writing instance to xml stream: %s", instance), binding, e);
+		} finally {
+        	if (simpleWriter != null) {
+        		try {
+        			simpleWriter.close();
+        		} catch (XMLStreamException e) {
+        			throw new Xb4jMarshallException(String.format("Exception occured closing xml stream for: %s", instance), binding, e);
+        		}
+        	}
+        }
+
+    }
+    
+    /**
+     * @param stream
+     * @param instance
+     * @param binding
+     * @deprecated use {@link XmlStreamer} instead (obtain with {@link BindingModel#getXmlStreamer(Class, String)}
+     */
     private void toXml(OutputStream stream, Object instance, Root binding) {
         if (stream == null) {
             throw new NullPointerException("OutputStream cannot be null");
@@ -112,6 +186,7 @@ public class BindingModel {
      * @param stream the xml provided as an {@link InputStream}
      * @return the Java object tree read from the xml stream
      * @throws Xb4jException any unmarshalling exception that may occur is propogated
+     * @deprecated use {@link XmlStreamer} instead (obtain with {@link BindingModel#getXmlStreamer(Class, String)}
      */
     public Object toJava(InputStream stream) {
     	XMLStreamReader xmlStream = null;
@@ -180,11 +255,11 @@ public class BindingModel {
      * @throws Xb4jException when multiple bindings are bound to 
      * @see
      */
-    public Root getBinding(Class<?> type) {
+    protected Root getBinding(Class<?> type) {
         return getBinding(type, null);
     }
     
-    public Root getBinding(Class<?> type, String namespaceSpecifier) {
+    protected Root getBinding(Class<?> type, String namespaceSpecifier) {
         if (!this.classToXml.containsKey(type)) {
             return null;
         }
@@ -284,6 +359,9 @@ public class BindingModel {
         return this;
     }
     
+    /**
+     * @deprecated TODO: remove public access once the complex type references are resolved when obtaining an {@link XmlStreamer}
+     */
     public ComplexType getComplexType(String identifier, String namespaceUri) {
     	QName identification = new QName(namespaceUri, identifier);
     	if (!complexTypes.containsKey(identification)) {
