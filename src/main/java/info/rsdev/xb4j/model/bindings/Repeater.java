@@ -72,10 +72,16 @@ public class Repeater extends AbstractBinding {
 			throw new NullPointerException("Binding for collection items cannot be null");
 		}
 		
-		this.itemBinding = itemBinding;
-		this.itemBinding.setParent(this);
-		itemBinding.setSetter(new MethodSetter("add"));   //default add method for Collection interface;
-		return itemBinding;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			this.itemBinding = itemBinding;
+			this.itemBinding.setParent(this);
+			itemBinding.setSetter(new MethodSetter("add"));   //default add method for Collection interface;
+			return itemBinding;
+		} finally {
+			getSemaphore().unlock();
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -235,8 +241,14 @@ public class Repeater extends AbstractBinding {
 		if (newMaxOccurs <= 1) {
 			throw new Xb4jException("maxOccurs must be 1 or higher: "+newMaxOccurs);
 		}
-		this.maxOccurs = newMaxOccurs;
-		return this;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			this.maxOccurs = newMaxOccurs;
+			return this;
+		} finally {
+			getSemaphore().unlock();
+		}
 	}
 	
     @Override

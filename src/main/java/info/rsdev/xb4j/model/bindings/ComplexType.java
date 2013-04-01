@@ -24,6 +24,8 @@ import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -46,6 +48,13 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     private BindingModel model = null;  //this is set on ComplexTypeBindings that are registered with the BindingModel
     
     /**
+     * Flag that indicates whether this {@link ComplexType} can be changed or not. A complex type is made immutable, when it
+     * is linked to a {@link Reference} type (useualy the first time it is used to marshall/unmarshall, so that it can be 
+     * used in a threadsafe manner. When a {@link #copy(QName)} is made, the copy is mutable again.
+     */
+    private AtomicBoolean isImmutable = new AtomicBoolean(false);
+    
+    /**
      * Create a ComplexTypeReference for an anonymous ComplexType (not registered with {@link BindingModel}
      * @param element
      * @param referencedBinding
@@ -53,7 +62,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     public ComplexType(QName element, IBinding parent, String fieldName) {
     	super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
         if (parent == null) {
-            throw new NullPointerException("Parent IBindingBase cannot be null");
+            throw new NullPointerException("Parent IBinding cannot be null");
         }
         Reference reference = new Reference(element, this);
         if (parent instanceof ISingleBinding) {
@@ -85,7 +94,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      * as it's parent 
      */
     private ComplexType(ComplexType original) {
-        super(original, NoElementFetchStrategy.INSTANCE);	//dirty hack, I want to do: new FetchFromParentStrategy(this), but cannot pass on this in super contructor call 
+        super(original, NoElementFetchStrategy.INSTANCE);	//dirty hack, I want to do: new FetchFromParentStrategy(this), but cannot pass on 'this' in super contructor call 
         this.identifier = original.identifier;
         this.namespaceUri = original.namespaceUri;
     }
@@ -98,7 +107,14 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 	    if (newIdentifer == null) {
 	        throw new NullPointerException("Identifier cannot be null");
 	    }
-	    this.identifier = newIdentifer;
+	    
+	    getSemaphore().lock();
+    	try {
+    	    validateMutability();
+    	    this.identifier = newIdentifer;
+    	} finally {
+    		getSemaphore().unlock();
+    	}
 	}
 	
 	public String getNamespace() {
@@ -109,7 +125,14 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     	if (newNamespaceUri == null) {
     		newNamespaceUri = XMLConstants.NULL_NS_URI;
     	}
-    	this.namespaceUri = newNamespaceUri;
+    	
+    	getSemaphore().lock();
+    	try {
+    	    validateMutability();
+        	this.namespaceUri = newNamespaceUri;
+    	} finally {
+    		getSemaphore().unlock();
+    	}
     }
 
 	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
@@ -203,7 +226,14 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
         if ((this.model != null) && !this.model.equals(model)) {
             throw new IllegalArgumentException("It is currently not supported that a ComplexTypeBinding is added to multiple BindingModels");
         }
-        this.model = model;
+        
+        getSemaphore().lock();
+    	try {
+    	    validateMutability();
+            this.model = model;
+    	} finally {
+    		getSemaphore().unlock();
+    	}
     }
     
     @Override
@@ -213,8 +243,39 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     
     @Override
     public ComplexType setOptional(boolean isOptional) {
-    	super.setOptional(isOptional);
+    	getSemaphore().lock();
+    	try {
+    	    validateMutability();
+        	super.setOptional(isOptional);
+    	} finally {
+    		getSemaphore().unlock();
+    	}
     	return this;
+    }
+    
+    public boolean isImmutable() {
+    	getSemaphore().lock();
+    	try {
+    		return this.isImmutable.get();
+    	} finally {
+    		getSemaphore().unlock();
+    	}
+    }
+    
+    /**
+     * Resolve all references to {@link ComplexType}s
+     * 
+     * @see info.rsdev.xb4j.model.bindings.IModelAware#makeImmutable()
+     */
+    public void makeImmutable() {
+    	getSemaphore().lock();
+    	try {
+    		if (!isImmutable.compareAndSet(false, true)) {
+    			//TODO: log that the ComplexType was already immutable?
+    		}
+    	} finally {
+    		getSemaphore().unlock();
+    	}
     }
     
 }

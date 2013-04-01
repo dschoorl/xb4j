@@ -22,7 +22,7 @@ import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
  *  
  * @author Dave Schoorl
  */
-public class NullCreator implements ICreator {
+public final class NullCreator implements ICreator {
 	
 	public static final NullCreator INSTANCE = new NullCreator();
 	

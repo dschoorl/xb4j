@@ -18,7 +18,6 @@ import info.rsdev.xb4j.model.bindings.action.IPhasedAction;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
-import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
@@ -79,8 +78,6 @@ public interface IBinding {
     
     public IBinding setSetter(ISetter setter);
     
-    public void setObjectCreator(ICreator objectCreator);
-    
     public IBinding addAction(IPhasedAction action);
     
     /**
@@ -98,5 +95,19 @@ public interface IBinding {
     public boolean equals(Object obj);
     
     public String getPath();
+    
+    /**
+     * Get the {@link ISemaphore} instance that is at the root of the binding tree that this binding belongs to. If the binding
+     * does not belong to a binding tree yet, a {@link NullSafeSemaphore} instance should be returned, to support threatsafe
+     * operations on thhis binding tree.
+     * 
+     * @return An {@link ISemaphore} instance that represent the root of the binding tree, or {@link NullSafeSemaphore} when the
+     * 		root is not an instance of {@link ISemaphore} 
+     */
+    public ISemaphore getSemaphore();
+    
+    public IModelAware getModelAware();
+    
+    public void validateMutability();
     
 }

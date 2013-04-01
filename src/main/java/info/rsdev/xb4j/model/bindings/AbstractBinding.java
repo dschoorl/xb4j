@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
 import info.rsdev.xb4j.model.bindings.action.ActionManager;
 import info.rsdev.xb4j.model.bindings.action.IPhasedAction;
 import info.rsdev.xb4j.model.bindings.action.IPhasedAction.ExecutionPhase;
@@ -31,6 +32,7 @@ import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -95,7 +97,10 @@ public abstract class AbstractBinding implements IBinding {
         this.setter = original.setter;
         this.isOptional = original.isOptional;
         if (original.attributes != null) {
-        	this.attributes = new LinkedList<IAttribute>(original.attributes);
+        	this.attributes = new LinkedList<IAttribute>();
+        	for (IAttribute originalAttribute: original.attributes) {
+        		this.attributes.add(originalAttribute.copy(this));	//TODO: copy attributes as well, where copy is attached to new binding
+        	}
         }
         this.parent = null;    //clear parent, so that copy can be used in another binding hierarchy
     }
@@ -105,8 +110,14 @@ public abstract class AbstractBinding implements IBinding {
         if (fieldName == null) {
         	throw new NullPointerException("Fieldname cannot be null");
         }
-        FieldAccessor fieldAccessor = new FieldAccessor(fieldName);
-        return addAttribute(attribute, fieldAccessor, fieldAccessor);
+		getSemaphore().lock();
+		try {
+			validateMutability();
+	        FieldAccessor fieldAccessor = new FieldAccessor(fieldName);
+	        return addAttribute(attribute, fieldAccessor, fieldAccessor);
+		} finally {
+			getSemaphore().unlock();
+		}
     }
     
     @Override
@@ -117,22 +128,33 @@ public abstract class AbstractBinding implements IBinding {
     	if (getElement() == null) {
     		throw new Xb4jException(String.format("No element defined to bind attributes to (binding=%s)", this));
     	}
-    	Collection<IAttribute> attributes = getAttributes();
-    	if (attributes.contains(attribute)) {
-    		throw new Xb4jException(String.format("Attribute %s already defined (binding=%s)", attribute, this));
-    	}
-        attribute.setGetter(getter);
-        attribute.setSetter(setter);
-    	attributes.add(attribute);
+		getSemaphore().lock();
+		try {
+			validateMutability();
+	    	if ((this.attributes == null) && (getElement() != null)) {
+	    		//only create new collection, when there is an element to bind them to
+	    		this.attributes = new LinkedList<IAttribute>();
+	    	}
+	    	if (attributes.contains(attribute)) {
+	    		throw new Xb4jException(String.format("Attribute %s already defined (binding=%s)", attribute, this));
+	    	}
+	        attribute.setGetter(getter);
+	        attribute.setSetter(setter);
+	    	attributes.add(attribute);
+	    	if (attribute instanceof AbstractAttribute) {
+	    		((AbstractAttribute)attribute).attachToBinding(this);
+	    	}
+		} finally {
+			getSemaphore().unlock();
+		}
     	return this;
     }
     
     public Collection<IAttribute> getAttributes() {
-    	if ((this.attributes == null) && (getElement() != null)) {
-    		//only create new collection, when there is an element to bind them to
-    		this.attributes = new LinkedList<IAttribute>();
+    	if (this.attributes == null) {
+    		return Collections.emptyList();
     	}
-    	return this.attributes;
+    	return Collections.unmodifiableCollection(this.attributes);
     }
     
     public boolean hasAttributes() {
@@ -172,13 +194,14 @@ public abstract class AbstractBinding implements IBinding {
         return javaContext;
     }
     
-    protected void setElementFetchStrategy(IElementFetchStrategy elementFetcher) {
+    private void setElementFetchStrategy(IElementFetchStrategy elementFetcher) {
     	if (elementFetcher == null) {
     		throw new NullPointerException("IElementFetchStrategy cannot be null");
     	}
     	if ((this.elementFetcher != null) && !this.elementFetcher.equals(elementFetcher)) {
     		throw new Xb4jException("Once set, an IElementFetchStrategy cannot be changed: ".concat(this.toString()));
     	}
+    	//called via the constructor only: no need to validate mutability
     	this.elementFetcher = elementFetcher;
     }
     
@@ -186,14 +209,14 @@ public abstract class AbstractBinding implements IBinding {
         return this.elementFetcher;
     }
     
-    @Override
-    public void setObjectCreator(ICreator objectCreator) {
+    private void setObjectCreator(ICreator objectCreator) {
     	if (objectCreator == null) {
     		throw new NullPointerException("ICreator cannot be null");
     	}
     	if ((this.objectCreator != null) && !this.objectCreator.equals(objectCreator)) {
     		throw new Xb4jException("Once set, an ICreator cannot be changed: ".concat(this.toString()));
     	}
+    	//called via the constructor only: no need to validate mutability
         this.objectCreator = objectCreator;
     }
     
@@ -201,7 +224,13 @@ public abstract class AbstractBinding implements IBinding {
     	if (getter == null) {
     		throw new NullPointerException("IGetter cannot be null");
     	}
-        this.getter = getter;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+	        this.getter = getter;
+		} finally {
+			getSemaphore().unlock();
+		}
         return this;
     }
 
@@ -209,7 +238,13 @@ public abstract class AbstractBinding implements IBinding {
     	if (setter == null) {
     		throw new NullPointerException("ISetter cannot be null");
     	}
-        this.setter = setter;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+	        this.setter = setter;
+		} finally {
+			getSemaphore().unlock();
+		}
         return this;
     }
     
@@ -218,7 +253,14 @@ public abstract class AbstractBinding implements IBinding {
     	if (action == null) {
     		throw new NullPointerException("You must provide an IPhasedAction implementation");
     	}
-    	this.actionManager.addAction(action);
+		
+		getSemaphore().lock();
+		try {
+			validateMutability();
+	    	this.actionManager.addAction(action);
+		} finally {
+			getSemaphore().unlock();
+		}
     	return this;
     }
     
@@ -233,21 +275,42 @@ public abstract class AbstractBinding implements IBinding {
     	if ((this.parent != null) && !this.parent.equals(parent)) {
     	    throw new IllegalArgumentException(String.format("This binding '%s' is already part of a binding tree.", this));
     	}
-    	this.parent = parent;
+    	
+    	ISemaphore topLevelElement = getSemaphore();
+		topLevelElement.lock();
+		try {
+			validateMutability();
+	    	this.parent = parent;
+		} finally {
+			topLevelElement.unlock();
+		}
     }
     
     public IBinding getParent() {
     	return this.parent;
     }
     
-    protected IModelAware getModelAware() {
+    @Override
+    public ISemaphore getSemaphore() {
+        IBinding semaphoreBinding = this;
+        while (semaphoreBinding.getParent() != null) {
+        	semaphoreBinding = semaphoreBinding.getParent();
+        }
+        
+        if (!(semaphoreBinding instanceof ISemaphore)) {
+        	return NullSafeSemaphore.INSTANCE;	//provide nullsafe lock/unlock utility for cases where the binding is not yet part of a full tree
+        }
+        return (ISemaphore)semaphoreBinding;
+    }
+
+    public IModelAware getModelAware() {
         IBinding modelAwareBinding = this;
         while (modelAwareBinding.getParent() != null) {
         	modelAwareBinding = modelAwareBinding.getParent();
         }
+        
         if (!(modelAwareBinding instanceof IModelAware)) {
-            throw new Xb4jException(String.format("Expected top level binding to implement IModelAware, but found %s", 
-                    modelAwareBinding.getClass().getName()));
+        	return NullSafeModelAware.INSTANCE;	//provide nullsafe utility for cases where the binding is not yet part of a full tree
         }
         return (IModelAware)modelAwareBinding;
     }
@@ -277,7 +340,13 @@ public abstract class AbstractBinding implements IBinding {
     }
     
     public IBinding setOptional(boolean isOptional) {
-        this.isOptional = isOptional;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+	        this.isOptional = isOptional;
+		} finally {
+			getSemaphore().unlock();
+		}
         return this;
     }
     
@@ -423,6 +492,19 @@ public abstract class AbstractBinding implements IBinding {
 			if (other.setter != null) return false;
 		} else if (!this.setter.equals(other.setter)) return false;
 		return true;
+	}
+	
+	public void validateMutability() {
+		ISemaphore semaphore = getSemaphore();
+		semaphore.lock();
+		try {
+			IModelAware topLevel = getModelAware();
+    		if (topLevel.isImmutable()) {
+    			throw new Xb4jMutabilityException(String.format("Cannot change (parts of the) immutable binding %s", semaphore));
+    		}
+		} finally {
+			semaphore.unlock();
+		}
 	}
     
 }

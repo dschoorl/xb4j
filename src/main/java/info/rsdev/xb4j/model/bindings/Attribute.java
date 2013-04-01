@@ -41,6 +41,18 @@ public class Attribute extends AbstractAttribute {
     	setConverter(converter);
     }
     
+    /**
+     * Copy constructor for an {@link Attribute}
+     * 
+     * @param original
+     * @param newParent
+     */
+    private Attribute(Attribute original, IBinding newParent) {
+    	super(original, newParent);
+    	this.converter = original.converter;
+    	this.defaultValue = original.defaultValue;
+    }
+    
     @Override
 	public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException {
     	if ((valueAsText == null) && (this.defaultValue != null)) {
@@ -78,6 +90,7 @@ public class Attribute extends AbstractAttribute {
     	if (converter == null) {
     		throw new NullPointerException("IValueConverter cannot be null");
     	}
+    	//only called from constructor, no need to validate mutability
     	this.converter = converter;
     }
     
@@ -86,13 +99,26 @@ public class Attribute extends AbstractAttribute {
     	if (defaultValue == null) {
     		throw new NullPointerException("No value provided for default value");
     	}
-    	this.defaultValue = defaultValue;
+		IBinding parent = attachedBinding;
+		if (parent != null) {parent.getSemaphore().lock(); }
+		try {
+			if (parent != null) {parent.validateMutability(); }
+	    	this.defaultValue = defaultValue;
+		} finally {
+			if (parent != null) {parent.getSemaphore().unlock(); }
+		}
     	return this;
     }
 
 	@Override
 	public String getDefaultValue() {
 		return this.defaultValue;
+	}
+	
+	
+	@Override
+	public Attribute copy(IBinding newParent) {
+		return new Attribute(this, newParent);
 	}
     
 }

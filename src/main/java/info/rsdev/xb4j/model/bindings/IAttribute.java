@@ -59,4 +59,6 @@ public interface IAttribute {
 	
 	public String getDefaultValue();
 	
+	public IAttribute copy(IBinding newParent);
+	
 }

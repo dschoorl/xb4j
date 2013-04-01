@@ -21,7 +21,7 @@ import javax.xml.namespace.QName;
  * 
  * @author Dave Schoorl
  */
-public class NoElementFetchStrategy implements IElementFetchStrategy {
+public final class NoElementFetchStrategy implements IElementFetchStrategy {
 	
 	public static final NoElementFetchStrategy INSTANCE = new NoElementFetchStrategy();
 

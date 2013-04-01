@@ -59,6 +59,12 @@ public class StaticAttribute extends AbstractAttribute {
     	setConverter(converter);
     }
     
+    private StaticAttribute(StaticAttribute original, IBinding newParent) {
+    	super(original, newParent);
+    	this.converter = original.converter;
+    	this.staticValue = original.staticValue;
+    }
+    
     @Override
 	public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException {
     	//Ignore provided value from the xml stream; always use the static value
@@ -90,6 +96,7 @@ public class StaticAttribute extends AbstractAttribute {
     	if (converter == null) {
     		throw new NullPointerException("IValueConverter cannot be null");
     	}
+    	//only called from constructor: no need to validate mutability
     	this.converter = converter;
     }
     
@@ -98,7 +105,14 @@ public class StaticAttribute extends AbstractAttribute {
     	if (defaultValue == null) {
     		throw new NullPointerException("No value provided for default value");
     	}
-    	this.staticValue = defaultValue;
+		IBinding parent = attachedBinding;
+		if (parent != null) {parent.getSemaphore().lock(); }
+		try {
+			if (parent != null) {parent.validateMutability(); }
+	    	this.staticValue = defaultValue;
+		} finally {
+			if (parent != null) {parent.getSemaphore().unlock(); }
+		}
     	return this;
     }
 
@@ -107,4 +121,7 @@ public class StaticAttribute extends AbstractAttribute {
 		return this.staticValue;
 	}
     
+	public StaticAttribute copy(IBinding newParent) {
+		return new StaticAttribute(this, newParent);
+	}
 }

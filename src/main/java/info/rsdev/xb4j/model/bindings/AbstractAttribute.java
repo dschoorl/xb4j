@@ -17,6 +17,8 @@ package info.rsdev.xb4j.model.bindings;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
+import info.rsdev.xb4j.model.java.accessor.NoGetter;
+import info.rsdev.xb4j.model.java.accessor.NoSetter;
 
 import javax.xml.namespace.QName;
 
@@ -34,8 +36,37 @@ public abstract class AbstractAttribute implements IAttribute {
 	
 	private boolean isRequired = false;
 	
+	protected IBinding attachedBinding = null;
+	
 	public AbstractAttribute(QName attributeName) {
     	setAttributeName(attributeName);
+	}
+	
+	/**
+	 * Copy constructor
+	 * 
+	 * @param original
+	 * @param newParent
+	 */
+	protected AbstractAttribute(AbstractAttribute original, IBinding newParent) {
+    	if (newParent == null) {
+    		throw new NullPointerException("New IBinding parent cannot be null");
+    	}
+		this.getter = original.getter;
+		this.setter = original.setter;
+		this.attributeName = original.attributeName;
+		this.isRequired = original.isRequired;
+		this.attachedBinding = newParent;
+	}
+	
+	void attachToBinding(IBinding parent) {
+		if (parent == null) {
+			throw new NullPointerException("AbstractBinding cannot be null");
+		}
+    	if ((this.attachedBinding != null) && !this.attachedBinding.equals(parent)) {
+    	    throw new IllegalArgumentException(String.format("This attribute '%s' is already part of a binding tree.", this));
+    	}
+		this.attachedBinding = parent;
 	}
 
 	@Override
@@ -47,7 +78,14 @@ public abstract class AbstractAttribute implements IAttribute {
 		if (attributeName == null) {
 			throw new NullPointerException("Attribute QName cannot be null");
 		}
-		this.attributeName = attributeName;
+		IBinding parent = attachedBinding;
+		if (parent != null) {parent.getSemaphore().lock(); }
+		try {
+			if (parent != null) {parent.validateMutability(); }
+			this.attributeName = attributeName;
+		} finally {
+			if (parent != null) {parent.getSemaphore().unlock(); }
+		}
 	}
 
 	@Override
@@ -65,13 +103,33 @@ public abstract class AbstractAttribute implements IAttribute {
 
 	@Override
 	public IAttribute setGetter(IGetter getter) {
-	    this.getter = getter;
+		if (getter == null) {
+			getter = NoGetter.INSTANCE;
+		}
+		IBinding parent = attachedBinding;
+		if (parent != null) {parent.getSemaphore().lock(); }
+		try {
+			if (parent != null) {parent.validateMutability(); }
+		    this.getter = getter;
+		} finally {
+			if (parent != null) {parent.getSemaphore().unlock(); }
+		}
 	    return this;
 	}
 
 	@Override
 	public IAttribute setSetter(ISetter setter) {
-	    this.setter = setter;
+		if (setter == null) {
+			setter = NoSetter.INSTANCE;
+		}
+		IBinding parent = attachedBinding;
+		if (parent != null) {parent.getSemaphore().lock(); }
+		try {
+			if (parent != null) {parent.validateMutability(); }
+		    this.setter = setter;
+		} finally {
+			if (parent != null) {parent.getSemaphore().unlock(); }
+		}
 	    return this;
 	}
 
@@ -82,7 +140,14 @@ public abstract class AbstractAttribute implements IAttribute {
 
 	@Override
 	public IAttribute setRequired(boolean isRequired) {
-		this.isRequired = isRequired;
+		IBinding parent = attachedBinding;
+		if (parent != null) {parent.getSemaphore().lock(); }
+		try {
+			if (parent != null) {parent.validateMutability(); }
+			this.isRequired = isRequired;
+		} finally {
+			if (parent != null) {parent.getSemaphore().unlock(); }
+		}
 		return this;
 	}
 

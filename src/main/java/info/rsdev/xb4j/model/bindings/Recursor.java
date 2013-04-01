@@ -189,8 +189,14 @@ public class Recursor extends AbstractSingleBinding {
 		if (newMaxOccurs <= 1) {
 			throw new Xb4jException("maxOccurs must be 1 or higher: "+newMaxOccurs);
 		}
-		this.maxOccurs = newMaxOccurs;
-		return this;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			this.maxOccurs = newMaxOccurs;
+			return this;
+		} finally {
+			getSemaphore().unlock();
+		}
 	}
 	
 	private JavaContext getChild(JavaContext recurringObject) {

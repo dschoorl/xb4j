@@ -171,7 +171,8 @@ public class SimpleTypeTest {
     	StringWriter writer = new StringWriter();
     	SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
     	
-    	SimpleType simple = new SimpleType(new QName("Simple"), NullConverter.INSTANCE);
+		Root root = new Root(new QName("Root"), Object.class);
+    	SimpleType simple = root.setChild(new SimpleType(new QName("Simple"), NullConverter.INSTANCE));
     	simple.addAttribute(new Attribute(new QName("name")), "name");
     	simple.toXml(staxWriter, new JavaContext(new ObjectA("soul")));
     	staxWriter.close();

@@ -18,6 +18,9 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
@@ -29,9 +32,18 @@ import javax.xml.namespace.QName;
  * 
  * @author Dave Schoorl
  */
-public class Root extends Element implements IModelAware {
+public class Root extends Element implements IModelAware, ISemaphore {
+	
+	private ReentrantLock lock = new ReentrantLock();
 	
     private BindingModel model = null;
+    
+    /**
+     * Flag that indicates whether this {@link Root} element can be changed or not. A root element is made immutable, the
+     * first time it is used to marshall/unmarshall, so that it can be used in a threadsafe manner. When a {@link #copy(QName)} 
+     * is made, the copy is mutable again.
+     */
+    private AtomicBoolean isImmutable = new AtomicBoolean(false);
     
 	public Root(QName element, Class<?> javaType) {
 		super(element, javaType);
@@ -68,7 +80,14 @@ public class Root extends Element implements IModelAware {
 	    if ((this.model != null) && !this.model.equals(model)) {
 	        throw new IllegalArgumentException("It is currently not supported that a RootBinding is added to multiple BindingModels");
 	    }
-	    this.model = model;
+	    
+	    lock();
+	    try {
+    	    validateMutability();
+    	    this.model = model;
+	    } finally {
+	    	unlock();
+	    }
 	}
 	
     @Override
@@ -78,7 +97,10 @@ public class Root extends Element implements IModelAware {
 	
 	@Override
 	public IBinding setOptional(boolean isOptional) {
-		throw new Xb4jException("A RootBinding cannot be made optional");
+		if (isOptional == true) {
+			throw new Xb4jException("A Root binding cannot be made optional");
+		}
+		return this;
 	}
 	
     @Override
@@ -99,4 +121,40 @@ public class Root extends Element implements IModelAware {
     public Root copy(QName newElement) {
     	return new Root(this, newElement);
     }
+    
+    public boolean isImmutable() {
+    	lock();
+    	try {
+    		return this.isImmutable.get();
+    	} finally {
+    		unlock();
+    	}
+    }
+    
+    /**
+     * Resolve all references to {@link ComplexType}s
+     * 
+     * @see info.rsdev.xb4j.model.bindings.IModelAware#makeImmutable()
+     */
+    public void makeImmutable() {
+    	lock();
+    	try {
+    		if (!isImmutable.get()) {
+    			//TODO: resolve complextypes
+    			
+    			isImmutable.set(true);
+    		}
+    	} finally {
+    		unlock();
+    	}
+    }
+    
+    public void lock() {
+    	this.lock.lock();
+    }
+    
+    public void unlock() {
+    	this.lock.unlock();
+    }
+    
 }

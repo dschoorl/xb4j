@@ -16,7 +16,7 @@ package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.model.java.JavaContext;
 
-public class NoSetter implements ISetter {
+public final class NoSetter implements ISetter {
 	
 	public static final NoSetter INSTANCE = new NoSetter();
 	

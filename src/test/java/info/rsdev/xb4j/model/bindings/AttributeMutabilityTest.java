@@ -1,4 +1,4 @@
-/* Copyright 2012 Red Star Development / Dave Schoorl
+/* Copyright 2013 Red Star Development / Dave Schoorl
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,19 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.java.accessor;
+package info.rsdev.xb4j.model.bindings;
 
-import info.rsdev.xb4j.model.java.JavaContext;
+import javax.xml.namespace.QName;
 
-public final class NoGetter implements IGetter {
-	
-	public static final NoGetter INSTANCE = new NoGetter();
-	
-	private NoGetter() {}
-	
-	@Override
-	public JavaContext get(JavaContext javaContext) {
-		return javaContext;
+import org.junit.Before;
+
+public class AttributeMutabilityTest extends AbstractAttributeMutabilityTest<Attribute>{
+
+	@Before
+	public void setUp() {
+		Root root = new Root(new QName("root"), Object.class);
+		immutableAttribute = new Attribute(new QName("attrib"));
+		root.addAttribute(immutableAttribute, "hashcode");
+		root.makeImmutable();
 	}
 	
 }

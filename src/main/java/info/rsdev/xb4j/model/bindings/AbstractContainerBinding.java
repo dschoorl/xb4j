@@ -43,10 +43,17 @@ public abstract class AbstractContainerBinding extends AbstractBinding implement
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
-        childBinding.setGetter(getter);
-        childBinding.setSetter(setter);
         
-        return add(childBinding);
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			add(childBinding);
+	        childBinding.setGetter(getter);
+	        childBinding.setSetter(setter);
+		} finally {
+			getSemaphore().unlock();
+		}
+		return childBinding;
     }
     
     /**
@@ -64,11 +71,18 @@ public abstract class AbstractContainerBinding extends AbstractBinding implement
         if (fieldName == null) {
         	throw new NullPointerException("Fieldname cannot be null");
         }
-        FieldAccessor provider = new FieldAccessor(fieldName);
-        childBinding.setGetter(provider);
-        childBinding.setSetter(provider);
         
-        return add(childBinding);
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			add(childBinding);
+	        FieldAccessor provider = new FieldAccessor(fieldName);
+	        childBinding.setGetter(provider);
+	        childBinding.setSetter(provider);
+		} finally {
+			getSemaphore().unlock();
+		}
+		return childBinding;
     }
 
     /**
@@ -79,8 +93,14 @@ public abstract class AbstractContainerBinding extends AbstractBinding implement
      * @return the childBinding
      */
     public <T extends IBinding> T add(T childBinding) {
-        this.children.add(childBinding);
-        childBinding.setParent(this);   //maintain bidirectional relationship
+		getSemaphore().lock();
+		try {
+			validateMutability();
+	        this.children.add(childBinding);
+	        childBinding.setParent(this);   //maintain bidirectional relationship
+		} finally {
+			getSemaphore().unlock();
+		}
         return childBinding;
     }
     

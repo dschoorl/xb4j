@@ -1,12 +1,12 @@
 package info.rsdev.xb4j.model.bindings;
 
+import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
 import info.rsdev.xb4j.model.bindings.action.ActionManager;
 import info.rsdev.xb4j.model.bindings.action.IPhasedAction;
 import info.rsdev.xb4j.model.bindings.action.IPhasedAction.ExecutionPhase;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
-import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
@@ -86,7 +86,15 @@ public class Ignore implements IBinding {
     	if ((this.parent != null) && !this.parent.equals(parent)) {
     	    throw new IllegalArgumentException(String.format("This binding '%s' is already part of a binding tree.", this));
     	}
-    	this.parent = parent;
+    	
+    	ISemaphore topLevel = getSemaphore();
+		topLevel.lock();
+		try {
+			validateMutability();
+	    	this.parent = parent;
+		} finally {
+			topLevel.unlock();
+		}
 	}
 
 	@Override
@@ -101,12 +109,24 @@ public class Ignore implements IBinding {
 
 	@Override
 	public IBinding addAttribute(IAttribute attribute, String fieldName) {
-		return this;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			return this;
+		} finally {
+			getSemaphore().unlock();
+		}
 	}
 	
 	@Override
 	public IBinding addAttribute(IAttribute attribute, IGetter getter, ISetter setter) {
-		return this;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			return this;
+		} finally {
+			getSemaphore().unlock();
+		}
 	}
 
 	@Override
@@ -133,12 +153,24 @@ public class Ignore implements IBinding {
 
 	@Override
 	public IBinding setGetter(IGetter getter) {
-		return this;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			return this;
+		} finally {
+			getSemaphore().unlock();
+		}
 	}
 
 	@Override
 	public IBinding setSetter(ISetter setter) {
-		return this;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			return this;
+		} finally {
+			getSemaphore().unlock();
+		}
 	}
 
 	@Override
@@ -148,8 +180,14 @@ public class Ignore implements IBinding {
 
 	@Override
 	public IBinding setOptional(boolean isOptional) {
-		this.isOptional = isOptional;
-		return this;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			this.isOptional = isOptional;
+			return this;
+		} finally {
+			getSemaphore().unlock();
+		}
 	}
 
     @Override
@@ -157,8 +195,14 @@ public class Ignore implements IBinding {
     	if (action == null) {
     		throw new NullPointerException("You must provide an IPhasedAction implementation");
     	}
-    	this.actionManager.addAction(action);
-    	return this;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+	    	this.actionManager.addAction(action);
+	    	return this;
+		} finally {
+			getSemaphore().unlock();
+		}
     }
     
 	@Override
@@ -187,8 +231,43 @@ public class Ignore implements IBinding {
 	}
 
 	@Override
-	public void setObjectCreator(ICreator objectCreator) {
-		//do nothing
+	public ISemaphore getSemaphore() {
+        IBinding modelAwareBinding = this;
+        while (modelAwareBinding.getParent() != null) {
+        	modelAwareBinding = modelAwareBinding.getParent();
+        }
+        
+        if (!(modelAwareBinding instanceof IModelAware)) {
+        	return NullSafeSemaphore.INSTANCE;	//provide nullsafe lock/unlock utility for cases where the binding is not yet part of a full tree
+        }
+        return (ISemaphore)modelAwareBinding;
+	}
+
+	@Override
+	public IModelAware getModelAware() {
+        IBinding modelAwareBinding = this;
+        while (modelAwareBinding.getParent() != null) {
+        	modelAwareBinding = modelAwareBinding.getParent();
+        }
+        
+        if (!(modelAwareBinding instanceof IModelAware)) {
+        	return NullSafeModelAware.INSTANCE;	//provide nullsafe utility for cases where the binding is not yet part of a full tree
+        }
+        return (IModelAware)modelAwareBinding;
+	}
+
+	@Override
+	public void validateMutability() {
+		ISemaphore semaphore = getSemaphore();
+		semaphore.lock();
+		try {
+			IModelAware topLevel = getModelAware();
+    		if (topLevel.isImmutable()) {
+    			throw new Xb4jMutabilityException(String.format("Cannot change (parts of the) immutable binding %s", semaphore));
+    		}
+		} finally {
+			semaphore.unlock();
+		}
 	}
 	
 }

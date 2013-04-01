@@ -216,8 +216,6 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                 while ((eventType != START_ELEMENT) && (eventType != END_ELEMENT) && (eventType != END_DOCUMENT)) {
                 	if (eventType == CHARACTERS || eventType == CDATA || eventType == ENTITY_REFERENCE) {
                         if ((this.currentEvent != null) && (this.currentEvent.eventType == START_ELEMENT)) {
-                        	@SuppressWarnings("unused")
-							QName currentTextElement = this.currentEvent.name;
                             StringBuffer content = new StringBuffer();
                             while (eventType == CHARACTERS || eventType == CDATA || eventType == ENTITY_REFERENCE) {
                                 content.append(staxReader.getText());
@@ -344,7 +342,6 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     	}
     	
     	if (getEvent() != START_ELEMENT) {
-    		Location location = getLocation();
     		throw new XMLStreamException(String.format("Can only stream element to output when we are currently on element start. " +
     				"Current event is '%s' %s).", EVENTNAMES[getEvent()], getRowColumn(getLocation())));
     	}

@@ -27,6 +27,11 @@ public class AttributeInjector extends AbstractAttribute {
 		setMarshallingAction(valueProvider);
 	}
 	
+	private AttributeInjector(AttributeInjector original, IBinding newParent) {
+		super(original, newParent);
+		this.valueProvider = original.valueProvider;
+	}
+	
 	@Override
 	public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException {
 		//do nothing -- swallow xml attribute
@@ -43,7 +48,14 @@ public class AttributeInjector extends AbstractAttribute {
 	
 	@Override
 	public IAttribute setDefault(String defaultValue) {
-		return this;
+		IBinding parent = attachedBinding;
+		if (parent != null) {parent.getSemaphore().lock(); }
+		try {
+			if (parent != null) {parent.validateMutability(); }
+			return this;	//default value cannot be setfor this implementation of IAttribute; simple ignore it
+		} finally {
+			if (parent != null) {parent.getSemaphore().unlock(); }
+		}
 	}
 	
 	@Override
@@ -55,12 +67,17 @@ public class AttributeInjector extends AbstractAttribute {
 		if (valueProvider == null) {
 			throw new NullPointerException("IMarshallingAction cannot be null");
 		}
+		//only called from construcotr: no need to validate mutability
 		this.valueProvider  = valueProvider;
 	}
 
 	@Override
 	public String getValue(JavaContext javaContext) {
 		return valueProvider.execute(getProperty(javaContext));
+	}
+	
+	public AttributeInjector copy(IBinding newParent) {
+		return new AttributeInjector(this, newParent);
 	}
 
 }

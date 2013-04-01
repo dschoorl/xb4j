@@ -29,14 +29,6 @@ public abstract class AbstractSingleBinding extends AbstractBinding implements I
 	
 	private IBinding childBinding = null;
 	
-    public <T extends IBinding> T setChild(T childBinding, IGetter getter, ISetter setter) {
-    	setChild(childBinding);
-    	childBinding.setGetter(getter);
-        childBinding.setSetter(setter);
-        
-        return childBinding;
-    }
-    
     protected AbstractSingleBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
     	super(elementFetcher, objectCreator);
     }
@@ -81,16 +73,31 @@ public abstract class AbstractSingleBinding extends AbstractBinding implements I
         return childBinding;
     }
 
+    public <T extends IBinding> T setChild(T childBinding, IGetter getter, ISetter setter) {
+    	setChild(childBinding);
+    	childBinding.setGetter(getter);
+        childBinding.setSetter(setter);
+        
+        return childBinding;
+    }
+    
     public <T extends IBinding> T setChild(T childBinding) {
     	if (childBinding == null) {
     		throw new NullPointerException("Child IBinding must not be null when you explicitly set it");
     	}
         if ((this.childBinding != null) && !this.childBinding.equals(childBinding)) {
-            throw new Xb4jException(String.format("Cannot replace existing child %s with ew one: %s", this.childBinding, childBinding));
+            throw new Xb4jException(String.format("Cannot replace existing child %s with new one: %s", this.childBinding, childBinding));
         }
-        this.childBinding = childBinding;
-        childBinding.setParent(this);   //maintain bidirectional relationship
-        return childBinding;
+        
+		getSemaphore().lock();
+		try {
+			validateMutability();
+	        this.childBinding = childBinding;
+	        childBinding.setParent(this);   //maintain bidirectional relationship
+	        return childBinding;
+		} finally {
+			getSemaphore().unlock();
+		}
     }
     
     protected IBinding getChildBinding() {

@@ -237,15 +237,27 @@ public class SimpleFileType extends AbstractBinding {
 	}
 	
 	public SimpleFileType setCodingtypeFrom(QName attributeName, String fallbackValue) {
-		this.codingTypeAttributeName = attributeName;
-		this.codingType = fallbackValue;
-		return this;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			this.codingTypeAttributeName = attributeName;
+			this.codingType = fallbackValue;
+			return this;
+		} finally {
+			getSemaphore().unlock();
+		}
 	}
 	
 	public SimpleFileType setFilenameHintFrom(QName attributeName, String fallbackValue) {
-		this.filenameAttributeName = attributeName;
-		this.filenameHint = fallbackValue;
-		return this;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			this.filenameAttributeName = attributeName;
+			this.filenameHint = fallbackValue;
+			return this;
+		} finally {
+			getSemaphore().unlock();
+		}
 	}
 	
 	/**

@@ -67,7 +67,8 @@ public class SequenceTest {
 	
 	@Test
 	public void testOutputSequenceWithNullJavaContextAndMandatoryChild() {
-		Sequence sequence = new Sequence(new QName("container")).setOptional(true);
+		Root root = new Root(new QName("container"), Object.class);
+		Sequence sequence = root.setChild(new Sequence().setOptional(true));
 		sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
 		sequence.add(new SimpleType(new QName("description")), "description");	//mandatory: will output empty description tag??
 		assertFalse(sequence.generatesOutput(new JavaContext(null)));
@@ -75,7 +76,8 @@ public class SequenceTest {
 	
 	@Test
 	public void testOutputEmptyOptionalSequence() throws Exception {
-		Sequence sequence = new Sequence(new QName("container")).setOptional(true);
+		Root root = new Root(new QName("container"), Object.class);
+		Sequence sequence = root.setChild(new Sequence().setOptional(true));
 		sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
 		sequence.add(new SimpleType(new QName("description")).setOptional(true), "description");
 		assertFalse(sequence.generatesOutput(new JavaContext(new ObjectC())));
@@ -88,7 +90,8 @@ public class SequenceTest {
 	
 	@Test
 	public void testOutputEmptySequenceWithMandatoryChild() {
-		Sequence sequence = new Sequence(new QName("container")).setOptional(true);
+		Root root = new Root(new QName("container"), Object.class);
+		Sequence sequence = root.setChild(new Sequence().setOptional(true));
 		sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
 		sequence.add(new SimpleType(new QName("description")), "description");	//mandatory: will output empty description tag??
 		assertTrue(sequence.generatesOutput(new JavaContext(new ObjectC())));

@@ -41,7 +41,8 @@ public class ChoiceTest {
 	
 	@Before
 	public void setup() {
-		choice = new Choice();
+		Root root = new Root(new QName("sigh"), Object.class);
+		choice = root.setChild(new Choice());
 		choice.addOption(new SimpleType(new QName("elem1")), "name", new ContextInstanceOf(ObjectA.class));
 		choice.addOption(new SimpleType(new QName("elem2")), "value", new ContextInstanceOf(ObjectB.class));
 	}

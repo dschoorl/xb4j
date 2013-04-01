@@ -1,11 +1,11 @@
 package info.rsdev.xb4j.test;
 
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import javax.xml.stream.XMLInputFactory;
-
-import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 
 public abstract class XMLStreamReaderFactory {
 	

@@ -96,21 +96,26 @@ public class Reference extends Element {
      * <p>The {@link ComplexType} that a {@link Reference} refers to is resolved by looking it up
      * by name in the {@link BindingModel}; this is done as late as possible, during marshall/unmarshall,
      * so that the order in which a Reference and a ComplexType are added to the BindingModel does not 
-     * matter. When used in a multithreaded environment, it should not be possible that the ComplexType 
-     * is resolved and set as a child twice, therefore, we use the synchronized statement for this method.</p>
+     * matter.</p>
      * <p>BTW: not the original ComplexType is set as a child, but a copy of it.</p>
      * 
      * @see info.rsdev.xb4j.model.bindings.AbstractSingleBinding#getChildBinding()
      */
-    public synchronized ComplexType getChildBinding() {
-        ComplexType referenced = (ComplexType)super.getChildBinding();
-        if (referenced == null) {
-            IModelAware root = getModelAware();
-            ComplexType complexType = root.getModel().getComplexType(identifier, namespaceUri);
-            referenced = complexType.copy();    //copy without parent
-            setChild(referenced);
-        }
-        return referenced;
+    public ComplexType getChildBinding() {
+		getSemaphore().lock();
+		try {
+			ComplexType referenced = (ComplexType)super.getChildBinding();
+	        if (referenced == null) {
+	        	validateMutability();
+	            IModelAware root = getModelAware();
+	            ComplexType complexType = root.getModel().getComplexType(identifier, namespaceUri);
+	            referenced = complexType.copy();    //copy without parent
+	            setChild(referenced);
+	        }
+	        return referenced;
+		} finally {
+			getSemaphore().unlock();
+		}
     }
     
     @Override

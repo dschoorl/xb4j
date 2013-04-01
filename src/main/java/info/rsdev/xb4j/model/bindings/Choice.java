@@ -20,6 +20,8 @@ import info.rsdev.xb4j.model.bindings.chooser.ContextInstanceOf;
 import info.rsdev.xb4j.model.bindings.chooser.IChooser;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
+import info.rsdev.xb4j.model.java.accessor.IGetter;
+import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
@@ -42,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Dave Schoorl
  */
-public class Choice extends AbstractSingleBinding {
+public class Choice extends AbstractBinding {
 	
 	private Logger logger = LoggerFactory.getLogger(Choice.class);
 	
@@ -63,17 +65,23 @@ public class Choice extends AbstractSingleBinding {
     
 	@Override
 	public IBinding addAttribute(IAttribute attribute, String fieldName) {
-		throw new Xb4jException(String.format("You cannot add attributes to the Choice-binding itself; you must add it to " +
-				"the options instead (%s)", attribute));
+		throw new Xb4jException(String.format("You cannot add attributes to a Choice-binding itself; instead, you must add %s to " +
+				"one of this Choice's options", attribute));
+	}
+	
+	@Override
+	public IBinding addAttribute(IAttribute attribute, IGetter getter, ISetter setter) {
+		throw new Xb4jException(String.format("You cannot add attributes to a Choice-binding itself; instead, you must add %s to " +
+				"one of this Choice's options", attribute));
 	}
 	
 	public <T extends IBinding> T  addOption(T choice, String fieldName, IChooser selector) {
 		//Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
+		addOption(choice, selector);
 		FieldAccessor provider = new FieldAccessor(fieldName);
 		choice.setGetter(provider);
 		choice.setSetter(provider);
-		
-		return addOption(choice, selector);
+		return choice;
 	}
 	
 	/**
@@ -92,10 +100,16 @@ public class Choice extends AbstractSingleBinding {
 	}
 	
 	public <T extends IBinding> T addOption(T choice, IChooser selector) {
-		choices.add(choice);
-		choosers.add(selector);
-		choice.setParent(this); //maintain bidirectional relationship
-		return choice;
+		getSemaphore().lock();
+		try {
+			validateMutability();
+			choice.setParent(this); //maintain bidirectional relationship
+			choices.add(choice);
+			choosers.add(selector);
+			return choice;
+		} finally {
+			getSemaphore().unlock();
+		}
 	}
 	
 	private IBinding selectBinding(JavaContext javaContext) {
