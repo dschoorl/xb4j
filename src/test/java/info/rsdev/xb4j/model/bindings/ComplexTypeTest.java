@@ -58,14 +58,14 @@ public class ComplexTypeTest {
         //marshall root
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new ObjectA("test");
-        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         String result = stream.toString();
         assertEquals("<root><name>test</name></root>", result);
         
         //marshall hoofdmap
         stream = new ByteArrayOutputStream();
         instance = new ObjectTree().setMyObject(new ObjectA("test"));
-        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         result = stream.toString();
         assertEquals("<directory><name>test</name></directory>", result);
     }
@@ -103,7 +103,7 @@ public class ComplexTypeTest {
     	
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectA instance = new ObjectA("test");
-        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals("<root><reference><name>test</name></reference></root>", stream.toString());
     }
     

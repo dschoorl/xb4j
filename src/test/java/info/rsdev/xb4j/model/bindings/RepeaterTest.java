@@ -53,7 +53,7 @@ public class RepeaterTest {
         instance.addMessage("bericht1");
         instance.addMessage("bericht2");
         
-        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         String result = stream.toString();
         assertEquals("<root><detail>bericht1</detail><detail>bericht2</detail></root>", result);
 	}
@@ -71,7 +71,7 @@ public class RepeaterTest {
         instance.add("bericht1");
         instance.add("bericht2");
         
-        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         String result = stream.toString();
         assertEquals("<root><detail>bericht1</detail><detail>bericht2</detail></root>", result);
     }
@@ -84,7 +84,7 @@ public class RepeaterTest {
         collection.setItem(new SimpleType(new QName("detail")));
         BindingModel model = new BindingModel().register(root);
         
-        model.toXml(XmlStreamFactory.makeWriter(new ByteArrayOutputStream()), new ObjectTree());
+        model.getXmlStreamer(ObjectTree.class, null).toXml(XmlStreamFactory.makeWriter(new ByteArrayOutputStream()), new ObjectTree());
     }
     
     @Test
@@ -100,7 +100,7 @@ public class RepeaterTest {
         instance.addMessage("bericht1");
         instance.addMessage("bericht2");
         
-        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         String result = stream.toString();
         assertEquals("<root><collection><detail>bericht1</detail><detail>bericht2</detail></collection></root>", result);
     }
@@ -209,7 +209,7 @@ public class RepeaterTest {
     	instance.addMessage("string1");
     	instance.addMessage("string2");
         
-        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+    	model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         String result = stream.toString();
         assertEquals("<root><collection><item seqnr=\"0\">string1</item><item seqnr=\"1\">string2</item></collection></root>", result);
     }
@@ -229,7 +229,7 @@ public class RepeaterTest {
     	instance.addMessage("string1");
     	instance.addMessage("string2");
         
-        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+    	model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         String result = stream.toString();
         assertEquals("<root><collection><item><value>string1</value><seqnr>0</seqnr></item><item><value>string2</value><seqnr>1</seqnr></item></collection></root>", result);
     }

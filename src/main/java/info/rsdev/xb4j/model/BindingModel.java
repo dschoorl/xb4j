@@ -15,7 +15,6 @@
 package info.rsdev.xb4j.model;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
-import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.model.bindings.ComplexType;
 import info.rsdev.xb4j.model.bindings.ISemaphore;
 import info.rsdev.xb4j.model.bindings.Root;
@@ -23,22 +22,16 @@ import info.rsdev.xb4j.model.bindings.UnmarshallResult;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.Marker;
-import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,156 +47,27 @@ public class BindingModel {
     
     private static final Logger log = LoggerFactory.getLogger(BindingModel.class);
     
-    private Map<Class<?>, LinkedList<Root>> classToXml = new HashMap<Class<?>, LinkedList<Root>>();
+    private Map<Class<?>, LinkedList<Root>> classToXml = new ConcurrentHashMap<Class<?>, LinkedList<Root>>();
     
-    private Map<QName, Root> xmlToClass = new HashMap<QName, Root>();
+    private Map<QName, Root> xmlToClass = new ConcurrentHashMap<QName, Root>();
     
-    private Map<QName, ComplexType> complexTypes = new HashMap<QName, ComplexType>();
+    private Map<QName, ComplexType> complexTypes = new ConcurrentHashMap<QName, ComplexType>();
     
-    private HashMap<Class<?>, XmlStreamer> streamerByClass = new HashMap<Class<?>, XmlStreamer>();
-
 	public XmlStreamer getXmlStreamer(Class<?> type, String namespaceSpecifier) {
-    	XmlStreamer streamer = streamerByClass.get(type);
-    	if (streamer != null) { return streamer; }
-    	
     	Root binding = getBinding(type, namespaceSpecifier);
     	if (binding == null) {
     		throw new Xb4jException(String.format("No binding found for %s within namespace %s", type, namespaceSpecifier));
     	}
     	
+    	//make binding immutable on first use so we can guarantee marshall/unmarshall results will be the same every time it is used
     	ISemaphore semaphore = binding.getSemaphore();
     	semaphore.lock();
     	try {
         	binding.makeImmutable();
-        	
-        	//TODO: resolve all complex types and constructor argument references (as far as possible)
-        	
-        	streamer = new XmlStreamer(binding);
-        	streamerByClass.put(type, streamer);
-    		return streamer;
+        	return new XmlStreamer(binding);
     	} finally {
     		semaphore.unlock();
     	}
-    }
-    
-    /**
-     * Marshall a Java instance into xml representation
-     * 
-     * @param stream
-     * @param instance
-     * @deprecated use {@link XmlStreamer} instead (obtain with {@link BindingModel#getXmlStreamer(Class, String)}
-     */
-    public void toXml(OutputStream stream, Object instance) {
-        toXml(stream, instance, (String)null);
-    }
-    
-    /**
-     * @param stream
-     * @param instance
-     * @param namespaceSpecifier
-     * @deprecated use {@link XmlStreamer} instead (obtain with {@link BindingModel#getXmlStreamer(Class, String)}
-     */
-    public void toXml(OutputStream stream, Object instance, String namespaceSpecifier) {
-        if (instance == null) {
-            throw new NullPointerException("Java instance to convert to xml cannot be null");
-        }
-        Root binding = getBinding(instance.getClass(), namespaceSpecifier);
-        toXml(stream, instance, binding);
-    }
-    
-    public void toXml(XMLStreamWriter staxWriter, Object instance) {
-    	toXml(staxWriter, instance, null);
-    }
-    
-    public void toXml(XMLStreamWriter staxWriter, Object instance, String namespaceSpecifier) {
-        if (instance == null) {
-            throw new NullPointerException("Java instance to convert to xml cannot be null");
-        }
-        if (staxWriter == null) {
-            throw new NullPointerException("XMLStreamWriter cannot be null");
-        }
-        Root binding = getBinding(instance.getClass(), namespaceSpecifier);
-        if (binding == null) {
-            throw new IllegalArgumentException("No binding found for: ".concat(instance.getClass().getName()));
-        }
-        SimplifiedXMLStreamWriter simpleWriter = null;
-        try {
-        	simpleWriter = new SimplifiedXMLStreamWriter(staxWriter);
-        	binding.toXml(simpleWriter, new JavaContext(instance));
-        } catch (XMLStreamException e) {
-            throw new Xb4jMarshallException(String.format("Exception occured when writing instance to xml stream: %s", instance), binding, e);
-		} finally {
-        	if (simpleWriter != null) {
-        		try {
-        			simpleWriter.close();
-        		} catch (XMLStreamException e) {
-        			throw new Xb4jMarshallException(String.format("Exception occured closing xml stream for: %s", instance), binding, e);
-        		}
-        	}
-        }
-
-    }
-    
-    /**
-     * @param stream
-     * @param instance
-     * @param binding
-     * @deprecated use {@link XmlStreamer} instead (obtain with {@link BindingModel#getXmlStreamer(Class, String)}
-     */
-    private void toXml(OutputStream stream, Object instance, Root binding) {
-        if (stream == null) {
-            throw new NullPointerException("OutputStream cannot be null");
-        }
-        
-        XMLStreamWriter staxWriter = null;
-        try {
-            staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
-//            staxWriter.writeStartDocument();
-            if (binding == null) {
-                throw new IllegalArgumentException("No binding found for: ".concat(instance.getClass().getName()));
-            }
-            SimplifiedXMLStreamWriter simpleWriter = new SimplifiedXMLStreamWriter(staxWriter);
-            binding.toXml(simpleWriter, new JavaContext(instance));
-            simpleWriter.close();
-        } catch (XMLStreamException e) {
-            log.error("Exception occured when writing instance to xml stream: ".concat(instance.toString()), e);
-        } finally {
-            if (staxWriter != null) {
-                try {
-                    staxWriter.close();
-                } catch (XMLStreamException e) {
-                    log.error("Exception occured when closing xml stream", e);
-                }
-            }
-        }
-    }
-    
-    /**
-     * Create an {@link XMLStreamReader} from the given {@link InputStream} and call {@link #toJava(XMLStreamReader)}. The 
-     * {@link XMLStreamReader} is closed, but the {@link InputStream} is not; it's the responsibility of the caller to close 
-     * the {@link InputStream}
-     * 
-     * @param stream the xml provided as an {@link InputStream}
-     * @return the Java object tree read from the xml stream
-     * @throws Xb4jException any unmarshalling exception that may occur is propogated
-     * @deprecated use {@link XmlStreamer} instead (obtain with {@link BindingModel#getXmlStreamer(Class, String)}
-     */
-    public Object toJava(InputStream stream) {
-    	XMLStreamReader xmlStream = null;
-        try {
-        	xmlStream = XMLInputFactory.newInstance().createXMLStreamReader(stream);
-            return toJava(xmlStream);
-        } catch (XMLStreamException e) {
-        	throw new Xb4jException("Exception occured when creating XMLStreamReader from InputStream", e);
-        } finally {
-        	if (xmlStream != null) {
-        		try {
-					xmlStream.close();
-				} catch (XMLStreamException e) {
-					log.error("Exception occured when closing xml stream", e);
-				}
-        	}
-        }
     }
     
     /**
@@ -226,6 +90,16 @@ public class BindingModel {
                 staxReader.rewindAndPlayback(startMarker);
                 if (xmlToClass.containsKey(element)) {
                     Root binding = xmlToClass.get(element);
+                    
+                    //make binding immutable on first use so we can guarantee marshall/unmarshall results will be the same every time it is used
+                	ISemaphore semaphore = binding.getSemaphore();
+                	semaphore.lock();
+                	try {
+                    	binding.makeImmutable();
+                	} finally {
+                		semaphore.unlock();
+                	}
+
                     UnmarshallResult result = binding.toJava(staxReader, new JavaContext(null));
                     if (result.isUnmarshallSuccessful()) {
                     	return result.getUnmarshalledObject();

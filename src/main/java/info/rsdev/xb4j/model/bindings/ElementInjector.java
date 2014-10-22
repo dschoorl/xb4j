@@ -102,4 +102,9 @@ public class ElementInjector extends AbstractBinding {
 		this.valueProvider  = valueProvider;
 	}
 
+	@Override
+	public void resolveReferences() {
+		//there are no child bindings to resolve references for... nothing to do
+	}
+
 }

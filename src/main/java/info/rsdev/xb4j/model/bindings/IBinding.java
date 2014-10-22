@@ -99,8 +99,8 @@ public interface IBinding {
     
     /**
      * Get the {@link ISemaphore} instance that is at the root of the binding tree that this binding belongs to. If the binding
-     * does not belong to a binding tree yet, a {@link NullSafeSemaphore} instance should be returned, to support threatsafe
-     * operations on thhis binding tree.
+     * does not belong to a binding tree yet, a {@link NullSafeSemaphore} instance should be returned, to support threadsafe
+     * operations on this binding tree.
      * 
      * @return An {@link ISemaphore} instance that represent the root of the binding tree, or {@link NullSafeSemaphore} when the
      * 		root is not an instance of {@link ISemaphore} 
@@ -110,5 +110,7 @@ public interface IBinding {
     public IModelAware getModelAware();
     
     public void validateMutability();
+    
+    public void resolveReferences();
     
 }

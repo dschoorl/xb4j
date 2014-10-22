@@ -308,4 +308,9 @@ public class SimpleFileType extends AbstractBinding {
 		return value;
 	}
 	
+	@Override
+	public void resolveReferences() {
+		//there are no child bindings to resolve references for... nothing to do
+	}
+	
 }

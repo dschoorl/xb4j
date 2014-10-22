@@ -269,5 +269,10 @@ public class Ignore implements IBinding {
 			semaphore.unlock();
 		}
 	}
+
+	@Override
+	public void resolveReferences() {
+		//there are no child bindings to resolve references for... nothing to do
+	}
 	
 }

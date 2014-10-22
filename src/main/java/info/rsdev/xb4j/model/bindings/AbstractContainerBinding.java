@@ -112,4 +112,10 @@ public abstract class AbstractContainerBinding extends AbstractBinding implement
         return Collections.unmodifiableList(this.children);
     }
     
+	@Override
+	public void resolveReferences() {
+		for (IBinding child: this.children) {
+			child.resolveReferences();
+		}
+	}
 }

@@ -14,10 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.test.ChinesePerson;
 import info.rsdev.xb4j.util.XmlStreamFactory;
@@ -82,7 +79,7 @@ public class RecursorTest {
 		assertEquals(0, tree.getFamilyTreeDepth());
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(XmlStreamFactory.makeWriter(stream), tree);
+        model.getXmlStreamer(tree.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), tree);
         String expected = "<Stamboom />";
         
         XMLAssert.assertXMLEqual(expected, stream.toString());
@@ -95,7 +92,7 @@ public class RecursorTest {
 		assertEquals(1, tree.getFamilyTreeDepth());
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(XmlStreamFactory.makeWriter(stream), tree);
+        model.getXmlStreamer(tree.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), tree);
         String expected = "<Stamboom>" +
         				  "  <Kind Voornaam=\"Mao\" Achternaam=\"Zedong\" />" +
         				  "</Stamboom>";
@@ -110,7 +107,7 @@ public class RecursorTest {
 		assertEquals(3, tree.getFamilyTreeDepth());
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(XmlStreamFactory.makeWriter(stream), tree);
+        model.getXmlStreamer(tree.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), tree);
         String expected = "<Stamboom>" +
         				  "  <Kind Voornaam=\"Mao\" Achternaam=\"Zedong\">" +
         				  "    <Kind Voornaam=\"Mao Anqing\" Achternaam=\"Zedong\">" +

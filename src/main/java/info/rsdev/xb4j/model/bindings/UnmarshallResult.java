@@ -58,7 +58,7 @@ public class UnmarshallResult implements ErrorCodes {
 	
 	private String errorMessage = null;
 	
-	private IBinding bindingWithError = null;
+	private IBinding faultyBinding = null;
 	
 	private Object unmarshalledObject = null;
 	
@@ -79,7 +79,7 @@ public class UnmarshallResult implements ErrorCodes {
 	 * is not considered to be a failure
 	 * @param msg the message that will passed down to the caller of the unmarshall process
 	 */
-	public UnmarshallResult(Integer errorCode, String msg, IBinding bindingWithError) {
+	public UnmarshallResult(Integer errorCode, String msg, IBinding faultyBinding) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Error UnmarshalResult created; message=".concat(msg==null?"null":msg));
 		}
@@ -87,7 +87,7 @@ public class UnmarshallResult implements ErrorCodes {
 			throw new NullPointerException("errorCode cannot be null when creating an error UnmarshallResult"); 
 		}
 		this.errorCode = errorCode;
-		this.bindingWithError = bindingWithError;
+		this.faultyBinding = faultyBinding;
 		this.errorMessage = msg;
 	}
 	
@@ -153,11 +153,11 @@ public class UnmarshallResult implements ErrorCodes {
 	}
 	
 	/**
-	 * The binding context where the error occurred
-	 * @return
+	 * Get the binding context where the error occurred
+	 * @return the binding where the error occured or null if it was not specified
 	 */
-	public IBinding getBindingWithError() {
-		return bindingWithError;
+	public IBinding getFaultyBinding() {
+		return faultyBinding;
 	}
 	
 	/**

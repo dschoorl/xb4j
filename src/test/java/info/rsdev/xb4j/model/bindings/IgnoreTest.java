@@ -104,7 +104,7 @@ public class IgnoreTest {
 		model.register(root);
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(XmlStreamFactory.makeWriter(stream), new ObjectA("Repelsteeltje"));
+        model.getXmlStreamer(ObjectA.class, null).toXml(XmlStreamFactory.makeWriter(stream), new ObjectA("Repelsteeltje"));
         String expected = "<root name='Repelsteeltje' />";
         
         XMLAssert.assertXMLEqual(expected, stream.toString());
@@ -119,7 +119,7 @@ public class IgnoreTest {
 		model.register(root);
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(XmlStreamFactory.makeWriter(stream), new ObjectA("Repelsteeltje"));
+        model.getXmlStreamer(ObjectA.class, null).toXml(XmlStreamFactory.makeWriter(stream), new ObjectA("Repelsteeltje"));
         String expected = "<root name='Repelsteeltje' />";
         
         XMLAssert.assertXMLEqual(expected, stream.toString());

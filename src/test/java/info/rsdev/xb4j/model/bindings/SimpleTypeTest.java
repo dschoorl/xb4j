@@ -48,7 +48,7 @@ public class SimpleTypeTest {
         Object instance = new Object();
         BindingModel model = new BindingModel();
         model.register(new Root(new QName("root"), Object.class));
-        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals("<root/>", stream.toString());
     }
     
@@ -69,7 +69,7 @@ public class SimpleTypeTest {
         Object instance = new Object();
         BindingModel model = new BindingModel();
         model.register(new Root(new QName("urn:test/namespace", "root", "tst"), Object.class));
-        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals("<tst:root xmlns:tst=\"urn:test/namespace\"/>", stream.toString());
     }
     
@@ -114,7 +114,7 @@ public class SimpleTypeTest {
                           "</tst:root>";
         
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals(expected, stream.toString());
     }
     
@@ -129,7 +129,7 @@ public class SimpleTypeTest {
         
         String expected = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>test</name></tst:myobject>";
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals(expected, stream.toString());
     }
     

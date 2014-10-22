@@ -512,9 +512,6 @@ public abstract class AbstractBinding implements IBinding {
 		}
 	}
 	
-	public void resolveReferences(JavaContext javaContext) {
-		//TODO: use something more general: visitor patern? at least something with callbacks
-		
-	}
-    
+	
+	
 }

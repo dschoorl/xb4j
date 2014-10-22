@@ -133,4 +133,9 @@ public class SimpleType extends AbstractBinding {
         return String.format("SimpleType[path=%s]", getPath());
     }
     
+	@Override
+	public void resolveReferences() {
+		//there are no child bindings to resolve references for... nothing to do
+	}
+	
 }

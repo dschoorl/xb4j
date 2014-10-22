@@ -39,11 +39,11 @@ public class BindingModelTest {
     @Test
     public void testRegisterJavatypeTwice() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        model.toXml(XmlStreamFactory.makeWriter(out), new ObjectA("uppercase A"), "http://1");
+        model.getXmlStreamer(ObjectA.class, "http://1").toXml(XmlStreamFactory.makeWriter(out), new ObjectA("uppercase A"));
         assertEquals("<up:a xmlns:up=\"http://1\"><name>uppercase A</name></up:a>", out.toString());
         
         out = new ByteArrayOutputStream();
-        model.toXml(XmlStreamFactory.makeWriter(out), new ObjectA("lowercase a"), "http://2");
+        model.getXmlStreamer(ObjectA.class, "http://2").toXml(XmlStreamFactory.makeWriter(out), new ObjectA("lowercase a"));
         assertEquals("<lo:a xmlns:lo=\"http://2\"><eman>lowercase a</eman></lo:a>", out.toString());
     }
     

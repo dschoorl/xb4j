@@ -75,7 +75,7 @@ public class SimpleFileTypeTest {
 	public void testMarshallFileElement() throws Exception {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectF instance = new ObjectF(zipFile.getCanonicalFile(), SimpleFileType.BASE64_CODING);
-        this.model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         XMLUnit.setIgnoreWhitespace(true);
         XMLAssert.assertXMLEqual("<Root><File Encoding=\"base64\" Name=\"temp.zip\" MimeType=\"application/octet-stream\">".concat(base64EncodedZipfile).concat("</File></Root>"), stream.toString());
 	}

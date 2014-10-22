@@ -132,7 +132,7 @@ public class Root extends Element implements IModelAware, ISemaphore {
     }
     
     /**
-     * Resolve all references to {@link ComplexType}s
+     * Resolve all references to {@link ComplexType}s and mark this binding immutable. 
      * 
      * @see info.rsdev.xb4j.model.bindings.IModelAware#makeImmutable()
      */
@@ -140,8 +140,7 @@ public class Root extends Element implements IModelAware, ISemaphore {
     	lock();
     	try {
     		if (!isImmutable.get()) {
-    			//TODO: resolve complextypes
-    			
+    			resolveReferences();
     			isImmutable.set(true);
     		}
     	} finally {

@@ -108,4 +108,8 @@ public class XmlStreamer {
     	return binding.getElement();
     }
     
+    public BindingModel getModel() {
+    	return binding.getModel();
+    }
+    
 }

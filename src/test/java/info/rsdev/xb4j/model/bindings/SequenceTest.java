@@ -46,7 +46,7 @@ public class SequenceTest {
 		
 		String expected = "<root><naam>tester</naam><omschrijving>Ik test dingen</omschrijving></root>";
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+		model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
 		assertEquals(expected, stream.toString());
 	}
 	

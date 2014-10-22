@@ -226,5 +226,12 @@ public class Choice extends AbstractBinding {
 		
 		return false;
 	}
+
+	@Override
+	public void resolveReferences() {
+		for (IBinding choice: choices) {
+			choice.resolveReferences();
+		}
+	}
 	
 }

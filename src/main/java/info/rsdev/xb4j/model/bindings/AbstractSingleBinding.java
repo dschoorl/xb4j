@@ -103,5 +103,12 @@ public abstract class AbstractSingleBinding extends AbstractBinding implements I
     protected IBinding getChildBinding() {
     	return this.childBinding;
     }
-	
+    
+	public void resolveReferences() {
+		IBinding branch = getChildBinding();
+		if ((branch != null) && (!(branch instanceof ComplexType))) {
+			branch.resolveReferences();
+		}
+	}
+
 }

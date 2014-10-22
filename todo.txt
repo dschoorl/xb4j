@@ -1,7 +1,8 @@
 TODO
 ----
+- Use Generics in XmlStreamer (toJava method)
 - lock ISemaphore on copy operations
-- resolve all complex types and constructor argument references (as far as possible) on first use of a root binding
+- resolve all constructor argument references (as far as possible) on first use of a root binding
 - add switch to make bindingmodel immutable
 - provide converters between data types of Java/xml world for all defined xml schema data types, including facets etc.
 - allow the java instance to be constructed by a non-default constructor method
@@ -23,3 +24,5 @@ DONE
 20120306  marshall/unmarshall a java object tree
 20120309  register javaclass with namespace with bindingmodel (allow same class be registered multiple times in different namespaces)
 20120427  added rudimentary support for attributes (incl. namespaces for atrtibutes)
+20141024  use XmlStreamer to marshall / unmarshall. This is a wrapper around a binding.
+20141024  resolve all complex types on first use of a root binding

@@ -98,7 +98,6 @@ public class Repeater extends AbstractBinding {
 	@SuppressWarnings("unchecked")
 	@Override
 	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
-	    //TODO: also support addmethod on container class, which will add to underlying collection for us
         JavaContext javaCollectionContext = select(javaContext, newInstance(staxReader, javaContext));
         Object contextObject = javaCollectionContext.getContextObject();
         if (!(contextObject instanceof Collection<?>)) {
@@ -142,7 +141,7 @@ public class Repeater extends AbstractBinding {
         }
         
         //determine if the childBinding has no more occurences or whether the xml fragment of the childBinding is incomplete
-        if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode()) && !result.getBindingWithError().equals(resolveItemBinding(itemBinding))) {
+        if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode()) && !result.getFaultyBinding().equals(resolveItemBinding(itemBinding))) {
         	return result;
         }
         
@@ -292,5 +291,12 @@ public class Repeater extends AbstractBinding {
     	sb.append("]");
         return sb.toString();
     }
-	
+
+	@Override
+	public void resolveReferences() {
+		IBinding branch = resolveItemBinding(itemBinding);
+		if ((branch != null) && (!(branch instanceof ComplexType))) {
+			branch.resolveReferences();
+		}
+	}
 }
