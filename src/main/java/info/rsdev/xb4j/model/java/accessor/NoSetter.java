@@ -16,6 +16,12 @@ package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.model.java.JavaContext;
 
+/**
+ * A stateless {@link ISetter} implementation to support null-safe operations; this implementation does not set the value on the
+ * javaContext and communicates this by always returning false on the {@link #set(JavaContext, Object)} method.
+ * 
+ * @author Dave Schoorl
+ */
 public final class NoSetter implements ISetter {
 	
 	public static final NoSetter INSTANCE = new NoSetter();
@@ -23,7 +29,7 @@ public final class NoSetter implements ISetter {
 	private NoSetter() {}
 	
 	@Override
-	public boolean set(JavaContext javaContext, Object propertyValue) {
+	public boolean set(JavaContext javaContext, Object value) {
 		return false;
 	}
 	

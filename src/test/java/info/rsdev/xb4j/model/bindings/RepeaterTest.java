@@ -14,12 +14,9 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
+import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.action.Indexer;
 import info.rsdev.xb4j.model.java.JavaContext;
@@ -31,6 +28,7 @@ import info.rsdev.xb4j.util.XmlStreamFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.xml.namespace.QName;
 
@@ -60,6 +58,35 @@ public class RepeaterTest {
         assertEquals("<root><detail>bericht1</detail><detail>bericht2</detail></root>", result);
 	}
 	
+    @Test
+    public void testMarshallRootAsCollectionType() {
+		//fixture
+        Root root = new Root(new QName("root"), ArrayList.class);
+        Repeater collection = root.setChild(new Repeater());
+        collection.setItem(new SimpleType(new QName("detail")));
+        BindingModel model = new BindingModel().register(root);
+        
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        ArrayList<String> instance = new ArrayList<String>();
+        instance.add("bericht1");
+        instance.add("bericht2");
+        
+        model.toXml(XmlStreamFactory.makeWriter(stream), instance);
+        String result = stream.toString();
+        assertEquals("<root><detail>bericht1</detail><detail>bericht2</detail></root>", result);
+    }
+    
+    @Test(expected=Xb4jMarshallException.class)
+    public void testMarshallExpectParentBindingToProvideCollectionButNoCollection() {
+		//fixture
+        Root root = new Root(new QName("root"), ObjectTree.class);
+        Repeater collection = root.setChild(new Repeater());	//Root binding must represent collection type, but does not
+        collection.setItem(new SimpleType(new QName("detail")));
+        BindingModel model = new BindingModel().register(root);
+        
+        model.toXml(XmlStreamFactory.makeWriter(new ByteArrayOutputStream()), new ObjectTree());
+    }
+    
     @Test
     public void testMarshallValueCollectionWithContainerElement() {
         //fixture
@@ -96,6 +123,35 @@ public class RepeaterTest {
         assertArrayEquals(new String[] {"bericht1", "bericht2"}, tree.getMessages().toArray());
 	}
 	
+    @Test
+    public void testUnmarshallRootAsCollectionType() {
+		//fixture
+        Root root = new Root(new QName("root"), ArrayList.class);
+        Repeater collection = root.setChild(new Repeater());
+        collection.setItem(new SimpleType(new QName("detail")));
+        BindingModel model = new BindingModel().register(root);
+        
+        ByteArrayInputStream stream = new ByteArrayInputStream("<root><detail>bericht1</detail><detail>bericht2</detail></root>".getBytes());
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
+        assertNotNull(instance);
+        assertSame(ArrayList.class, instance.getClass());
+        ArrayList<?> list = (ArrayList<?>)instance;
+        assertEquals(2, list.size());
+        assertEquals(Arrays.asList("bericht1", "bericht2"), list);
+    }
+    
+    @Test(expected=Xb4jUnmarshallException.class)
+    public void testUnmarshallExpectParentBindingToProvideCollectionButNoCollection() {
+		//fixture
+        Root root = new Root(new QName("root"), ObjectTree.class);
+        Repeater collection = root.setChild(new Repeater());	//Root binding must represent collection type, but does not
+        collection.setItem(new SimpleType(new QName("detail")));
+        BindingModel model = new BindingModel().register(root);
+        
+        ByteArrayInputStream stream = new ByteArrayInputStream("<root><detail>bericht1</detail><detail>bericht2</detail></root>".getBytes());
+        model.toJava(XmlStreamFactory.makeReader(stream));
+    }
+    
     @Test
     public void testUnmarshallValueCollectionWithContainerElement() {
         //fixture

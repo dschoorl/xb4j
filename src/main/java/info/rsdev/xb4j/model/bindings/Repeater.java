@@ -19,7 +19,9 @@ import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.MethodSetter;
+import info.rsdev.xb4j.model.java.accessor.MimicSetter;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
+import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
@@ -31,10 +33,10 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * This class is called an {@link Repeater} and not a {@link Collection}, in order to avoid name collission with the Java 
+ * This class is called an {@link Repeater} and not a {@link Collection}, in order to avoid type name collission with the Java 
  * Collections interface.
  * 
- * @author dschoorl
+ * @author Dave Schoorl
  */
 public class Repeater extends AbstractBinding {
 	
@@ -43,6 +45,15 @@ public class Repeater extends AbstractBinding {
 	private IBinding itemBinding = null;
 	
 	private int maxOccurs = UNBOUNDED;
+	
+	/**
+	 * Create a {@link Repeater} where the collection instance is passed on from the parent binding in the binding tree. The main
+	 * use case is to support the {@link Root} xml element to contain a {@link Collection} without an additional container element. 
+	 */
+	public Repeater() {
+		super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
+		setSetter(MimicSetter.INSTANCE);
+	}
 	
 	/**
 	 * Create a {@link Repeater} where the underlying collection is of the specified type. The type must be a concrete
@@ -89,10 +100,11 @@ public class Repeater extends AbstractBinding {
 	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
 	    //TODO: also support addmethod on container class, which will add to underlying collection for us
         JavaContext javaCollectionContext = select(javaContext, newInstance(staxReader, javaContext));
-        if (!(javaCollectionContext.getContextObject() instanceof Collection<?>)) {
-            throw new Xb4jUnmarshallException(String.format("Not a Collection: %s", javaCollectionContext), this);
+        Object contextObject = javaCollectionContext.getContextObject();
+        if (!(contextObject instanceof Collection<?>)) {
+            throw new Xb4jUnmarshallException(String.format("Not a Collection: %s", contextObject), this);
         }
-        Collection<Object> collection = (Collection<Object>)javaCollectionContext.getContextObject();
+        Collection<Object> collection = (Collection<Object>)contextObject;
         
         //read enclosing collection element (if defined)
         QName collectionElement = getElement();
@@ -225,12 +237,17 @@ public class Repeater extends AbstractBinding {
 	@Override
 	public boolean generatesOutput(JavaContext javaContext) {
         Object collection = getProperty(javaContext).getContextObject();
-        if ((collection != null) && (collection instanceof Collection<?>) && !((Collection<?>)collection).isEmpty()) {
-        	for (Object item: (Collection<?>)collection) {
-            	if (itemBinding.generatesOutput(javaContext.newContext(item))) {
-            		return true;
-            	}
-        	}
+        if (collection != null) {
+	        if (!(collection instanceof Collection<?>)) {
+	        	throw new Xb4jMarshallException(String.format("Not a Collection type: %s", collection.getClass()), this);
+	        }
+	        if (!((Collection<?>)collection).isEmpty()) {
+	        	for (Object item: (Collection<?>)collection) {
+	            	if (itemBinding.generatesOutput(javaContext.newContext(item))) {
+	            		return true;
+	            	}
+	        	}
+	        }
         }
         
 		//At this point, the we established that the itemBinding will not output content

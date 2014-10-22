@@ -26,6 +26,7 @@ import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
+import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
@@ -42,7 +43,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- *
+ * 
  * @author Dave Schoorl
  */
 public abstract class AbstractBinding implements IBinding {
@@ -51,6 +52,10 @@ public abstract class AbstractBinding implements IBinding {
 	
 	private IElementFetchStrategy elementFetcher = null;
 	
+	/**
+	 * An implementation of {@link ICreator} that knows which Java class instance must be created for this binding. When this
+	 * binding does not create a new Java instance, the implementation should be a {@link NullCreator}
+	 */
 	private ICreator objectCreator = null;
 	
     private IGetter getter = null;
@@ -211,7 +216,7 @@ public abstract class AbstractBinding implements IBinding {
     
     private void setObjectCreator(ICreator objectCreator) {
     	if (objectCreator == null) {
-    		throw new NullPointerException("ICreator cannot be null");
+    		throw new NullPointerException("ICreator cannot be null. Use NullCreator instance when neccesary.");
     	}
     	if ((this.objectCreator != null) && !this.objectCreator.equals(objectCreator)) {
     		throw new Xb4jException("Once set, an ICreator cannot be changed: ".concat(this.toString()));
@@ -222,7 +227,7 @@ public abstract class AbstractBinding implements IBinding {
     
     public IBinding setGetter(IGetter getter) {
     	if (getter == null) {
-    		throw new NullPointerException("IGetter cannot be null");
+    		throw new NullPointerException("IGetter cannot be null. Use NoGetter instance when neccesary.");
     	}
 		getSemaphore().lock();
 		try {
@@ -236,7 +241,7 @@ public abstract class AbstractBinding implements IBinding {
 
     public IBinding setSetter(ISetter setter) {
     	if (setter == null) {
-    		throw new NullPointerException("ISetter cannot be null");
+    		throw new NullPointerException("ISetter cannot be null. Use NoSetter instance when neccesary.");
     	}
 		getSemaphore().lock();
 		try {
@@ -382,7 +387,7 @@ public abstract class AbstractBinding implements IBinding {
 		
     	UnmarshallResult result = unmarshall(staxReader, javaContext);
     	
-    	if (this.actionManager.hasActionsForPhase(ExecutionPhase.AFTER_UNMARSHALLING)) {
+      	if (this.actionManager.hasActionsForPhase(ExecutionPhase.AFTER_UNMARSHALLING)) {
     		JavaContext actionContext = javaContext.getContextObject()==null?javaContext.newContext(result.getUnmarshalledObject()):javaContext;
     		this.actionManager.executeActions(ExecutionPhase.AFTER_UNMARSHALLING, actionContext);
     	}
@@ -505,6 +510,11 @@ public abstract class AbstractBinding implements IBinding {
 		} finally {
 			semaphore.unlock();
 		}
+	}
+	
+	public void resolveReferences(JavaContext javaContext) {
+		//TODO: use something more general: visitor patern? at least something with callbacks
+		
 	}
     
 }

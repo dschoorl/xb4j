@@ -65,7 +65,8 @@ public interface IBinding {
      * Get the {@link JavaContext} that will be passed on to nested bindings. The new JavaContext is based on the currentContext,
      * meaning that any external context objects are passed on, and the context object is set with the value created by this
      * binding. If this binding does not create a new context object, then the value will be set to null.
-     * @param currentContext the current JavaContext that was passed on to the 
+     * @param staxReader the xml stream that is currently read. It may be necessary to determine which java type must be created, E.g. in case of a choice
+     * @param currentContext the current JavaContext that was passed on to this binding
      * @return a new {@link JavaContext} with the context object created by this binding or null when no contex object is created
      */
     public JavaContext newInstance(RecordAndPlaybackXMLStreamReader staxReader, JavaContext currentContext);

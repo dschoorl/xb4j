@@ -27,7 +27,14 @@ import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
  */
 public interface ISetter {
 	
-	boolean set(JavaContext javaContext, Object propertyValue);
+	/**
+	 * Set the given value on the provided javaContext object. The implementation knows how to do this.
+	 *    
+	 * @param javaContext the object to change by setting the the value on it
+	 * @param value the value to set on the  
+	 * @return true if the javaContext was succesfully changed, false otherwise.
+	 */
+	boolean set(JavaContext javaContext, Object value);
 	
     public int hashCode();
     
