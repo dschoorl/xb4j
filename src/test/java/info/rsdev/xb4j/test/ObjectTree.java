@@ -16,14 +16,18 @@ package info.rsdev.xb4j.test;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class ObjectTree {
 	
 	private ObjectA myObject = null;
 	
 	private List<String> messages = null;
+	
+	private Map<String, String> codes = null;
 	
 	public ObjectTree setMyObject(ObjectA mo) {
 		this.myObject = mo;
@@ -48,4 +52,20 @@ public class ObjectTree {
 		}
 		this.messages.add(newMessage);
 	}
+	
+	public void addCode(String code, String description) {
+		if (code == null) { return; }
+		if (this.codes == null) {
+			this.codes = new LinkedHashMap<String, String>();
+		}
+		this.codes.put(code, description);
+	}
+	
+	public Map<String, String> getCodes() {
+		if (this.codes == null) {
+			this.codes = Collections.emptyMap();
+		}
+		return Collections.unmodifiableMap(this.codes);
+	}
+	
 }
