@@ -1,6 +1,7 @@
 TODO
 ----
 - Use Generics in XmlStreamer (toJava method)
+- add multithreaded locking testcase 
 - lock ISemaphore on copy operations
 - resolve all constructor argument references (as far as possible) on first use of a root binding
 - add switch to make bindingmodel immutable

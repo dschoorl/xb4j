@@ -135,7 +135,7 @@ public class Repeater extends AbstractBinding {
             if (proceed) {
             	occurences++;
             	if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
-            		throw new Xb4jUnmarshallException(String.format("Found %d occurences, but no mare than %d are allowed", occurences, maxOccurs), this);
+            		throw new Xb4jUnmarshallException(String.format("Found %d occurences, but no more than %d are allowed", occurences, maxOccurs), this);
             	}
             }
         }
