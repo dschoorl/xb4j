@@ -28,7 +28,6 @@ import info.rsdev.xb4j.util.XmlStreamFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -70,7 +69,7 @@ public class MapRepeaterTest {
         BindingModel model = new BindingModel().register(root);
         
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        HashMap<String, String> instance = new LinkedHashMap<String, String>();
+        Map<String, String> instance = new LinkedHashMap<String, String>();
         instance.put("1", "Een");
         instance.put("2", "Twee");
         
@@ -112,7 +111,7 @@ public class MapRepeaterTest {
 	public void testUnmarshallValueMapNoContainerElement() {
 		//fixture
         Root root = new Root(new QName("root"), ObjectTree.class);
-        MapRepeater map = root.setChild(new MapRepeater(HashMap.class), "codes");
+        MapRepeater map = root.setChild(new MapRepeater(LinkedHashMap.class), "codes");
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
         BindingModel model = new BindingModel().register(root);
         
@@ -177,20 +176,20 @@ public class MapRepeaterTest {
     
     @Test
     public void testRepeaterNoMapNoElementGeneratesNoOutput() {
-    	MapRepeater repeater = new MapRepeater(HashMap.class);
+    	MapRepeater repeater = new MapRepeater(LinkedHashMap.class);
     	assertFalse(repeater.generatesOutput(new JavaContext(null)));
     }
     
     @Test
     public void testRepeaterEmptyMapNoElementGeneratesNoOutput() {
-    	MapRepeater repeater = new MapRepeater(HashMap.class);
-    	assertFalse(repeater.generatesOutput(new JavaContext(new HashMap<String, Object>())));
+    	MapRepeater repeater = new MapRepeater(LinkedHashMap.class);
+    	assertFalse(repeater.generatesOutput(new JavaContext(new LinkedHashMap<String, Object>())));
     }
     
     @Test
     public void testRepeaterEmptyMapOptionalElementGeneratesNoOutput() {
-    	MapRepeater repeater = new MapRepeater(new QName("optional"), HashMap.class, true);
-    	assertFalse(repeater.generatesOutput(new JavaContext(new HashMap<String, Integer>())));
+    	MapRepeater repeater = new MapRepeater(new QName("optional"), LinkedHashMap.class, true);
+    	assertFalse(repeater.generatesOutput(new JavaContext(new LinkedHashMap<String, Integer>())));
     }
     
     @Test
