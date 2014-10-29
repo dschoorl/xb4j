@@ -139,7 +139,8 @@ public class SimplifiedXMLStreamWriter {
     }
     
     public void close() throws XMLStreamException {
-		staxWriter.writeEndDocument();
+    	staxWriter.writeCharacters("");
+    	staxWriter.flush();
     	namespaceContext.clear();
     	staxWriter = null;	//do not close the underlying staxWriter, because we do not control it
     }

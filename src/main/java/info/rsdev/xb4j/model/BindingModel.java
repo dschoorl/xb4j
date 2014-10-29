@@ -53,10 +53,19 @@ public class BindingModel {
     
     private Map<QName, ComplexType> complexTypes = new ConcurrentHashMap<QName, ComplexType>();
     
-	public XmlStreamer getXmlStreamer(Class<?> type, String namespaceSpecifier) {
-    	Root binding = getBinding(type, namespaceSpecifier);
+	/**
+	 * Get the {@link XmlStreamer} that is capable of marshalling / unmarshalling the given Java class. When there are multiple 
+	 * bindings for the same Java class, E.g. when there are different xml representations for it, a selector must be provided.
+	 *  
+	 * @param type the Java class to get the {@link XmlStreamer} for
+	 * @param selector When the model has multiple bindings for a Java class, the selector must be used to select the right one. 
+	 * 		Can be ommited (null) when there is only one binding for this class. 
+	 * @return the {@link XmlStreamer} of choice. Once an XmlStreamer is requested, the underlying binding can no longer be changed
+	 */
+	public XmlStreamer getXmlStreamer(Class<?> type, QName selector) {
+    	Root binding = getBinding(type, selector);
     	if (binding == null) {
-    		throw new Xb4jException(String.format("No binding found for %s within namespace %s", type, namespaceSpecifier));
+    		throw new Xb4jException(String.format("No binding found for %s with selector %s", type, selector));
     	}
     	
     	//make binding immutable on first use so we can guarantee marshall/unmarshall results will be the same every time it is used
@@ -133,11 +142,12 @@ public class BindingModel {
         return getBinding(type, null);
     }
     
-    protected Root getBinding(Class<?> type, String namespaceSpecifier) {
+    protected Root getBinding(Class<?> type, QName selector) {
         if (!this.classToXml.containsKey(type)) {
             return null;
         }
         
+        String namespaceSpecifier = selector == null ? null : selector.getNamespaceURI();
         LinkedList<Root> bindings = classToXml.get(type);
         if ((bindings.size() == 1) && (namespaceSpecifier == null)) {
             return bindings.getFirst();
@@ -177,12 +187,7 @@ public class BindingModel {
     				"already registered for %s", binding, xmlToClass.get(element), element));
     	}
     	
-    	/* A Java class can be bound to multiple Root-bindings, on the condition that the element of the RootBinding uses
-    	 * the same localpart as al other bindings for the Java class, but a different namespace.
-    	 * 
-    	 * The xb4j framework is capable of also differenting on localpart, but customers of this framework, E.g. SOAP stacks,
-    	 * will not be able to supply the entire QName to select the Root-binding for marshalling. However, they are likely
-    	 * able to supply the namespaceUri (based on the namespaceUri of the incoming message).
+    	/* A Java class can be bound to multiple Root-bindings, but each binding must use a different QName.
     	 */
         xmlToClass.put(element, binding);
         LinkedList<Root> boundToClass = classToXml.get(javaType);
@@ -194,12 +199,9 @@ public class BindingModel {
         if (!boundToClass.isEmpty()) {
             for (Root candidate: boundToClass) {
             	QName candidateElement = candidate.getElement();
-                if (!candidateElement.getLocalPart().equals(newElement.getLocalPart())) {
-                	throw new Xb4jException(String.format("Multiple bindings for %s must all use the same element name. Found " +
-                			"%s and %s.", javaType.getName(), newElement.getLocalPart(), candidateElement.getLocalPart()));
-                } else if (candidateElement.getNamespaceURI().equals(newElement.getNamespaceURI())) {
-                	throw new Xb4jException(String.format("Multiple bindings for %s must all use a different namespaceUri. Uri" +
-                			"%s is not unique.", javaType.getName(), newElement.getLocalPart()));
+                if (candidateElement.equals(newElement)) {
+                	throw new Xb4jException(String.format("Multiple bindings for %s must all use a different QName. Qname " +
+                			"%s is not unique.", javaType.getName(), newElement));
                 }
             }
         }
