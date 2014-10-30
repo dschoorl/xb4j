@@ -33,4 +33,9 @@ public final class NoSetter implements ISetter {
 		return false;
 	}
 	
+	@Override
+	public String toString() {
+		return NoSetter.class.getSimpleName();
+	}
+	
 }

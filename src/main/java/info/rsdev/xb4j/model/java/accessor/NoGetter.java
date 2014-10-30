@@ -27,4 +27,9 @@ public final class NoGetter implements IGetter {
 		return javaContext;
 	}
 	
+	@Override
+	public String toString() {
+		return NoGetter.class.getSimpleName();
+	}
+	
 }

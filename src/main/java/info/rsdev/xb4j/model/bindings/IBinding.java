@@ -18,6 +18,8 @@ import info.rsdev.xb4j.model.bindings.action.IPhasedAction;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
+import info.rsdev.xb4j.model.java.accessor.NoGetter;
+import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
@@ -75,8 +77,23 @@ public interface IBinding {
     
     public boolean setProperty(JavaContext javaContext, Object propertyValue);
     
+    /**
+     * The implementation of an {@link IGetter} to be used when the binding wants to obtain the Java instance that needs 
+     * to be marshalled from the current Java context in {@link #getProperty(JavaContext)} 
+     * @param getter the {@link IGetter} implementation to use. Use {@link NoGetter#INSTANCE} when the Java context 
+     * 		need not be changed
+     * @return this {@link IBinding}
+     */
     public IBinding setGetter(IGetter getter);
     
+    /**
+     * The implementation of an {@link ISetter} to be used when the binding wants to process it's unmarshalled result
+     * through the {@link #setProperty(JavaContext, Object)} method.
+     * 
+     * @param setter the {@link ISetter} implementation to use. Use {@link NoSetter#INSTANCE} when the unmarshalled result 
+     * 		must not be handled by this {@link IBinding}, but by one of it's ancestors in the binding tree. 
+     * @return this {@link IBinding}
+     */
     public IBinding setSetter(ISetter setter);
     
     public IBinding addAction(IPhasedAction action);

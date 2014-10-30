@@ -33,4 +33,9 @@ public final class MimicSetter implements ISetter {
 		return true;
 	}
 	
+	@Override
+	public String toString() {
+		return MimicSetter.class.getSimpleName();
+	}
+	
 }

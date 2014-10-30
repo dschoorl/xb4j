@@ -43,4 +43,9 @@ public class FieldAccessor implements ISetter, IGetter {
 		return getter.get(contextInstance);
 	}
 	
+	@Override
+	public String toString() {
+		return String.format("%s[getter=%s, setter=%s]", FieldAccessor.class.getSimpleName(), this.getter, this.setter);
+	};
+	
 }

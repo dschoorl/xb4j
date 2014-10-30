@@ -164,7 +164,7 @@ public class BeanPropertyAccessor implements ISetter, IGetter {
     
 	@Override
 	public String toString() {
-	    return String.format("%s[property=%s]", getClass().getSimpleName(), propertyName);
+	    return String.format("%s[property=%s]", BeanPropertyAccessor.class.getSimpleName(), propertyName);
 	}
 
 	@Override

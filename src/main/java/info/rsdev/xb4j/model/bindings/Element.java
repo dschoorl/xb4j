@@ -102,7 +102,6 @@ public class Element extends AbstractSingleBinding {
     		result = childBinding.toJava(staxReader, select(javaContext, newJavaContext));
     	}
     	
-    	//TODO: if response contains errorMessage: halt by throwing exception -- or let error bubble up?
 		if ((result != null) && !result.isUnmarshallSuccessful()) {
 			return result;	//let error bubble up
 		}

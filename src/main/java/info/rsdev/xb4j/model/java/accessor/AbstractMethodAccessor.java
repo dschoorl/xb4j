@@ -5,6 +5,7 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 public class AbstractMethodAccessor {
 	
@@ -46,8 +47,8 @@ public class AbstractMethodAccessor {
             if (targetMethod == null) {
                 candidateClass = candidateClass.getSuperclass();
                 if (candidateClass == null) {
-                    throw new Xb4jException(String.format("Method '%s', taking parameter(s) of type '%s', is not " +
-                    		"definied in the entire class hierarchy of '%s'.", methodName, parameterTypes, objectType.getName()));
+                    throw new Xb4jException(String.format("Method '%s', taking parametertype(s) '%s', is not defined in the " +
+                    		"entire class hierarchy of '%s'.", methodName, Arrays.asList(parameterTypes), objectType.getName()));
                 }
             }
         }
