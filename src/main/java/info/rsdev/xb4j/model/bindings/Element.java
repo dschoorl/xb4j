@@ -120,7 +120,8 @@ public class Element extends AbstractSingleBinding {
     			if (newJavaContext == null) { 
     				return result;
     			} else {
-    				throw new Xb4jUnmarshallException("Unmarshalled object not set in Java context: "+result.getUnmarshalledObject(), this);
+    				throw new Xb4jUnmarshallException(String.format("Unmarshalled object '%s' not set in %s by binding %s", 
+    						result.getUnmarshalledObject(), select(javaContext, newJavaContext), this), this);
     			}
 			}
     	} else {
