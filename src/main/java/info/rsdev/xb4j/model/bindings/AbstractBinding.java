@@ -79,7 +79,6 @@ public abstract class AbstractBinding implements IBinding {
     /**
      * Copy constructor that copies the properties of the original binding in a 
      * @param original
-     * @param newParent
      */
     protected AbstractBinding(AbstractBinding original) {
     	copyFields(original, original.elementFetcher);
@@ -88,7 +87,7 @@ public abstract class AbstractBinding implements IBinding {
     /**
      * Copy constructor that copies the properties of the original binding in a 
      * @param original
-     * @param newParent
+     * @param elementFetcher
      */
     protected AbstractBinding(AbstractBinding original, IElementFetchStrategy elementFetcher) {
     	copyFields(original, elementFetcher);

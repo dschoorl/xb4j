@@ -57,7 +57,8 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     /**
      * Create a ComplexTypeReference for an anonymous ComplexType (not registered with {@link BindingModel}
      * @param element
-     * @param referencedBinding
+     * @param parent
+     * @param fieldName
      */
     public ComplexType(QName element, IBinding parent, String fieldName) {
     	super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);

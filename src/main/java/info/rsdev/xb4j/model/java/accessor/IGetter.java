@@ -21,7 +21,7 @@ import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 /**
  * An {@link IGetter} is used during the marshalling process (from java to xml). It extracts from the current 
  * javaContext the new javaContext that will be pushed downwards in the binding hierarchy through the 
- * {@link IBinding#toXml(SimplifiedXMLStreamWriter, Object)} method.
+ * {@link IBinding#toXml(SimplifiedXMLStreamWriter, JavaContext)} method.
  * 
  * @author Dave Schoorl
  */

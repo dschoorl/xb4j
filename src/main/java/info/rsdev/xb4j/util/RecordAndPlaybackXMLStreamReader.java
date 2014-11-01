@@ -268,7 +268,6 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     /**
      * Check if the next element in the xml file is the start of the element that this binding expects. If not, then the
      * staxReader is positioned prior to the element just read (so it can be re-read),
-     * @param staxReader
      * @param expectedElement
      * @return true if this binding should continue processing the current element, false otherwise
      * @throws XMLStreamException any exception from the underlying stax reader is propagated up

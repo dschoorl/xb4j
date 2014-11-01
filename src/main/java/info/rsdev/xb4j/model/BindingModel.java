@@ -136,7 +136,6 @@ public class BindingModel {
      * @param type
      * @return a {@link Root} or null when no binding is bound to the Java type
      * @throws Xb4jException when multiple bindings are bound to 
-     * @see
      */
     protected Root getBinding(Class<?> type) {
         return getBinding(type, null);

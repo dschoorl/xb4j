@@ -22,8 +22,8 @@ public interface IFileOutputStrategy {
 	 * Create a {@link File} on the filesystem who's name is based on the provided hint. The exact path of the {@link File} 
 	 * is implementation dependend.
 	 * 
-	 * @return The File handle to the file created on the filesystem
-	 * @trhows IOException when no {@link File} could be created
+	 * @param hint
+	 * @return The {@link File} handle to the file created on the filesystem
 	 */
 	public File getAndCreateFile(String hint);
 	

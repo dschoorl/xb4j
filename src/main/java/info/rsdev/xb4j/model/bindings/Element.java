@@ -70,7 +70,7 @@ public class Element extends AbstractSingleBinding {
      * Copy constructor
      * 
      * @param original
-     * @param newElement
+     * @param elementFetcher
      */
     protected Element(Element original, IElementFetchStrategy elementFetcher) {
     	super(original, elementFetcher);

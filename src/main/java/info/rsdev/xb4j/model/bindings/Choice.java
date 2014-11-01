@@ -24,7 +24,6 @@ import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
-import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
@@ -52,8 +51,7 @@ public class Choice extends AbstractBinding {
 	private List<IChooser> choosers = new LinkedList<IChooser>();
 	
 	/**
-	 * Create a new {@link Choice}. No {@link IElementFetchStrategy} nor {@link IObjectFetchStrategy} are currently
-	 * set (so this won't work)
+	 * Create a new {@link Choice}.
 	 */
 	public Choice() {
 		super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);

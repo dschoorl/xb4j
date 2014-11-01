@@ -115,7 +115,7 @@ public class Root extends Element implements IModelAware, ISemaphore {
      * structure). The BindingModel of this RootBinding (if any) will not be copied, so you can register this copy also with 
      * another BindingModel.
      * 
-     * @param newElementName
+     * @param newElement
      * @return A copy of this {@link Root}. It still needs to be registered with the {@link BindingModel}
      */
     public Root copy(QName newElement) {
