@@ -146,21 +146,20 @@ public class BindingModel {
             return null;
         }
         
-        String namespaceSpecifier = selector == null ? null : selector.getNamespaceURI();
         LinkedList<Root> bindings = classToXml.get(type);
-        if ((bindings.size() == 1) && (namespaceSpecifier == null)) {
+        if ((bindings.size() == 1) && (selector == null)) {
             return bindings.getFirst();
-        } else if ((bindings.size() > 1) && (namespaceSpecifier == null)) {
+        } else if ((bindings.size() > 1) && (selector == null)) {
             Set<String> candidates = new HashSet<String>(bindings.size());
             for (Root candidate: bindings) {
                 candidates.add(candidate.getElement().getNamespaceURI());
             }
-            throw new Xb4jException(String.format("Multiple bindings found. Please specify a namespace to select the required " +
+            throw new Xb4jException(String.format("Multiple bindings found. Please specify a QName to select the required " +
                     "binding (one of: %s)", candidates));
         } else {
             Root target = null;
             for (Root candidate: bindings) {
-                if (candidate.getElement().getNamespaceURI().equals(namespaceSpecifier)) {
+                if (candidate.getElement().equals(selector)) {
                     target = candidate;
                     break;
                 }
