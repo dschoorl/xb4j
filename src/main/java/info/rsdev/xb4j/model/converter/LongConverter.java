@@ -57,7 +57,7 @@ public class LongConverter implements IValueConverter {
 		try {
 			return validator.isValid(Long.valueOf(value));
 		} catch (NumberFormatException e) {
-			throw new ValidationException(String.format("Cannot convert to a Long: ", value), e);
+			throw new ValidationException(String.format("Cannot convert to a Long: %s", value), e);
 		}
 	}
 	
