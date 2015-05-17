@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JavaContext {
 	
-	private static final Logger log = LoggerFactory.getLogger(JavaContext.class);
+	private final Logger log = LoggerFactory.getLogger(JavaContext.class);
 	
 	private static final Map<String, Object> EMPTY_IMMUTABLE_MAP = Collections.emptyMap();
 	

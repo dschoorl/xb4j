@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BindingModel {
     
-    private static final Logger log = LoggerFactory.getLogger(BindingModel.class);
+    private final Logger log = LoggerFactory.getLogger(BindingModel.class);
     
     private Map<Class<?>, LinkedList<Root>> classToXml = new ConcurrentHashMap<Class<?>, LinkedList<Root>>();
     

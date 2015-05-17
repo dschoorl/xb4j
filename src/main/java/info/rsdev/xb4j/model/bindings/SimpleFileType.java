@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleFileType extends AbstractBinding {
 	
-	private static final Logger logger = LoggerFactory.getLogger(SimpleFileType.class);
+	private final Logger logger = LoggerFactory.getLogger(SimpleFileType.class);
 	
 	private static final QName DEFAULT_CODINGTYPE_ATTRIBUTENAME = new QName("Encoding"); 
 	

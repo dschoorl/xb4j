@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class UnmarshallResult implements ErrorCodes {
 	
-	private static final Logger logger = LoggerFactory.getLogger(UnmarshallResult.class);
+	private final Logger logger = LoggerFactory.getLogger(UnmarshallResult.class);
 	
 	/**
 	 * A singleton instance that indicates that the unmarshalling process encountered a missing

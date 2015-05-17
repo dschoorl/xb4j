@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FixedDirectoryOutputStrategy implements IFileOutputStrategy {
 	
-	private static final Logger logger = LoggerFactory.getLogger(FixedDirectoryOutputStrategy.class);
+	private final Logger logger = LoggerFactory.getLogger(FixedDirectoryOutputStrategy.class);
 	
 	/**
 	 * A {@link FixedDirectoryOutputStrategy} instance that will use java's temp directory as target.

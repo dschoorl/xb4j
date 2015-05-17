@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
 	
-	private static final Logger logger = LoggerFactory.getLogger(RecordAndPlaybackXMLStreamReader.class);
+	private final Logger logger = LoggerFactory.getLogger(RecordAndPlaybackXMLStreamReader.class);
 	
 	private static final String[] EVENTNAMES = new String[] {"Undefined", "start element", "end element", "processing instruction",
 			"characters", "comment", "space", "start document", "end document", "entity reference", "attribute", "DTD", "cdata",
