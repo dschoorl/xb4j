@@ -79,8 +79,7 @@ public abstract class AbstractDateConverter implements IValueConverter {
 	
 	@Override
 	public Object toObject(JavaContext javaContext, String value) {
-		if (value == null) { return null; }
-		
+        if ((value == null) || value.isEmpty()) { return null; }
 		try {
 	        GregorianCalendar aMoment = datatypeFactory.newXMLGregorianCalendar(value.trim()).toGregorianCalendar(timeZone, null, null);
 			return fromCalendar(validator.isValid(aMoment));

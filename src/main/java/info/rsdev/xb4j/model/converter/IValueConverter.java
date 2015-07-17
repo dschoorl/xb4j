@@ -23,6 +23,12 @@ import info.rsdev.xb4j.model.java.JavaContext;
  */
 public interface IValueConverter {
 	
+	/**
+	 * Convert a String to the required Java object representation.
+	 * @param javaContext the {@link JavaContext} that may be used to aid in the conversion process
+	 * @param value the String value to convert into a Java object representation
+	 * @return the Java representation of the given value or null when there is no value
+	 */
 	public Object toObject(JavaContext javaContext, String value);
 	
 	public String toText(JavaContext javaContext, Object value);

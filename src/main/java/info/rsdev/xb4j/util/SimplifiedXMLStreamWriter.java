@@ -31,26 +31,15 @@ public class SimplifiedXMLStreamWriter {
     
     private NamespaceContext namespaceContext = new NamespaceContext();
     
-    @SuppressWarnings("unused")
-	private final String encodingOfXmlStream;
-    
-    public SimplifiedXMLStreamWriter(XMLStreamWriter staxWriter) {
-    	this(staxWriter, "UTF-8");
-    }
-    
     /**
      * @param staxWriter
      * @param encoding the encoding that the staxWriter is set to
      */
-    public SimplifiedXMLStreamWriter(XMLStreamWriter staxWriter, String encoding) {
+    public SimplifiedXMLStreamWriter(XMLStreamWriter staxWriter) {
         if (staxWriter == null) {
             throw new NullPointerException("XMLStreamWriter cannot be null");
         }
-        if (encoding == null) {
-        	throw new NullPointerException("Encoding cannot be null");
-        }
         this.staxWriter = staxWriter;
-        this.encodingOfXmlStream = encoding;
     }
     
     public void writeElement(QName element, boolean isEmptyElement) throws XMLStreamException {

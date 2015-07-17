@@ -65,7 +65,7 @@ public class IntegerConverter implements IValueConverter {
 	
 	@Override
 	public Integer toObject(JavaContext javaContext, String value) {
-		if (value == null) { return null; }
+        if ((value == null) || value.isEmpty()) { return null; }
 		if ((minLength > 1) && (value.length() < minLength)) {
 			throw new ValidationException(String.format("Value %s is too short: it should have at least %d characters, and not %d",
 					value, minLength, value.length()));
