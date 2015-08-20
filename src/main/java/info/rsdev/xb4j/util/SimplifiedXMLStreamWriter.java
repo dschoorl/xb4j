@@ -33,7 +33,6 @@ public class SimplifiedXMLStreamWriter {
     
     /**
      * @param staxWriter
-     * @param encoding the encoding that the staxWriter is set to
      */
     public SimplifiedXMLStreamWriter(XMLStreamWriter staxWriter) {
         if (staxWriter == null) {
