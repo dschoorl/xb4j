@@ -18,40 +18,51 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 import info.rsdev.xb4j.exceptions.ValidationException;
 import info.rsdev.xb4j.model.java.JavaContext;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class BooleanConverterTest {
 
+    private JavaContext mockContext = null;
+    
+    @Before
+    public void setup() {
+        this.mockContext = mock(JavaContext.class);
+    }
+    
+    @After
+    public void teardown() {
+        verifyZeroInteractions(mockContext);    //JavaContext is not used by this converter
+    }
+
     @Test
     public void testToObject() {
-    	JavaContext javaContext = null;	//not needed in BooleanConverter implementation
-        assertNull(BooleanConverter.INSTANCE.toObject(javaContext, null));
-        assertTrue(BooleanConverter.INSTANCE.toObject(javaContext, "true"));
-        assertFalse(BooleanConverter.INSTANCE.toObject(javaContext, "false"));
+        assertNull(BooleanConverter.INSTANCE.toObject(mockContext, null));
+        assertTrue(BooleanConverter.INSTANCE.toObject(mockContext, "true"));
+        assertFalse(BooleanConverter.INSTANCE.toObject(mockContext, "false"));
     }
     
     @Test(expected=ValidationException.class)
     public void testToObjectNoBoolean() {
-    	JavaContext javaContext = null;	//not needed in BooleanConverter implementation
-        BooleanConverter.INSTANCE.toObject(javaContext, "some value");
+        BooleanConverter.INSTANCE.toObject(mockContext, "some value");
     }
     
     @Test
     public void testToText() {
-    	JavaContext javaContext = null;	//not needed in BooleanConverter implementation
-        assertNull(BooleanConverter.INSTANCE.toText(javaContext, null));
-        assertEquals("true", BooleanConverter.INSTANCE.toText(javaContext, Boolean.TRUE));
-        assertEquals("true", BooleanConverter.INSTANCE.toText(javaContext, true));
-        assertEquals("false", BooleanConverter.INSTANCE.toText(javaContext, Boolean.FALSE));
-        assertEquals("false", BooleanConverter.INSTANCE.toText(javaContext, false));
+        assertNull(BooleanConverter.INSTANCE.toText(mockContext, null));
+        assertEquals("true", BooleanConverter.INSTANCE.toText(mockContext, Boolean.TRUE));
+        assertEquals("true", BooleanConverter.INSTANCE.toText(mockContext, true));
+        assertEquals("false", BooleanConverter.INSTANCE.toText(mockContext, Boolean.FALSE));
+        assertEquals("false", BooleanConverter.INSTANCE.toText(mockContext, false));
     }
     
     @Test(expected=ValidationException.class)
     public void testToTextNoBoolean() {
-    	JavaContext javaContext = null;	//not needed in BooleanConverter implementation
-        BooleanConverter.INSTANCE.toText(javaContext, new Object());
+        BooleanConverter.INSTANCE.toText(mockContext, new Object());
     }
 }

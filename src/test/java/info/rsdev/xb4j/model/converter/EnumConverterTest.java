@@ -1,4 +1,4 @@
-/* Copyright 2012 Red Star Development / Dave Schoorl
+/* Copyright 2015 Red Star Development / Dave Schoorl
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,28 @@
  */
 package info.rsdev.xb4j.model.converter;
 
-import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+import info.rsdev.xb4j.exceptions.ValidationException;
 import info.rsdev.xb4j.model.java.JavaContext;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class IntegerConverterTest {
-	
+public class EnumConverterTest {
+    
+    private static enum TestEnum {
+        TESTON, TESTOFF
+    }
+    
+    private EnumConverter converter = null;
+    
     private JavaContext mockContext = null;
     
     @Before
     public void setup() {
+        this.converter = new EnumConverter(TestEnum.class);
         this.mockContext = mock(JavaContext.class);
     }
     
@@ -36,19 +44,19 @@ public class IntegerConverterTest {
         verifyZeroInteractions(mockContext);    //JavaContext is not used by this converter
     }
 
-	@Test
-	public void testToObjectWithPadding() {
-		assertEquals("01", new IntegerConverter(NoValidator.INSTANCE, 2).toText(mockContext, Integer.valueOf(1)));
-	}
-	
     @Test
-    public void nullValuesAreNotValidated() {
-        assertNull(new IntegerConverter(NoValidator.INSTANCE, 2).toObject(mockContext, null));
+    public void testToText() {
+        assertEquals("TESTON", converter.toText(null, TestEnum.TESTON));
     }
     
-	@Test
-	public void emptyStringsAreTreatedAsNullValues() {
-        assertNull(IntegerConverter.ZERO_OR_POSITIVE.toObject(mockContext, ""));
-	}
-	
+    @Test
+    public void testToJava() {
+        assertEquals(TestEnum.TESTOFF, converter.toObject(null, "TESTOFF"));
+    }
+    
+    @Test(expected=ValidationException.class)
+    public void toTextOnNoneEnumType() {
+        converter.toText(null, "I am a String, not an enum value");
+    }
+
 }
