@@ -73,38 +73,53 @@ public class Choice extends AbstractBinding {
 				"one of this Choice's options", attribute));
 	}
 	
-	public <T extends IBinding> T  addOption(T choice, String fieldName, IChooser selector) {
+	public <T extends IBinding> T  addOption(T option, String fieldName, IChooser selector) {
 		//Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
-		addOption(choice, selector);
+		addOption(option, selector);
 		FieldAccessor provider = new FieldAccessor(fieldName);
-		choice.setGetter(provider);
-		choice.setSetter(provider);
-		return choice;
+		option.setGetter(provider);
+		option.setSetter(provider);
+		return option;
 	}
 	
 	/**
-	 * Convenience method. The {@link IBinding choice} will be registered with this {@link Choice}, and an {@link ContextInstanceOf} 
+	 * Convenience method. The {@link IBinding option} will be registered with this {@link Choice}, and an {@link ContextInstanceOf} 
 	 * will be generated for selection of this choice when marshalling. 
-	 * @param choice
+	 * @param option
 	 * @return
 	 */
-	public <T extends IBinding> T addOption(T choice) {
-		Class<?> javaType = choice.getJavaType();
+	public <T extends IBinding> T addOption(T option) {
+		Class<?> javaType = option.getJavaType();
 		if (javaType == null) {
-			throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the choice '%s' does not define " +
-					"a Java type", choice));
+			throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the option '%s' does not define " +
+					"a Java type", option));
 		}
-		return addOption(choice, new ContextInstanceOf(javaType));
+		return addOption(option, new ContextInstanceOf(javaType));
 	}
 	
-	public <T extends IBinding> T addOption(T choice, IChooser selector) {
+    /**
+     * Convenience method. The {@link IBinding option} will be registered with this {@link Choice}, and an {@link ContextInstanceOf} 
+     * will be generated for selection of this choice when marshalling. 
+     * @param option
+     * @return
+     */
+    public <T extends IBinding> T addOption(T option, String fieldName) {
+        Class<?> javaType = option.getJavaType();
+        if (javaType == null) {
+            throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the option '%s' does not define " +
+                    "a Java type", option));
+        }
+        return addOption(option, fieldName, new ContextInstanceOf(javaType));
+    }
+    
+	public <T extends IBinding> T addOption(T option, IChooser selector) {
 		getSemaphore().lock();
 		try {
 			validateMutability();
-			choice.setParent(this); //maintain bidirectional relationship
-			choices.add(choice);
+			option.setParent(this); //maintain bidirectional relationship
+			choices.add(option);
 			choosers.add(selector);
-			return choice;
+			return option;
 		} finally {
 			getSemaphore().unlock();
 		}
