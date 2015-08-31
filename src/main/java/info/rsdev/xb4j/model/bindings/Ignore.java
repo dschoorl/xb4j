@@ -18,7 +18,7 @@ import javax.xml.stream.XMLStreamException;
 
 /**
  * This binding type allows you to swallow an element (tree) in the xml stream. The containing element tags are recognized and 
- * the entire tree (if any) is ignored. 
+ * the entire tree (if any) is ignored. This class supports repeated elements.
  * 
  * @author dschoorl
  */
@@ -58,8 +58,12 @@ public class Ignore implements IBinding {
 		
 		this.actionManager.executeActions(ExecutionPhase.BEFORE_UNMARSHALLING, javaContext);
 
-		//start tag is found: consume and ignore xml stream until end tag
-		staxReader.skipToElementEnd();
+		//start tag is found: consume and ignore xml stream until end tag and do so for all repeating elements (if any)
+		while(staxReader.skipToElementEnd()) {
+		    if (!staxReader.isAtElementStart(expectedElement)) {
+		        break;
+		    }
+		}
         
 		this.actionManager.executeActions(ExecutionPhase.AFTER_UNMARSHALLING, javaContext);
 		

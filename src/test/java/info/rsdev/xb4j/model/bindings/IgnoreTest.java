@@ -31,77 +31,69 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class IgnoreTest {
+    
+    private BindingModel model = null;
+    private Root root = null;
 	
 	@Before
 	public void setup() throws Exception {
-		BindingModel model = new BindingModel();
-		Root root = new Root(new QName("root"), ObjectA.class);
-		root.setChild(new Ignore(new QName("ignore-me")));
+		model = new BindingModel();
+		root = new Root(new QName("root"), ObjectA.class);
+        root.addAttribute(new Attribute(new QName("name")).setRequired(false), "name");
 		model.register(root);
 	}
 	
 	@Test
 	public void testMarshallWithoutAccessors() {
-		BindingModel model = new BindingModel();
-		Root root = new Root(new QName("root"), ObjectA.class);
-		root.addAttribute(new Attribute(new QName("name")), "name");
-		root.setChild(new Ignore(new QName("ignore-me")));
-		model.register(root);
-		
+	    //the root is only made read-only after first use (marshall/unmarshall)
+        root.setChild(new Ignore(new QName("ignore-me")));
+        
 		String snippet = "<root name='Repelsteeltje'>" +
 						 "  <ignore-me please='true'><leaf /><nested><nested hasAttribute='true'><leaf /></nested></nested></ignore-me>" +
 						 "</root>";
 		
-        ByteArrayInputStream stream = new ByteArrayInputStream(snippet.getBytes());
-        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
-        assertNotNull(instance);
-        assertSame(ObjectA.class, instance.getClass());
-        assertEquals("Repelsteeltje", ((ObjectA)instance).getAName());
+        unmarshallAndAssert(snippet);
 	}
 	
 	@Test
 	public void testMarshallWithAccessors() {
-		BindingModel model = new BindingModel();
-		Root root = new Root(new QName("root"), ObjectA.class);
-		root.addAttribute(new Attribute(new QName("name")), "name");
+        //the root is only made read-only after first use (marshall/unmarshall)
 		root.setChild(new Ignore(new QName("ignore-me")), "nonExistentProperty");
-		model.register(root);
 		
 		String snippet = "<root name='Repelsteeltje'>" +
 						 "  <ignore-me please='true'><leaf /><nested><nested hasAttribute='true'><leaf /></nested></nested></ignore-me>" +
 						 "</root>";
-		
-        ByteArrayInputStream stream = new ByteArrayInputStream(snippet.getBytes());
-        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
-        assertNotNull(instance);
-        assertSame(ObjectA.class, instance.getClass());
-        assertEquals("Repelsteeltje", ((ObjectA)instance).getAName());
+		unmarshallAndAssert(snippet);
 	}
 	
 	@Test
 	public void testMarshallOptionally() {
-		BindingModel model = new BindingModel();
-		Root root = new Root(new QName("root"), ObjectA.class);
-		root.addAttribute(new Attribute(new QName("name")), "name");
+        //the root is only made read-only after first use (marshall/unmarshall)
 		root.setChild(new Ignore(new QName("ignore-me"), true), "nonExistentProperty");
-		model.register(root);
 		
-		String snippet = "<root name='Repelsteeltje' />";
-		
-        ByteArrayInputStream stream = new ByteArrayInputStream(snippet.getBytes());
-        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
-        assertNotNull(instance);
-        assertSame(ObjectA.class, instance.getClass());
-        assertEquals("Repelsteeltje", ((ObjectA)instance).getAName());
+		unmarshallAndAssert("<root name='Repelsteeltje' />");
+	}
+	
+	@Test
+	public void testMarshallIgnoreRepeatedly() {
+        //the root is only made read-only after first use (marshall/unmarshall)
+        Sequence content = root.setChild(new Sequence());
+        content.add(new Ignore(new QName("ignore-me"), true), "nonExistentProperty");
+        content.add(new SimpleType(new QName("name")), "name"); //test it with a trailing sibling that must not be ignored
+	    
+        String snippet = "<root>" +
+                "  <ignore-me>please</ignore-me>" + 
+                "  <ignore-me>too</ignore-me>" +
+                "  <name>Repelsteeltje</name>" +
+                "</root>";
+        unmarshallAndAssert(snippet);
+
 	}
 	
 	@Test
 	public void testUnmarshallWithAccessors() throws Exception {
-		BindingModel model = new BindingModel();
-		Root root = new Root(new QName("root"), ObjectA.class);
-		root.addAttribute(new Attribute(new QName("name")), "name");
+        //the root is only made read-only after first use (marshall/unmarshall)
 		root.setChild(new Ignore(new QName("ignore-me")), "nonExistentProperty");
-		model.register(root);
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         model.getXmlStreamer(ObjectA.class, null).toXml(XmlStreamFactory.makeWriter(stream), new ObjectA("Repelsteeltje"));
@@ -112,11 +104,8 @@ public class IgnoreTest {
 	
 	@Test
 	public void testUnmarshallWithoutAccessors() throws Exception {
-		BindingModel model = new BindingModel();
-		Root root = new Root(new QName("root"), ObjectA.class);
-		root.addAttribute(new Attribute(new QName("name")), "name");
+        //the root is only made read-only after first use (marshall/unmarshall)
 		root.setChild(new Ignore(new QName("ignore-me")));
-		model.register(root);
 		
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         model.getXmlStreamer(ObjectA.class, null).toXml(XmlStreamFactory.makeWriter(stream), new ObjectA("Repelsteeltje"));
@@ -125,4 +114,12 @@ public class IgnoreTest {
         XMLAssert.assertXMLEqual(expected, stream.toString());
 	}
 	
+	private void unmarshallAndAssert(String snippet) {
+        ByteArrayInputStream stream = new ByteArrayInputStream(snippet.getBytes());
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
+        assertNotNull(instance);
+        assertSame(ObjectA.class, instance.getClass());
+        assertEquals("Repelsteeltje", ((ObjectA)instance).getAName());
+
+	}
 }
