@@ -254,7 +254,7 @@ public class Repeater extends AbstractBinding {
 	}
 	
 	public Repeater setMaxOccurs(int newMaxOccurs) {
-		if (newMaxOccurs <= 1) {
+		if (newMaxOccurs < 1) {
 			throw new Xb4jException("maxOccurs must be 1 or higher: "+newMaxOccurs);
 		}
 		getSemaphore().lock();
