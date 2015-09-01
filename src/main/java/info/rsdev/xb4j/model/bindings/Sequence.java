@@ -17,6 +17,7 @@ package info.rsdev.xb4j.model.bindings;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
+import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
@@ -53,6 +54,10 @@ public class Sequence extends AbstractContainerBinding {
     
     public Sequence(QName element, Class<?> javaType) {
     	super(new DefaultElementFetchStrategy(element), new DefaultConstructor(javaType));
+    }
+    
+    public Sequence(QName element, ICreator creator) {
+        super(new DefaultElementFetchStrategy(element), creator);
     }
     
     @Override
