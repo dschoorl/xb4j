@@ -20,6 +20,7 @@ import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
+import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
@@ -42,6 +43,17 @@ public class Sequence extends AbstractContainerBinding {
 	 */
 	public Sequence() {
 		super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
+	}
+	
+	/**
+	 * Create a new {@link Sequence} with full control over the implementations of {@link IElementFetchStrategy} and {@link ICreator}
+	 * for this binding.
+	 * @param elementFetcher The {@link IElementFetchStrategy} to use. If not provided, {@link NoElementFetchStrategy} is used.
+	 * @param objectCreator The {@link ICreator} to use. If not provided, {@link NullCreator} is used.
+	 */
+	public Sequence(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
+	    super((elementFetcher == null ? NoElementFetchStrategy.INSTANCE : elementFetcher), 
+	          (objectCreator == null ? NullCreator.INSTANCE : objectCreator));
 	}
 	
     public Sequence(QName element) {
@@ -71,7 +83,7 @@ public class Sequence extends AbstractContainerBinding {
     	QName expectedElement = getElement();
     	boolean startTagFound = false;
     	if (expectedElement != null) {
-    		if (!staxReader.isAtElementStart(expectedElement)) {
+    		if (!staxReader.isNextAnElementStart(expectedElement)) {
 	    		if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
 	    		} else {
@@ -106,7 +118,7 @@ public class Sequence extends AbstractContainerBinding {
         }
         
     	//before processing the result of the unmarshalling, first check if the xml is wellformed
-    	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
+    	if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
     		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
     				staxReader.getEventName(), encountered), this);

@@ -18,6 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import info.rsdev.xb4j.model.bindings.chooser.ContextInstanceOf;
+import info.rsdev.xb4j.model.converter.IntegerConverter;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectB;
@@ -44,7 +45,7 @@ public class ChoiceTest {
 		Root root = new Root(new QName("sigh"), Object.class);
 		choice = root.setChild(new Choice());
 		choice.addOption(new SimpleType(new QName("elem1")), "name", new ContextInstanceOf(ObjectA.class));
-		choice.addOption(new SimpleType(new QName("elem2")), "value", new ContextInstanceOf(ObjectB.class));
+		choice.addOption(new SimpleType(new QName("elem2"), IntegerConverter.INSTANCE), "value", new ContextInstanceOf(ObjectB.class));
 	}
 	
 	@Test
@@ -57,8 +58,8 @@ public class ChoiceTest {
         choice.toXml(new SimplifiedXMLStreamWriter(staxWriter), new JavaContext(instanceA));
         assertEquals(expected, writer.toString());
         
-		ObjectB instanceB = new ObjectB("test");
-		expected = "<elem2>test</elem2>";
+		ObjectB instanceB = new ObjectB(42);
+		expected = "<elem2>42</elem2>";
 		
         writer = new StringWriter();
         staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
@@ -76,11 +77,11 @@ public class ChoiceTest {
 		assertEquals("test1", contextObject.getAName());
 		
 		//unmarshall second option
-		stream = new ByteArrayInputStream("<elem2>test2</elem2>".getBytes());
+		stream = new ByteArrayInputStream("<elem2>84</elem2>".getBytes());
 		staxWriter = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
-		ObjectB contextObjectB = new ObjectB("");
+		ObjectB contextObjectB = new ObjectB(42);
 		choice.toJava(staxWriter, new JavaContext(contextObjectB));
-		assertEquals("test2", contextObjectB.getValue());
+		assertEquals(new Integer(84), contextObjectB.getValue());
 	}
 	
 	@Test

@@ -12,28 +12,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.bindings;
+package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
 import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
+import info.rsdev.xb4j.model.bindings.Root;
+import info.rsdev.xb4j.model.bindings.SimpleFileType;
 
 import javax.xml.namespace.QName;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class RecursorMutabilityTest extends AbstractSingleBindingMutabilityTest<Recursor> {
+public class SimpleFileTypeMutabilityTest extends BaseBindingMutabilityTest<SimpleFileType> {
 
 	@Before
 	public void setUp() {
 		Root root = new Root(new QName("root"), Object.class);
-		immutableElement = new Recursor(new QName("level1"), Object.class, "hashcode");
+		immutableElement = new SimpleFileType(new QName("level1"));
 		root.setChild(immutableElement);
 		root.makeImmutable();
 	}
 	
 	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetMaxOccurs() {
-		immutableElement.setMaxOccurs(3);
+	public void testCannotSetCodingtypeFrom() {
+		immutableElement.setCodingtypeFrom(new QName("encodingAttribute"), "Base64");
 	}
-
+	
+	@Test(expected=Xb4jMutabilityException.class)
+	public void testCannotSetFilenameHintFrom() {
+		immutableElement.setFilenameHintFrom(new QName("filenameAttribute"), "archive.zip");
+	}
+	
+	
 }

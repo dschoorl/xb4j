@@ -14,25 +14,31 @@
  */
 package info.rsdev.xb4j.test;
 
-public class ObjectB {
+/**
+ * Simple helper class that is subject of marshall/unmarshall in tests. This class has an immutable public API and contains a single 
+ * Integer attribute.
+ * 
+ * @author Dave Schoorl
+ */
+public class ObjectB implements ITestSubject {
     
-    private String value = null;
+    private Integer value = null;
     
     @SuppressWarnings("unused")
     private ObjectB() {}
     
-    public ObjectB(String value) {
+    public ObjectB(Integer value) {
         if (value == null) {
-            throw new NullPointerException("Name cannot be null");
+            throw new NullPointerException("Value cannot be null");
         }
         this.value = value;
     }
     
-    public String getValue() {
+    public Integer getValue() {
         return this.value;
     }
     
-    protected void setValue(String newValue) {
+    protected void setValue(Integer newValue) {
         this.value = newValue;
     }
 

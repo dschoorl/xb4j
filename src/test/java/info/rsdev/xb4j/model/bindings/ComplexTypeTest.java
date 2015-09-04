@@ -86,7 +86,8 @@ public class ComplexTypeTest {
         assertSame(ObjectTree.class, instance.getClass());
         ObjectTree tree = (ObjectTree)instance;
         assertNotNull(tree.getMyObject());
-        assertEquals("test", tree.getMyObject().getAName());
+        assertSame(ObjectA.class, tree.getMyObject().getClass());
+        assertEquals("test", ((ObjectA)tree.getMyObject()).getAName());
     }
     
     @Test

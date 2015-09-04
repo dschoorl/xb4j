@@ -12,40 +12,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.bindings;
+package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
+import info.rsdev.xb4j.model.bindings.Recursor;
+import info.rsdev.xb4j.model.bindings.Root;
 
 import javax.xml.namespace.QName;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class SequenceMutabilityTest extends AbstractSingleBindingMutabilityTest<Root> {
+public class RecursorMutabilityTest extends AbstractSingleBindingMutabilityTest<Recursor> {
 
 	@Before
 	public void setUp() {
-		immutableElement = new Root(new QName("root"), Object.class);
-		immutableElement.makeImmutable();
-	}
-	
-	@Test(expected=Xb4jException.class)
-	public void testCannotSetOptional() {
-		immutableElement.setOptional(true);
-	}
-	
-	@Test
-	public void testMakeRootMandatoryHasNoEffect() {
-		assertSame(immutableElement, immutableElement.setOptional(false));
+		Root root = new Root(new QName("root"), Object.class);
+		immutableElement = new Recursor(new QName("level1"), Object.class, "hashcode");
+		root.setChild(immutableElement);
+		root.makeImmutable();
 	}
 	
 	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetParent() {
-		assertNull(immutableElement.getParent());
-		immutableElement.setParent(new Element(new QName("ghost")));
+	public void testCannotSetMaxOccurs() {
+		immutableElement.setMaxOccurs(3);
 	}
-	
+
 }

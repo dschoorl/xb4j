@@ -22,6 +22,7 @@ import info.rsdev.xb4j.model.java.accessor.BeanPropertyAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.constructor.DefaultConstructor;
+import info.rsdev.xb4j.model.java.constructor.IJavaArgument;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
@@ -78,7 +79,7 @@ public class Recursor extends AbstractSingleBinding {
         	throw new Xb4jUnmarshallException("A recursive property must always have an xml element representation", this);
         }
         
-		if (!staxReader.isAtElementStart(element)) {
+		if (!staxReader.isNextAnElementStart(element)) {
     		if (recurrenceCount == 0) {
     			if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
@@ -124,7 +125,7 @@ public class Recursor extends AbstractSingleBinding {
         }
         
     	//check that element close is encountered and return unmarshalled result if appropriate
-    	if (!staxReader.isAtElementEnd(element)) {
+    	if (!staxReader.isNextAnElementEnd(element)) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
     		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered %s %s", element,
     				staxReader.getEventName(), encountered), this);

@@ -18,11 +18,14 @@ import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
+import info.rsdev.xb4j.model.java.constructor.IJavaArgument;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+
+import javax.xml.namespace.QName;
 
 
 public abstract class AbstractContainerBinding extends AbstractBinding implements IContainerBinding {
@@ -117,5 +120,17 @@ public abstract class AbstractContainerBinding extends AbstractBinding implement
 		for (IBinding child: this.children) {
 			child.resolveReferences();
 		}
+	}
+	
+	@Override
+	public IJavaArgument findArgumentBindingOrAttribute(QName argumentQName) {
+	    IJavaArgument argumentBinding = super.findArgumentBindingOrAttribute(argumentQName);
+	    if (argumentBinding == null) {
+	        for (IBinding child: this.children) {
+	            argumentBinding = child.findArgumentBindingOrAttribute(argumentQName);
+	            if (argumentBinding != null) { break; }
+	        }
+	    }
+	    return argumentBinding;
 	}
 }

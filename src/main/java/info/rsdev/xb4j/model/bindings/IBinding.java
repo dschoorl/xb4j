@@ -20,6 +20,8 @@ import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
+import info.rsdev.xb4j.model.java.constructor.ICreator;
+import info.rsdev.xb4j.model.java.constructor.IJavaArgument;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
@@ -129,5 +131,13 @@ public interface IBinding {
     public void validateMutability();
     
     public void resolveReferences();
+    
+    /**
+     * Search the binding tree for the {@link IBinding} or {@link IAttribute} that can create the java object that
+     * is required as an argument by an {@link ICreator} implementation. 
+     * 
+     * @param argumentQName the element or attribute name that identifies the xml snippet to unmarshall to the IJavaArgument
+     */
+    public IJavaArgument findArgumentBindingOrAttribute(QName argumentQName);
     
 }

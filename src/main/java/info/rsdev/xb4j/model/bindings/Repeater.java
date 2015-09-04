@@ -109,7 +109,7 @@ public class Repeater extends AbstractBinding {
         QName collectionElement = getElement();
     	boolean startTagFound = false;
     	if (collectionElement != null) {
-    		if (!staxReader.isAtElementStart(collectionElement)) {
+    		if (!staxReader.isNextAnElementStart(collectionElement)) {
 	    		if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
 	    		} else {
@@ -151,7 +151,7 @@ public class Repeater extends AbstractBinding {
         }
         
         //read end of enclosing collection element (if defined)
-        if ((collectionElement != null) && !staxReader.isAtElementEnd(collectionElement) && startTagFound) {
+        if ((collectionElement != null) && !staxReader.isNextAnElementEnd(collectionElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
     		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", collectionElement,
     				staxReader.getEventName(), encountered), this);

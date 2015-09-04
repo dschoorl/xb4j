@@ -12,20 +12,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.bindings;
+package info.rsdev.xb4j.model.bindings.aspects.mutability;
+
+import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
+import info.rsdev.xb4j.model.bindings.Element;
+import info.rsdev.xb4j.model.bindings.Repeater;
+import info.rsdev.xb4j.model.bindings.Root;
+
+import java.util.ArrayList;
 
 import javax.xml.namespace.QName;
 
 import org.junit.Before;
+import org.junit.Test;
 
-public class IgnoreMutabilityTest extends BaseBindingMutabilityTest<Ignore> {
+public class RepeaterMutabilityTest extends BaseBindingMutabilityTest<Repeater>{
 
 	@Before
 	public void setUp() {
 		Root root = new Root(new QName("root"), Object.class);
-		immutableElement = new Ignore(new QName("level1"));
+		immutableElement = new Repeater(new QName("level1"), ArrayList.class);
 		root.setChild(immutableElement);
 		root.makeImmutable();
 	}
 	
+	@Test(expected=Xb4jMutabilityException.class)
+	public void testCannotSetMaxOccurs() {
+		immutableElement.setMaxOccurs(3);
+	}
+
+	@Test(expected=Xb4jMutabilityException.class)
+	public void testCannotSetItem() {
+		immutableElement.setItem(new Element(new QName("item")));
+	}
+
 }

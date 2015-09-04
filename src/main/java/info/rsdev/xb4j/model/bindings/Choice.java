@@ -151,7 +151,7 @@ public class Choice extends AbstractBinding {
         QName expectedElement = getElement();
     	boolean startTagFound = false;
     	if (expectedElement != null) {
-    		if (!staxReader.isAtElementStart(expectedElement)) {
+    		if (!staxReader.isNextAnElementStart(expectedElement)) {
 	    		if (!isOptional()) {
 	    			return UnmarshallResult.newMissingElement(this);
 	    		}
@@ -190,7 +190,7 @@ public class Choice extends AbstractBinding {
 			return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR, String.format("No matching option found in xml for mandatory %s", this), this);
 		}
 		
-        if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
+        if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
     		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
     				staxReader.getEventName(), encountered), this);

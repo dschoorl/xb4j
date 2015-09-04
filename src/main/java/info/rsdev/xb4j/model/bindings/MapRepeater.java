@@ -117,7 +117,7 @@ public class MapRepeater extends AbstractBinding {
         QName containerElement = getElement();
     	boolean startTagFound = false;
     	if (containerElement != null) {
-    		if (!staxReader.isAtElementStart(containerElement)) {
+    		if (!staxReader.isNextAnElementStart(containerElement)) {
 	    		if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
 	    		} else {
@@ -161,7 +161,7 @@ public class MapRepeater extends AbstractBinding {
         }
         
         //read end of enclosing collection element (if defined)
-        if ((containerElement != null) && !staxReader.isAtElementEnd(containerElement) && startTagFound) {
+        if ((containerElement != null) && !staxReader.isNextAnElementEnd(containerElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
     		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", containerElement,
     				staxReader.getEventName(), encountered), this);

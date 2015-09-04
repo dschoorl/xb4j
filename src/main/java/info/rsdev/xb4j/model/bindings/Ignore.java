@@ -7,6 +7,7 @@ import info.rsdev.xb4j.model.bindings.action.IPhasedAction.ExecutionPhase;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
+import info.rsdev.xb4j.model.java.constructor.IJavaArgument;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
@@ -48,7 +49,7 @@ public class Ignore implements IBinding {
 	@Override
 	public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         QName expectedElement = getElement();
-		if (!staxReader.isAtElementStart(expectedElement)) {
+		if (!staxReader.isNextAnElementStart(expectedElement)) {
     		if (isOptional()) {
                 return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
     		} else {
@@ -60,7 +61,7 @@ public class Ignore implements IBinding {
 
 		//start tag is found: consume and ignore xml stream until end tag and do so for all repeating elements (if any)
 		while(staxReader.skipToElementEnd()) {
-		    if (!staxReader.isAtElementStart(expectedElement)) {
+		    if (!staxReader.isNextAnElementStart(expectedElement)) {
 		        break;
 		    }
 		}
@@ -278,5 +279,11 @@ public class Ignore implements IBinding {
 	public void resolveReferences() {
 		//there are no child bindings to resolve references for... nothing to do
 	}
+
+    @Override
+    public IJavaArgument findArgumentBindingOrAttribute(QName argumentQName) {
+        //this implementation ignores all xml as of this point; therfore, there no IJavaArgument in this xml tree is read
+        return null;
+    }
 	
 }

@@ -15,6 +15,9 @@
 package info.rsdev.xb4j.model.java.constructor;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
+import info.rsdev.xb4j.model.bindings.IBinding;
+import info.rsdev.xb4j.model.bindings.UnmarshallResult;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.Marker;
 
@@ -50,9 +53,9 @@ public class ArgsConstructor implements ICreator, XMLStreamConstants {
 	}
 	
 	@Override
-	public Object newInstance(RecordAndPlaybackXMLStreamReader staxReader) {
+	public Object newInstance(IBinding caller, RecordAndPlaybackXMLStreamReader staxReader) {
 		try {
-			Object[] argumentValues = readArguments(staxReader);
+			Object[] argumentValues = readArguments(caller, staxReader);
 			Constructor<?> constructorToUse = getConstructor(argumentValues);
 			return constructorToUse.newInstance(argumentValues);
 		} catch (Exception e) {
@@ -117,7 +120,7 @@ public class ArgsConstructor implements ICreator, XMLStreamConstants {
 	 * @return
 	 * @throws XMLStreamException
 	 */
-	private Object[] readArguments(RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
+	private Object[] readArguments(IBinding caller, RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
 		if (!staxReader.isAtElement()) {
 			throw new IllegalStateException("Not at the start of an element; cannot read constructor arguments");
 		}
@@ -125,12 +128,22 @@ public class ArgsConstructor implements ICreator, XMLStreamConstants {
 		QName currentName = staxReader.getName();
 		for (int i=0; i<pathNames.length; i++) {
 			Marker currentLocation = staxReader.startRecording();
-			String argumentValue = null;
-			if (moveToChild(staxReader, pathNames[i], currentName)) {
-				argumentValue = staxReader.getElementText();
+			try {
+    			Object argumentValue = null;
+    			if (moveToChild(staxReader, pathNames[i], currentName)) {
+    			    //Find accompanying element/attribute definition that could contain conversion rules
+    			    IJavaArgument constructorArg = findBinding(caller, pathNames[i]);
+    			    UnmarshallResult result = constructorArg.getParameterValue(staxReader, null);
+    			    if (result.isUnmarshallSuccessful()) {
+    			        argumentValue = result.getUnmarshalledObject();
+    			    } else {
+    			        throw new Xb4jUnmarshallException(result.getErrorMessage(), result.getFaultyBinding());
+    			    }
+    			}
+    			arguments[i] = argumentValue;
+			} finally {
+			    staxReader.rewindAndPlayback(currentLocation);
 			}
-			arguments[i] = argumentValue;
-			staxReader.rewindAndPlayback(currentLocation);
 		}
 		return arguments;
 	}
@@ -150,6 +163,14 @@ public class ArgsConstructor implements ICreator, XMLStreamConstants {
 			}
 		}
 		return false;	//child not in remainder of xml document
+	}
+	
+	private IJavaArgument findBinding(IBinding startingPoint, QName target) {
+	    IJavaArgument argumentBinding = startingPoint.findArgumentBindingOrAttribute(target);
+	    if (argumentBinding != null) {
+	        return argumentBinding;
+	    }
+	    return NoArgument.INSTANCE;
 	}
 	
 	@Override

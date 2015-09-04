@@ -1,4 +1,4 @@
-/* Copyright 2012 Red Star Development / Dave Schoorl
+/* Copyright 2015 Red Star Development / Dave Schoorl
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,21 @@
  */
 package info.rsdev.xb4j.model.java.constructor;
 
-import info.rsdev.xb4j.model.bindings.IBinding;
+import info.rsdev.xb4j.model.bindings.UnmarshallResult;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 
-/**
- * {@link ICreator} implementation to support null-safe operations when no ICreator is needed, but we do not want to check for
- * null when calling methods on the creator.
- *  
- * @author Dave Schoorl
- */
-public final class NullCreator implements ICreator {
-	
-	public static final NullCreator INSTANCE = new NullCreator();
-	
-	private NullCreator() {}
-	
-	@Override
-	public Object newInstance(IBinding caller, RecordAndPlaybackXMLStreamReader staxReader) {
-		return null;
-	}
-	
-	@Override
-	public Class<?> getJavaType() {
-		return Object.class;
-	}
-	
+import javax.xml.stream.XMLStreamException;
+
+public class NoArgument implements IJavaArgument {
+    
+    public static final NoArgument INSTANCE = new NoArgument();
+
+    @Override
+    public UnmarshallResult getParameterValue(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext)
+            throws XMLStreamException {
+        
+        return UnmarshallResult.NO_RESULT;
+    }
+
 }

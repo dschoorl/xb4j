@@ -26,6 +26,7 @@ import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
+import info.rsdev.xb4j.model.java.constructor.IJavaArgument;
 import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
@@ -178,7 +179,7 @@ public abstract class AbstractBinding implements IBinding {
     
     @Override
 	public JavaContext newInstance(RecordAndPlaybackXMLStreamReader staxReader, JavaContext currentContext) {
-		JavaContext newContext = currentContext.newContext(objectCreator.newInstance(staxReader));
+		JavaContext newContext = currentContext.newContext(objectCreator.newInstance(this, staxReader));
 		newContext = this.actionManager.executeActions(ExecutionPhase.AFTER_OBJECT_CREATION, newContext);
 		return newContext;
 	}
@@ -511,6 +512,20 @@ public abstract class AbstractBinding implements IBinding {
 		}
 	}
 	
-	
+    @Override
+    public IJavaArgument findArgumentBindingOrAttribute(QName argumentQName) {
+        //this implementation looks only at itself (including it's attributes)
+        if (argumentQName.equals(getElement()) && (this instanceof IJavaArgument)) {
+            return (IJavaArgument)this;
+        }
+        
+        for (IAttribute attribute: getAttributes()) {
+            if (argumentQName.equals(attribute.getAttributeName()) && (attribute instanceof IJavaArgument)) {
+                return (IJavaArgument)attribute;
+            }
+        }
+        
+        return null;
+    }
 	
 }

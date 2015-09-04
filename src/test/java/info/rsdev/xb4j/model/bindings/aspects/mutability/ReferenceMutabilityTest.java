@@ -12,34 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.bindings;
+package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
-import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
+import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.bindings.ComplexType;
+import info.rsdev.xb4j.model.bindings.Reference;
+import info.rsdev.xb4j.model.bindings.Root;
 
 import javax.xml.namespace.QName;
 
 import org.junit.Before;
-import org.junit.Test;
 
-public class SimpleFileTypeMutabilityTest extends BaseBindingMutabilityTest<SimpleFileType> {
+public class ReferenceMutabilityTest extends BaseBindingMutabilityTest<Reference> {
 
 	@Before
 	public void setUp() {
+		BindingModel model = new BindingModel();
 		Root root = new Root(new QName("root"), Object.class);
-		immutableElement = new SimpleFileType(new QName("level1"));
+		immutableElement = new Reference(new QName("level1"), "identifier", "namespace");
 		root.setChild(immutableElement);
-		root.makeImmutable();
+		model.register(root);
+		
+		//add ComplexType to BindingModel that can be resolved as well...
+		ComplexType type = new ComplexType("identifier", "namespace");
+		model.register(type, false);
+		
+		root.makeImmutable();	//this will resolve all Reference objects and replace them with a copy of the referenced ComplexType
 	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetCodingtypeFrom() {
-		immutableElement.setCodingtypeFrom(new QName("encodingAttribute"), "Base64");
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetFilenameHintFrom() {
-		immutableElement.setFilenameHintFrom(new QName("filenameAttribute"), "archive.zip");
-	}
-	
 	
 }

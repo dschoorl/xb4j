@@ -12,19 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.bindings;
+package info.rsdev.xb4j.model.bindings.aspects.mutability;
+
+import info.rsdev.xb4j.model.bindings.ElementInjector;
+import info.rsdev.xb4j.model.bindings.Root;
+import info.rsdev.xb4j.test.FixedValueTestAction;
 
 import javax.xml.namespace.QName;
 
 import org.junit.Before;
 
-public class StaticAttributeMutabilityTest extends AbstractAttributeMutabilityTest<StaticAttribute> {
+public class ElementInjectorMutabilityTest extends BaseBindingMutabilityTest<ElementInjector>{
 
 	@Before
 	public void setUp() {
 		Root root = new Root(new QName("root"), Object.class);
-		immutableAttribute = new StaticAttribute(new QName("attrib"), "staticValue");
-		root.addAttribute(immutableAttribute, "hashcode");
+		immutableElement = new ElementInjector(new QName("level1"), FixedValueTestAction.INSTANCE);
+		root.setChild(immutableElement);
 		root.makeImmutable();
 	}
 	

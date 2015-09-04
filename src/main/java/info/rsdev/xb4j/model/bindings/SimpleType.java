@@ -59,7 +59,7 @@ public class SimpleType extends AbstractBinding {
         QName expectedElement = getElement();	//should never be null for a SimpleType
     	boolean startTagFound = false;
     	if (expectedElement != null) {
-    		if (!staxReader.isAtElementStart(expectedElement)) {
+    		if (!staxReader.isCurrentAnElementStart(expectedElement) && !staxReader.isNextAnElementStart(expectedElement)) {
 	    		if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
 	    		} else {
@@ -75,7 +75,7 @@ public class SimpleType extends AbstractBinding {
         Object value = this.converter.toObject(javaContext, staxReader.getElementText());	//this also consumes the end element
         boolean isValueHandled = setProperty(javaContext, value);
         
-    	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
+    	if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
     		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
     				staxReader.getEventName(), encountered), this);

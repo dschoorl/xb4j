@@ -14,11 +14,17 @@
  */
 package info.rsdev.xb4j.test;
 
-public class ObjectA {
+/**
+ * Simple helper class that is subject of marshall/unmarshall in tests. This class has an immutable API and contains a single 
+ * String attribute.
+ * 
+ * @author Dave Schoorl
+ */
+public class ObjectA implements ITestSubject {
     
     private String name = null;
     
-    protected ObjectA() {}
+    ObjectA() {}
     
     public ObjectA(String name) {
         this.name = name;

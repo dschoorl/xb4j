@@ -14,15 +14,12 @@
  */
 package info.rsdev.xb4j.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import info.rsdev.xb4j.test.XMLStreamReaderFactory;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.Marker;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -38,6 +35,15 @@ public class RecordAndPlaybackXMLStreamReaderTest {
 	
     private RecordAndPlaybackXMLStreamReader staxReader = null;
     
+    private static final String snippet = "<?xml version=\"1.0\"?>" + 
+            "<foo:bar xmlns:foo=\"urn:test/baz\">" +
+            "<!--description-->" +
+            "content text" +
+            "<![CDATA[<greeting>Hello</greeting>]]>" +
+            "other content" +
+         "</foo:bar>";
+    private static QName BAR = new QName("urn:test/baz", "bar");
+    
 	@After
 	public void teardown() throws Exception {
 		if (staxReader != null) {
@@ -45,17 +51,19 @@ public class RecordAndPlaybackXMLStreamReaderTest {
 		}
 		staxReader = null;
 	}
+	
+	@Test
+	public void notAtElementStartWhenReadingHasNotStartedYet() throws XMLStreamException, IOException {
+        InputStream stream = new ByteArrayInputStream(snippet.getBytes("UTF-8"));
+        XMLStreamReader staxReader = XMLInputFactory.newInstance().createXMLStreamReader(stream);
+        RecordAndPlaybackXMLStreamReader reader = new RecordAndPlaybackXMLStreamReader(staxReader);
+	    
+        assertTrue(reader.isNextAnElementStart(BAR));
+	}
 
     @Test
-    public void testReadAndRereadFirstElement() throws XMLStreamException {
-        String xml = "<?xml version=\"1.0\"?>" + 
-                "<foo:bar xmlns:foo=\"urn:test/baz\">" +
-   		        "<!--description-->" +
-   		        "content text" +
-   		        "<![CDATA[<greeting>Hello</greeting>]]>" +
-   		        "other content" +
-   		     "</foo:bar>";
-        InputStream stream = new ByteArrayInputStream(xml.getBytes());
+    public void testReadAndRereadFirstElement() throws XMLStreamException, IOException {
+        InputStream stream = new ByteArrayInputStream(snippet.getBytes("UTF-8"));
         XMLStreamReader staxReader = XMLInputFactory.newInstance().createXMLStreamReader(stream);
         RecordAndPlaybackXMLStreamReader reader = new RecordAndPlaybackXMLStreamReader(staxReader);
    
@@ -63,9 +71,8 @@ public class RecordAndPlaybackXMLStreamReaderTest {
         reader.nextTag();
         QName firstElement = reader.getName();
         assertNotNull(firstElement);
-        assertEquals("bar", firstElement.getLocalPart());
         assertEquals("foo", firstElement.getPrefix());
-        assertEquals("urn:test/baz", firstElement.getNamespaceURI());
+        assertEquals(BAR, firstElement);
         assertNull(reader.getAttributes());
         reader.rewindAndPlayback(startMarker);
         reader.nextTag();

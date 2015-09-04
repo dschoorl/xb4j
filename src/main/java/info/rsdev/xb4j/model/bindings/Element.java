@@ -82,7 +82,7 @@ public class Element extends AbstractSingleBinding {
         QName expectedElement = getElement();
     	boolean startTagFound = false;
     	if (expectedElement != null) {
-    		if (!staxReader.isAtElementStart(expectedElement)) {
+    		if (!staxReader.isCurrentAnElementStart(expectedElement) && !staxReader.isNextAnElementStart(expectedElement)) {
 	    		if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
 	    		} else {
@@ -107,7 +107,7 @@ public class Element extends AbstractSingleBinding {
 		}
 		
     	//before processing the result of the unmarshalling, first check if the xml is wellformed
-    	if ((expectedElement != null) && !staxReader.isAtElementEnd(expectedElement) && startTagFound) {
+    	if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
     		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered %s %s", expectedElement,
     				staxReader.getEventName(), encountered), this);

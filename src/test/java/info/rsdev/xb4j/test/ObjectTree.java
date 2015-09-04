@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class ObjectTree {
 	
-	private ObjectA myObject = null;
+	private ITestSubject myObject = null;
 	
 	private List<String> messages = null;
 	
@@ -34,7 +34,7 @@ public class ObjectTree {
 		return this;
 	};
 	
-	public ObjectA getMyObject() {
+	public ITestSubject getMyObject() {
 		return this.myObject;
 	}
 	

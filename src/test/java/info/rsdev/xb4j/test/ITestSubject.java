@@ -1,4 +1,4 @@
-/* Copyright 2013 Red Star Development / Dave Schoorl
+/* Copyright 2015 Red Star Development / Dave Schoorl
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,20 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.bindings;
+package info.rsdev.xb4j.test;
 
-import javax.xml.namespace.QName;
+/**
+ * Marker interface to indicate that a class is a helper class for marshall / unmarshall tests. 
+ */
+public interface ITestSubject {
 
-import org.junit.Before;
-
-public class SimpleTypeMutabilityTest extends BaseBindingMutabilityTest<SimpleType> {
-
-	@Before
-	public void setUp() {
-		Root root = new Root(new QName("root"), Object.class);
-		immutableElement = new SimpleType(new QName("level1"));
-		root.setChild(immutableElement);
-		root.makeImmutable();
-	}
-	
 }

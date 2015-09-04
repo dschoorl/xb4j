@@ -258,34 +258,39 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         return this.currentEvent.eventType;
     }
     
-    public QName getName() throws XMLStreamException {
+    public QName getName() {
         if (this.currentEvent == null) {
-            throw new XMLStreamException("Not the proper moment to call getName()");
+            throw new IllegalStateException("Not the proper moment to call getName()");
         }
         return this.currentEvent.name;
     }
     
+    public boolean isCurrentAnElementStart(QName expectedElement) {
+        //check if the current element matches the question, i.o.w. we do not need to probe the stream
+        return (currentEvent != null) && (getEvent() == START_ELEMENT) && (getName().equals(expectedElement));
+    }
+    
     /**
-     * Check if the next element in the xml file is the start of the element that this binding expects. If not, then the
+     * Check if the next xml-tag in the stream is the start of the element that this binding expects. If not, then the
      * staxReader is positioned prior to the element just read (so it can be re-read),
-     * @param expectedElement
+     * @param expectedElement the QName of the next expected element
      * @return true if this binding should continue processing the current element, false otherwise
      * @throws XMLStreamException any exception from the underlying stax reader is propagated up
      */
-    public boolean isAtElementStart(QName expectedElement) throws XMLStreamException {
-        boolean isAt = isAtElement(expectedElement, XMLStreamReader.START_ELEMENT);
-        if (isAt && logger.isTraceEnabled()) {
+    public boolean isNextAnElementStart(QName expectedElement) throws XMLStreamException {
+        boolean isNext = isNextElement(expectedElement, XMLStreamReader.START_ELEMENT);
+        if (isNext && logger.isTraceEnabled()) {
             logger.trace(String.format("Found expected element <%s> open tag %s", expectedElement, getRowColumn(getLocation())));
         }
-    	return isAt;
+    	return isNext;
     }
     
-    public boolean isAtElementEnd(QName expectedElement) throws XMLStreamException {
-        boolean isAt = isAtElement(expectedElement, XMLStreamReader.END_ELEMENT);
-        if (isAt && logger.isTraceEnabled()) {
+    public boolean isNextAnElementEnd(QName expectedElement) throws XMLStreamException {
+        boolean isNext = isNextElement(expectedElement, XMLStreamReader.END_ELEMENT);
+        if (isNext && logger.isTraceEnabled()) {
             logger.trace(String.format("Found expected element </%s> close tag %s", expectedElement, getRowColumn(getLocation())));
         }
-        return isAt;
+        return isNext;
     }
     
     public boolean skipToElementEnd() throws XMLStreamException {
@@ -385,7 +390,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     	}
     }
     
-    private boolean isAtElement(QName expectedElement, int eventType) throws XMLStreamException {
+    private boolean isNextElement(QName expectedElement, int eventType) throws XMLStreamException {
         if (expectedElement != null) {
         	boolean matchesExpected = false;
         	Marker marker = startRecording();

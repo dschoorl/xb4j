@@ -12,29 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package info.rsdev.xb4j.model.bindings;
+package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
-import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.bindings.Ignore;
+import info.rsdev.xb4j.model.bindings.Root;
 
 import javax.xml.namespace.QName;
 
 import org.junit.Before;
 
-public class ReferenceMutabilityTest extends BaseBindingMutabilityTest<Reference> {
+public class IgnoreMutabilityTest extends BaseBindingMutabilityTest<Ignore> {
 
 	@Before
 	public void setUp() {
-		BindingModel model = new BindingModel();
 		Root root = new Root(new QName("root"), Object.class);
-		immutableElement = new Reference(new QName("level1"), "identifier", "namespace");
+		immutableElement = new Ignore(new QName("level1"));
 		root.setChild(immutableElement);
-		model.register(root);
-		
-		//add ComplexType to BindingModel that can be resolved as well...
-		ComplexType type = new ComplexType("identifier", "namespace");
-		model.register(type, false);
-		
-		root.makeImmutable();	//this will resolve all Reference objects and replace them with a copy of the referenced ComplexType
+		root.makeImmutable();
 	}
 	
 }

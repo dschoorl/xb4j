@@ -30,11 +30,13 @@ import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 public interface ICreator {
     
     /**
-     * 
-     * @param staxReader
+     * Create a new instance of a Java object
+     * @param caller the {@link IBinding} that wants the new Java instance
+     * @param staxReader the xml stream to read and create the Java object from. The reader is positioned at the location that 
+     *      matches the caller
      * @return
      */
-    public Object newInstance(RecordAndPlaybackXMLStreamReader staxReader);
+    public Object newInstance(IBinding caller, RecordAndPlaybackXMLStreamReader staxReader);
     
     /**
      * The Java type that this {@link ICreator} will create with a call to {@link ICreator#newInstance(RecordAndPlaybackXMLStreamReader)}
