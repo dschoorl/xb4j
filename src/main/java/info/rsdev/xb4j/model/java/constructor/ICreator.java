@@ -39,7 +39,7 @@ public interface ICreator {
     public Object newInstance(IBinding caller, RecordAndPlaybackXMLStreamReader staxReader);
     
     /**
-     * The Java type that this {@link ICreator} will create with a call to {@link ICreator#newInstance(RecordAndPlaybackXMLStreamReader)}
+     * The Java type that this {@link ICreator} will create with a call to {@link ICreator#newInstance(IBinding, RecordAndPlaybackXMLStreamReader)}
      * @return the Java type
      */
     public Class<?> getJavaType();
