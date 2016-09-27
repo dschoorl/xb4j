@@ -1,5 +1,6 @@
 TODO
 ----
+- Use builders and immutable instances
 - Use Generics in XmlStreamer (toJava method)
 - add multithreaded locking testcase 
 - lock ISemaphore on copy operations
