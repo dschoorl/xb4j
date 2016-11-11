@@ -1,6 +1,16 @@
+# ignore eclipse related files and directories
 .classpath
 .project
 .settings
-target
-.idea/
+bin
+
+# ignore intellij related files and directories
+.idea
 *.iml
+
+# ignore maven related files and directories
+target
+
+# ignore gradle related files and directories
+build
+.gradle
