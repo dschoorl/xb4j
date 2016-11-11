@@ -6,8 +6,8 @@ version = '0.0.8-SNAPSHOT'
 
 description = """Xml bindings for Java"""
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
 }
