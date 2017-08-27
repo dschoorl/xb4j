@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>[1.5,)</version>
+			<version>[1.5,1.7.99)</version>
 		</dependency>
 		<dependency>
 			<!-- This dependency is only needed when you use the SimpleFileType binding; please

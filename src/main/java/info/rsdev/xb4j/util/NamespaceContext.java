@@ -46,9 +46,9 @@ public class NamespaceContext {
 	 * Register the definition of the given prefix and namespace on the element. The element is assumed to be the current
 	 * element that is being handled. Multiple namespaces can be registered on an element.
 	 *  
-	 * @param element
-	 * @param namespaceUri
-	 * @param prefix Optional prefix for the namespace. When no prefix is supplied
+	 * @param element the element on which the namespace definition will be made
+	 * @param namespaceUri the namespace to register
+	 * @param prefix Optional prefix for the namespace. When no prefix is supplied, one will be generated
 	 * @return the prefix that this namespaceUri is registered under and that should be used to qualify local names 
 	 */
 	public String registerNamespace(QName element, String namespaceUri, String prefix) {
@@ -63,7 +63,7 @@ public class NamespaceContext {
 			return getPrefix(namespaceUri);
 		}
 		
-		if (prefix == null) {
+		if ((prefix == null) || prefix.isEmpty()) {
 			prefix = generatePrefix();
 		}
 		
@@ -103,9 +103,8 @@ public class NamespaceContext {
 		return false;
 	}
 	
-	public void clear() {
-		generatedPrefixCounter = 0;
-		context.clear();
+	int size() {
+	    return this.context.size();
 	}
 	
 	private ContextEntry getOrCreateContextEntry(QName element) {

@@ -33,6 +33,13 @@ public class SimplifiedXMLStreamWriterTest {
 		assertEquals("<Root/>", writer.toString());
 	}
 	
+    @Test
+    public void testWriteEmptyElementWithNamespace() throws Exception {
+        simpleWriter.writeElement(new QName("http://namespace/one", "Root"), true);
+        staxWriter.writeEndDocument();  //this will be done by the binding  model
+        assertEquals("<ns0:Root xmlns:ns0=\"http://namespace/one\"/>", writer.toString());
+    }
+    
 	@Test
 	public void testWriteElementWithText() throws Exception {
 		simpleWriter.writeElement(new QName("Root"), false);
@@ -49,5 +56,23 @@ public class SimplifiedXMLStreamWriterTest {
 		staxWriter.writeEndDocument();	//this will be done by the binding  model
 		assertEquals("<Root attrib=\"true\"/>", writer.toString());
 	}
-
+	
+    @Test
+    public void testWriteAttributeWithNamespace() throws Exception {
+        QName elementName = new QName("Root");
+        simpleWriter.writeElement(elementName, true);
+        simpleWriter.writeAttribute(elementName, new QName("http://ns/attrib", "attrib", "zz"), "true");
+        staxWriter.writeEndDocument();  //this will be done by the binding  model
+        assertEquals("<Root xmlns:zz=\"http://ns/attrib\" zz:attrib=\"true\"/>", writer.toString());
+    }
+    
+    @Test
+    public void testWriteElementAndAttributeWithGeneratedNamespaces() throws Exception {
+        QName elementName = new QName("http://ns/elem", "Root");
+        simpleWriter.writeElement(elementName, true);
+        simpleWriter.writeAttribute(elementName, new QName("http://ns/attrib", "attrib"), "falze");
+        staxWriter.writeEndDocument();  //this will be done by the binding  model
+        assertEquals("<ns0:Root xmlns:ns0=\"http://ns/elem\" xmlns:ns1=\"http://ns/attrib\" ns1:attrib=\"falze\"/>", writer.toString());
+    }
+    
 }

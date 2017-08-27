@@ -72,7 +72,7 @@ public class AttributeTest {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		ObjectA instance = new ObjectA("test");
 		model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
-		assertEquals("<A test:name=\"test\" xmlns:test=\"http://attrib/ns\"/>", stream.toString());
+		assertEquals("<A xmlns:test=\"http://attrib/ns\" test:name=\"test\"/>", stream.toString());
 	}
 	
 }
