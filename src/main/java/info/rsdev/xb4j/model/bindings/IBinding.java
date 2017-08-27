@@ -108,7 +108,7 @@ public interface IBinding {
      */
     public boolean isOptional();
     
-    public IBinding setOptional(boolean isOptional);
+    public <T extends IBinding> T setOptional(boolean isOptional);
     
     public int hashCode();
     

@@ -127,7 +127,7 @@ public class Repeater extends AbstractBinding {
         boolean proceed = true;
         while (proceed) {
         	result = itemBinding.toJava(staxReader, javaCollectionContext);
-            proceed = result.isUnmarshallSuccessful();
+            proceed = result.isUnmarshallSuccessful() && !result.isMissingOptional();
             if (proceed && result.mustHandleUnmarshalledObject()) {
             	//the itemBinding has been given the add-method setter when it was set on this Repeater binding
             	throw new Xb4jException("ItemBinding unexpectedly did not add unmarshalled object to Collection");

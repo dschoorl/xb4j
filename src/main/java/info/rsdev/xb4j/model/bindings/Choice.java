@@ -169,7 +169,7 @@ public class Choice extends AbstractBinding {
 				logger.debug(String.format("[Unmarshal] Trying option %d from %d of %s", optionCounter, choices.size(), this));
 			}
 			result = candidate.toJava(staxReader, getProperty(javaContext));
-			if (result.isUnmarshallSuccessful()) {
+			if (result.isUnmarshallSuccessful() && !result.isMissingOptional()) {   //if result is missing optional element... then...
 				choiceFound = true;
 				if (logger.isDebugEnabled()) {
 					logger.debug(String.format("[Unmarshal] Option %d for %s works out fine -- won't look any further", optionCounter, this));

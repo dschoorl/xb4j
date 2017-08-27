@@ -344,7 +344,9 @@ public abstract class AbstractBinding implements IBinding {
         return this.isOptional;
     }
     
-    public IBinding setOptional(boolean isOptional) {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends IBinding> T setOptional(boolean isOptional) {
 		getSemaphore().lock();
 		try {
 			validateMutability();
@@ -352,7 +354,7 @@ public abstract class AbstractBinding implements IBinding {
 		} finally {
 			getSemaphore().unlock();
 		}
-        return this;
+        return (T)this;
     }
     
     public void attributesToXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
