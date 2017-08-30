@@ -127,13 +127,13 @@ public class Repeater extends AbstractBinding {
         boolean proceed = true;
         while (proceed) {
         	result = itemBinding.toJava(staxReader, javaCollectionContext);
-            proceed = result.isUnmarshallSuccessful() && !result.isMissingOptional();
+            proceed = result.isUnmarshallSuccessful() && (result.getUnmarshalledObject() != null);
             if (proceed && result.mustHandleUnmarshalledObject()) {
             	//the itemBinding has been given the add-method setter when it was set on this Repeater binding
             	throw new Xb4jException("ItemBinding unexpectedly did not add unmarshalled object to Collection");
             }
-            if (proceed) {
-            	occurences++;
+            if (result.isUnmarshallSuccessful()) {
+            	occurences++;  //FIXME: ignored itembindings are counted as occurence
             	if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
             		throw new Xb4jUnmarshallException(String.format("Found %d occurences, but no more than %d are allowed", occurences, maxOccurs), this);
             	}

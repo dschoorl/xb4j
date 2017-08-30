@@ -73,12 +73,6 @@ public class Sequence extends AbstractContainerBinding {
     }
     
     @Override
-    public Sequence setOptional(boolean isOptional) {
-    	super.setOptional(isOptional);
-    	return this;
-    }
-
-    @Override
     public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
     	QName expectedElement = getElement();
     	boolean startTagFound = false;
@@ -94,14 +88,13 @@ public class Sequence extends AbstractContainerBinding {
     		}
     	}
     	
-    	UnmarshallResult result = null;
     	JavaContext newJavaContext = newInstance(staxReader, javaContext);
     	
         attributesToJava(staxReader, select(javaContext, newJavaContext));
 
         for (IBinding child: getChildren()) {
-        	result = child.toJava(staxReader, select(javaContext, newJavaContext));
-        	if (!result.isUnmarshallSuccessful()) {
+            UnmarshallResult result = child.toJava(staxReader, select(javaContext, newJavaContext));
+            if (!result.isUnmarshallSuccessful()) {
         		return result;	//this sequence is incomplete (mandatory elements are missing)
         	}
         	if (result.mustHandleUnmarshalledObject()) {
