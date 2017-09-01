@@ -55,7 +55,7 @@ public class UnboundedChoicesTest {
     }
     
     @Test
-    public void ignoreChoicesInUnboundedMandatoryChoice() throws Exception {
+    public void ignoreChoicesInUnboundedMandatoryChoiCe() throws Exception {
         choice.addOption(new Ignore(new QName("elem1")), NeverChooser.INSTANCE);
         choice.addOption(new Ignore(new QName("elem2")), NeverChooser.INSTANCE);
         
