@@ -27,38 +27,38 @@ import javax.xml.stream.XMLStreamException;
  * @author Dave Schoorl
  */
 public interface IAttribute {
-	
-	public QName getAttributeName();
-	
-	public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException;
-	
-	public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException;
-	
+
+    public QName getAttributeName();
+
+    public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException;
+
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException;
+
     /**
-     * Get the value of this attribute from the {@link JavaContext}, fallback on a possible defaultValue defined by this 
-     * attribute.
-     * 
+     * Get the value of this attribute from the {@link JavaContext}, fallback on
+     * a possible defaultValue defined by this attribute.
+     *
      * @param javaContext
      * @return the value
      */
     public String getValue(JavaContext javaContext);
-    
+
     public Object getProperty(JavaContext javaContext);
-	
-	public boolean setProperty(JavaContext javaContext, Object propertyValue);
-	
-	public IAttribute setGetter(IGetter getter);
-	
-	public IAttribute setSetter(ISetter setter);
-	
-	public boolean isRequired();
-	
-	public IAttribute setRequired(boolean isRequired);
-	
-	public IAttribute setDefault(String defaultValue);
-	
-	public String getDefaultValue();
-	
-	public IAttribute copy(IBinding newParent);
-	
+
+    public boolean setProperty(JavaContext javaContext, Object propertyValue);
+
+    public IAttribute setGetter(IGetter getter);
+
+    public IAttribute setSetter(ISetter setter);
+
+    public boolean isRequired();
+
+    public IAttribute setRequired(boolean isRequired);
+
+    public IAttribute setDefault(String defaultValue);
+
+    public String getDefaultValue();
+
+    public IAttribute copy(IBinding newParent);
+
 }

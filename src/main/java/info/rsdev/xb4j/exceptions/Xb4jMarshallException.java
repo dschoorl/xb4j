@@ -19,29 +19,30 @@ import info.rsdev.xb4j.model.bindings.IBinding;
 
 /**
  * Exception that indicates a problem when marshalling from Java to xml
- * 
+ *
  * @author Dave Schoorl
  */
 public class Xb4jMarshallException extends Xb4jException {
-	
-	private static final long serialVersionUID = 1L;
-	
-	/**
-	 * Don't know what to do with this binding yet, but we could use it to make a better diagnostic message; when it will be used,
-	 * we need to reconsider the transient keyword and realise that the binding basically holds references to the entire 
-	 * {@link BindingModel}
-	 */
-	@SuppressWarnings("unused")
-	private transient IBinding bindingContext = null; 
 
-	public Xb4jMarshallException(String message, IBinding binding) {
-		super(message);
-		this.bindingContext = binding;
-	}
+    private static final long serialVersionUID = 1L;
 
-	public Xb4jMarshallException(String message, IBinding binding, Throwable cause) {
-		super(message, cause);
-		this.bindingContext = binding;
-	}
-	
+    /**
+     * Don't know what to do with this binding yet, but we could use it to make
+     * a better diagnostic message; when it will be used, we need to reconsider
+     * the transient keyword and realize that the binding basically holds
+     * references to the entire {@link BindingModel}
+     */
+    @SuppressWarnings("unused")
+    private transient IBinding bindingContext = null;
+
+    public Xb4jMarshallException(String message, IBinding binding) {
+        super(message);
+        this.bindingContext = binding;
+    }
+
+    public Xb4jMarshallException(String message, IBinding binding, Throwable cause) {
+        super(message, cause);
+        this.bindingContext = binding;
+    }
+
 }

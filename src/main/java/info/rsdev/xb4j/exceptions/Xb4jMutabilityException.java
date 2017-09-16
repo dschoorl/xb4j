@@ -18,22 +18,22 @@ import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.IModelAware;
 
 /**
- * This exception is thrown when bindings in the {@link BindingModel} are being changed that have been
- * marked as immutable.
- * 
+ * This exception is thrown when bindings in the {@link BindingModel} are being
+ * changed that have been marked as immutable.
+ *
  * @author Dave Schoorl
  * @see IModelAware#makeImmutable()
  */
 public class Xb4jMutabilityException extends Xb4jException {
 
     private static final long serialVersionUID = 1L;
-    
+
     public Xb4jMutabilityException(String message) {
         super(message);
     }
-    
+
     public Xb4jMutabilityException(String message, Throwable cause) {
         super(message, cause);
     }
-    
+
 }
