@@ -183,13 +183,14 @@ public class Ignore implements IBinding {
 		return this.isOptional;
 	}
 
-	@Override
-	public IBinding setOptional(boolean isOptional) {
+	@SuppressWarnings("unchecked")
+    @Override
+	public <T extends IBinding> T  setOptional(boolean isOptional) {
 		getSemaphore().lock();
 		try {
 			validateMutability();
 			this.isOptional = isOptional;
-			return this;
+			return (T)this;
 		} finally {
 			getSemaphore().unlock();
 		}

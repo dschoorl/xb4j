@@ -14,6 +14,9 @@
  */
 package info.rsdev.xb4j.model.java.accessor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
@@ -23,19 +26,26 @@ import info.rsdev.xb4j.model.java.JavaContext;
  * @author Dave Schoorl
  */
 public final class NoSetter implements ISetter {
-	
-	public static final NoSetter INSTANCE = new NoSetter();
-	
-	private NoSetter() {}
-	
-	@Override
-	public boolean set(JavaContext javaContext, Object value) {
-		return false;
-	}
-	
-	@Override
-	public String toString() {
-		return NoSetter.class.getSimpleName();
-	}
-	
+    
+    public static final NoSetter INSTANCE = new NoSetter();
+    
+    private Logger logger = LoggerFactory.getLogger(NoSetter.class);
+    
+    private NoSetter() {
+    }
+    
+    @Override
+    public boolean set(JavaContext javaContext, Object propertyValue) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(String.format("[NoSetter] Let parent binding handle value '%s' for object '%s'", propertyValue, 
+                    javaContext.getContextObject()));
+        }
+        return false;
+    }
+    
+    @Override
+    public String toString() {
+        return NoSetter.class.getSimpleName();
+    }
+    
 }

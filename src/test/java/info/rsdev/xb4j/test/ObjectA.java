@@ -42,4 +42,10 @@ public class ObjectA implements ITestSubject {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "ObjectA [name=" + name + "]";
+    }
+
+    
 }

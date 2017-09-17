@@ -38,170 +38,193 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * From the children in this group, only one can be choosen. However, a choice can be placed in a {@link Sequence} and
- * be repeatable.
- * 
+ * From the children in this group, only one can be choosen. However, a choice can be placed in a {@link Sequence} and be
+ * repeatable.
+ *
  * @author Dave Schoorl
  */
 public class Choice extends AbstractBinding {
-	
-	private Logger logger = LoggerFactory.getLogger(Choice.class);
-	
-	private List<IBinding> choices = new LinkedList<IBinding>();
-	private List<IChooser> choosers = new LinkedList<IChooser>();
-	
-	/**
-	 * Create a new {@link Choice}.
-	 */
-	public Choice() {
-		super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
-	}
-	
-    public Choice(QName element) {
-		super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
-    }
-    
-	@Override
-	public IBinding addAttribute(IAttribute attribute, String fieldName) {
-		throw new Xb4jException(String.format("You cannot add attributes to a Choice-binding itself; instead, you must add %s to " +
-				"one of this Choice's options", attribute));
-	}
-	
-	@Override
-	public IBinding addAttribute(IAttribute attribute, IGetter getter, ISetter setter) {
-		throw new Xb4jException(String.format("You cannot add attributes to a Choice-binding itself; instead, you must add %s to " +
-				"one of this Choice's options", attribute));
-	}
-	
-	public <T extends IBinding> T  addOption(T option, String fieldName, IChooser selector) {
-		//Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
-		addOption(option, selector);
-		FieldAccessor provider = new FieldAccessor(fieldName);
-		option.setGetter(provider);
-		option.setSetter(provider);
-		return option;
-	}
-	
-	/**
-	 * Convenience method. The {@link IBinding option} will be registered with this {@link Choice}, and an {@link ContextInstanceOf} 
-	 * will be generated for selection of this choice when marshalling. 
-	 * @param option
-	 * @return
-	 */
-	public <T extends IBinding> T addOption(T option) {
-		Class<?> javaType = option.getJavaType();
-		if (javaType == null) {
-			throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the option '%s' does not define " +
-					"a Java type", option));
-		}
-		return addOption(option, new ContextInstanceOf(javaType));
-	}
-	
+
+    private Logger logger = LoggerFactory.getLogger(Choice.class);
+
     /**
-     * Convenience method. The {@link IBinding option} will be registered with this {@link Choice}, and an {@link ContextInstanceOf} 
-     * will be generated for selection of this choice when marshalling. 
+     * The options to choose from
+     */
+    private List<IBinding> options = new LinkedList<IBinding>();
+    
+    /**
+     * Helpers to choose the correct binding when marshalling. The indexes of the choosers correspond with the indexes
+     * of the {@link #options}
+     */
+    private List<IChooser> choosers = new LinkedList<IChooser>();
+
+    /**
+     * Create a new {@link Choice}.
+     */
+    public Choice() {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
+    }
+
+    public Choice(QName element) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
+    }
+
+    @Override
+    public IBinding addAttribute(IAttribute attribute, String fieldName) {
+        throw new Xb4jException(String.format("You cannot add attributes to a Choice-binding itself; instead, you must add %s to "
+                + "one of this Choice's options", attribute));
+    }
+
+    @Override
+    public IBinding addAttribute(IAttribute attribute, IGetter getter, ISetter setter) {
+        throw new Xb4jException(String.format("You cannot add attributes to a Choice-binding itself; instead, you must add %s to "
+                + "one of this Choice's options", attribute));
+    }
+
+    public <T extends IBinding> T addOption(T option, String fieldName, IChooser selector) {
+        //Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
+        addOption(option, selector);
+        FieldAccessor provider = new FieldAccessor(fieldName);
+        option.setGetter(provider);
+        option.setSetter(provider);
+        return option;
+    }
+
+    /**
+     * Convenience method. The {@link IBinding option} will be registered with this {@link Choice}, and an {@link ContextInstanceOf}
+     * will be generated for selection of this choice when marshalling.
+     *
+     * @param option
+     * @return
+     */
+    public <T extends IBinding> T addOption(T option) {
+        Class<?> javaType = option.getJavaType();
+        if (javaType == null) {
+            throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the option '%s' does not define "
+                    + "a Java type", option));
+        }
+        return addOption(option, new ContextInstanceOf(javaType));
+    }
+
+    /**
+     * Convenience method. The {@link IBinding option} will be registered with this {@link Choice}, and an {@link ContextInstanceOf}
+     * will be generated for selection of this choice when marshalling.
+     *
      * @param option
      * @return
      */
     public <T extends IBinding> T addOption(T option, String fieldName) {
         Class<?> javaType = option.getJavaType();
         if (javaType == null) {
-            throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the option '%s' does not define " +
-                    "a Java type", option));
+            throw new Xb4jException(String.format("Cannot generate InstanceOfChooser, because the option '%s' does not define "
+                    + "a Java type", option));
         }
         return addOption(option, fieldName, new ContextInstanceOf(javaType));
     }
-    
-	public <T extends IBinding> T addOption(T option, IChooser selector) {
-		getSemaphore().lock();
-		try {
-			validateMutability();
-			option.setParent(this); //maintain bidirectional relationship
-			choices.add(option);
-			choosers.add(selector);
-			return option;
-		} finally {
-			getSemaphore().unlock();
-		}
-	}
-	
-	private IBinding selectBinding(JavaContext javaContext) {
-		for (int i=0; i<choosers.size(); i++) {
-			IChooser candidate = choosers.get(i);
-			if (logger.isDebugEnabled()) {
-				logger.debug(String.format("[Marshal] Trying option %d (%s) of %s", i+1, candidate, this));
-			}
-			if (candidate.matches(javaContext)) {
-				IBinding selectedBinding = choices.get(i);
-				if (logger.isDebugEnabled()) {
-					logger.debug(String.format("[Marshal] Option %d (%s) selected, taking route: %s", i+1, candidate, selectedBinding));
-				}
-				return selectedBinding;
-			} else if (logger.isDebugEnabled()) {
-				logger.debug(String.format("[Marshal] Option %d (%s) is not a match for %s:", i+1, candidate, this));
-			}
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
+
+    public <T extends IBinding> T addOption(T option, IChooser selector) {
+        if (option == null) {
+            throw new Xb4jException("Option cannot be null");
+        }
+        if (selector == null) {
+            throw new Xb4jException("IChooser cannot be null");
+        }
+        getSemaphore().lock();
+        try {
+            validateMutability();
+            option.setParent(this); //maintain bidirectional relationship
+            options.add(option);
+            choosers.add(selector);
+            return option;
+        } finally {
+            getSemaphore().unlock();
+        }
+    }
+
+    private IBinding selectBinding(JavaContext javaContext) {
+        for (int i = 0; i < choosers.size(); i++) {
+            IChooser candidate = choosers.get(i);
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("[Marshal] Trying option %d (%s) of %s", i + 1, candidate, this));
+            }
+            if (candidate.matches(javaContext)) {
+                IBinding selectedBinding = options.get(i);
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("[Marshal] Option %d (%s) selected, taking route: %s", i + 1, candidate, selectedBinding));
+                }
+                return selectedBinding;
+            } else if (logger.isDebugEnabled()) {
+                logger.debug(String.format("[Marshal] Option %d (%s) is not a match for %s:", i + 1, candidate, this));
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
-    	boolean startTagFound = false;
-    	if (expectedElement != null) {
-    		if (!staxReader.isNextAnElementStart(expectedElement)) {
-	    		if (!isOptional()) {
-	    			return UnmarshallResult.newMissingElement(this);
-	    		}
-    		} else {
-    			startTagFound = true;
-    		}
-    	}
-        
-        //Should we start recording to return to this element when necessary - currently this is responsibility of choices
-        boolean choiceFound = false;
+        boolean startTagFound = false;
+        if (expectedElement != null) {
+            if (!staxReader.isNextAnElementStart(expectedElement)) {
+                if (!isOptional()) {
+                    return UnmarshallResult.newMissingElement(this);
+                }
+            } else {
+                startTagFound = true;
+            }
+        }
+
+        //Should we start recording to return to this element when necessary - currently this is responsibility of the options
+        boolean matchingOptionFound = false;
         UnmarshallResult result = null;
         int optionCounter = 1;
-		for (IBinding candidate: choices) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(String.format("[Unmarshal] Trying option %d from %d of %s", optionCounter, choices.size(), this));
-			}
-			result = candidate.toJava(staxReader, getProperty(javaContext));
-			if (result.isUnmarshallSuccessful() && !result.isMissingOptional()) {   //if result is missing optional element... then...
-				choiceFound = true;
-				if (logger.isDebugEnabled()) {
-					logger.debug(String.format("[Unmarshal] Option %d for %s works out fine -- won't look any further", optionCounter, this));
-				}
-				if (result.mustHandleUnmarshalledObject()) {
-					if (setProperty(javaContext, result.getUnmarshalledObject())) {
-						result.setHandled();
-					}
-				}
-				break;	//TODO: check ambiguity?
-			} else if (logger.isDebugEnabled()) {
-				logger.debug(String.format("[Unmarshal] Option %d is not a match for %s: %s", optionCounter, this, result.getErrorMessage()));
-			}
-			optionCounter++;
-		}
-		
-		if (!choiceFound && !isOptional()) {
-			return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR, String.format("No matching option found in xml for mandatory %s", this), this);
-		}
-		
-        if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {
-    		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
-    		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
-    				staxReader.getEventName(), encountered), this);
+        for (IBinding candidate : options) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("[Unmarshal] Trying option %d from %d of %s", optionCounter, options.size(), this));
+            }
+            result = candidate.toJava(staxReader, getProperty(javaContext));
+            if (result.isUnmarshallSuccessful() && result.hasUnmarshalledObject()) {
+                matchingOptionFound = true;
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("[Unmarshal] Option %d for %s works out fine -- won't look any further", optionCounter, this));
+                }
+                if (result.mustHandleUnmarshalledObject()) {
+                    if (setProperty(javaContext, result.getUnmarshalledObject())) {
+                        result.setHandled();
+                    }
+                }
+                
+                /* Do not validate if more options match, because that could be a plausible situation, when a 
+                 * Choice is placed in a repeating binding, such as a Repeater (to simulate unbounded choices)
+                 */
+                break;
+            } else if (logger.isDebugEnabled()) {
+                logger.debug(String.format("[Unmarshal] Option %d is not a match for %s: %s", optionCounter, this, result.getErrorMessage()));
+            }
+            optionCounter++;
         }
-		return result;
-	}
-	
-	@Override
-	public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-		if (!generatesOutput(javaContext)) { return; }
-		
+
+        if (!matchingOptionFound && !isOptional()) {
+            return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR, String.format("No matching option found in xml for mandatory %s", this), this);
+        }
+
+        if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {
+            String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
+            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+                    staxReader.getEventName(), encountered), this);
+        }
+        
+        return result;
+    }
+
+    @Override
+    public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
+        if (!generatesOutput(javaContext)) {
+            return;
+        }
+
         //mixed content is not yet supported -- there are either child elements or there is content
         QName element = getElement();
         javaContext = getProperty(javaContext);
@@ -211,40 +234,40 @@ public class Choice extends AbstractBinding {
             staxWriter.writeElement(element, isEmptyElement);
             attributesToXml(staxWriter, javaContext);
         }
-        
+
         if (selected != null) {
             selected.toXml(staxWriter, javaContext);
         }
-        
+
         if (!isEmptyElement && (element != null)) {
             staxWriter.closeElement(element);
         }
-	}
-	
-	@Override
-	public boolean generatesOutput(JavaContext javaContext) {
-		//a quick check: when the element is not optional or it has attributes, generate output, regardless if the element has content
-		if ((getElement() != null) && (hasAttributes() || !isOptional())) {
-			return true;
-		}
-		
-		//check if the element has any contents
-        javaContext = getProperty(javaContext);
-		if (javaContext != null) {
-			IBinding child = selectBinding(javaContext);
-			if ((child != null) && child.generatesOutput(javaContext)) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
+    }
 
-	@Override
-	public void resolveReferences() {
-		for (IBinding choice: choices) {
-			choice.resolveReferences();
-		}
-	}
-	
+    @Override
+    public boolean generatesOutput(JavaContext javaContext) {
+        //a quick check: when the element is not optional or it has attributes, generate output, regardless if the element has content
+        if ((getElement() != null) && (hasAttributes() || !isOptional())) {
+            return true;
+        }
+
+        //check if the element has any contents
+        javaContext = getProperty(javaContext);
+        if (javaContext != null) {
+            IBinding child = selectBinding(javaContext);
+            if ((child != null) && child.generatesOutput(javaContext)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void resolveReferences() {
+        for (IBinding choice : options) {
+            choice.resolveReferences();
+        }
+    }
+
 }

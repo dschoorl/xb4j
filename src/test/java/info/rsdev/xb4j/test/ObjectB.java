@@ -42,4 +42,9 @@ public class ObjectB implements ITestSubject {
         this.value = newValue;
     }
 
+    @Override
+    public String toString() {
+        return "ObjectB [value=" + value + "]";
+    }
+
 }

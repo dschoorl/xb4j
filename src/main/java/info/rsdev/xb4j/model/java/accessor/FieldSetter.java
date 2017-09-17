@@ -19,26 +19,36 @@ import info.rsdev.xb4j.model.java.JavaContext;
 
 import java.lang.reflect.Field;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Set the value of a class property by accessing it's {@link Field} by fieldname
+ * 
  * @author Dave Schoorl
  */
 public class FieldSetter extends AbstractFieldAccessor implements ISetter {
-	
-	public FieldSetter(String fieldName) {
-		super(fieldName);
-	}
-	
-	@Override
-	public boolean set(JavaContext javaContext, Object propertyValue) {
-		try {
-			Object contextObject = javaContext.getContextObject();
-			getField(contextObject.getClass(), getFieldname()).set(contextObject, propertyValue);
-			return true;
-		} catch (Exception e) {
-			throw new Xb4jException(String.format("Could not set field '%s' with value '%s' in object '%s'", 
-					getFieldname(), propertyValue, javaContext.getContextObject()), e);
-		}
-	}
-	
+    
+    private Logger logger = LoggerFactory.getLogger(FieldSetter.class);
+    
+    public FieldSetter(String fieldName) {
+        super(fieldName);
+    }
+    
+    @Override
+    public boolean set(JavaContext javaContext, Object propertyValue) {
+        try {
+            Object contextObject = javaContext.getContextObject();
+            if (logger.isTraceEnabled()) {
+                logger.trace(String.format("[FieldSetter] Set field '%s' with value '%s' in object '%s'", getFieldname(),
+                        propertyValue, javaContext.getContextObject()));
+            }
+            getField(contextObject.getClass(), getFieldname()).set(contextObject, propertyValue);
+            return true;
+        } catch (Exception e) {
+            throw new Xb4jException(String.format("Could not set field '%s' with value '%s' in object '%s'", getFieldname(),
+                    propertyValue, javaContext.getContextObject()), e);
+        }
+    }
+    
 }
