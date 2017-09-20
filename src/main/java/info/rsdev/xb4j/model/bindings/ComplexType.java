@@ -53,7 +53,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      * not. A complex type is made immutable, when it is linked to a
      * {@link Reference} type (useualy the first time it is used to
      * marshall/unmarshall, so that it can be used in a threadsafe manner. When
-     * a {@link #copy(QName)} is made, the copy is mutable again.
+     * a {@link #copy()} is made, the copy is mutable again.
      */
     private AtomicBoolean isImmutable = new AtomicBoolean(false);
 
@@ -174,13 +174,13 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 		 * otherwise it is set on the existing context object. However, if the new context object is not null, it could be that
 		 * it must be set on the existing context object or being handled by the parent binding 
          */
-        if (setProperty(javaContext, newJavaContext.getContextObject())) {
-            return new UnmarshallResult(newJavaContext.getContextObject(), true);
-        }
-
         if (newJavaContext.getContextObject() != null) {
+            if (setProperty(javaContext, newJavaContext.getContextObject())) {
+                return new UnmarshallResult(newJavaContext.getContextObject(), true);
+            }
             return new UnmarshallResult(newJavaContext.getContextObject());
         }
+
         return result;
     }
 
@@ -229,7 +229,6 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      * Copy the ComplexTypeHierarchy and place it as a child under the supplied
      * {@link Reference parent}
      *
-     * @param complexTypeReference the parent in the hierarchy
      * @return a copy of this {@link ComplexType}
      */
     ComplexType copy() {

@@ -123,9 +123,10 @@ public class Sequence extends AbstractContainerBinding {
             if (setProperty(javaContext, newJavaContext.getContextObject())) {
                 return new UnmarshallResult(newJavaContext.getContextObject(), true);
             }
+            return new UnmarshallResult(newJavaContext.getContextObject());
         }
-        
-        return new UnmarshallResult(newJavaContext.getContextObject());
+
+        return UnmarshallResult.NO_RESULT;
     }
 
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {

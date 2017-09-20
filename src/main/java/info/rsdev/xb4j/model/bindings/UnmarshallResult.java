@@ -42,7 +42,7 @@ public class UnmarshallResult implements ErrorCodes {
     /**
      * A Singleton instance that indicates that the unmarshalling process was successfull, but yielded no Java result object
      */
-    public static final UnmarshallResult NO_RESULT = new UnmarshallResult(null) {
+    public static final UnmarshallResult NO_RESULT = new UnmarshallResult(null, true) {
         @Override
         public UnmarshallResult setHandled() {
             throw new UnsupportedOperationException("The NO_RESULT UnmarshallResult Singleton is immutable");
