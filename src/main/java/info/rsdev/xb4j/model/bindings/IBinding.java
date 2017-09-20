@@ -28,116 +28,160 @@ import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
-
 /**
- * This interface defines how to transform from Java instance to xml and visa versa, regardless whether the binding represents
- * a single element or a group of elements.
- * 
+ * This interface defines how to transform from Java instance to xml and visa
+ * versa, regardless whether the binding represents a single element or a group
+ * of elements. 
+ *
  * @author Dave Schoorl
  */
-public interface IBinding {
-    
-    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException;
-    
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException;
-    
+public interface
+IBinding {
+
     /**
-     * Determine if the binding will output anything to xmlStream, so that we can know if we have to output an empty mandatory 
-     * container tag, or suppress an empty optional container tag. Or, ofcourse, output a non-empty element to the xml stream.
+     * Read the xml from the staxReader and produce the Java instance that it binds to.  
+     * @param staxReader
+     * @param javaContext the {@link JavaContext} to operate on
+     * @return the {@link UnmarshallResult} from this binding. 
+     * @throws XMLStreamException
+     */
+    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException;
+
+    /**
+     *
+     * @param staxWriter
+     * @param javaContext
+     * @throws XMLStreamException
+     */
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException;
+
+    /**
+     * Determine if the binding will output anything to xmlStream, so that we
+     * can know if we have to output an empty mandatory container tag, or
+     * suppress an empty optional container tag. Or, ofcourse, output a
+     * non-empty element to the xml stream.
+     *
      * @param javaContext
      * @return
      */
     public boolean generatesOutput(JavaContext javaContext);
-    
+
     /**
-     * Bindings are organized in a hierarchy. Call setParent to build the hierarchy of bindings.
-     * @param parent the parent {@link IBinding} that this binding is a child of.
+     * Bindings are organized in a hierarchy. Call setParent to build the
+     * hierarchy of bindings.
+     *
+     * @param parent the parent {@link IBinding} that this binding is a child
+     * of.
      */
     public void setParent(IBinding parent);
-    
-    public IBinding getParent();
-    
-    public QName getElement();
-    
-    public IBinding addAttribute(IAttribute attribute, String fieldName);
-    
-    public IBinding addAttribute(IAttribute attribute, IGetter getter, ISetter setter);
-    
-    public Class<?> getJavaType();
-    
+
     /**
-     * Get the {@link JavaContext} that will be passed on to nested bindings. The new JavaContext is based on the currentContext,
-     * meaning that any external context objects are passed on, and the context object is set with the value created by this
-     * binding. If this binding does not create a new context object, then the value will be set to null.
-     * @param staxReader the xml stream that is currently read. It may be necessary to determine which java type must be created, E.g. in case of a choice
-     * @param currentContext the current JavaContext that was passed on to this binding
-     * @return a new {@link JavaContext} with the context object created by this binding or null when no contex object is created
+     * 
+     * @return 
+     */
+    public IBinding getParent();
+
+    public QName getElement();
+
+    public IBinding addAttribute(IAttribute attribute, String fieldName);
+
+    public IBinding addAttribute(IAttribute attribute, IGetter getter, ISetter setter);
+
+    public Class<?> getJavaType();
+
+    /**
+     * Get the {@link JavaContext} that will be passed on to nested bindings.
+     * The new JavaContext is based on the currentContext, meaning that any
+     * external context objects are passed on, and the context object is set
+     * with the value created by this binding. If this binding does not create a
+     * new context object, then the value will be set to null.
+     *
+     * @param staxReader the xml stream that is currently read. It may be
+     * necessary to determine which java type must be created, E.g. in case of a
+     * choice
+     * @param currentContext the current JavaContext that was passed on to this
+     * binding
+     * @return a new {@link JavaContext} with the context object created by this
+     * binding or null when no contex object is created
      */
     public JavaContext newInstance(RecordAndPlaybackXMLStreamReader staxReader, JavaContext currentContext);
-    
+
     public Object getProperty(JavaContext javaContext);
-    
+
     public boolean setProperty(JavaContext javaContext, Object propertyValue);
-    
+
     /**
-     * The implementation of an {@link IGetter} to be used when the binding wants to obtain the Java instance that needs 
-     * to be marshalled from the current Java context in {@link #getProperty(JavaContext)} 
-     * @param getter the {@link IGetter} implementation to use. Use {@link NoGetter#INSTANCE} when the Java context 
-     * 		need not be changed
+     * The implementation of an {@link IGetter} to be used when the binding
+     * wants to obtain the Java instance that needs to be marshalled from the
+     * current Java context in {@link #getProperty(JavaContext)}
+     *
+     * @param getter the {@link IGetter} implementation to use. Use
+     * {@link NoGetter#INSTANCE} when the Java context need not be changed
      * @return this {@link IBinding}
      */
     public IBinding setGetter(IGetter getter);
-    
+
     /**
-     * The implementation of an {@link ISetter} to be used when the binding wants to process it's unmarshalled result
-     * through the {@link #setProperty(JavaContext, Object)} method.
-     * 
-     * @param setter the {@link ISetter} implementation to use. Use {@link NoSetter#INSTANCE} when the unmarshalled result 
-     * 		must not be handled by this {@link IBinding}, but by one of it's ancestors in the binding tree. 
+     * The implementation of an {@link ISetter} to be used when the binding
+     * wants to process it's unmarshalled result through the
+     * {@link #setProperty(JavaContext, Object)} method.
+     *
+     * @param setter the {@link ISetter} implementation to use. Use
+     * {@link NoSetter#INSTANCE} when the unmarshalled result must not be
+     * handled by this {@link IBinding}, but by one of it's ancestors in the
+     * binding tree.
      * @return this {@link IBinding}
      */
     public IBinding setSetter(ISetter setter);
-    
+
     public IBinding addAction(IPhasedAction action);
-    
+
     /**
-     * Whether a binding is optional, is only relevant when it has an xml representation. Checking for presence of an element 
-     * in this binding definition must be done by the developer where applicable, prior to calling this method. This method 
-     * simply returns the value of the isOptional indicator.
-     * @return true if the element (when applicable) can appear in the xml, false if it must appear in the xml
+     * Whether a binding is optional, is only relevant when it has an xml
+     * representation. Checking for presence of an element in this binding
+     * definition must be done by the developer where applicable, prior to
+     * calling this method. This method simply returns the value of the
+     * isOptional indicator.
+     *
+     * @return true if the element (when applicable) can appear in the xml,
+     * false if it must appear in the xml
      */
     public boolean isOptional();
-    
+
     public <T extends IBinding> T setOptional(boolean isOptional);
-    
+
     public int hashCode();
-    
+
     public boolean equals(Object obj);
-    
+
     public String getPath();
-    
+
     /**
-     * Get the {@link ISemaphore} instance that is at the root of the binding tree that this binding belongs to. If the binding
-     * does not belong to a binding tree yet, a {@link NullSafeSemaphore} instance should be returned, to support threadsafe
-     * operations on this binding tree.
-     * 
-     * @return An {@link ISemaphore} instance that represent the root of the binding tree, or {@link NullSafeSemaphore} when the
-     * 		root is not an instance of {@link ISemaphore} 
+     * Get the {@link ISemaphore} instance that is at the root of the binding
+     * tree that this binding belongs to. If the binding does not belong to a
+     * binding tree yet, a {@link NullSafeSemaphore} instance should be
+     * returned, to support threadsafe operations on this binding tree.
+     *
+     * @return An {@link ISemaphore} instance that represent the root of the
+     * binding tree, or {@link NullSafeSemaphore} when the root is not an
+     * instance of {@link ISemaphore}
      */
     public ISemaphore getSemaphore();
-    
+
     public IModelAware getModelAware();
-    
+
     public void validateMutability();
-    
+
     public void resolveReferences();
-    
+
     /**
-     * Search the binding tree for the {@link IBinding} or {@link IAttribute} that can create the java object that
-     * is required as an argument by an {@link ICreator} implementation. 
-     * 
-     * @param argumentQName the element or attribute name that identifies the xml snippet to unmarshall to the IJavaArgument
+     * Search the binding tree for the {@link IBinding} or {@link IAttribute}
+     * that can create the java object that is required as an argument by an
+     * {@link ICreator} implementation.
+     *
+     * @param argumentQName the element or attribute name that identifies the
+     * xml snippet to unmarshall to the IJavaArgument
      */
     public IJavaArgument findArgumentBindingOrAttribute(QName argumentQName);
-    
+
 }

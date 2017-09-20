@@ -106,7 +106,7 @@ public class Element extends AbstractSingleBinding {
 			return result;	//let error bubble up
 		}
 		
-    	//before processing the result of the unmarshalling, first check if the xml is wellformed
+    	//before processing the result of the unmarshalling, first check if the xml is well-formed
     	if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {
     		String encountered =  (staxReader.isAtElement()?String.format("(%s)", staxReader.getName()):"");
     		throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered %s %s", expectedElement,
@@ -131,7 +131,11 @@ public class Element extends AbstractSingleBinding {
     		}
     	}
     	
-    	return new UnmarshallResult(newJavaContext.getContextObject());
+        if (newJavaContext.getContextObject() != null) {
+            return new UnmarshallResult(newJavaContext.getContextObject());
+        }
+        
+        return result!=null?result:UnmarshallResult.NO_RESULT;
     }
     
     @Override
