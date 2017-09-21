@@ -42,12 +42,14 @@ public class UnmarshallResult implements ErrorCodes {
     /**
      * A Singleton instance that indicates that the unmarshalling process was successfull, but yielded no Java result object
      */
-    public static final UnmarshallResult NO_RESULT = new UnmarshallResult(null, true) {
+    public static final UnmarshallResult NO_RESULT = new UnmarshallResult(null) {
         @Override
         public UnmarshallResult setHandled() {
             throw new UnsupportedOperationException("The NO_RESULT UnmarshallResult Singleton is immutable");
         }
     };
+    
+    public static final UnmarshallResult VOID_RESULT = new UnmarshallResult(Void.TYPE, true);
 
     /**
      * errorCode is a code that indicates the type of error. There are two codes known by this class: (1) a missing optional element
@@ -161,6 +163,16 @@ public class UnmarshallResult implements ErrorCodes {
     public Integer getErrorCode() {
         return errorCode;
     }
+    
+    /**
+     * Check if the unmarshall has resulted in an error code. For clarity: this includes a missing optional element.
+     * @return true if an error code is set on this {@link UnmarshallResult}, false otherwise
+     */
+    public boolean isError() {
+        return errorCode != null;
+    }
+
+
 
     /**
      * Get the binding context where the error occurred
@@ -234,9 +246,9 @@ public class UnmarshallResult implements ErrorCodes {
     @Override
     public String toString() {
         if (errorCode != null) {
-            return String.format("%s[error=%s, message=%s]", getClass().getSimpleName(), errorCode, errorMessage);
+            return String.format("UnmarshallResult[error=%s, message=%s]", errorCode, errorMessage);
         }
-        return String.format("%s[result=%s, handled=%b]", getClass().getSimpleName(), unmarshalledObject, unmarshalledObjectIsHandled);
+        return String.format("UnmarshallResult[result=%s, handled=%b]", unmarshalledObject, unmarshalledObjectIsHandled);
     }
 
 }

@@ -24,7 +24,6 @@ import info.rsdev.xb4j.test.ObjectB;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.XmlStreamFactory;
 
-@org.junit.Ignore("Nu even niet!!!")
 public class UnboundedChoicesTest {
 
     private Repeater repeater = null;
@@ -44,7 +43,7 @@ public class UnboundedChoicesTest {
         choice.addOption(new Element(new QName("elem2"), ObjectB.class));
 
         //run test
-        ArrayList<?> collection = unmarshall("<list><elem1 /><elem2 /><elem1 /></list>");
+        ArrayList<?> collection = unmarshall("<list>\n<elem1 />\n<elem2 />\n<elem1 />\n</list>\n");
 
         //assert
         assertEquals(3, collection.size());
@@ -54,26 +53,26 @@ public class UnboundedChoicesTest {
     }
 
     @Test
-    public void ignoreChoicesInUnboundedMandatoryChoice() throws Exception {
+    public void ignoreChoicesInUnboundedMandatoryChoiceAndOptions() throws Exception {
         choice.addOption(new Ignore(new QName("elem1")), NeverChooser.INSTANCE);
         choice.addOption(new Ignore(new QName("elem2")), NeverChooser.INSTANCE);
 
         //run test
-        ArrayList<?> collection = unmarshall("<list><elem1 /><elem2 /><elem1 /></list>");
+        ArrayList<?> collection = unmarshall("<list>\n<elem1 />\n<elem2 />\n<elem1 />\n</list>\n");
 
         //assert
         assertEquals(0, collection.size());
     }
 
     @Test
-    public void ignoreChoicesInUnboundedOptionalChoice() throws Exception {
+    public void ignoreChoicesInUnboundedOptionalChoiceAndMandatoryOptions() throws Exception {
         repeater.setOptional(true);
         choice.setOptional(true);
         choice.addOption(new Ignore(new QName("elem1"), true), NeverChooser.INSTANCE);
         choice.addOption(new Ignore(new QName("elem2"), true), NeverChooser.INSTANCE);
 
         //run test
-        ArrayList<?> collection = unmarshall("<list><elem1 /><elem2 /><elem1 /></list>");
+        ArrayList<?> collection = unmarshall("<list>\n<elem1 />\n<elem2 />\n<elem1 />\n</list>\n");
 
         //assert
         assertEquals(0, collection.size());
@@ -81,9 +80,9 @@ public class UnboundedChoicesTest {
 
     private ArrayList<?> unmarshall(String xmlSnippet) throws XMLStreamException {
         StringReader reader = new StringReader(xmlSnippet);
-        RecordAndPlaybackXMLStreamReader staxWriter = new RecordAndPlaybackXMLStreamReader(XmlStreamFactory.makeReader(reader));
-
-        UnmarshallResult result = repeater.toJava(staxWriter, new JavaContext(null));
+        RecordAndPlaybackXMLStreamReader staxReader = new RecordAndPlaybackXMLStreamReader(XmlStreamFactory.makeReader(reader));
+                
+        UnmarshallResult result = repeater.toJava(staxReader, new JavaContext(null));
         assertTrue(result.isUnmarshallSuccessful());
         assertSame(ArrayList.class, result.getUnmarshalledObject().getClass());
         return (ArrayList<?>) result.getUnmarshalledObject();

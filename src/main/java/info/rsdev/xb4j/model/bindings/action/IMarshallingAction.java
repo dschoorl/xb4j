@@ -23,6 +23,7 @@ import info.rsdev.xb4j.model.java.JavaContext;
  * 
  * @author Dave Schoorl
  */
+@FunctionalInterface
 public interface IMarshallingAction {
 	
 	public String execute(JavaContext javaContext) throws Xb4jMarshallException;

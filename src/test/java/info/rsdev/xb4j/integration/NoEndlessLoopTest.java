@@ -18,6 +18,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+//@org.junit.Ignore
 public class NoEndlessLoopTest {
 
     private static class DocRoot {
@@ -43,8 +44,7 @@ public class NoEndlessLoopTest {
         
     }
 
-//    @Test(timeout = 500)
-    @Test
+    @Test(timeout = 500)
     public void stopRepeaterWhenChildChoiceHasNoMoreFittingOptions() throws XMLStreamException {
         DocRoot docRoot = unmarshall(EXAMPLE);
         assertNotNull(docRoot.collection);
@@ -53,7 +53,7 @@ public class NoEndlessLoopTest {
         assertEquals(3, ((ArrayList<?>)docRoot.collection.get(0)).size());
     }
 
-    @Test
+    @Test(timeout = 500)
     public void stopRepeaterWhenThereAreNoFittingOptions() throws XMLStreamException {
         DocRoot docRoot = unmarshall(EMPTY_EXAMPLE);
         assertNotNull(docRoot);

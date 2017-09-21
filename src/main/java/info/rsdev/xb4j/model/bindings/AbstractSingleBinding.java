@@ -22,93 +22,99 @@ import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 
 /**
- * 
+ *
  * @author Dave Schoorl
  */
 public abstract class AbstractSingleBinding extends AbstractBinding implements ISingleBinding {
-	
-	private IBinding childBinding = null;
-	
+
+    private IBinding childBinding = null;
+
     protected AbstractSingleBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
-    	super(elementFetcher, objectCreator);
+        super(elementFetcher, objectCreator);
     }
-    
+
     /**
      * Copy constructor
-     * 
+     *
      * @param original
      */
     protected AbstractSingleBinding(AbstractSingleBinding original) {
         super(original);
         this.childBinding = original.childBinding;
     }
-    
+
     /**
      * Copy constructor
-     * 
+     *
      * @param original
+     * @param elementFetcher
      */
     protected AbstractSingleBinding(AbstractSingleBinding original, IElementFetchStrategy elementFetcher) {
         super(original, elementFetcher);
         this.childBinding = original.childBinding;
     }
-    
+
     /**
-     * Convenience method, which adds a child binding, and navigating the object tree from parent to child is done through
-     * the field with the given fieldname.
-     * 
+     * Convenience method, which adds a child binding, and navigating the object tree from parent to child is done through the field
+     * with the given fieldname.
+     *
+     * @param <T>
      * @param childBinding
      * @param fieldName
      * @return the childBinding
      */
+    @Override
     public <T extends IBinding> T setChild(T childBinding, String fieldName) {
         if (fieldName == null) {
-        	throw new NullPointerException("Fieldname cannot be null");
+            throw new NullPointerException("Fieldname cannot be null");
         }
         setChild(childBinding);
         FieldAccessor provider = new FieldAccessor(fieldName);
         childBinding.setGetter(provider);
         childBinding.setSetter(provider);
-        
+
         return childBinding;
     }
 
+    @Override
     public <T extends IBinding> T setChild(T childBinding, IGetter getter, ISetter setter) {
-    	setChild(childBinding);
-    	childBinding.setGetter(getter);
+        setChild(childBinding);
+        childBinding.setGetter(getter);
         childBinding.setSetter(setter);
-        
+
         return childBinding;
     }
-    
+
+    @Override
     public <T extends IBinding> T setChild(T childBinding) {
-    	if (childBinding == null) {
-    		throw new NullPointerException("Child IBinding must not be null when you explicitly set it");
-    	}
+        if (childBinding == null) {
+            throw new NullPointerException("Child IBinding must not be null when you explicitly set it");
+        }
         if ((this.childBinding != null) && !this.childBinding.equals(childBinding)) {
             throw new Xb4jException(String.format("Cannot replace existing child %s with new one: %s", this.childBinding, childBinding));
         }
-        
-		getSemaphore().lock();
-		try {
-			validateMutability();
-	        this.childBinding = childBinding;
-	        childBinding.setParent(this);   //maintain bidirectional relationship
-	        return childBinding;
-		} finally {
-			getSemaphore().unlock();
-		}
+
+        getSemaphore().lock();
+        try {
+            validateMutability();
+            this.childBinding = childBinding;
+            childBinding.setParent(this);   //maintain bidirectional relationship
+            return childBinding;
+        } finally {
+            getSemaphore().unlock();
+        }
     }
-    
+
     protected IBinding getChildBinding() {
-    	return this.childBinding;
+        return this.childBinding;
     }
-    
-	public void resolveReferences() {
-		IBinding branch = getChildBinding();
-		if ((branch != null) && (!(branch instanceof ComplexType))) {
-			branch.resolveReferences();
-		}
-	}
+
+    @Override
+    public void resolveReferences() {
+        IBinding branch = getChildBinding();
+        if ((branch != null) && (!(branch instanceof ComplexType))) {
+            branch.resolveReferences();
+        }
+    }
 
 }

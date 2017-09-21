@@ -14,52 +14,103 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import info.rsdev.xb4j.model.java.JavaContext;
+import info.rsdev.xb4j.model.java.accessor.FieldSetter;
 import info.rsdev.xb4j.test.ObjectA;
+import info.rsdev.xb4j.test.ObjectTree;
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-
 import java.io.StringWriter;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
-
+import javax.xml.stream.XMLStreamException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ElementTest {
-	
-    @Test
-    public void testMarshallElementWithAttributesOnly() throws Exception {
-    	StringWriter writer = new StringWriter();
-    	SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
-    	
-		Root root = new Root(new QName("Root"), Object.class);
-    	Element element = root.setChild(new Element(new QName("Element")));
-    	element.addAttribute(new Attribute(new QName("attribute")).setRequired(true), "name");
-    	element.toXml(staxWriter, new JavaContext(new ObjectA("single")));
-    	staxWriter.close();
-    	
-    	assertEquals("<Element attribute=\"single\"/>",writer.toString());
+    
+    RecordAndPlaybackXMLStreamReader mockReader = null;
+    IBinding mockBinding = null;
+    
+    @Before
+    public void setup() {
+        mockReader = mock(RecordAndPlaybackXMLStreamReader.class);
+        mockBinding = mock(IBinding.class);
     }
 
-	@Test
-	public void testNoXmlElementAndNoContentGeneratesNoOutput() {
-		Element element = (Element)new Element(Object.class);
-		assertFalse(element.generatesOutput(new JavaContext(null)));
-	}
+    @Test
+    public void testMarshallElementWithAttributesOnly() throws Exception {
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
 
-	@Test
-	public void testOptionalXmlElementNoContentGeneratesNoOutput() {
-		Element element = (Element)new Element(new QName("optional")).setOptional(true);
-		assertFalse(element.generatesOutput(new JavaContext(null)));
-	}
+        Root root = new Root(new QName("Root"), Object.class);
+        Element element = root.setChild(new Element(new QName("Element")));
+        element.addAttribute(new Attribute(new QName("attribute")).setRequired(true), "name");
+        element.toXml(staxWriter, new JavaContext(new ObjectA("single")));
+        staxWriter.close();
 
-	@Test
-	public void testMandatoryXmlElementNoContentGeneratesOutput() {
-		Element element = (Element)new Element(new QName("mandatory"));
-		assertTrue(element.generatesOutput(new JavaContext(null)));
-	}
+        assertEquals("<Element attribute=\"single\"/>", writer.toString());
+    }
 
+    @Test
+    public void testNoXmlElementAndNoContentGeneratesNoOutput() {
+        Element element = (Element) new Element(Object.class);
+        assertFalse(element.generatesOutput(new JavaContext(null)));
+    }
+
+    @Test
+    public void testOptionalXmlElementNoContentGeneratesNoOutput() {
+        Element element = (Element) new Element(new QName("optional")).setOptional(true);
+        assertFalse(element.generatesOutput(new JavaContext(null)));
+    }
+
+    @Test
+    public void testMandatoryXmlElementNoContentGeneratesOutput() {
+        Element element = (Element) new Element(new QName("mandatory"));
+        assertTrue(element.generatesOutput(new JavaContext(null)));
+    }
+    
+    /* When an {@link Element} has no child binding, but creates a new Java object and has a setter, the new object is set on 
+     * the parent JavaContext.
+     */
+    @Test
+    public void setNewObjectOnJavaContextObject() throws XMLStreamException {
+        JavaContext context = new JavaContext(new ObjectTree());
+        Element element = (Element)new Element(ObjectA.class).setSetter(new FieldSetter("myObject"));
+        UnmarshallResult result = element.unmarshall(mockReader, context);
+        assertFalse(result.mustHandleUnmarshalledObject());
+    }
+
+    /* When an {@link Element} has no child binding, but creates a new Java object but has no setter, the new object is passed on
+     * to it's parent binding to handle.
+     */
+    @Test
+    public void passNewObjectOnToParent() throws XMLStreamException {
+        JavaContext context = new JavaContext(new ObjectTree());
+        Element element = new Element(ObjectA.class);
+        UnmarshallResult result = element.unmarshall(mockReader, context);
+        assertTrue(result.mustHandleUnmarshalledObject());
+        assertNotNull(result.getUnmarshalledObject());
+        assertSame(ObjectA.class, result.getUnmarshalledObject().getClass());
+    }
+    
+    /* When an {@link Element} has no child binding, but creates a new Java object but has no setter, the new object is passed on
+     * to it's parent binding to handle.
+     */
+    @Test
+    public void setResultOnParentContext() throws XMLStreamException {
+        JavaContext context = new JavaContext(new ObjectTree());
+        when(mockBinding.toJava(any(), any())).thenReturn(UnmarshallResult.NO_RESULT);
+        Element element = new Element(ObjectA.class);
+        element.setChild(mockBinding);
+        UnmarshallResult result = element.unmarshall(mockReader, context);
+    }
 }

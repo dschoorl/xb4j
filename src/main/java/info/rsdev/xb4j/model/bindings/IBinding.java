@@ -35,8 +35,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Dave Schoorl
  */
-public interface
-IBinding {
+public interface IBinding {
 
     /**
      * Read the xml from the staxReader and produce the Java instance that it binds to.  

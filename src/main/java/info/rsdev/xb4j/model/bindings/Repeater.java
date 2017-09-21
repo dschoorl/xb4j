@@ -39,13 +39,13 @@ import javax.xml.stream.XMLStreamException;
  * @author Dave Schoorl
  */
 public class Repeater extends AbstractBinding {
-    
+
     public static final int UNBOUNDED = Integer.MAX_VALUE;
-    
+
     private IBinding itemBinding = null;
-    
+
     private int maxOccurs = UNBOUNDED;
-    
+
     /**
      * Create a {@link Repeater} where the collection instance is passed on from the parent binding in the binding tree. The main
      * use case is to support the {@link Root} xml element to contain a {@link Collection} without an additional container element.
@@ -54,7 +54,7 @@ public class Repeater extends AbstractBinding {
         super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
         setSetter(MimicSetter.INSTANCE);
     }
-    
+
     /**
      * Create a {@link Repeater} where the underlying collection is of the specified type. The type must be a concrete class, so it
      * can be created during unmarshalling process (xml to java).
@@ -64,26 +64,26 @@ public class Repeater extends AbstractBinding {
     public Repeater(Class<?> collectionType) {
         super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(collectionType));
     }
-    
+
     public Repeater(Class<?> collectionType, boolean isOptional) {
         super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(collectionType));
         setOptional(isOptional);
     }
-    
+
     public Repeater(QName element, Class<?> collectionType) {
         this(element, collectionType, true);
     }
-    
+
     public Repeater(QName element, Class<?> collectionType, boolean isOptional) {
         super(new DefaultElementFetchStrategy(element), new DefaultConstructor(collectionType));
         setOptional(isOptional);
     }
-    
+
     public <T extends IBinding> T setItem(T itemBinding) {
         if (itemBinding == null) {
             throw new NullPointerException("Binding for collection items cannot be null");
         }
-        
+
         getSemaphore().lock();
         try {
             validateMutability();
@@ -95,7 +95,7 @@ public class Repeater extends AbstractBinding {
             getSemaphore().unlock();
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext)
@@ -106,7 +106,7 @@ public class Repeater extends AbstractBinding {
             throw new Xb4jUnmarshallException(String.format("Not a Collection: %s", contextObject), this);
         }
         Collection<Object> collection = (Collection<Object>) contextObject;
-        
+
         // read enclosing collection element (if defined)
         QName collectionElement = getElement();
         boolean startTagFound = false;
@@ -121,62 +121,69 @@ public class Repeater extends AbstractBinding {
                 startTagFound = true;
             }
         }
-        
+
         attributesToJava(staxReader, javaCollectionContext);
-        
+
         int occurences = 0;
         UnmarshallResult result = null;
-        
+
         /*
          * We use a previous UnmarshallResult to detect when we are getting into an endless loop: in that case, the previous and
          * current result will be equal to each other.
          */
-//        UnmarshallResult previousResult = null;
         boolean proceed = true;
         while (proceed) {
-//            previousResult = result;
             result = itemBinding.toJava(staxReader, javaCollectionContext);
-            proceed = result.isUnmarshallSuccessful() && result.hasUnmarshalledObject();
+            
+            /* Proceed in the following circumstances:
+             * - A binding returned a value (either handled or unhandled), except for Ignore...?
+             * - There are no errors
+             * - All yielded values of a sequence have been handled
+             * 
+             * Do NOT proceed, when 
+             * - A choice returned NO_RESULT (none of the optional values were found)
+             */
+            proceed = !result.isError();
+            proceed = proceed && result.hasUnmarshalledObject();
+            proceed = proceed && !result.mustHandleUnmarshalledObject();
             if (proceed) {
                 if (result.mustHandleUnmarshalledObject()) {
                     // the itemBinding has been given the add-method setter when it was set on this Repeater binding
                     throw new Xb4jException("ItemBinding unexpectedly did not add unmarshalled object to Collection");
                 }
-//                if (result.isUnmarshallSuccessful() && result.hasUnmarshalledObject()) {
-                    occurences++;
-                    if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
-                        throw new Xb4jUnmarshallException(
-                                String.format("Found %d occurences, but no more than %d are allowed", occurences, maxOccurs), this);
-                    }
-//                }
+                occurences++;
+                if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
+                    throw new Xb4jUnmarshallException(
+                            String.format("Found %d occurences, but no more than %d are allowed", occurences, maxOccurs), this);
+                }
             }
         }
-        
+
         // determine if the childBinding has no more occurences or whether the xml fragment of the childBinding is incomplete
         if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode())
                 && !result.getFaultyBinding().equals(resolveItemBinding(itemBinding))) {
             return result;
         }
-        
+
         if ((occurences == 0) && !isOptional()) {
             return new UnmarshallResult(UnmarshallResult.MISSING_MANDATORY_ERROR,
                     String.format("Mandatory %s has no content: %s", this, staxReader.getLocation()), this);
         }
-        
+
         // read end of enclosing collection element (if defined)
         if ((collectionElement != null) && !staxReader.isNextAnElementEnd(collectionElement) && startTagFound) {
             String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
             throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s",
                     collectionElement, staxReader.getEventName(), encountered), this);
         }
-        
+
         boolean isHandled = false;
         if (javaContext.getContextObject() != null) {
             isHandled = setProperty(javaContext, collection);
         }
         return new UnmarshallResult(collection, isHandled);
     }
-    
+
     /**
      * Get the binding for the items in this collection. Normally, this is {@link #itemBinding} defined on this {@link Repeater},
      * but that could be a {@link Reference}, in which case we need to look a little further to find the real {@link IBinding} for
@@ -188,17 +195,17 @@ public class Repeater extends AbstractBinding {
         if (!(itemBinding instanceof Reference)) {
             return itemBinding;
         }
-        
+
         if (itemBinding.getElement() != null) {
             return itemBinding; // the element name is defined on the Reference
         }
-        
+
         Reference reference = (Reference) itemBinding;
         itemBinding = reference.getChildBinding(); // itemBinding now is a ComplexType
         if (itemBinding.getElement() != null) {
             return itemBinding; // the element name is defined in the ComplexType
         }
-        
+
         itemBinding = ((ComplexType) itemBinding).getChildBinding();
         if (itemBinding instanceof Reference) {
             if (reference.equals(itemBinding)) {
@@ -209,18 +216,18 @@ public class Repeater extends AbstractBinding {
         }
         return itemBinding;
     }
-    
+
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
         if (!generatesOutput(javaContext)) {
             return;
         }
-        
+
         Object collection = getProperty(javaContext).getContextObject();
         if ((collection != null) && (!(collection instanceof Collection<?>))) {
             throw new Xb4jMarshallException(String.format("Not a Collection: %s", collection), this);
         }
-        
+
         // when this Binding must not output an element, the getElement() method should return null
         QName element = getElement();
         if ((collection == null) || ((Collection<?>) collection).isEmpty()) {
@@ -230,13 +237,13 @@ public class Repeater extends AbstractBinding {
                 throw new Xb4jMarshallException(String.format("This collection is not optional: %s", this), this);
             }
         }
-        
+
         boolean isEmptyElement = (itemBinding == null) || (javaContext == null);
         if (element != null) {
             staxWriter.writeElement(element, isEmptyElement);
             attributesToXml(staxWriter, javaContext);
         }
-        
+
         if (itemBinding != null) {
             int index = 0;
             for (Object item : (Collection<?>) collection) {
@@ -244,12 +251,12 @@ public class Repeater extends AbstractBinding {
                 index++;
             }
         }
-        
+
         if (!isEmptyElement && (element != null)) {
             staxWriter.closeElement(element);
         }
     }
-    
+
     @Override
     public boolean generatesOutput(JavaContext javaContext) {
         Object collection = getProperty(javaContext).getContextObject();
@@ -265,12 +272,12 @@ public class Repeater extends AbstractBinding {
                 }
             }
         }
-        
+
         // At this point, the we established that the itemBinding will not output content
         return (getElement() != null) && (hasAttributes() || !isOptional()); // suppress optional empty elements (empty means: no
-                                                                             // content and no attributes)
+        // content and no attributes)
     }
-    
+
     public Repeater setMaxOccurs(int newMaxOccurs) {
         if (newMaxOccurs < 1) {
             throw new Xb4jException("maxOccurs must be 1 or higher: " + newMaxOccurs);
@@ -284,7 +291,7 @@ public class Repeater extends AbstractBinding {
             getSemaphore().unlock();
         }
     }
-    
+
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
@@ -309,7 +316,7 @@ public class Repeater extends AbstractBinding {
         sb.append("]");
         return sb.toString();
     }
-    
+
     @Override
     public void resolveReferences() {
         IBinding branch = resolveItemBinding(itemBinding);

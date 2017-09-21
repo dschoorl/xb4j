@@ -38,25 +38,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * From the children in this group, only one can be choosen. However, a choice can be placed in a {@link Sequence} and be
+ * From the children in this group, only one can be chosen. However, a choice can be placed in a {@link Sequence} and be⁄
  * repeatable.
  *
  * @author Dave Schoorl
  */
 public class Choice extends AbstractBinding {
 
-    private Logger logger = LoggerFactory.getLogger(Choice.class);
+    private final Logger logger = LoggerFactory.getLogger(Choice.class);
 
     /**
      * The options to choose from
      */
-    private List<IBinding> options = new LinkedList<IBinding>();
-    
+    private final List<IBinding> options = new LinkedList<>();
+
     /**
-     * Helpers to choose the correct binding when marshalling. The indexes of the choosers correspond with the indexes
-     * of the {@link #options}
+     * Helpers to choose the correct binding when marshalling. The indexes of the choosers correspond with the indexes of the
+     * {@link #options}
      */
-    private List<IChooser> choosers = new LinkedList<IChooser>();
+    private final List<IChooser> choosers = new LinkedList<>();
 
     /**
      * Create a new {@link Choice}.
@@ -94,6 +94,7 @@ public class Choice extends AbstractBinding {
      * Convenience method. The {@link IBinding option} will be registered with this {@link Choice}, and an {@link ContextInstanceOf}
      * will be generated for selection of this choice when marshalling.
      *
+     * @param <T>
      * @param option
      * @return
      */
@@ -110,7 +111,9 @@ public class Choice extends AbstractBinding {
      * Convenience method. The {@link IBinding option} will be registered with this {@link Choice}, and an {@link ContextInstanceOf}
      * will be generated for selection of this choice when marshalling.
      *
+     * @param <T>
      * @param option
+     * @param fieldName
      * @return
      */
     public <T extends IBinding> T addOption(T option, String fieldName) {
@@ -185,7 +188,7 @@ public class Choice extends AbstractBinding {
                 logger.debug(String.format("[Unmarshal] Trying option %d from %d of %s", optionCounter, options.size(), this));
             }
             result = candidate.toJava(staxReader, getProperty(javaContext));
-            if (result.isUnmarshallSuccessful() && result.hasUnmarshalledObject()) {
+            if (!result.isError()) {
                 matchingOptionFound = true;
                 if (logger.isDebugEnabled()) {
                     logger.debug(String.format("[Unmarshal] Option %d for %s works out fine -- won't look any further", optionCounter, this));
@@ -195,19 +198,19 @@ public class Choice extends AbstractBinding {
                         result.setHandled();
                     }
                 }
-                
+
                 /* Do not validate if more options match, because that could be a plausible situation, when a 
                  * Choice is placed in a repeating binding, such as a Repeater (to simulate unbounded choices)
                  */
                 break;
             } else if (logger.isDebugEnabled()) {
-                logger.debug(String.format("[Unmarshal] Option %d is not a match for %s: %s", optionCounter, this, result.getErrorMessage()));
+                logger.debug(String.format("[Unmarshal] Option %d is not a match for %s: %s", optionCounter, this, result));
             }
             optionCounter++;
         }
 
-        if (!matchingOptionFound && !isOptional()) {
-            return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR, String.format("No matching option found in xml for mandatory %s", this), this);
+        if (logger.isDebugEnabled() && !matchingOptionFound) {
+            logger.debug(String.format("No option matches: %s (optional=%b)", this, isOptional()));
         }
 
         if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {
@@ -215,7 +218,14 @@ public class Choice extends AbstractBinding {
             throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
                     staxReader.getEventName(), encountered), this);
         }
-        
+
+        if (!matchingOptionFound && !isOptional()) {
+            return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR, String.format("No matching option found in xml for mandatory %s", this), this);
+        }
+
+        if (!matchingOptionFound) {
+            return UnmarshallResult.NO_RESULT;
+        }
         return result;
     }
 
@@ -265,9 +275,9 @@ public class Choice extends AbstractBinding {
 
     @Override
     public void resolveReferences() {
-        for (IBinding choice : options) {
+        options.forEach((choice) -> {
             choice.resolveReferences();
-        }
+        });
     }
 
 }

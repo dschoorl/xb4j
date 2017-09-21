@@ -29,46 +29,47 @@ import javax.xml.stream.XMLStreamWriter;
 
 public abstract class XmlStreamFactory {
 
-	private XmlStreamFactory() {}
-	
-	public static XMLStreamWriter makeWriter(OutputStream stream) {
-		XMLStreamWriter staxWriter = null;
+    private XmlStreamFactory() {
+    }
+
+    public static XMLStreamWriter makeWriter(OutputStream stream) {
+        XMLStreamWriter staxWriter = null;
         try {
             staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
         } catch (XMLStreamException e) {
             throw new Xb4jException("Cannot create XMLStreamWriter", e);
         }
         return staxWriter;
-	}
-	
-	public static XMLStreamWriter makeWriter(Writer writer) {
-		XMLStreamWriter staxWriter = null;
+    }
+
+    public static XMLStreamWriter makeWriter(Writer writer) {
+        XMLStreamWriter staxWriter = null;
         try {
             staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
         } catch (XMLStreamException e) {
             throw new Xb4jException("Cannot create XMLStreamWriter", e);
         }
         return staxWriter;
-	}
-	
-	public static XMLStreamReader makeReader(InputStream stream) {
-    	XMLStreamReader staxReader = null;
+    }
+
+    public static XMLStreamReader makeReader(InputStream stream) {
+        XMLStreamReader staxReader = null;
         try {
-        	staxReader = XMLInputFactory.newInstance().createXMLStreamReader(stream);
+            staxReader = XMLInputFactory.newInstance().createXMLStreamReader(stream);
         } catch (XMLStreamException e) {
-        	throw new Xb4jException("Cannot create XMLStreamReader", e);
+            throw new Xb4jException("Cannot create XMLStreamReader", e);
         }
         return staxReader;
-	}
-	
-	public static XMLStreamReader makeReader(Reader reader) {
-    	XMLStreamReader staxReader = null;
+    }
+
+    public static XMLStreamReader makeReader(Reader reader) {
+        XMLStreamReader staxReader = null;
         try {
-        	staxReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            staxReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
         } catch (XMLStreamException e) {
-        	throw new Xb4jException("Cannot create XMLStreamReader", e);
+            throw new Xb4jException("Cannot create XMLStreamReader", e);
         }
         return staxReader;
-	}
-	
+    }
+
 }
