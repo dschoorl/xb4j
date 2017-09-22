@@ -138,11 +138,11 @@ public class Element extends AbstractSingleBinding {
             }
         }
 
-        if (newJavaContext.getContextObject() != null) {
+//        if (newJavaContext.getContextObject() != null) {
             return new UnmarshallResult(newJavaContext.getContextObject());
-        }
+//        }
 
-        return result != null ? result : UnmarshallResult.NO_RESULT;
+//        return result != null ? result : UnmarshallResult.NO_RESULT;
     }
 
     @Override

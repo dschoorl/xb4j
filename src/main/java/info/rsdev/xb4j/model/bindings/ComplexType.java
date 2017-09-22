@@ -32,10 +32,9 @@ import javax.xml.stream.XMLStreamException;
 
 /**
  * <p>
- * This binding can be used as an anonymous type in a RootBinding hierarchy, or
- * it can be registered as a type with a {@link BindingModel}, so that the
- * definition can be reused. Reuse is accomplished by adding a {@link Reference}
- * into the RootBinding hierarchy, that references the ComplexTypeBinding.</p>
+ * This binding can be used as an anonymous type in a RootBinding hierarchy, or it can be registered as a type with a
+ * {@link BindingModel}, so that the definition can be reused. Reuse is accomplished by adding a {@link Reference} into the
+ * RootBinding hierarchy, that references the ComplexTypeBinding.</p>
  *
  * @see Reference
  * @author Dave Schoorl
@@ -49,17 +48,14 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     private BindingModel model = null;  //this is set on ComplexTypeBindings that are registered with the BindingModel
 
     /**
-     * Flag that indicates whether this {@link ComplexType} can be changed or
-     * not. A complex type is made immutable, when it is linked to a
-     * {@link Reference} type (useualy the first time it is used to
-     * marshall/unmarshall, so that it can be used in a threadsafe manner. When
-     * a {@link #copy()} is made, the copy is mutable again.
+     * Flag that indicates whether this {@link ComplexType} can be changed or not. A complex type is made immutable, when it is
+     * linked to a {@link Reference} type (useualy the first time it is used to marshall/unmarshall, so that it can be used in a
+     * threadsafe manner. When a {@link #copy()} is made, the copy is mutable again.
      */
     private AtomicBoolean isImmutable = new AtomicBoolean(false);
 
     /**
-     * Create a ComplexTypeReference for an anonymous ComplexType (not
-     * registered with {@link BindingModel}
+     * Create a ComplexTypeReference for an anonymous ComplexType (not registered with {@link BindingModel}
      *
      * @param element
      * @param parent
@@ -84,8 +80,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     }
 
     /**
-     * Create a new {@link ComplexType} with the purpose to be referenced by a
-     * {@link Reference}
+     * Create a new {@link ComplexType} with the purpose to be referenced by a {@link Reference}
      *
      * @param identifier
      * @param namespaceUri
@@ -98,8 +93,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     }
 
     /**
-     * Copy constructor that creates a copy of ComplexTypeBinding with the given
-     * {@link Reference parent} as it's parent
+     * Copy constructor that creates a copy of ComplexTypeBinding with the given {@link Reference parent} as it's parent
      */
     private ComplexType(ComplexType original) {
         super(original, NoElementFetchStrategy.INSTANCE);	//dirty hack, I want to do: new FetchFromParentStrategy(this), but cannot pass on 'this' in super contructor call 
@@ -171,17 +165,16 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
         }
 
         /* The unmarshall result of the childbinding is handled. It is set on the newly created context object, if it is not null,
-		 * otherwise it is set on the existing context object. However, if the new context object is not null, it could be that
-		 * it must be set on the existing context object or being handled by the parent binding 
+	 * otherwise it is set on the existing context object. However, if the new context object is not null, it could be that
+	 * it must be set on the existing context object or being handled by the parent binding 
          */
-        if (newJavaContext.getContextObject() != null) {
-            if (setProperty(javaContext, newJavaContext.getContextObject())) {
-                return new UnmarshallResult(newJavaContext.getContextObject(), true);
-            }
-            return new UnmarshallResult(newJavaContext.getContextObject());
+//        if (newJavaContext.getContextObject() != null) {
+        if (setProperty(javaContext, newJavaContext.getContextObject())) {
+            return new UnmarshallResult(newJavaContext.getContextObject(), true);
         }
+//        }
 
-        return result;
+        return new UnmarshallResult(newJavaContext.getContextObject());
     }
 
     @Override
@@ -226,8 +219,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     }
 
     /**
-     * Copy the ComplexTypeHierarchy and place it as a child under the supplied
-     * {@link Reference parent}
+     * Copy the ComplexTypeHierarchy and place it as a child under the supplied {@link Reference parent}
      *
      * @return a copy of this {@link ComplexType}
      */
@@ -270,6 +262,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
         return this;
     }
 
+    @Override
     public boolean isImmutable() {
         getSemaphore().lock();
         try {
@@ -284,6 +277,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      *
      * @see info.rsdev.xb4j.model.bindings.IModelAware#makeImmutable()
      */
+    @Override
     public void makeImmutable() {
         getSemaphore().lock();
         try {
