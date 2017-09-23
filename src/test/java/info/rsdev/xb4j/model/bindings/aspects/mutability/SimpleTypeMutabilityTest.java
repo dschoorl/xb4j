@@ -23,12 +23,12 @@ import org.junit.Before;
 
 public class SimpleTypeMutabilityTest extends BaseBindingMutabilityTest<SimpleType> {
 
-	@Before
-	public void setUp() {
-		Root root = new Root(new QName("root"), Object.class);
-		immutableElement = new SimpleType(new QName("level1"));
-		root.setChild(immutableElement);
-		root.makeImmutable();
-	}
-	
+    @Before
+    public void setUp() {
+        Root root = new Root(new QName("root"), Object.class);
+        immutableElement = new SimpleType(new QName("level1"));
+        root.setChild(immutableElement);
+        root.makeImmutable();
+    }
+
 }

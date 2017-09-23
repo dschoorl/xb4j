@@ -20,162 +20,159 @@ import info.rsdev.xb4j.model.bindings.IBinding;
 import info.rsdev.xb4j.model.bindings.UnmarshallResult;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.Marker;
-
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.LinkedList;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * This implementation of {@link ICreator} is capable of calling a constructor that takes arguments. The arguments are
- * read from the xml stream and can come from xml attributes as well as xml elements.
- * 
+ * This implementation of {@link ICreator} is capable of calling a constructor that takes arguments. The arguments are read from the
+ * xml stream and can come from xml attributes as well as xml elements.
+ *
  * @author Dave Schoorl
  */
 public class ArgsConstructor implements ICreator, XMLStreamConstants {
-	
-	private final Class<?> javaType;
-	
-	private QName[] pathNames = null;
-	
-	public ArgsConstructor(Class<?> javaType, QName... pathNames) {
-		if ((pathNames == null) || (pathNames.length == 0)) {
-			throw new NullPointerException("You must provide at least one xml childElement or attribute that " +
-					"yields a Java constructor argument, otherwise, use the DefaultConstructor");
-		}
-		this.javaType = javaType;
-		this.pathNames = pathNames;
-	}
-	
-	@Override
-	public Object newInstance(IBinding caller, RecordAndPlaybackXMLStreamReader staxReader) {
-		try {
-			Object[] argumentValues = readArguments(caller, staxReader);
-			Constructor<?> constructorToUse = getConstructor(argumentValues);
-			return constructorToUse.newInstance(argumentValues);
-		} catch (Exception e) {
-			throw new Xb4jException(String.format("Could not create %s", javaType), e);
-		}
-	}
-	
-	private Constructor<?> getConstructor(Object[] argumentValues) {
-		Constructor<?>[] candidates = javaType.getDeclaredConstructors();
-		LinkedList<Constructor<?>> candidatesWithMatchingArgs = new LinkedList<Constructor<?>>();
-		Class<?>[] argumentTypes = asArgumentTypes(argumentValues);
-		for (Constructor<?> candidate: candidates) {
-			Class<?>[] constructorTypes = candidate.getParameterTypes();
-			if (constructorTypes.length == argumentTypes.length) {
-				boolean allArgumentsMatch = true;
-				for (int i=0; i<argumentValues.length && allArgumentsMatch; i++) {
-					if (argumentTypes[i] == null) {
-						allArgumentsMatch = !constructorTypes[i].isPrimitive();
-						continue;	//when a non-primitive is expected and null is passed, we consider that always a positive match
-					}
-					allArgumentsMatch = constructorTypes[i].isAssignableFrom(argumentTypes[i]);
-				}
-				if (allArgumentsMatch) {
-					candidatesWithMatchingArgs.add(candidate);
-				}
-			}
-		}
-		
-		if (candidatesWithMatchingArgs.isEmpty()) {
-			throw new Xb4jException(String.format("No constructor found on %s that could accept these arguments: %s", 
-					javaType, Arrays.toString(argumentValues)));
-		}
-		if (candidatesWithMatchingArgs.size() > 1) {
-			throw new Xb4jException(String.format("Found %d constructors on %s that could accept these arguments: %s, don't " +
-					"know which one to use", candidatesWithMatchingArgs.size(), javaType, Arrays.toString(argumentValues)));
-		}
-		
-		Constructor<?> match = candidatesWithMatchingArgs.getFirst();
-		if (!Modifier.isPublic(((Member)match).getModifiers()) || !Modifier.isPublic(((Member)match).getDeclaringClass().getModifiers())) {
-			match.setAccessible(true);
-		}
-		return match;
-	}
-	
-	private Class<?>[] asArgumentTypes(Object[] argumentValues) {
-		Class<?>[] types = new Class<?>[argumentValues.length];
-		for (int i=0; i<argumentValues.length; i++) {
-			if (argumentValues[i] == null) {
-				types[i] = null;
-			} else {
-				types[i] = argumentValues[i].getClass();
-			}
-		}
-		return types;
-	}
-	
-	/**
-	 * A first simple solution. The permanent solution will probably be integrated into the Bindings, as soon as we
-	 * need to read something else than Strings.
-	 * 
-	 * @param staxReader
-	 * @return
-	 * @throws XMLStreamException
-	 */
-	private Object[] readArguments(IBinding caller, RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
-		if (!staxReader.isAtElement()) {
-			throw new IllegalStateException("Not at the start of an element; cannot read constructor arguments");
-		}
-		Object[] arguments = new Object[pathNames.length];
-		QName currentName = staxReader.getName();
-		for (int i=0; i<pathNames.length; i++) {
-			Marker currentLocation = staxReader.startRecording();
-			try {
-    			Object argumentValue = null;
-    			if (moveToChild(staxReader, pathNames[i], currentName)) {
-    			    //Find accompanying element/attribute definition that could contain conversion rules
-    			    IJavaArgument constructorArg = findBinding(caller, pathNames[i]);
-    			    UnmarshallResult result = constructorArg.getParameterValue(staxReader, null);
-    			    if (result.isUnmarshallSuccessful()) {
-    			        argumentValue = result.getUnmarshalledObject();
-    			    } else {
-    			        throw new Xb4jUnmarshallException(result.getErrorMessage(), result.getFaultyBinding());
-    			    }
-    			}
-    			arguments[i] = argumentValue;
-			} finally {
-			    staxReader.rewindAndPlayback(currentLocation);
-			}
-		}
-		return arguments;
-	}
-	
-	private boolean moveToChild(RecordAndPlaybackXMLStreamReader staxReader, QName childElement, QName parentElement) throws XMLStreamException {
-		int event = -1;
-		while ((event = staxReader.nextTag()) != END_DOCUMENT) {
-			if ((event == END_ELEMENT) && staxReader.getName().equals(parentElement)) {
-				return false;	//child is not found within the parent xml
-			}
-			if (event == START_ELEMENT) { 
-				if (staxReader.getName().equals(childElement)) {
-					return true;
-//				} else {
-//					staxReader.getElementText();
-				}
-			}
-		}
-		return false;	//child not in remainder of xml document
-	}
-	
-	private IJavaArgument findBinding(IBinding startingPoint, QName target) {
-	    IJavaArgument argumentBinding = startingPoint.findArgumentBindingOrAttribute(target);
-	    if (argumentBinding != null) {
-	        return argumentBinding;
-	    }
-	    return NoArgument.INSTANCE;
-	}
-	
-	@Override
-	public Class<?> getJavaType() {
-		return this.javaType;
-	}
-	
+
+    private final Class<?> javaType;
+
+    private QName[] pathNames = null;
+
+    public ArgsConstructor(Class<?> javaType, QName... pathNames) {
+        if ((pathNames == null) || (pathNames.length == 0)) {
+            throw new NullPointerException("You must provide at least one xml childElement or attribute that "
+                    + "yields a Java constructor argument, otherwise, use the DefaultConstructor");
+        }
+        this.javaType = javaType;
+        this.pathNames = pathNames;
+    }
+
+    @Override
+    public Object newInstance(IBinding caller, RecordAndPlaybackXMLStreamReader staxReader) {
+        try {
+            Object[] argumentValues = readArguments(caller, staxReader);
+            Constructor<?> constructorToUse = getConstructor(argumentValues);
+            return constructorToUse.newInstance(argumentValues);
+        } catch (IllegalAccessException | IllegalArgumentException | InstantiationException | InvocationTargetException | XMLStreamException e) {
+            throw new Xb4jException(String.format("Could not create %s", javaType), e);
+        }
+    }
+
+    private Constructor<?> getConstructor(Object[] argumentValues) {
+        Constructor<?>[] candidates = javaType.getDeclaredConstructors();
+        LinkedList<Constructor<?>> candidatesWithMatchingArgs = new LinkedList<>();
+        Class<?>[] argumentTypes = asArgumentTypes(argumentValues);
+        for (Constructor<?> candidate : candidates) {
+            Class<?>[] constructorTypes = candidate.getParameterTypes();
+            if (constructorTypes.length == argumentTypes.length) {
+                boolean allArgumentsMatch = true;
+                for (int i = 0; i < argumentValues.length && allArgumentsMatch; i++) {
+                    if (argumentTypes[i] == null) {
+                        allArgumentsMatch = !constructorTypes[i].isPrimitive();
+                        continue;	//when a non-primitive is expected and null is passed, we consider that always a positive match
+                    }
+                    allArgumentsMatch = constructorTypes[i].isAssignableFrom(argumentTypes[i]);
+                }
+                if (allArgumentsMatch) {
+                    candidatesWithMatchingArgs.add(candidate);
+                }
+            }
+        }
+
+        if (candidatesWithMatchingArgs.isEmpty()) {
+            throw new Xb4jException(String.format("No constructor found on %s that could accept these arguments: %s",
+                    javaType, Arrays.toString(argumentValues)));
+        }
+        if (candidatesWithMatchingArgs.size() > 1) {
+            throw new Xb4jException(String.format("Found %d constructors on %s that could accept these arguments: %s, don't "
+                    + "know which one to use", candidatesWithMatchingArgs.size(), javaType, Arrays.toString(argumentValues)));
+        }
+
+        Constructor<?> match = candidatesWithMatchingArgs.getFirst();
+        if (!Modifier.isPublic(((Member) match).getModifiers()) || !Modifier.isPublic(((Member) match).getDeclaringClass().getModifiers())) {
+            match.setAccessible(true);
+        }
+        return match;
+    }
+
+    private Class<?>[] asArgumentTypes(Object[] argumentValues) {
+        Class<?>[] types = new Class<?>[argumentValues.length];
+        for (int i = 0; i < argumentValues.length; i++) {
+            if (argumentValues[i] == null) {
+                types[i] = null;
+            } else {
+                types[i] = argumentValues[i].getClass();
+            }
+        }
+        return types;
+    }
+
+    /**
+     * A first simple solution. The permanent solution will probably be integrated into the Bindings, as soon as we need to read
+     * something else than Strings.
+     *
+     * @param staxReader
+     * @return
+     * @throws XMLStreamException
+     */
+    private Object[] readArguments(IBinding caller, RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
+        if (!staxReader.isAtElement()) {
+            throw new IllegalStateException("Not at the start of an element; cannot read constructor arguments");
+        }
+        Object[] arguments = new Object[pathNames.length];
+        QName currentName = staxReader.getName();
+        for (int i = 0; i < pathNames.length; i++) {
+            Marker currentLocation = staxReader.startRecording();
+            try {
+                Object argumentValue = null;
+                if (moveToChild(staxReader, pathNames[i], currentName)) {
+                    //Find accompanying element/attribute definition that could contain conversion rules
+                    IJavaArgument constructorArg = findBinding(caller, pathNames[i]);
+                    UnmarshallResult result = constructorArg.getParameterValue(staxReader, null);
+                    if (result.isUnmarshallSuccessful()) {
+                        argumentValue = result.getUnmarshalledObject();
+                    } else {
+                        throw new Xb4jUnmarshallException(result.getErrorMessage(), result.getFaultyBinding());
+                    }
+                }
+                arguments[i] = argumentValue;
+            } finally {
+                staxReader.rewindAndPlayback(currentLocation);
+            }
+        }
+        return arguments;
+    }
+
+    private boolean moveToChild(RecordAndPlaybackXMLStreamReader staxReader, QName childElement, QName parentElement) throws XMLStreamException {
+        int event = -1;
+        while ((event = staxReader.nextTag()) != END_DOCUMENT) {
+            if ((event == END_ELEMENT) && staxReader.getName().equals(parentElement)) {
+                return false;	//child is not found within the parent xml
+            }
+            if (event == START_ELEMENT) {
+                if (staxReader.getName().equals(childElement)) {
+                    return true;
+                }
+            }
+        }
+        return false;	//child not in remainder of xml document
+    }
+
+    private IJavaArgument findBinding(IBinding startingPoint, QName target) {
+        IJavaArgument argumentBinding = startingPoint.findArgumentBindingOrAttribute(target);
+        if (argumentBinding != null) {
+            return argumentBinding;
+        }
+        return NoArgument.INSTANCE;
+    }
+
+    @Override
+    public Class<?> getJavaType() {
+        return this.javaType;
+    }
+
 }

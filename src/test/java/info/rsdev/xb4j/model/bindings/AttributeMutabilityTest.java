@@ -18,14 +18,14 @@ import javax.xml.namespace.QName;
 
 import org.junit.Before;
 
-public class AttributeMutabilityTest extends AbstractAttributeMutabilityTest<Attribute>{
+public class AttributeMutabilityTest extends AbstractAttributeMutabilityTest<Attribute> {
 
-	@Before
-	public void setUp() {
-		Root root = new Root(new QName("root"), Object.class);
-		immutableAttribute = new Attribute(new QName("attrib"));
-		root.addAttribute(immutableAttribute, "hashcode");
-		root.makeImmutable();
-	}
-	
+    @Before
+    public void setUp() {
+        Root root = new Root(new QName("root"), Object.class);
+        immutableAttribute = new Attribute(new QName("attrib"));
+        root.addAttribute(immutableAttribute, "hashcode");
+        root.makeImmutable();
+    }
+
 }

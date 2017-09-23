@@ -14,46 +14,43 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
 import javax.xml.namespace.QName;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ComplexTypeTest {
-    
+
     private BindingModel model = null;
-    
+
     @Before
     public void setup() {
         Root root = new Root(new QName("root"), ObjectA.class);   //has element, but class comes from child
         root.setChild(new Reference("typeO", null), NoGetter.INSTANCE, NoSetter.INSTANCE);
-        
+
         Root hoofdmap = new Root(new QName("directory"), ObjectTree.class);
         hoofdmap.setChild(new Reference(ObjectA.class, "typeO", null), "myObject");
-        
+
         ComplexType complexType = new ComplexType("typeO", null);
         complexType.setChild(new SimpleType(new QName("name")), "name");
-        
+
         model = new BindingModel();
         model.register(complexType, true);
         model.register(root);
         model.register(hoofdmap);
     }
-	
-    @Test 
+
+    @Test
     public void testMarshallComplexType() {
         //marshall root
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -61,7 +58,7 @@ public class ComplexTypeTest {
         model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         String result = stream.toString();
         assertEquals("<root><name>test</name></root>", result);
-        
+
         //marshall hoofdmap
         stream = new ByteArrayOutputStream();
         instance = new ObjectTree().setMyObject(new ObjectA("test"));
@@ -69,43 +66,43 @@ public class ComplexTypeTest {
         result = stream.toString();
         assertEquals("<directory><name>test</name></directory>", result);
     }
-    
+
     @Test
     public void testUnmarshallComplexType() {
-    	//Unmarshall ObjectA
+        //Unmarshall ObjectA
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><name>test</name></root>".getBytes());
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
-        assertEquals("test", ((ObjectA)instance).getAName());
-        
+        assertEquals("test", ((ObjectA) instance).getAName());
+
         //unmarshall ObjectTree
         stream = new ByteArrayInputStream("<directory><name>test</name></directory>".getBytes());
         instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectTree.class, instance.getClass());
-        ObjectTree tree = (ObjectTree)instance;
+        ObjectTree tree = (ObjectTree) instance;
         assertNotNull(tree.getMyObject());
         assertSame(ObjectA.class, tree.getMyObject().getClass());
-        assertEquals("test", ((ObjectA)tree.getMyObject()).getAName());
+        assertEquals("test", ((ObjectA) tree.getMyObject()).getAName());
     }
-    
+
     @Test
     public void testMarshallReferenceWithElement() {
-    	//Setup the binding model
-        BindingModel model = new BindingModel();
+        //Setup the binding model
+        BindingModel myModel = new BindingModel();
         Root root = new Root(new QName("root"), ObjectA.class);
         root.setChild(new Reference(new QName("reference"), "complexType", null), NoGetter.INSTANCE, NoSetter.INSTANCE);
-        model.register(root);
-        
+        myModel.register(root);
+
         ComplexType complexType = new ComplexType("complexType", null);
         complexType.setChild(new SimpleType(new QName("name")), "name");
-        model.register(complexType, true);
-    	
+        myModel.register(complexType, true);
+
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectA instance = new ObjectA("test");
-        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
+        myModel.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals("<root><reference><name>test</name></reference></root>", stream.toString());
     }
-    
+
 }

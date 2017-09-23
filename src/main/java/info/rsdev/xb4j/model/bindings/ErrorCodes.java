@@ -15,13 +15,13 @@
 package info.rsdev.xb4j.model.bindings;
 
 /**
- * 
+ *
  * @author Dave Schoorl
  */
 public interface ErrorCodes {
-	
-	public static final Integer MISSING_OPTIONAL_ERROR = Integer.valueOf(1);
-	
-	public static final Integer MISSING_MANDATORY_ERROR = Integer.valueOf(2);
-	
+
+    public static final Integer MISSING_OPTIONAL_ERROR = 1;
+
+    public static final Integer MISSING_MANDATORY_ERROR = 2;
+
 }

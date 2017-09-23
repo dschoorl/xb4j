@@ -18,25 +18,26 @@ import info.rsdev.xb4j.model.bindings.IBinding;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 
 /**
- * {@link ICreator} implementation to support null-safe operations when no ICreator is needed, but we do not want to check for
- * null when calling methods on the creator.
- *  
+ * {@link ICreator} implementation to support null-safe operations when no ICreator is needed, but we do not want to check for null
+ * when calling methods on the creator.
+ *
  * @author Dave Schoorl
  */
 public final class NullCreator implements ICreator {
-	
-	public static final NullCreator INSTANCE = new NullCreator();
-	
-	private NullCreator() {}
-	
-	@Override
-	public Object newInstance(IBinding caller, RecordAndPlaybackXMLStreamReader staxReader) {
-		return null;
-	}
-	
-	@Override
-	public Class<?> getJavaType() {
-		return Object.class;
-	}
-	
+
+    public static final NullCreator INSTANCE = new NullCreator();
+
+    private NullCreator() {
+    }
+
+    @Override
+    public Object newInstance(IBinding caller, RecordAndPlaybackXMLStreamReader staxReader) {
+        return null;
+    }
+
+    @Override
+    public Class<?> getJavaType() {
+        return Object.class;
+    }
+
 }

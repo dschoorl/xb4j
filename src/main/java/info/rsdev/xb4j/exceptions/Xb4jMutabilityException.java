@@ -18,8 +18,7 @@ import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.IModelAware;
 
 /**
- * This exception is thrown when bindings in the {@link BindingModel} are being
- * changed that have been marked as immutable.
+ * This exception is thrown when bindings in the {@link BindingModel} are being changed that have been marked as immutable.
  *
  * @author Dave Schoorl
  * @see IModelAware#makeImmutable()

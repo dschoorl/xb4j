@@ -19,46 +19,47 @@ import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
- * Store the context object into the Map with external context objects for later use 
- * 
+ * Store the context object into the Map with external context objects for later use
+ *
  * @author Dave Schoorl
  */
 public class StoreInContext implements IPhasedAction {
-	
-	private final String keyIntoExternalContext;
-	
-	private final Class<?> expectedType;
-	
-	/**
-	 * Create a new {@link StoreInContext} instance that will store the current context object into the Map
-	 * with external context objects under the given keyName.
-	 * @param keyName the name of the key to store the current context under
-	 * @param expectedType the type of the context object to store
-	 */
-	public StoreInContext(String keyName, Class<?> expectedType) {
-		if (keyName == null) {
-			throw new NullPointerException("The keyName cannot be null");
-		}
-		if (keyName.length() == 0) {
-			throw new IllegalArgumentException("The keyName cannot be empty");
-		}
-		if (expectedType == null) {
-			throw new NullPointerException("The expected type cannot be null");
-		}
-		this.keyIntoExternalContext = keyName;
-		this.expectedType = expectedType;
-	}
-	
-	@Override
-	public JavaContext execute(JavaContext javaContext) throws Xb4jMarshallException {
-		Object contextObject = javaContext.getContextObject();
-		javaContext.set(this.keyIntoExternalContext, narrow(contextObject, expectedType));
-		return javaContext;
-	}
 
-	@Override
-	public boolean executeAt(ExecutionPhase currentPhase) {
-		return (currentPhase == ExecutionPhase.BEFORE_MARSHALLING) || (currentPhase == ExecutionPhase.AFTER_UNMARSHALLING);
-	}
-	
+    private final String keyIntoExternalContext;
+
+    private final Class<?> expectedType;
+
+    /**
+     * Create a new {@link StoreInContext} instance that will store the current context object into the Map with external context
+     * objects under the given keyName.
+     *
+     * @param keyName the name of the key to store the current context under
+     * @param expectedType the type of the context object to store
+     */
+    public StoreInContext(String keyName, Class<?> expectedType) {
+        if (keyName == null) {
+            throw new NullPointerException("The keyName cannot be null");
+        }
+        if (keyName.length() == 0) {
+            throw new IllegalArgumentException("The keyName cannot be empty");
+        }
+        if (expectedType == null) {
+            throw new NullPointerException("The expected type cannot be null");
+        }
+        this.keyIntoExternalContext = keyName;
+        this.expectedType = expectedType;
+    }
+
+    @Override
+    public JavaContext execute(JavaContext javaContext) throws Xb4jMarshallException {
+        Object contextObject = javaContext.getContextObject();
+        javaContext.set(this.keyIntoExternalContext, narrow(contextObject, expectedType));
+        return javaContext;
+    }
+
+    @Override
+    public boolean executeAt(ExecutionPhase currentPhase) {
+        return (currentPhase == ExecutionPhase.BEFORE_MARSHALLING) || (currentPhase == ExecutionPhase.AFTER_UNMARSHALLING);
+    }
+
 }

@@ -16,28 +16,28 @@ package info.rsdev.xb4j.model.java.accessor;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.JavaContext;
-
 import java.lang.reflect.Field;
 
 /**
  * Get or set the value of a class property by accessing it's {@link Field} by fieldname
+ *
  * @author Dave Schoorl
  */
 public class FieldGetter extends AbstractFieldAccessor implements IGetter {
-	
-	public FieldGetter(String fieldName) {
-		super(fieldName);
-	}
-	
-	@Override
-	public JavaContext get(JavaContext javaContext) {
-		try {
-			Object contextObject = javaContext.getContextObject();
-			Object newContextObject = getField(contextObject.getClass(), getFieldname()).get(contextObject);
-			return javaContext.newContext(newContextObject);
-		} catch (Exception e) {
-			throw new Xb4jException(String.format("Could not get field '%s' from object %s", getFieldname(), javaContext), e);
-		}
-	}
-	
+
+    public FieldGetter(String fieldName) {
+        super(fieldName);
+    }
+
+    @Override
+    public JavaContext get(JavaContext javaContext) {
+        try {
+            Object contextObject = javaContext.getContextObject();
+            Object newContextObject = getField(contextObject.getClass(), getFieldname()).get(contextObject);
+            return javaContext.newContext(newContextObject);
+        } catch (IllegalAccessException | IllegalArgumentException e) {
+            throw new Xb4jException(String.format("Could not get field '%s' from object %s", getFieldname(), javaContext), e);
+        }
+    }
+
 }

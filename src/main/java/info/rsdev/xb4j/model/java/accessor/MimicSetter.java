@@ -22,18 +22,18 @@ import info.rsdev.xb4j.model.java.JavaContext;
 /**
  * A stateless {@link ISetter} implementation that does not set the value on the javaContext, but pretends that if done so, by
  * always returning true on the {@link #set(JavaContext, Object)} method.
- * 
+ *
  * @author Dave Schoorl
  */
 public final class MimicSetter implements ISetter {
-    
+
     public static final MimicSetter INSTANCE = new MimicSetter();
-    
+
     private Logger logger = LoggerFactory.getLogger(MimicSetter.class);
-    
+
     private MimicSetter() {
     }
-    
+
     @Override
     public boolean set(JavaContext javaContext, Object propertyValue) {
         if (logger.isTraceEnabled()) {
@@ -41,10 +41,10 @@ public final class MimicSetter implements ISetter {
         }
         return true;
     }
-    
+
     @Override
     public String toString() {
         return MimicSetter.class.getSimpleName();
     }
-    
+
 }

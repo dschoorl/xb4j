@@ -29,12 +29,10 @@ import javax.xml.stream.XMLStreamException;
 
 /**
  * <p>
- * Translates a text-only element to a Java field and vice versa. The Java field
- * is expected to be a String. Other types will need a converter to convert the
- * field to and from a String.</p>
+ * Translates a text-only element to a Java field and vice versa. The Java field is expected to be a String. Other types will need a
+ * converter to convert the field to and from a String.</p>
  *
- * TODO: add support for fixed / default values in the xml world? TODO: simple
- * type cannot be an empty element??
+ * TODO: add support for fixed / default values in the xml world? TODO: simple type cannot be an empty element??
  *
  * @author Dave Schoorl
  */
@@ -43,8 +41,7 @@ public class SimpleType extends AbstractBinding {
     private IValueConverter converter = NOPConverter.INSTANCE;
 
     /**
-     * Create a new {@link SimpleType} with a
-     * {@link DefaultElementFetchStrategy}
+     * Create a new {@link SimpleType} with a {@link DefaultElementFetchStrategy}
      *
      * @param element the element
      */
@@ -76,7 +73,7 @@ public class SimpleType extends AbstractBinding {
 
         attributesToJava(staxReader, javaContext);
 
-        Object value = this.converter.toObject(javaContext, staxReader.getElementText());	
+        Object value = this.converter.toObject(javaContext, staxReader.getElementText());
         boolean isValueHandled = setProperty(javaContext, value);
 
         if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {    //this also consumes the end element

@@ -19,28 +19,37 @@ import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
  * Convert a string to and from a boolean value
- * 
+ *
  * @author Dave Schoorl
  */
 public class BooleanConverter implements IValueConverter {
-    
+
     public static final BooleanConverter INSTANCE = new BooleanConverter();
-    
-    private BooleanConverter() {}
+
+    private BooleanConverter() {
+    }
 
     @Override
     public Boolean toObject(JavaContext javaContext, String value) {
-        if (value == null) { return null; }
-        if (value.equalsIgnoreCase("true")) { return Boolean.TRUE; }
-        if (value.equalsIgnoreCase("false")) {return Boolean.FALSE; }
+        if (value == null) {
+            return null;
+        }
+        if (value.equalsIgnoreCase("true")) {
+            return Boolean.TRUE;
+        }
+        if (value.equalsIgnoreCase("false")) {
+            return Boolean.FALSE;
+        }
         throw new ValidationException("Not a boolean value (Expected one of: {true, false}): ".concat(value));
     }
 
     @Override
     public String toText(JavaContext javaContext, Object value) {
-        if (value == null) { return null; }
+        if (value == null) {
+            return null;
+        }
         if (!(value instanceof Boolean)) {
-            throw new ValidationException(String.format("Expected a %s, but was a %s", Boolean.class.getName(), 
+            throw new ValidationException(String.format("Expected a %s, but was a %s", Boolean.class.getName(),
                     value.getClass().getName()));
         }
         return value.toString();

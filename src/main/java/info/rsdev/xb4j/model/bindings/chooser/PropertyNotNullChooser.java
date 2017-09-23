@@ -20,36 +20,39 @@ import info.rsdev.xb4j.model.java.accessor.FieldAccessor;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
 
 /**
- * Follow the option coupled with this {@link PropertyNotNullChooser}, when the java context has a matching property that is not 
+ * Follow the option coupled with this {@link PropertyNotNullChooser}, when the java context has a matching property that is not
  * null.
- * 
+ *
  * @author Dave Schoorl
  */
 public class PropertyNotNullChooser implements IChooser {
-	
-	private IGetter propertyAccessor = null;
-	
-	/**
-	 * Create a new {@link PropertyNotNullChooser} instance that will match the coupled option from the {@link Choice} binding 
-	 * with the java context when the context object has a field with the given fieldName that is not null.
-	 * @param fieldName the name of the field that should not be null for this {@link IChooser} to match the java context at hand
-	 */
-	public PropertyNotNullChooser(String fieldName) {
-		this.propertyAccessor = new FieldAccessor(fieldName);
-	}
-	
-	@Override
-	public boolean matches(JavaContext javaContext) {
-		/* When the javaContext is null, we cannot establish the Object has the requested field 
+
+    private IGetter propertyAccessor = null;
+
+    /**
+     * Create a new {@link PropertyNotNullChooser} instance that will match the coupled option from the {@link Choice} binding with
+     * the java context when the context object has a field with the given fieldName that is not null.
+     *
+     * @param fieldName the name of the field that should not be null for this {@link IChooser} to match the java context at hand
+     */
+    public PropertyNotNullChooser(String fieldName) {
+        this.propertyAccessor = new FieldAccessor(fieldName);
+    }
+
+    @Override
+    public boolean matches(JavaContext javaContext) {
+        /* When the javaContext is null, we cannot establish the Object has the requested field 
 		 * and thus we respond with false */
-	    if (javaContext.getContextObject() == null) { return false; }
-		Object fieldValue = propertyAccessor.get(javaContext).getContextObject();
-		return fieldValue != null;
-	}
-	
-	@Override
-	public String toString() {
-		return String.format("%s[getter=%s]", getClass().getSimpleName(), propertyAccessor);
-	}
-	
+        if (javaContext.getContextObject() == null) {
+            return false;
+        }
+        Object fieldValue = propertyAccessor.get(javaContext).getContextObject();
+        return fieldValue != null;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s[getter=%s]", getClass().getSimpleName(), propertyAccessor);
+    }
+
 }

@@ -19,34 +19,36 @@ import java.util.GregorianCalendar;
 
 /**
  * Convert the xml schema types dateTime, date and time to Java {@link Long} objects and back again.
- * 
+ *
  * @author Dave Schoorl
  */
 public class Long2DateConverter extends AbstractDateConverter {
 
-	public static final Long2DateConverter XML_TIME = new Long2DateConverter(AbstractDateConverter.TIME_ONLY, NoValidator.INSTANCE);
-	
-	public static final Long2DateConverter XML_DATE = new Long2DateConverter(AbstractDateConverter.DATE_ONLY, NoValidator.INSTANCE);
-	
-	public static final Long2DateConverter XML_DATETIME = new Long2DateConverter(AbstractDateConverter.DATE_TIME, NoValidator.INSTANCE);
-	
-	public Long2DateConverter(String xmlType, IValidator validator) {
-		super(xmlType, validator);
-	}
-	
-	protected GregorianCalendar toCalander(Object value) {
-		GregorianCalendar calendar = new GregorianCalendar(getTimeZone());
-		calendar.setTime(new Date((Long)value));
-		return calendar;
-	}
-	
-	protected Object fromCalendar(GregorianCalendar calendar) {
-		return calendar.getTime().getTime();
-	}
-	
-	@Override
-	public Class<?> getJavaType() {
-		return Long.class;
-	}
-	
+    public static final Long2DateConverter XML_TIME = new Long2DateConverter(AbstractDateConverter.TIME_ONLY, NoValidator.INSTANCE);
+
+    public static final Long2DateConverter XML_DATE = new Long2DateConverter(AbstractDateConverter.DATE_ONLY, NoValidator.INSTANCE);
+
+    public static final Long2DateConverter XML_DATETIME = new Long2DateConverter(AbstractDateConverter.DATE_TIME, NoValidator.INSTANCE);
+
+    public Long2DateConverter(String xmlType, IValidator validator) {
+        super(xmlType, validator);
+    }
+
+    @Override
+    protected GregorianCalendar toCalander(Object value) {
+        GregorianCalendar calendar = new GregorianCalendar(getTimeZone());
+        calendar.setTime(new Date((Long) value));
+        return calendar;
+    }
+
+    @Override
+    protected Object fromCalendar(GregorianCalendar calendar) {
+        return calendar.getTime().getTime();
+    }
+
+    @Override
+    public Class<?> getJavaType() {
+        return Long.class;
+    }
+
 }

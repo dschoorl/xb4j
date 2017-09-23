@@ -1,16 +1,10 @@
-/* Copyright 2012 Red Star Development / Dave Schoorl
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * Copyright 2012 Red Star Development / Dave Schoorl Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package info.rsdev.xb4j.model.bindings;
 
@@ -27,19 +21,15 @@ import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-
 import java.util.LinkedList;
 import java.util.List;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * From the children in this group, only one can be chosen. However, a choice can be placed in a {@link Sequence} and be⁄
- * repeatable.
+ * From the children in this group, only one can be chosen. However, a choice can be placed in a {@link Sequence} and be repeatable.
  *
  * @author Dave Schoorl
  */
@@ -82,7 +72,7 @@ public class Choice extends AbstractBinding {
     }
 
     public <T extends IBinding> T addOption(T option, String fieldName, IChooser selector) {
-        //Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
+        // Why not add getter/setter to IObjectFetchStrategy -- together with copy()-command
         addOption(option, selector);
         FieldAccessor provider = new FieldAccessor(fieldName);
         option.setGetter(provider);
@@ -135,7 +125,7 @@ public class Choice extends AbstractBinding {
         getSemaphore().lock();
         try {
             validateMutability();
-            option.setParent(this); //maintain bidirectional relationship
+            option.setParent(this); // maintain bidirectional relationship
             options.add(option);
             choosers.add(selector);
             return option;
@@ -153,7 +143,8 @@ public class Choice extends AbstractBinding {
             if (candidate.matches(javaContext)) {
                 IBinding selectedBinding = options.get(i);
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("[Marshal] Option %d (%s) selected, taking route: %s", i + 1, candidate, selectedBinding));
+                    logger.debug(String.format("[Marshal] Option %d (%s) selected, taking route: %s", i + 1, candidate,
+                            selectedBinding));
                 }
                 return selectedBinding;
             } else if (logger.isDebugEnabled()) {
@@ -165,8 +156,9 @@ public class Choice extends AbstractBinding {
     }
 
     @Override
-    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
-        //check if we are on the right element -- consume the xml when needed
+    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext)
+            throws XMLStreamException {
+        // check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
         boolean startTagFound = false;
         if (expectedElement != null) {
@@ -179,7 +171,8 @@ public class Choice extends AbstractBinding {
             }
         }
 
-        //Should we start recording to return to this element when necessary - currently this is responsibility of the options
+        // Should we start recording to return to this element when necessary - currently this is responsibility of the
+        // options
         boolean matchingOptionFound = false;
         UnmarshallResult result = null;
         int optionCounter = 1;
@@ -191,7 +184,8 @@ public class Choice extends AbstractBinding {
             if (!result.isError()) {
                 matchingOptionFound = true;
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("[Unmarshal] Option %d for %s works out fine -- won't look any further", optionCounter, this));
+                    logger.debug(String.format("[Unmarshal] Option %d for %s works out fine -- won't look any further",
+                            optionCounter, this));
                 }
                 if (result.mustHandleUnmarshalledObject()) {
                     if (setProperty(javaContext, result.getUnmarshalledObject())) {
@@ -199,8 +193,9 @@ public class Choice extends AbstractBinding {
                     }
                 }
 
-                /* Do not validate if more options match, because that could be a plausible situation, when a 
-                 * Choice is placed in a repeating binding, such as a Repeater (to simulate unbounded choices)
+                /*
+                 * Do not validate if more options match, because that could be a plausible situation, when a Choice is
+                 * placed in a repeating binding, such as a Repeater (to simulate unbounded choices)
                  */
                 break;
             } else if (logger.isDebugEnabled()) {
@@ -215,12 +210,15 @@ public class Choice extends AbstractBinding {
 
         if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {
             String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
-            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
-                    staxReader.getEventName(), encountered), this);
+            throw new Xb4jUnmarshallException(
+                    String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+                            staxReader.getEventName(), encountered),
+                    this);
         }
 
         if (!matchingOptionFound && !isOptional()) {
-            return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR, String.format("No matching option found in xml for mandatory %s", this), this);
+            return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR,
+                    String.format("No matching option found in xml for mandatory %s", this), this);
         }
 
         if (!matchingOptionFound) {
@@ -235,7 +233,7 @@ public class Choice extends AbstractBinding {
             return;
         }
 
-        //mixed content is not yet supported -- there are either child elements or there is content
+        // mixed content is not yet supported -- there are either child elements or there is content
         QName element = getElement();
         javaContext = getProperty(javaContext);
         IBinding selected = selectBinding(javaContext);
@@ -256,12 +254,13 @@ public class Choice extends AbstractBinding {
 
     @Override
     public boolean generatesOutput(JavaContext javaContext) {
-        //a quick check: when the element is not optional or it has attributes, generate output, regardless if the element has content
+        // a quick check: when the element is not optional or it has attributes, generate output, regardless if the
+        // element has content
         if ((getElement() != null) && (hasAttributes() || !isOptional())) {
             return true;
         }
 
-        //check if the element has any contents
+        // check if the element has any contents
         javaContext = getProperty(javaContext);
         if (javaContext != null) {
             IBinding child = selectBinding(javaContext);

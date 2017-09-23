@@ -24,13 +24,10 @@ import javax.xml.namespace.QName;
 
 /**
  * <p>
- * This class is a special {@link Element}; it can only contain a single
- * {@link ComplexType}. The ComplexTypeBinding can be anonymous or a type
- * reference. as it's child so that a binding can be re-used in multiple
- * {@link Root} hierarchies.</p>
+ * This class is a special {@link Element}; it can only contain a single {@link ComplexType}. The ComplexTypeBinding can be
+ * anonymous or a type reference. as it's child so that a binding can be re-used in multiple {@link Root} hierarchies.</p>
  *
- * TODO: setChild methods from ElementBinding are available to the outside
- * world: solve this!
+ * TODO: setChild methods from ElementBinding are available to the outside world: solve this!
  *
  * @author Dave Schoorl
  */
@@ -65,10 +62,8 @@ public class Reference extends Element {
     }
 
     /**
-     * Create a ComplexTypeReference for an anonymous ComplexType (not
-     * registered with {@link BindingModel}. This method is not to be called
-     * directly, only by the framework to establish an anonymous complextype
-     * mechanism.
+     * Create a ComplexTypeReference for an anonymous ComplexType (not registered with {@link BindingModel}. This method is not to
+     * be called directly, only by the framework to establish an anonymous complextype mechanism.
      *
      * @param element
      * @param referencedBinding
@@ -98,14 +93,11 @@ public class Reference extends Element {
 
     /**
      * <p>
-     * The {@link ComplexType} that a {@link Reference} refers to is resolved by
-     * looking it up by name in the {@link BindingModel}; this is done as late
-     * as possible, during marshall/unmarshall, so that the order in which a
-     * Reference and a ComplexType are added to the BindingModel does not
-     * matter.</p>
+     * The {@link ComplexType} that a {@link Reference} refers to is resolved by looking it up by name in the {@link BindingModel};
+     * this is done as late as possible, during marshall/unmarshall, so that the order in which a Reference and a ComplexType are
+     * added to the BindingModel does not matter.</p>
      * <p>
-     * BTW: not the original ComplexType is set as a child, but a copy of
-     * it.</p>
+     * BTW: not the original ComplexType is set as a child, but a copy of it.</p>
      *
      * @return the referenced {@link ComplexType}
      * @see AbstractSingleBinding#getChildBinding()

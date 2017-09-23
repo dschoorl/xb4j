@@ -28,33 +28,36 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * Stream xml to a specific Java class or the Java class to xml. The binding has been completely resolved and 
- * instances of this class are threadsafe.
- * 
+ * Stream xml to a specific Java class or the Java class to xml. The binding has been completely resolved and instances of this
+ * class are threadsafe.
+ *
  * @author Dave Schoorl
  */
 public class XmlStreamer {
 
-	private Root binding = null;
-	
-	public XmlStreamer(Root binding) {
-		if (binding == null) {
-			throw new NullPointerException("Root binding cannot be null");
-		}
-		this.binding = binding;
-	}
-	
+    private Root binding = null;
+
+    public XmlStreamer(Root binding) {
+        if (binding == null) {
+            throw new NullPointerException("Root binding cannot be null");
+        }
+        this.binding = binding;
+    }
+
     /**
-     * <p>Read Java object tree from the given xml stream. At least the first start element is read, in order to determine if
-     * this {@link XmlStreamer} knows how to construct the given Java object tree for that element. When this {@link XmlStreamer}
-     * does not know how to handle the element, an {@link Xb4jException} is thrown. At least part of the xml stream will be consumed 
+     * <p>
+     * Read Java object tree from the given xml stream. At least the first start element is read, in order to determine if this
+     * {@link XmlStreamer} knows how to construct the given Java object tree for that element. When this {@link XmlStreamer} does
+     * not know how to handle the element, an {@link Xb4jException} is thrown. At least part of the xml stream will be consumed
      * nonetheless.</p>
-     * <p>The {@link XMLStreamReader} is not closed; that is the responsibility of the caller.</p>
+     * <p>
+     * The {@link XMLStreamReader} is not closed; that is the responsibility of the caller.</p>
+     *
      * @param staxReader the xml stream reader
      * @return the Java object tree read from the xml stream
      * @throws Xb4jException when something went wrong during unmarshalling of the xml stream
      */
-	public Object toJava(XMLStreamReader staxReader) {
+    public Object toJava(XMLStreamReader staxReader) {
         RecordAndPlaybackXMLStreamReader rpbReader = null;
         try {
             rpbReader = new RecordAndPlaybackXMLStreamReader(staxReader);
@@ -65,51 +68,51 @@ public class XmlStreamer {
                 if (binding.getElement().equals(element)) {
                     UnmarshallResult result = binding.toJava(rpbReader, new JavaContext(null));
                     if (result.isUnmarshallSuccessful()) {
-                    	return result.getUnmarshalledObject();
+                        return result.getUnmarshalledObject();
                     } else {
-                    	throw new Xb4jException(result.getErrorMessage());
+                        throw new Xb4jException(result.getErrorMessage());
                     }
-                    
+
                 } else {
-                	throw new Xb4jException(String.format("%s does not know how to unmarshall xml element %s", binding, element));
+                    throw new Xb4jException(String.format("%s does not know how to unmarshall xml element %s", binding, element));
                 }
             }
         } catch (XMLStreamException e) {
-        	throw new Xb4jException("Exception occured when reading from xml stream", e);
+            throw new Xb4jException("Exception occured when reading from xml stream", e);
         } finally {
-        	if (rpbReader != null) {
+            if (rpbReader != null) {
                 rpbReader.close();
-        	}
+            }
         }
         return null;
     }
-    
+
     /**
      * Marshall a Java instance into xml representation
-     * 
-     * @param staxWriter the {@link XMLStreamWriter} to write the xml to 
+     *
+     * @param staxWriter the {@link XMLStreamWriter} to write the xml to
      * @param instance the Java object to marshall
      */
     public void toXml(XMLStreamWriter staxWriter, Object instance) {
-    	try {
+        try {
             SimplifiedXMLStreamWriter simpleWriter = new SimplifiedXMLStreamWriter(staxWriter);
             binding.toXml(simpleWriter, new JavaContext(instance));
             simpleWriter.close();
         } catch (XMLStreamException e) {
-        	throw new Xb4jException("Exception occured when writing object to xml stream", e);
+            throw new Xb4jException("Exception occured when writing object to xml stream", e);
         }
     }
-    
-	public Class<?> getJavaType() {
-    	return binding.getJavaType();
+
+    public Class<?> getJavaType() {
+        return binding.getJavaType();
     }
-    
+
     public QName getElement() {
-    	return binding.getElement();
+        return binding.getElement();
     }
-    
+
     public BindingModel getModel() {
-    	return binding.getModel();
+        return binding.getModel();
     }
-    
+
 }

@@ -19,34 +19,36 @@ import java.util.GregorianCalendar;
 
 /**
  * Convert the xml schema types dateTime, date and time to Java {@link Date} objects and back again.
- * 
+ *
  * @author Dave Schoorl
  */
 public class DateConverter extends AbstractDateConverter {
 
-	public static final DateConverter XML_TIME = new DateConverter(AbstractDateConverter.TIME_ONLY, NoValidator.INSTANCE);
-	
-	public static final DateConverter XML_DATE = new DateConverter(AbstractDateConverter.DATE_ONLY, NoValidator.INSTANCE);
-	
-	public static final DateConverter XML_DATETIME = new DateConverter(AbstractDateConverter.DATE_TIME, NoValidator.INSTANCE);
-	
-	public DateConverter(String xmlType, IValidator validator) {
-		super(xmlType, validator);
-	}
-	
-	protected GregorianCalendar toCalander(Object value) {
-		GregorianCalendar calendar = new GregorianCalendar(getTimeZone());
-		calendar.setTime((Date)value);
-		return calendar;
-	}
-	
-	protected Object fromCalendar(GregorianCalendar calendar) {
-		return calendar.getTime();
-	}
-	
-	@Override
-	public Class<?> getJavaType() {
-		return Date.class;
-	}
-	
+    public static final DateConverter XML_TIME = new DateConverter(AbstractDateConverter.TIME_ONLY, NoValidator.INSTANCE);
+
+    public static final DateConverter XML_DATE = new DateConverter(AbstractDateConverter.DATE_ONLY, NoValidator.INSTANCE);
+
+    public static final DateConverter XML_DATETIME = new DateConverter(AbstractDateConverter.DATE_TIME, NoValidator.INSTANCE);
+
+    public DateConverter(String xmlType, IValidator validator) {
+        super(xmlType, validator);
+    }
+
+    @Override
+    protected GregorianCalendar toCalander(Object value) {
+        GregorianCalendar calendar = new GregorianCalendar(getTimeZone());
+        calendar.setTime((Date) value);
+        return calendar;
+    }
+
+    @Override
+    protected Object fromCalendar(GregorianCalendar calendar) {
+        return calendar.getTime();
+    }
+
+    @Override
+    public Class<?> getJavaType() {
+        return Date.class;
+    }
+
 }

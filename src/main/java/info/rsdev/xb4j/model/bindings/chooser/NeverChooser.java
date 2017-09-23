@@ -18,19 +18,20 @@ import info.rsdev.xb4j.model.bindings.Ignore;
 import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
- * Never select this option. This is the marshalling counterpart for {@link Ignore} binding. 
- * Use the stateless {@link #INSTANCE} where appropriate.
- * 
+ * Never select this option. This is the marshalling counterpart for {@link Ignore} binding. Use the stateless {@link #INSTANCE}
+ * where appropriate.
+ *
  * @author Dave Schoorl
  */
 public class NeverChooser implements IChooser {
-    
+
     /**
      * Stateless reusable instance of the {@link NeverChooser}
      */
     public static final NeverChooser INSTANCE = new NeverChooser();
-    
-    private NeverChooser() {}
+
+    private NeverChooser() {
+    }
 
     @Override
     public boolean matches(JavaContext javaContext) {

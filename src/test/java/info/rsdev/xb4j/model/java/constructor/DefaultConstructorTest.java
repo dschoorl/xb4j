@@ -31,12 +31,11 @@ public class DefaultConstructorTest {
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
     }
-    
-    @Test(expected=Xb4jException.class)
+
+    @Test(expected = Xb4jException.class)
     public void testNoDefaultConstructor() {
         new DefaultConstructor(SubclassedObjectA.class);    //has no default constructor
     }
-    
-    //TODO: test with anonymous inner classes?
 
+    //TODO: test with anonymous inner classes?
 }

@@ -19,17 +19,19 @@ import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 /**
- * An {@link IGetter} is used during the marshalling process (from java to xml). It extracts from the current 
- * javaContext the new javaContext that will be pushed downwards in the binding hierarchy through the 
+ * An {@link IGetter} is used during the marshalling process (from java to xml). It extracts from the current javaContext the new
+ * javaContext that will be pushed downwards in the binding hierarchy through the
  * {@link IBinding#toXml(SimplifiedXMLStreamWriter, JavaContext)} method.
- * 
+ *
  * @author Dave Schoorl
  */
 public interface IGetter {
-	
-	public JavaContext get(JavaContext javaContext);
-	
+
+    public JavaContext get(JavaContext javaContext);
+
+    @Override
     public int hashCode();
-    
+
+    @Override
     public boolean equals(Object obj);
 }

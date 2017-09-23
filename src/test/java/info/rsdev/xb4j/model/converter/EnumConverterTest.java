@@ -24,21 +24,21 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EnumConverterTest {
-    
+
     private static enum TestEnum {
         TESTON, TESTOFF
     }
-    
+
     private EnumConverter converter = null;
-    
+
     private JavaContext mockContext = null;
-    
+
     @Before
     public void setup() {
         this.converter = new EnumConverter(TestEnum.class);
         this.mockContext = mock(JavaContext.class);
     }
-    
+
     @After
     public void teardown() {
         verifyZeroInteractions(mockContext);    //JavaContext is not used by this converter
@@ -48,13 +48,13 @@ public class EnumConverterTest {
     public void testToText() {
         assertEquals("TESTON", converter.toText(null, TestEnum.TESTON));
     }
-    
+
     @Test
     public void testToJava() {
         assertEquals(TestEnum.TESTOFF, converter.toObject(null, "TESTOFF"));
     }
-    
-    @Test(expected=ValidationException.class)
+
+    @Test(expected = ValidationException.class)
     public void toTextOnNoneEnumType() {
         converter.toText(null, "I am a String, not an enum value");
     }

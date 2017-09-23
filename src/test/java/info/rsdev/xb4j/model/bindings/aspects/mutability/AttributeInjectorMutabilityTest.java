@@ -25,12 +25,12 @@ import org.junit.Before;
 
 public class AttributeInjectorMutabilityTest extends AbstractAttributeMutabilityTest<AttributeInjector> {
 
-	@Before
-	public void setUp() {
-		Root root = new Root(new QName("root"), Object.class);
-		immutableAttribute = new AttributeInjector(new QName("attrib"), FixedValueTestAction.INSTANCE);
-		root.addAttribute(immutableAttribute, "hashcode");
-		root.makeImmutable();
-	}
-	
+    @Before
+    public void setUp() {
+        Root root = new Root(new QName("root"), Object.class);
+        immutableAttribute = new AttributeInjector(new QName("attrib"), FixedValueTestAction.INSTANCE);
+        root.addAttribute(immutableAttribute, "hashcode");
+        root.makeImmutable();
+    }
+
 }

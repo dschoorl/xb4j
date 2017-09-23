@@ -19,25 +19,29 @@ import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
  * Expose the index of the current context object into the sequential collection of the parent binding.
+ *
  * @author Dave Schoorl
  */
 public class Indexer implements IMarshallingAction {
-	
-	public static final Indexer INSTANCE = new Indexer();
-	
-	private Indexer() {}
-	
-	/**
-	 * This action obtains the index of the current context object into a sequential collection of it's parent binding. When the
-	 * parent is not a collection, null is returned.
-	 */
-	@Override
-	public String execute(JavaContext javaContext) throws Xb4jMarshallException {
-		int index = javaContext.getIndexInCollection();
-		if (index < 0) {
-			return null;
-		}
-		return String.valueOf(index);
-	}
-	
+
+    public static final Indexer INSTANCE = new Indexer();
+
+    private Indexer() {
+    }
+
+    /**
+     * This action obtains the index of the current context object into a sequential collection of it's parent binding. When the
+     * parent is not a collection, null is returned.
+     * @param javaContext
+     * @return 
+     */
+    @Override
+    public String execute(JavaContext javaContext) throws Xb4jMarshallException {
+        int index = javaContext.getIndexInCollection();
+        if (index < 0) {
+            return null;
+        }
+        return String.valueOf(index);
+    }
+
 }

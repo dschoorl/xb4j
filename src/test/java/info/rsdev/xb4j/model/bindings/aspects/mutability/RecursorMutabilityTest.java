@@ -25,17 +25,17 @@ import org.junit.Test;
 
 public class RecursorMutabilityTest extends AbstractSingleBindingMutabilityTest<Recursor> {
 
-	@Before
-	public void setUp() {
-		Root root = new Root(new QName("root"), Object.class);
-		immutableElement = new Recursor(new QName("level1"), Object.class, "hashcode");
-		root.setChild(immutableElement);
-		root.makeImmutable();
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetMaxOccurs() {
-		immutableElement.setMaxOccurs(3);
-	}
+    @Before
+    public void setUp() {
+        Root root = new Root(new QName("root"), Object.class);
+        immutableElement = new Recursor(new QName("level1"), Object.class, "hashcode");
+        root.setChild(immutableElement);
+        root.makeImmutable();
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetMaxOccurs() {
+        immutableElement.setMaxOccurs(3);
+    }
 
 }

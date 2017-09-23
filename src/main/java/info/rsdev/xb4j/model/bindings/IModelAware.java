@@ -17,8 +17,8 @@ package info.rsdev.xb4j.model.bindings;
 import info.rsdev.xb4j.model.BindingModel;
 
 /**
- * implementations of this interface are aware that they are part of a larger
- * modelling world and that they can be finalized (that is: been made immutable)
+ * implementations of this interface are aware that they are part of a larger modelling world and that they can be finalized (that
+ * is: been made immutable)
  *
  * @author Dave Schoorl
  */
@@ -36,10 +36,9 @@ public interface IModelAware {
     public boolean isImmutable();
 
     /**
-     * Mark the instance immutable, so that it no longer can be changed. An
-     * implementation is made immutable, the first time it's {@link Root}
-     * binding is used to marshall/unmarshall, so that it can be used in a
-     * threadsafe manner. When a copy is made, the copy is mutable again.
+     * Mark the instance immutable, so that it no longer can be changed. An implementation is made immutable, the first time it's
+     * {@link Root} binding is used to marshall/unmarshall, so that it can be used in a threadsafe manner. When a copy is made, the
+     * copy is mutable again.
      */
     public void makeImmutable();
 

@@ -36,10 +36,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ElementTest {
-    
+
     RecordAndPlaybackXMLStreamReader mockReader = null;
     IBinding mockBinding = null;
-    
+
     @Before
     public void setup() {
         mockReader = mock(RecordAndPlaybackXMLStreamReader.class);
@@ -77,14 +77,14 @@ public class ElementTest {
         Element element = (Element) new Element(new QName("mandatory"));
         assertTrue(element.generatesOutput(new JavaContext(null)));
     }
-    
+
     /* When an {@link Element} has no child binding, but creates a new Java object and has a setter, the new object is set on 
      * the parent JavaContext.
      */
     @Test
     public void setNewObjectOnJavaContextObject() throws XMLStreamException {
         JavaContext context = new JavaContext(new ObjectTree());
-        Element element = (Element)new Element(ObjectA.class).setSetter(new FieldSetter("myObject"));
+        Element element = (Element) new Element(ObjectA.class).setSetter(new FieldSetter("myObject"));
         UnmarshallResult result = element.unmarshall(mockReader, context);
         assertFalse(result.mustHandleUnmarshalledObject());
     }
@@ -101,7 +101,7 @@ public class ElementTest {
         assertNotNull(result.getUnmarshalledObject());
         assertSame(ObjectA.class, result.getUnmarshalledObject().getClass());
     }
-    
+
     /* When an {@link Element} has no child binding, but creates a new Java object but has no setter, the new object is passed on
      * to it's parent binding to handle.
      */

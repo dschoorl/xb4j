@@ -21,39 +21,44 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
 /**
- * 
+ *
  * @author Dave Schoorl
  */
 public class LdapNameConverter implements IValueConverter {
-	
-	public static final LdapNameConverter INSTANCE = new LdapNameConverter();
-	
-	private LdapNameConverter() {}
 
-	@Override
-	public LdapName toObject(JavaContext javaContext, String value) throws Xb4jException {
-		if (value == null) { return null; }
-		
-		try {
-			return new LdapName(value);
-		} catch (InvalidNameException e) {
-			throw new Xb4jException(String.format("Could not convert text '%s' to LdapName: ", value));
-		}
-	}
+    public static final LdapNameConverter INSTANCE = new LdapNameConverter();
 
-	@Override
-	public String toText(JavaContext javaContext, Object value) throws Xb4jException {
-		if (value == null) { return null; }
-		if (!(value instanceof LdapName)) {
-			throw new Xb4jException(String.format("Expected a %s, but was a %s", LdapName.class.getName(), 
-					value.getClass().getName()));
-		}
-		return ((LdapName)value).toString();
-	}
+    private LdapNameConverter() {
+    }
+
+    @Override
+    public LdapName toObject(JavaContext javaContext, String value) throws Xb4jException {
+        if (value == null) {
+            return null;
+        }
+
+        try {
+            return new LdapName(value);
+        } catch (InvalidNameException e) {
+            throw new Xb4jException(String.format("Could not convert text '%s' to LdapName: ", value));
+        }
+    }
+
+    @Override
+    public String toText(JavaContext javaContext, Object value) throws Xb4jException {
+        if (value == null) {
+            return null;
+        }
+        if (!(value instanceof LdapName)) {
+            throw new Xb4jException(String.format("Expected a %s, but was a %s", LdapName.class.getName(),
+                    value.getClass().getName()));
+        }
+        return ((LdapName) value).toString();
+    }
 
     @Override
     public Class<?> getJavaType() {
         return LdapName.class;
     }
-	
+
 }

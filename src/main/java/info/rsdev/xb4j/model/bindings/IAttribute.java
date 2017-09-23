@@ -23,7 +23,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * 
+ *
  * @author Dave Schoorl
  */
 public interface IAttribute {
@@ -35,8 +35,7 @@ public interface IAttribute {
     public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException;
 
     /**
-     * Get the value of this attribute from the {@link JavaContext}, fallback on
-     * a possible defaultValue defined by this attribute.
+     * Get the value of this attribute from the {@link JavaContext}, fallback on a possible defaultValue defined by this attribute.
      *
      * @param javaContext
      * @return the value

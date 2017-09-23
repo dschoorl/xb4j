@@ -20,117 +20,127 @@ import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.constructor.ICreator;
 import info.rsdev.xb4j.model.java.constructor.IJavaArgument;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-
 import javax.xml.namespace.QName;
-
 
 public abstract class AbstractContainerBinding extends AbstractBinding implements IContainerBinding {
 
-    private ArrayList<IBinding> children = new ArrayList<IBinding>();
-    
+    private final ArrayList<IBinding> children = new ArrayList<>();
+
     protected AbstractContainerBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
-    	super(elementFetcher, objectCreator);
+        super(elementFetcher, objectCreator);
     }
-    
+
     /**
-     * <p>When unmarshalling, the child binding will know how to get from the current element to the next one. Which
-     * element to expect next. Any, choice, sequence</p> 
+     * <p>
+     * When unmarshalling, the child binding will know how to get from the current element to the next one. Which element to expect
+     * next. Any, choice, sequence</p>
+     *
+     * @param <T>
      * @param childBinding
+     * @param getter
+     * @param setter
      * @return the childBinding
      */
+    @Override
     public <T extends IBinding> T add(T childBinding, IGetter getter, ISetter setter) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
-        
-		getSemaphore().lock();
-		try {
-			validateMutability();
-			add(childBinding);
-	        childBinding.setGetter(getter);
-	        childBinding.setSetter(setter);
-		} finally {
-			getSemaphore().unlock();
-		}
-		return childBinding;
+
+        getSemaphore().lock();
+        try {
+            validateMutability();
+            add(childBinding);
+            childBinding.setGetter(getter);
+            childBinding.setSetter(setter);
+        } finally {
+            getSemaphore().unlock();
+        }
+        return childBinding;
     }
-    
+
     /**
-     * Convenience method, which adds a child binding, and navigating the object tree from parent to child is done through
-     * the field with the given fieldname.
-     * 
+     * Convenience method, which adds a child binding, and navigating the object tree from parent to child is done through the field
+     * with the given fieldname.
+     *
+     * @param <T>
      * @param childBinding
      * @param fieldName
      * @return the childBinding
      */
+    @Override
     public <T extends IBinding> T add(T childBinding, String fieldName) {
         if (childBinding == null) {
             throw new NullPointerException("Child binding cannot be null");
         }
         if (fieldName == null) {
-        	throw new NullPointerException("Fieldname cannot be null");
+            throw new NullPointerException("Fieldname cannot be null");
         }
-        
-		getSemaphore().lock();
-		try {
-			validateMutability();
-			add(childBinding);
-	        FieldAccessor provider = new FieldAccessor(fieldName);
-	        childBinding.setGetter(provider);
-	        childBinding.setSetter(provider);
-		} finally {
-			getSemaphore().unlock();
-		}
-		return childBinding;
+
+        getSemaphore().lock();
+        try {
+            validateMutability();
+            add(childBinding);
+            FieldAccessor provider = new FieldAccessor(fieldName);
+            childBinding.setGetter(provider);
+            childBinding.setSetter(provider);
+        } finally {
+            getSemaphore().unlock();
+        }
+        return childBinding;
     }
 
     /**
-     * Add a {@link IBinding} to a binding container. A bidirectional relationship will be established between the
-     * container and the child.
-     * 
+     * Add a {@link IBinding} to a binding container. A bidirectional relationship will be established between the container and the
+     * child.
+     *
+     * @param <T>
      * @param childBinding the binding to add to this group
      * @return the childBinding
      */
+    @Override
     public <T extends IBinding> T add(T childBinding) {
-		getSemaphore().lock();
-		try {
-			validateMutability();
-	        this.children.add(childBinding);
-	        childBinding.setParent(this);   //maintain bidirectional relationship
-		} finally {
-			getSemaphore().unlock();
-		}
+        getSemaphore().lock();
+        try {
+            validateMutability();
+            this.children.add(childBinding);
+            childBinding.setParent(this);   //maintain bidirectional relationship
+        } finally {
+            getSemaphore().unlock();
+        }
         return childBinding;
     }
-    
+
     /**
      * Get the children for this container or an empty list when there are none. The Collection of children cannot be changed.
+     *
      * @return an unmodifiable collection of child {@link IBinding bindings}
      */
     public Collection<IBinding> getChildren() {
         return Collections.unmodifiableList(this.children);
     }
-    
-	@Override
-	public void resolveReferences() {
-		for (IBinding child: this.children) {
-			child.resolveReferences();
-		}
-	}
-	
-	@Override
-	public IJavaArgument findArgumentBindingOrAttribute(QName argumentQName) {
-	    IJavaArgument argumentBinding = super.findArgumentBindingOrAttribute(argumentQName);
-	    if (argumentBinding == null) {
-	        for (IBinding child: this.children) {
-	            argumentBinding = child.findArgumentBindingOrAttribute(argumentQName);
-	            if (argumentBinding != null) { break; }
-	        }
-	    }
-	    return argumentBinding;
-	}
+
+    @Override
+    public void resolveReferences() {
+        this.children.forEach((child) -> {
+            child.resolveReferences();
+        });
+    }
+
+    @Override
+    public IJavaArgument findArgumentBindingOrAttribute(QName argumentQName) {
+        IJavaArgument argumentBinding = super.findArgumentBindingOrAttribute(argumentQName);
+        if (argumentBinding == null) {
+            for (IBinding child : this.children) {
+                argumentBinding = child.findArgumentBindingOrAttribute(argumentQName);
+                if (argumentBinding != null) {
+                    break;
+                }
+            }
+        }
+        return argumentBinding;
+    }
 }

@@ -32,16 +32,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class SimpleArgumentTest {
-    
+
     private static final QName GETAL = new QName("getal");
 
     private BindingModel model = null;
-    
+
     @Before
     public void setUp() throws Exception {
         model = new BindingModel();
         Root root = (new Root(new QName("root"), ObjectTree.class));
-        Sequence objectB = root.setChild(new Sequence((IElementFetchStrategy)null, new ArgsConstructor(ObjectB.class, GETAL)), "myObject");
+        Sequence objectB = root.setChild(new Sequence((IElementFetchStrategy) null, new ArgsConstructor(ObjectB.class, GETAL)), "myObject");
         objectB.add(new SimpleArgument(GETAL, IntegerConverter.INSTANCE).setOptional(true), "value");
         model.register(root);
     }
@@ -52,7 +52,7 @@ public class SimpleArgumentTest {
             ObjectTree instance = (ObjectTree) model.toJava(XmlStreamFactory.makeReader(stream));
             assertNotNull(instance);
             assertSame(ObjectB.class, instance.getMyObject().getClass());
-            assertEquals(Integer.valueOf("123"), ((ObjectB)instance.getMyObject()).getValue());
+            assertEquals(Integer.valueOf("123"), ((ObjectB) instance.getMyObject()).getValue());
         }
     }
 

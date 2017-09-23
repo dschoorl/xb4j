@@ -18,18 +18,19 @@ import info.rsdev.xb4j.model.bindings.Choice;
 import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
- * An {@link IChooser} is used during the marshalling process (from java to xml). It select's the appropriate option from a 
+ * An {@link IChooser} is used during the marshalling process (from java to xml). It select's the appropriate option from a
  * {@link Choice} binding that is applicable for the object currently being marshalled.
- * 
+ *
  * @author Dave Schoorl
  */
 public interface IChooser {
 
-	/**
-	 * When the java context matches the option of a {@link Choice} binding coupled to this {@link IChooser}, that option 
-	 * (selection path) will be used for further marshalling of the java context
-	 * @param javaContext the java object tree being marshalled
-	 * @return true when the option coupled to this {@link IChooser} matches the java context, false otherwise
-	 */
-	public boolean matches(JavaContext javaContext);
+    /**
+     * When the java context matches the option of a {@link Choice} binding coupled to this {@link IChooser}, that option (selection
+     * path) will be used for further marshalling of the java context
+     *
+     * @param javaContext the java object tree being marshalled
+     * @return true when the option coupled to this {@link IChooser} matches the java context, false otherwise
+     */
+    public boolean matches(JavaContext javaContext);
 }

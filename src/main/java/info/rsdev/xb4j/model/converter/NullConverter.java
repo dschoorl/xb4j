@@ -16,31 +16,32 @@ package info.rsdev.xb4j.model.converter;
 
 import info.rsdev.xb4j.model.java.JavaContext;
 
-
 /**
  * Convert anything and everything to null, allways. The sole purpose of this converter at the moment of inception is to aid
  * automated testing.
- * 
+ *
  * @author Dave Schoorl
  */
 public class NullConverter implements IValueConverter {
-	
-	public static final NullConverter INSTANCE = new NullConverter();
-	
-	private NullConverter() {}
-	
-	@Override
-	public Object toObject(JavaContext javaContext, String value) {
-		return null;
-	}
-	
-	@Override
-	public String toText(JavaContext javaContext, Object value) {
-		return null;
-	}
-	
-	public Class<?> getJavaType() {
-	    return Object.class;
-	}
-	
+
+    public static final NullConverter INSTANCE = new NullConverter();
+
+    private NullConverter() {
+    }
+
+    @Override
+    public Object toObject(JavaContext javaContext, String value) {
+        return null;
+    }
+
+    @Override
+    public String toText(JavaContext javaContext, Object value) {
+        return null;
+    }
+
+    @Override
+    public Class<?> getJavaType() {
+        return Object.class;
+    }
+
 }

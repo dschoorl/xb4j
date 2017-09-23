@@ -21,13 +21,13 @@ import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import javax.xml.stream.XMLStreamException;
 
 public class NoArgument implements IJavaArgument {
-    
+
     public static final NoArgument INSTANCE = new NoArgument();
 
     @Override
     public UnmarshallResult getParameterValue(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext)
             throws XMLStreamException {
-        
+
         return UnmarshallResult.NO_RESULT;
     }
 

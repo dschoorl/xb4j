@@ -14,38 +14,37 @@
  */
 package info.rsdev.xb4j.model.java.accessor;
 
+import info.rsdev.xb4j.model.java.JavaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
  * A stateless {@link ISetter} implementation to support null-safe operations; this implementation does not set the value on the
  * javaContext and communicates this by always returning false on the {@link #set(JavaContext, Object)} method.
- * 
+ *
  * @author Dave Schoorl
  */
 public final class NoSetter implements ISetter {
-    
+
     public static final NoSetter INSTANCE = new NoSetter();
-    
-    private Logger logger = LoggerFactory.getLogger(NoSetter.class);
-    
+
+    private final Logger logger = LoggerFactory.getLogger(NoSetter.class);
+
     private NoSetter() {
     }
-    
+
     @Override
     public boolean set(JavaContext javaContext, Object propertyValue) {
         if (logger.isTraceEnabled()) {
-            logger.trace(String.format("[NoSetter] Let parent binding handle value '%s' for object '%s'", propertyValue, 
+            logger.trace(String.format("[NoSetter] Let parent binding handle value '%s' for object '%s'", propertyValue,
                     javaContext.getContextObject()));
         }
         return false;
     }
-    
+
     @Override
     public String toString() {
         return NoSetter.class.getSimpleName();
     }
-    
+
 }

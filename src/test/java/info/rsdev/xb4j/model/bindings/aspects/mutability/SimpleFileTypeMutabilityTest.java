@@ -25,23 +25,22 @@ import org.junit.Test;
 
 public class SimpleFileTypeMutabilityTest extends BaseBindingMutabilityTest<SimpleFileType> {
 
-	@Before
-	public void setUp() {
-		Root root = new Root(new QName("root"), Object.class);
-		immutableElement = new SimpleFileType(new QName("level1"));
-		root.setChild(immutableElement);
-		root.makeImmutable();
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetCodingtypeFrom() {
-		immutableElement.setCodingtypeFrom(new QName("encodingAttribute"), "Base64");
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetFilenameHintFrom() {
-		immutableElement.setFilenameHintFrom(new QName("filenameAttribute"), "archive.zip");
-	}
-	
-	
+    @Before
+    public void setUp() {
+        Root root = new Root(new QName("root"), Object.class);
+        immutableElement = new SimpleFileType(new QName("level1"));
+        root.setChild(immutableElement);
+        root.makeImmutable();
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetCodingtypeFrom() {
+        immutableElement.setCodingtypeFrom(new QName("encodingAttribute"), "Base64");
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetFilenameHintFrom() {
+        immutableElement.setFilenameHintFrom(new QName("filenameAttribute"), "archive.zip");
+    }
+
 }

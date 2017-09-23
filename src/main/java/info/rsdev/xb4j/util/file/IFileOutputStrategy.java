@@ -17,14 +17,14 @@ package info.rsdev.xb4j.util.file;
 import java.io.File;
 
 public interface IFileOutputStrategy {
-	
-	/**
-	 * Create a {@link File} on the filesystem who's name is based on the provided hint. The exact path of the {@link File} 
-	 * is implementation dependend.
-	 * 
-	 * @param hint
-	 * @return The {@link File} handle to the file created on the filesystem
-	 */
-	public File getAndCreateFile(String hint);
-	
+
+    /**
+     * Create a {@link File} on the filesystem who's name is based on the provided hint. The exact path of the {@link File} is
+     * implementation dependend.
+     *
+     * @param hint
+     * @return The {@link File} handle to the file created on the filesystem
+     */
+    public File getAndCreateFile(String hint);
+
 }

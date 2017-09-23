@@ -18,100 +18,110 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.lang.model.SourceVersion;
 
 /**
  * Get or set the value of a class property by accessing it's {@link Field} by fieldname
+ *
  * @author Dave Schoorl
  */
 public abstract class AbstractFieldAccessor {
-	
-	private ConcurrentHashMap<Class<?>, Field> cachedFields =new ConcurrentHashMap<Class<?>, Field>();
-	
-	private String fieldName = null;
-	
-	public AbstractFieldAccessor(String fieldName) {
-		this.fieldName = validate(fieldName);
-	}
-	
-	protected String getFieldname() {
-		return this.fieldName;
-	}
-	
-	protected Field getField(Class<?> contextType, String fieldName) {
-		if (contextType == null) {
-			throw new NullPointerException("Type must be provided");
-		}
-		if (fieldName == null) {
-			throw new NullPointerException("The name of the Field must be provided");
-		}
-		
-		//return cached instance when applicable
-		if (cachedFields.containsKey(contextType)) {
-			return cachedFields.get(contextType);
-		}
-		
-		Field targetField = null;
-		Class<?> candidateClass = contextType;
-		while (targetField == null) {
-			for (Field candidate: candidateClass.getDeclaredFields()) {
-				if (candidate.getName().equals(fieldName)) {
-					targetField = candidate;
-					break;
-				}
-			}
-			if (targetField ==  null) {
-				candidateClass = candidateClass.getSuperclass();
-				if (candidateClass == null) {
-					throw new IllegalStateException(String.format("Field '%s' is not definied in the entire class hierarchy " +
-							"of '%s'.",fieldName, contextType.getName()));
-				}
-			}
-		}
-		
-		if (!Modifier.isPublic(((Member)targetField).getModifiers()) || !Modifier.isPublic(((Member)targetField).getDeclaringClass().getModifiers())) {
-			targetField.setAccessible(true);
-		}
-		//TODO: check if the field is final? warn if static?
-		
-		Field returnField = cachedFields.putIfAbsent(contextType, targetField);
-		if (returnField == null) {
-			returnField = targetField;
-		}
-		return returnField;
-	}
-	
-	private String validate(String fieldName) {
-		if (!SourceVersion.isIdentifier(fieldName)) {
-			throw new IllegalArgumentException(String.format("Not a valid name for a field: %s", fieldName));
-		}
-		return fieldName;
-	}
-	
-	@Override
-	public String toString() {
-	    return String.format("%s[field=%s]", getClass().getSimpleName(), fieldName);
-	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((this.fieldName == null) ? 0 : this.fieldName.hashCode());
-		return result;
-	}
+    private final ConcurrentHashMap<Class<?>, Field> cachedFields = new ConcurrentHashMap<>();
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		AbstractFieldAccessor other = (AbstractFieldAccessor) obj;
-		if (this.fieldName == null) {
-			if (other.fieldName != null) return false;
-		} else if (!this.fieldName.equals(other.fieldName)) return false;
-		return true;
-	}
-	
+    private String fieldName = null;
+
+    public AbstractFieldAccessor(String fieldName) {
+        this.fieldName = validate(fieldName);
+    }
+
+    protected String getFieldname() {
+        return this.fieldName;
+    }
+
+    protected Field getField(Class<?> contextType, String fieldName) {
+        if (contextType == null) {
+            throw new NullPointerException("Type must be provided");
+        }
+        if (fieldName == null) {
+            throw new NullPointerException("The name of the Field must be provided");
+        }
+
+        //return cached instance when applicable
+        if (cachedFields.containsKey(contextType)) {
+            return cachedFields.get(contextType);
+        }
+
+        Field targetField = null;
+        Class<?> candidateClass = contextType;
+        while (targetField == null) {
+            for (Field candidate : candidateClass.getDeclaredFields()) {
+                if (candidate.getName().equals(fieldName)) {
+                    targetField = candidate;
+                    break;
+                }
+            }
+            if (targetField == null) {
+                candidateClass = candidateClass.getSuperclass();
+                if (candidateClass == null) {
+                    throw new IllegalStateException(String.format("Field '%s' is not definied in the entire class hierarchy "
+                            + "of '%s'.", fieldName, contextType.getName()));
+                }
+            }
+        }
+
+        if (!Modifier.isPublic(((Member) targetField).getModifiers()) || !Modifier.isPublic(((Member) targetField).getDeclaringClass().getModifiers())) {
+            targetField.setAccessible(true);
+        }
+        //TODO: check if the field is final? warn if static?
+
+        Field returnField = cachedFields.putIfAbsent(contextType, targetField);
+        if (returnField == null) {
+            returnField = targetField;
+        }
+        return returnField;
+    }
+
+    private String validate(String fieldName) {
+        if (!SourceVersion.isIdentifier(fieldName)) {
+            throw new IllegalArgumentException(String.format("Not a valid name for a field: %s", fieldName));
+        }
+        return fieldName;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s[field=%s]", getClass().getSimpleName(), fieldName);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((this.fieldName == null) ? 0 : this.fieldName.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        AbstractFieldAccessor other = (AbstractFieldAccessor) obj;
+        if (this.fieldName == null) {
+            if (other.fieldName != null) {
+                return false;
+            }
+        } else if (!this.fieldName.equals(other.fieldName)) {
+            return false;
+        }
+        return true;
+    }
+
 }

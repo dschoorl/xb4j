@@ -28,26 +28,28 @@ import javax.xml.namespace.QName;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ComplexTypeMutabilityTest extends AbstractSingleBindingMutabilityTest<ComplexType>{
+public class ComplexTypeMutabilityTest extends AbstractSingleBindingMutabilityTest<ComplexType> {
 
-	@Before
-	public void setUp() {
-		immutableElement = new ComplexType("identifier", "namespace");
-		immutableElement.makeImmutable();
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class) @Override
-	public void testCannotSetParent() {
-		assertNull(immutableElement.getParent());
-		immutableElement.setParent(new Element(new QName("ghost")));
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class) @Override
-	public void testCannotAddAttributeWithGetterSetter() {
-		Root root = new Root(new QName("root"), Object.class);
-		ComplexType type = new ComplexType(new QName("complex"), root, "hashcode");
-		root.makeImmutable();
-		type.addAttribute(new Attribute(new QName("number")), NoGetter.INSTANCE, NoSetter.INSTANCE);
-	}
+    @Before
+    public void setUp() {
+        immutableElement = new ComplexType("identifier", "namespace");
+        immutableElement.makeImmutable();
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    @Override
+    public void testCannotSetParent() {
+        assertNull(immutableElement.getParent());
+        immutableElement.setParent(new Element(new QName("ghost")));
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    @Override
+    public void testCannotAddAttributeWithGetterSetter() {
+        Root root = new Root(new QName("root"), Object.class);
+        ComplexType type = new ComplexType(new QName("complex"), root, "hashcode");
+        root.makeImmutable();
+        type.addAttribute(new Attribute(new QName("number")), NoGetter.INSTANCE, NoSetter.INSTANCE);
+    }
 
 }

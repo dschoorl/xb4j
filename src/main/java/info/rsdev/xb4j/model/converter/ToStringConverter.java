@@ -16,42 +16,42 @@ package info.rsdev.xb4j.model.converter;
 
 import info.rsdev.xb4j.model.java.JavaContext;
 
-
 /**
- * Converts the object add hand to a String, by calling the {@link #toString()} method on the value. The Singleton  
+ * Converts the object add hand to a String, by calling the {@link #toString()} method on the value. The Singleton
  * {@link ToStringConverter#INSTANCE} does not perform any validation.
- * 
+ *
  * @author Dave Schoorl
  */
 public class ToStringConverter implements IValueConverter {
-	
-	public static final ToStringConverter INSTANCE = new ToStringConverter();
-	
-	private final IValidator validator;
-	
-	private ToStringConverter() {
-		this.validator = NoValidator.INSTANCE;
-	}
-	
-	public ToStringConverter(IValidator validator) {
-		if (validator == null) {
-			throw new NullPointerException("you must provide a IValidator implementation");
-		}
-		this.validator = validator;
-	}
-	
-	@Override
-	public Object toObject(JavaContext javaContext, String value) {
-		return value;
-	}
-	
-	@Override
-	public String toText(JavaContext javaContext, Object value) {
-		return validator.isValid(value==null?null:value.toString());
-	}
-	
-	public Class<?> getJavaType() {
-	    return String.class;
-	}
-	
+
+    public static final ToStringConverter INSTANCE = new ToStringConverter();
+
+    private final IValidator validator;
+
+    private ToStringConverter() {
+        this.validator = NoValidator.INSTANCE;
+    }
+
+    public ToStringConverter(IValidator validator) {
+        if (validator == null) {
+            throw new NullPointerException("you must provide a IValidator implementation");
+        }
+        this.validator = validator;
+    }
+
+    @Override
+    public Object toObject(JavaContext javaContext, String value) {
+        return value;
+    }
+
+    @Override
+    public String toText(JavaContext javaContext, Object value) {
+        return validator.isValid(value == null ? null : value.toString());
+    }
+
+    @Override
+    public Class<?> getJavaType() {
+        return String.class;
+    }
+
 }

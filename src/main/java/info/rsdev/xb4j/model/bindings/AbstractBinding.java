@@ -51,29 +51,29 @@ import org.slf4j.LoggerFactory;
  * @author Dave Schoorl
  */
 public abstract class AbstractBinding implements IBinding {
-    
-    private Logger logger = LoggerFactory.getLogger(AbstractBinding.class);
-    
+
+    private final Logger logger = LoggerFactory.getLogger(AbstractBinding.class);
+
     private ActionManager actionManager = null;
-    
+
     private IElementFetchStrategy elementFetcher = null;
-    
+
     /**
      * An implementation of {@link ICreator} that knows which Java class instance must be created for this binding. When this
      * binding does not create a new Java instance, the implementation should be a {@link NullCreator}
      */
     private ICreator objectCreator = null;
-    
+
     private IGetter getter = null;
-    
+
     private ISetter setter = null;
-    
+
     private IBinding parent = null;
-    
+
     private List<IAttribute> attributes = null;
-    
+
     private boolean isOptional = false; // by default, everything is mandatory, unless explicitly made optional
-    
+
     protected AbstractBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
         setElementFetchStrategy(elementFetcher);
         setObjectCreator(objectCreator);
@@ -81,7 +81,7 @@ public abstract class AbstractBinding implements IBinding {
         this.setter = NoSetter.INSTANCE;
         this.actionManager = new ActionManager();
     }
-    
+
     /**
      * Copy constructor that copies the properties of the original binding in a
      *
@@ -90,7 +90,7 @@ public abstract class AbstractBinding implements IBinding {
     protected AbstractBinding(AbstractBinding original) {
         copyFields(original, original.elementFetcher);
     }
-    
+
     /**
      * Copy constructor that copies the properties of the original binding in a
      *
@@ -100,7 +100,7 @@ public abstract class AbstractBinding implements IBinding {
     protected AbstractBinding(AbstractBinding original, IElementFetchStrategy elementFetcher) {
         copyFields(original, elementFetcher);
     }
-    
+
     private void copyFields(AbstractBinding original, IElementFetchStrategy elementFetcher) {
         this.actionManager = original.actionManager;
         this.elementFetcher = elementFetcher;
@@ -110,14 +110,13 @@ public abstract class AbstractBinding implements IBinding {
         this.isOptional = original.isOptional;
         if (original.attributes != null) {
             this.attributes = new LinkedList<>();
-            for (IAttribute originalAttribute : original.attributes) {
-                this.attributes.add(originalAttribute.copy(this)); // TODO: copy attributes as well, where copy is attached to new
-                                                                   // binding
-            }
+            original.attributes.forEach((originalAttribute) -> {
+                this.attributes.add(originalAttribute.copy(this));
+            });
         }
         this.parent = null; // clear parent, so that copy can be used in another binding hierarchy
     }
-    
+
     @Override
     public IBinding addAttribute(IAttribute attribute, String fieldName) {
         if (fieldName == null) {
@@ -132,7 +131,7 @@ public abstract class AbstractBinding implements IBinding {
             getSemaphore().unlock();
         }
     }
-    
+
     @Override
     public IBinding addAttribute(IAttribute attribute, IGetter getter, ISetter setter) {
         if (attribute == null) {
@@ -162,18 +161,18 @@ public abstract class AbstractBinding implements IBinding {
         }
         return this;
     }
-    
+
     public Collection<IAttribute> getAttributes() {
         if (this.attributes == null) {
             return Collections.emptyList();
         }
         return Collections.unmodifiableCollection(this.attributes);
     }
-    
+
     public boolean hasAttributes() {
         return (this.attributes != null) && !this.attributes.isEmpty();
     }
-    
+
     @Override
     public QName getElement() {
         if (elementFetcher != null) {
@@ -181,19 +180,19 @@ public abstract class AbstractBinding implements IBinding {
         }
         return null;
     }
-    
+
     @Override
     public Class<?> getJavaType() {
         return objectCreator.getJavaType();
     }
-    
+
     @Override
     public JavaContext newInstance(RecordAndPlaybackXMLStreamReader staxReader, JavaContext currentContext) {
         JavaContext newContext = currentContext.newContext(objectCreator.newInstance(this, staxReader));
         newContext = this.actionManager.executeActions(ExecutionPhase.AFTER_OBJECT_CREATION, newContext);
         return newContext;
     }
-    
+
     /**
      * Select a non-null context (if possible), where the newJavaContext takes precedence over the javaContext, when both of them
      * are not null.
@@ -208,7 +207,7 @@ public abstract class AbstractBinding implements IBinding {
         }
         return javaContext;
     }
-    
+
     private void setElementFetchStrategy(IElementFetchStrategy elementFetcher) {
         if (elementFetcher == null) {
             throw new NullPointerException("IElementFetchStrategy cannot be null");
@@ -219,11 +218,11 @@ public abstract class AbstractBinding implements IBinding {
         // called via the constructor only: no need to validate mutability
         this.elementFetcher = elementFetcher;
     }
-    
+
     protected IElementFetchStrategy getElementFetchStrategy() {
         return this.elementFetcher;
     }
-    
+
     private void setObjectCreator(ICreator objectCreator) {
         if (objectCreator == null) {
             throw new NullPointerException("ICreator cannot be null. Use NullCreator instance when neccesary.");
@@ -234,7 +233,7 @@ public abstract class AbstractBinding implements IBinding {
         // called via the constructor only: no need to validate mutability
         this.objectCreator = objectCreator;
     }
-    
+
     @Override
     public IBinding setGetter(IGetter getter) {
         if (getter == null) {
@@ -249,7 +248,7 @@ public abstract class AbstractBinding implements IBinding {
         }
         return this;
     }
-    
+
     @Override
     public IBinding setSetter(ISetter setter) {
         if (setter == null) {
@@ -264,13 +263,13 @@ public abstract class AbstractBinding implements IBinding {
         }
         return this;
     }
-    
+
     @Override
     public IBinding addAction(IPhasedAction action) {
         if (action == null) {
             throw new NullPointerException("You must provide an IPhasedAction implementation");
         }
-        
+
         getSemaphore().lock();
         try {
             validateMutability();
@@ -280,11 +279,11 @@ public abstract class AbstractBinding implements IBinding {
         }
         return this;
     }
-    
+
     public boolean hasSetter() {
         return (this.setter != null) && !(this.setter instanceof NoSetter);
     }
-    
+
     @Override
     public void setParent(IBinding parent) {
         if (parent == null) {
@@ -293,7 +292,7 @@ public abstract class AbstractBinding implements IBinding {
         if ((this.parent != null) && !this.parent.equals(parent)) {
             throw new IllegalArgumentException(String.format("This binding '%s' is already part of a binding tree.", this));
         }
-        
+
         ISemaphore topLevelElement = getSemaphore();
         topLevelElement.lock();
         try {
@@ -303,40 +302,40 @@ public abstract class AbstractBinding implements IBinding {
             topLevelElement.unlock();
         }
     }
-    
+
     @Override
     public IBinding getParent() {
         return this.parent;
     }
-    
+
     @Override
     public ISemaphore getSemaphore() {
         IBinding semaphoreBinding = this;
         while (semaphoreBinding.getParent() != null) {
             semaphoreBinding = semaphoreBinding.getParent();
         }
-        
+
         if (!(semaphoreBinding instanceof ISemaphore)) {
             return NullSafeSemaphore.INSTANCE; // provide nullsafe lock/unlock utility for cases where the binding is not yet part
-                                               // of a full tree
+            // of a full tree
         }
         return (ISemaphore) semaphoreBinding;
     }
-    
+
     @Override
     public IModelAware getModelAware() {
         IBinding modelAwareBinding = this;
         while (modelAwareBinding.getParent() != null) {
             modelAwareBinding = modelAwareBinding.getParent();
         }
-        
+
         if (!(modelAwareBinding instanceof IModelAware)) {
             return NullSafeModelAware.INSTANCE; // provide nullsafe utility for cases where the binding is not yet part of a full
-                                                // tree
+            // tree
         }
         return (IModelAware) modelAwareBinding;
     }
-    
+
     @Override
     public boolean setProperty(JavaContext javaContext, Object propertyValue) {
         if (logger.isTraceEnabled()) {
@@ -344,7 +343,7 @@ public abstract class AbstractBinding implements IBinding {
         }
         return this.setter.set(javaContext, propertyValue);
     }
-    
+
     @Override
     public JavaContext getProperty(JavaContext javaContext) {
         if (javaContext.getContextObject() == null) {
@@ -352,19 +351,19 @@ public abstract class AbstractBinding implements IBinding {
         }
         return this.getter.get(javaContext);
     }
-    
+
     public boolean isExpected(QName element) {
         if (element == null) {
             throw new NullPointerException("QName cannot be null");
         }
         return element.equals(getElement());
     }
-    
+
     @Override
     public boolean isOptional() {
         return this.isOptional;
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public <T extends IBinding> T setOptional(boolean isOptional) {
@@ -377,7 +376,7 @@ public abstract class AbstractBinding implements IBinding {
         }
         return (T) this;
     }
-    
+
     public void attributesToXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
         if ((attributes != null) && !attributes.isEmpty()) {
             for (IAttribute attribute : this.attributes) {
@@ -385,33 +384,33 @@ public abstract class AbstractBinding implements IBinding {
             }
         }
     }
-    
+
     public void attributesToJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         Collection<IAttribute> expectedAttributes = getAttributes();
         if ((expectedAttributes != null) && !expectedAttributes.isEmpty()) {
-            Map<QName, String> attributes = staxReader.getAttributes();
-            if (attributes != null) {
-                attributes = new HashMap<>(attributes); // copy attributes that were encountered in xml
+            Map<QName, String> actualAttributes = staxReader.getAttributes();
+            if (actualAttributes != null) {
+                actualAttributes = new HashMap<>(actualAttributes);
                 for (IAttribute attribute : expectedAttributes) {
-                    if (!attributes.containsKey(attribute.getAttributeName()) && attribute.isRequired()) {
+                    if (!actualAttributes.containsKey(attribute.getAttributeName()) && attribute.isRequired()) {
                         throw new Xb4jException(String.format("%s is required but not found in xml for %s", attribute, this));
                     }
-                    String value = attributes.get(attribute.getAttributeName());
+                    String value = actualAttributes.get(attribute.getAttributeName());
                     attribute.toJava(value, javaContext);
                 }
             }
         }
     }
-    
+
     @Override
     public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         if (logger.isTraceEnabled()) {
             logger.trace("{Unmarshalling} " + getPath());
         }
         javaContext = this.actionManager.executeActions(ExecutionPhase.BEFORE_UNMARSHALLING, javaContext);
-        
+
         UnmarshallResult result = unmarshall(staxReader, javaContext);
-        
+
         if (this.actionManager.hasActionsForPhase(ExecutionPhase.AFTER_UNMARSHALLING)) {
             JavaContext actionContext = javaContext.getContextObject() == null
                     ? javaContext.newContext(result.getUnmarshalledObject()) : javaContext;
@@ -419,7 +418,7 @@ public abstract class AbstractBinding implements IBinding {
         }
         return result;
     }
-    
+
     /**
      * The implementation of the Xml to Java routine
      *
@@ -430,14 +429,14 @@ public abstract class AbstractBinding implements IBinding {
      */
     public abstract UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext)
             throws XMLStreamException;
-    
+
     @Override
     public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
         javaContext = this.actionManager.executeActions(ExecutionPhase.BEFORE_MARSHALLING, javaContext);
         marshall(staxWriter, javaContext);
         this.actionManager.executeActions(ExecutionPhase.AFTER_MARSHALLING, javaContext);
     }
-    
+
     /**
      * The implementation of the Java to Xml routine
      *
@@ -446,7 +445,7 @@ public abstract class AbstractBinding implements IBinding {
      * @throws XMLStreamException
      */
     public abstract void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException;
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -463,11 +462,11 @@ public abstract class AbstractBinding implements IBinding {
             sb.append(separator).append("javaType=").append(collectionType.getName());
             separator = ",";
         }
-        
+
         sb.append(separator).append("path=").append(getPath()).append("]");
         return sb.toString();
     }
-    
+
     @Override
     public String getPath() {
         List<String> pathToRoot = new ArrayList<>();
@@ -480,14 +479,14 @@ public abstract class AbstractBinding implements IBinding {
             pathToRoot.add(bindingType);
             binding = binding.getParent();
         }
-        
+
         StringBuilder sb = new StringBuilder();
         for (int i = pathToRoot.size() - 1; i >= 0; i--) {
             sb.append("/").append(pathToRoot.get(i));
         }
         return sb.toString();
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -500,7 +499,7 @@ public abstract class AbstractBinding implements IBinding {
         result = prime * result + ((this.setter == null) ? 0 : this.setter.hashCode());
         return result;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -553,7 +552,7 @@ public abstract class AbstractBinding implements IBinding {
         }
         return true;
     }
-    
+
     @Override
     public void validateMutability() {
         ISemaphore semaphore = getSemaphore();
@@ -567,21 +566,21 @@ public abstract class AbstractBinding implements IBinding {
             semaphore.unlock();
         }
     }
-    
+
     @Override
     public IJavaArgument findArgumentBindingOrAttribute(QName argumentQName) {
         // this implementation looks only at itself (including it's attributes)
         if (argumentQName.equals(getElement()) && (this instanceof IJavaArgument)) {
             return (IJavaArgument) this;
         }
-        
+
         for (IAttribute attribute : getAttributes()) {
             if (argumentQName.equals(attribute.getAttributeName()) && (attribute instanceof IJavaArgument)) {
                 return (IJavaArgument) attribute;
             }
         }
-        
+
         return null;
     }
-    
+
 }

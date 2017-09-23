@@ -16,27 +16,28 @@ package info.rsdev.xb4j.test;
 
 /**
  * A test class without default constructor that must be passed two String values for construction
+ *
  * @author dschoorl
  */
 public class ObjectD {
-    
+
     private String firstName = null;
-    
+
     private String lastName = null;
-    
+
     public ObjectD(String first, String last) {
-    	if (first == null) {
-    		throw new NullPointerException("First name cannot be null");
-    	}
-    	if (last == null) {
-    		throw new NullPointerException("Last cannot be null");
-    	}
-    	this.firstName = first;
-    	this.lastName = last;
+        if (first == null) {
+            throw new NullPointerException("First name cannot be null");
+        }
+        if (last == null) {
+            throw new NullPointerException("Last cannot be null");
+        }
+        this.firstName = first;
+        this.lastName = last;
     }
-    
+
     public String getFullName() {
         return String.format("%s, %s", lastName, firstName);
     }
-    
+
 }

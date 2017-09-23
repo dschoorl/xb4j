@@ -23,9 +23,7 @@ import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -52,7 +50,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      * linked to a {@link Reference} type (useualy the first time it is used to marshall/unmarshall, so that it can be used in a
      * threadsafe manner. When a {@link #copy()} is made, the copy is mutable again.
      */
-    private AtomicBoolean isImmutable = new AtomicBoolean(false);
+    private final AtomicBoolean isImmutable = new AtomicBoolean(false);
 
     /**
      * Create a ComplexTypeReference for an anonymous ComplexType (not registered with {@link BindingModel}
@@ -137,6 +135,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
         }
     }
 
+    @Override
     public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         /* A ComplexType is linked to a Reference type and we don't know where a new context object is created, or which
 		 * binding has the getter / setter to set the unmarshalled value in the Java object tree.

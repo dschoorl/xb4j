@@ -117,7 +117,7 @@ public class Sequence extends AbstractContainerBinding {
             throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
                     staxReader.getEventName(), encountered), this);
         }
-        
+
         //or set the newly created Java object in the current Java context
         if (newJavaContext.getContextObject() != null) {
             if (setProperty(javaContext, newJavaContext.getContextObject())) {

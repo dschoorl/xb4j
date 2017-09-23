@@ -22,50 +22,56 @@ import java.util.List;
 import java.util.Map;
 
 public class ObjectTree {
-	
-	private ITestSubject myObject = null;
-	
-	private List<String> messages = null;
-	
-	private Map<String, String> codes = null;
-	
-	public ObjectTree setMyObject(ObjectA mo) {
-		this.myObject = mo;
-		return this;
-	};
+
+    private ITestSubject myObject = null;
+
+    private List<String> messages = null;
+
+    private Map<String, String> codes = null;
+
+    public ObjectTree setMyObject(ObjectA mo) {
+        this.myObject = mo;
+        return this;
+    }
+
+    ;
 	
 	public ITestSubject getMyObject() {
-		return this.myObject;
-	}
-	
-	public Collection<String> getMessages() {
-		if (this.messages == null) {
-			return Collections.emptyList();
-		}
-		return Collections.unmodifiableCollection(this.messages);
-	}
-	
-	public void addMessage(String newMessage) {
-		if (newMessage == null) { return; }
-		if (this.messages == null) {
-			this.messages = new LinkedList<String>();
-		}
-		this.messages.add(newMessage);
-	}
-	
-	public void addCode(String code, String description) {
-		if (code == null) { return; }
-		if (this.codes == null) {
-			this.codes = new LinkedHashMap<String, String>();
-		}
-		this.codes.put(code, description);
-	}
-	
-	public Map<String, String> getCodes() {
-		if (this.codes == null) {
-			this.codes = Collections.emptyMap();
-		}
-		return Collections.unmodifiableMap(this.codes);
-	}
-	
+        return this.myObject;
+    }
+
+    public Collection<String> getMessages() {
+        if (this.messages == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableCollection(this.messages);
+    }
+
+    public void addMessage(String newMessage) {
+        if (newMessage == null) {
+            return;
+        }
+        if (this.messages == null) {
+            this.messages = new LinkedList<>();
+        }
+        this.messages.add(newMessage);
+    }
+
+    public void addCode(String code, String description) {
+        if (code == null) {
+            return;
+        }
+        if (this.codes == null) {
+            this.codes = new LinkedHashMap<>();
+        }
+        this.codes.put(code, description);
+    }
+
+    public Map<String, String> getCodes() {
+        if (this.codes == null) {
+            this.codes = Collections.emptyMap();
+        }
+        return Collections.unmodifiableMap(this.codes);
+    }
+
 }

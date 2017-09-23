@@ -21,14 +21,14 @@ import javax.xml.namespace.QName;
 import org.junit.Test;
 
 public class RootTest {
-	
-	/**
-	 * A Rootbinding cannot be optional
-	 */
-	@Test(expected=Xb4jException.class)
-	public void testSetOptionalNotAllowed() {
-		Root root = new Root(new QName("root"), Object.class);
-		root.setOptional(true);
-	}
-	
+
+    /**
+     * A Rootbinding cannot be optional
+     */
+    @Test(expected = Xb4jException.class)
+    public void testSetOptionalNotAllowed() {
+        Root root = new Root(new QName("root"), Object.class);
+        root.setOptional(true);
+    }
+
 }

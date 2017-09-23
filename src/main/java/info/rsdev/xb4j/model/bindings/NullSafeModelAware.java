@@ -17,39 +17,40 @@ package info.rsdev.xb4j.model.bindings;
 import info.rsdev.xb4j.model.BindingModel;
 
 /**
- * Provide a utility class that can be used as a placeholder for IModelAware instances, to facilitate nullsafe
- * locking and unlocking for bindings that are not yet added to a complete binding tree (meaning: they have not 
- * yet been directly or indirectly added to an {@link IModelAware} instance, such as {@link Root} or {@link ComplexType}).
- *  
+ * Provide a utility class that can be used as a placeholder for IModelAware instances, to facilitate nullsafe locking and unlocking
+ * for bindings that are not yet added to a complete binding tree (meaning: they have not yet been directly or indirectly added to
+ * an {@link IModelAware} instance, such as {@link Root} or {@link ComplexType}).
+ *
  * @author Dave Schoorl
  */
 public final class NullSafeModelAware implements IModelAware {
-	
-	private static final String NOOP_MESSAGE = "This implementation is only meant to provide a null safe Lock mechanism where" +
-			"no Root or ComplexType are present.";
-	
-	public static final NullSafeModelAware INSTANCE = new NullSafeModelAware();
-	
-	private NullSafeModelAware() {}
 
-	@Override
-	public void setModel(BindingModel model) {
-		throw new UnsupportedOperationException(NOOP_MESSAGE);
-	}
+    private static final String NOOP_MESSAGE = "This implementation is only meant to provide a null safe Lock mechanism where"
+            + "no Root or ComplexType are present.";
 
-	@Override
-	public BindingModel getModel() {
-		throw new UnsupportedOperationException(NOOP_MESSAGE);
-	}
+    public static final NullSafeModelAware INSTANCE = new NullSafeModelAware();
 
-	@Override
-	public boolean isImmutable() {
-		return false;	//we represent a mutable IModelAware instance, because we are not (yet) part of a full binding tree 
-	}
+    private NullSafeModelAware() {
+    }
 
-	@Override
-	public void makeImmutable() {
-		throw new UnsupportedOperationException(NOOP_MESSAGE);
-	}
+    @Override
+    public void setModel(BindingModel model) {
+        throw new UnsupportedOperationException(NOOP_MESSAGE);
+    }
+
+    @Override
+    public BindingModel getModel() {
+        throw new UnsupportedOperationException(NOOP_MESSAGE);
+    }
+
+    @Override
+    public boolean isImmutable() {
+        return false;	//we represent a mutable IModelAware instance, because we are not (yet) part of a full binding tree 
+    }
+
+    @Override
+    public void makeImmutable() {
+        throw new UnsupportedOperationException(NOOP_MESSAGE);
+    }
 
 }

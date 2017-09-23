@@ -16,50 +16,44 @@ package info.rsdev.xb4j.model.bindings.action;
 
 import info.rsdev.xb4j.model.bindings.action.IPhasedAction.ExecutionPhase;
 import info.rsdev.xb4j.model.java.JavaContext;
-
 import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Manages actions and the execution of actions. This class is created with 'Composition over Inheritence' in mind
- * 
+ *
  * @author Dave Schoorl
  */
 public class ActionManager {
 
-	private List<IPhasedAction> actions = null;
-	
-	public void addAction(IPhasedAction action) {
-		if (action != null) {
-			if (actions == null) {
-				actions = new LinkedList<IPhasedAction>();
-			}
-			actions.add(action);
-		}
-	}
-	
-	public JavaContext executeActions(ExecutionPhase phase, JavaContext javaContext) {
-		if (actions != null) {
-			for (IPhasedAction action: actions) {
-				if (action.executeAt(phase)) {
-					javaContext = action.execute(javaContext);
-				}
-			}
-		}
-		return javaContext;
-	}
-	
-	public boolean hasActionsForPhase(ExecutionPhase phase) {
-		if (actions == null) {
-			return false;
-		}
-		
-		for (IPhasedAction action: actions) {
-			if (action.executeAt(phase)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
+    private List<IPhasedAction> actions = null;
+
+    public void addAction(IPhasedAction action) {
+        if (action != null) {
+            if (actions == null) {
+                actions = new LinkedList<>();
+            }
+            actions.add(action);
+        }
+    }
+
+    public JavaContext executeActions(ExecutionPhase phase, JavaContext javaContext) {
+        if (actions != null) {
+            for (IPhasedAction action : actions) {
+                if (action.executeAt(phase)) {
+                    javaContext = action.execute(javaContext);
+                }
+            }
+        }
+        return javaContext;
+    }
+
+    public boolean hasActionsForPhase(ExecutionPhase phase) {
+        if (actions == null) {
+            return false;
+        }
+
+        return actions.stream().anyMatch((action) -> (action.executeAt(phase)));
+    }
+
 }

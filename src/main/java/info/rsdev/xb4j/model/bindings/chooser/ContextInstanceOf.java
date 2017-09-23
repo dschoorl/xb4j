@@ -18,33 +18,36 @@ import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
  * A match is made when the current javaContext is of the given java type
- * 
+ *
  * @author Dave Schoorl
  */
 public class ContextInstanceOf implements IChooser {
-	
-	private Class<?> instanceOf = null;
 
-	/**
-	 * Create a new instance of {@link ContextInstanceOf}. This implementation of {@link IChooser} will match a choice when the 
-	 * type of the current java context matches this javaType
-	 * @param javaType the type that the java context object must have for the {@link IChooser} to match this choice
-	 */
-	public ContextInstanceOf(Class<?> javaType) {
-		if (javaType == null) {
-			throw new NullPointerException("Class cannot be null");
-		}
-		this.instanceOf = javaType;
-	}
-	
-	@Override
-	public boolean matches(JavaContext javaContext) {
-		if (javaContext.getContextObject() == null) { return false; }
-		return this.instanceOf.isAssignableFrom(javaContext.getContextObject().getClass());
-	}
-	
-	@Override
-	public String toString() {
+    private Class<?> instanceOf = null;
+
+    /**
+     * Create a new instance of {@link ContextInstanceOf}. This implementation of {@link IChooser} will match a choice when the type
+     * of the current java context matches this javaType
+     *
+     * @param javaType the type that the java context object must have for the {@link IChooser} to match this choice
+     */
+    public ContextInstanceOf(Class<?> javaType) {
+        if (javaType == null) {
+            throw new NullPointerException("Class cannot be null");
+        }
+        this.instanceOf = javaType;
+    }
+
+    @Override
+    public boolean matches(JavaContext javaContext) {
+        if (javaContext.getContextObject() == null) {
+            return false;
+        }
+        return this.instanceOf.isAssignableFrom(javaContext.getContextObject().getClass());
+    }
+
+    @Override
+    public String toString() {
         return String.format("%s[type=%s]", getClass().getSimpleName(), this.instanceOf.getName());
-	}
+    }
 }

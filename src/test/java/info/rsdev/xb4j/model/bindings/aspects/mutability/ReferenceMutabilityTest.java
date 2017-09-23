@@ -25,19 +25,19 @@ import org.junit.Before;
 
 public class ReferenceMutabilityTest extends BaseBindingMutabilityTest<Reference> {
 
-	@Before
-	public void setUp() {
-		BindingModel model = new BindingModel();
-		Root root = new Root(new QName("root"), Object.class);
-		immutableElement = new Reference(new QName("level1"), "identifier", "namespace");
-		root.setChild(immutableElement);
-		model.register(root);
-		
-		//add ComplexType to BindingModel that can be resolved as well...
-		ComplexType type = new ComplexType("identifier", "namespace");
-		model.register(type, false);
-		
-		root.makeImmutable();	//this will resolve all Reference objects and replace them with a copy of the referenced ComplexType
-	}
-	
+    @Before
+    public void setUp() {
+        BindingModel model = new BindingModel();
+        Root root = new Root(new QName("root"), Object.class);
+        immutableElement = new Reference(new QName("level1"), "identifier", "namespace");
+        root.setChild(immutableElement);
+        model.register(root);
+
+        //add ComplexType to BindingModel that can be resolved as well...
+        ComplexType type = new ComplexType("identifier", "namespace");
+        model.register(type, false);
+
+        root.makeImmutable();	//this will resolve all Reference objects and replace them with a copy of the referenced ComplexType
+    }
+
 }

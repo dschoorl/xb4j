@@ -24,7 +24,6 @@ import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
@@ -118,10 +117,8 @@ public class Element extends AbstractSingleBinding {
         /* When the UnmarshallResult yields an object, it must either be set on the current context or passed on to it's parent. 
          * 
          */
-        boolean isHandled = false;
         if ((result != null) && result.mustHandleUnmarshalledObject()) {
-            isHandled = setProperty(select(javaContext, newJavaContext), result.getUnmarshalledObject());
-            if (!isHandled) {
+            if (!setProperty(select(javaContext, newJavaContext), result.getUnmarshalledObject())) {
                 //the unmarshalled object could net be set on the (new) java context
                 if (newJavaContext == null) {
                     return result;
@@ -132,17 +129,12 @@ public class Element extends AbstractSingleBinding {
             }
         } else {
             //or set the newly created Java object in the current Java context
-            isHandled = setProperty(javaContext, newJavaContext.getContextObject());
-            if (isHandled) {
+            if (setProperty(javaContext, newJavaContext.getContextObject())) {
                 return new UnmarshallResult(newJavaContext.getContextObject(), true);
             }
         }
 
-//        if (newJavaContext.getContextObject() != null) {
-            return new UnmarshallResult(newJavaContext.getContextObject());
-//        }
-
-//        return result != null ? result : UnmarshallResult.NO_RESULT;
+        return new UnmarshallResult(newJavaContext.getContextObject());
     }
 
     @Override

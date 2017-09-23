@@ -81,7 +81,7 @@ public class UnboundedChoicesTest {
     private ArrayList<?> unmarshall(String xmlSnippet) throws XMLStreamException {
         StringReader reader = new StringReader(xmlSnippet);
         RecordAndPlaybackXMLStreamReader staxReader = new RecordAndPlaybackXMLStreamReader(XmlStreamFactory.makeReader(reader));
-                
+
         UnmarshallResult result = repeater.toJava(staxReader, new JavaContext(null));
         assertTrue(result.isUnmarshallSuccessful());
         assertSame(ArrayList.class, result.getUnmarshalledObject().getClass());

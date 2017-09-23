@@ -19,15 +19,15 @@ import info.rsdev.xb4j.model.java.accessor.ISetter;
 
 /**
  * The binding can have only one child
- * 
+ *
  * @author Dave Schoorl
  */
 public interface ISingleBinding extends IBinding {
-	
-	public <T extends IBinding> T setChild(T childContainer);
-	
-	public <T extends IBinding> T setChild(T childBinding, IGetter getter, ISetter setter);
-	
-	public <T extends IBinding> T setChild(T childBinding, String fieldname);
-	
+
+    public <T extends IBinding> T setChild(T childContainer);
+
+    public <T extends IBinding> T setChild(T childBinding, IGetter getter, ISetter setter);
+
+    public <T extends IBinding> T setChild(T childBinding, String fieldname);
+
 }

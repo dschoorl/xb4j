@@ -22,14 +22,14 @@ import javax.xml.namespace.QName;
 
 import org.junit.Before;
 
-public class ElementInjectorMutabilityTest extends BaseBindingMutabilityTest<ElementInjector>{
+public class ElementInjectorMutabilityTest extends BaseBindingMutabilityTest<ElementInjector> {
 
-	@Before
-	public void setUp() {
-		Root root = new Root(new QName("root"), Object.class);
-		immutableElement = new ElementInjector(new QName("level1"), FixedValueTestAction.INSTANCE);
-		root.setChild(immutableElement);
-		root.makeImmutable();
-	}
-	
+    @Before
+    public void setUp() {
+        Root root = new Root(new QName("root"), Object.class);
+        immutableElement = new ElementInjector(new QName("level1"), FixedValueTestAction.INSTANCE);
+        root.setChild(immutableElement);
+        root.makeImmutable();
+    }
+
 }

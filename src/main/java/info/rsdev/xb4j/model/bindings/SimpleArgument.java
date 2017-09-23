@@ -25,7 +25,7 @@ import javax.xml.stream.XMLStreamException;
 public class SimpleArgument extends SimpleType implements IJavaArgument {
 
     private Ignore xmlConsumer = null;
-    
+
     public SimpleArgument(QName element) {
         super(element);
     }
@@ -39,7 +39,7 @@ public class SimpleArgument extends SimpleType implements IJavaArgument {
             throws XMLStreamException {
         return super.unmarshall(staxReader, javaContext);
     }
-    
+
     @Override
     public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         if (xmlConsumer == null) {
@@ -48,7 +48,7 @@ public class SimpleArgument extends SimpleType implements IJavaArgument {
         }
         return xmlConsumer.toJava(staxReader, javaContext);
     }
-    
+
     @Override
     public boolean setProperty(JavaContext javaContext, Object propertyValue) {
 

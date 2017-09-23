@@ -19,25 +19,26 @@ import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 /**
- * An {@link ISetter} is used during the unmarshalling process (from xml to java). It will set the result that was 
- * returned from the {@link IBinding#toXml(SimplifiedXMLStreamWriter, JavaContext)} method of a childbinding in the 
- * current javaContext.
- * 
+ * An {@link ISetter} is used during the unmarshalling process (from xml to java). It will set the result that was returned from the
+ * {@link IBinding#toXml(SimplifiedXMLStreamWriter, JavaContext)} method of a childbinding in the current javaContext.
+ *
  * @author Dave Schoorl
  */
 public interface ISetter {
-	
-	/**
-	 * Set the given value on the provided javaContext object. The implementation knows how to do this.
-	 *    
-	 * @param javaContext the object to change by setting the the value on it
-	 * @param value the value to set on the  
-	 * @return true if the javaContext was succesfully changed, false otherwise.
-	 */
-	boolean set(JavaContext javaContext, Object value);
-	
+
+    /**
+     * Set the given value on the provided javaContext object. The implementation knows how to do this.
+     *
+     * @param javaContext the object to change by setting the the value on it
+     * @param value the value to set on the
+     * @return true if the javaContext was succesfully changed, false otherwise.
+     */
+    boolean set(JavaContext javaContext, Object value);
+
+    @Override
     public int hashCode();
-    
+
+    @Override
     public boolean equals(Object obj);
-    
+
 }

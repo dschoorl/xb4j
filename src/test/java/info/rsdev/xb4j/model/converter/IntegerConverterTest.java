@@ -14,41 +14,40 @@
  */
 package info.rsdev.xb4j.model.converter;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 import info.rsdev.xb4j.model.java.JavaContext;
-
 import org.junit.After;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.Mockito.*;
 
 public class IntegerConverterTest {
-	
+
     private JavaContext mockContext = null;
-    
+
     @Before
     public void setup() {
         this.mockContext = mock(JavaContext.class);
     }
-    
+
     @After
     public void teardown() {
         verifyZeroInteractions(mockContext);    //JavaContext is not used by this converter
     }
 
-	@Test
-	public void testToObjectWithPadding() {
-		assertEquals("01", new IntegerConverter(NoValidator.INSTANCE, 2).toText(mockContext, Integer.valueOf(1)));
-	}
-	
+    @Test
+    public void testToObjectWithPadding() {
+        assertEquals("01", new IntegerConverter(NoValidator.INSTANCE, 2).toText(mockContext, 1));
+    }
+
     @Test
     public void nullValuesAreNotValidated() {
         assertNull(new IntegerConverter(NoValidator.INSTANCE, 2).toObject(mockContext, null));
     }
-    
-	@Test
-	public void emptyStringsAreTreatedAsNullValues() {
+
+    @Test
+    public void emptyStringsAreTreatedAsNullValues() {
         assertNull(IntegerConverter.ZERO_OR_POSITIVE.toObject(mockContext, ""));
-	}
-	
+    }
+
 }

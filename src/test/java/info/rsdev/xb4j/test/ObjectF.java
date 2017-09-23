@@ -18,23 +18,24 @@ import java.io.File;
 
 /**
  * A DTO for a File object (for testing purposes)
- * 
+ *
  * @author Dave Schoorl
  */
 public class ObjectF {
-	
-	private File file = null;
-	
-	private String xmlEncoding = null;
-	
-	protected ObjectF() {}
-	
-	public ObjectF(File file, String xmlEncoding) {
-		this.file = file;
-		this.xmlEncoding = xmlEncoding;
-	}
-	
-	public File getFile() {
-		return this.file;
-	}
+
+    private File file = null;
+
+    private String xmlEncoding = null;
+
+    protected ObjectF() {
+    }
+
+    public ObjectF(File file, String xmlEncoding) {
+        this.file = file;
+        this.xmlEncoding = xmlEncoding;
+    }
+
+    public File getFile() {
+        return this.file;
+    }
 }

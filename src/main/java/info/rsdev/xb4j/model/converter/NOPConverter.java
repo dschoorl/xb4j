@@ -18,35 +18,38 @@ import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
- * Convenience class. It does not perform any conversion; it only casts an Object to a String and a String to an Object.
- * When the Object is not a String, an exception is thrown. The existence of this class can make operations nullsafe, 
- * without performing a null check.
- * 
+ * Convenience class. It does not perform any conversion; it only casts an Object to a String and a String to an Object. When the
+ * Object is not a String, an exception is thrown. The existence of this class can make operations nullsafe, without performing a
+ * null check.
+ *
  * @author Dave Schoorl
  */
 public class NOPConverter implements IValueConverter {
-	
-	public static final NOPConverter INSTANCE = new NOPConverter();
-	
-	private IValidator validator = NoValidator.INSTANCE;
-	
-	@Override
-	public Object toObject(JavaContext javaContext, String value) {
-		return value;
-	}
-	
-	@Override
-	public String toText(JavaContext javaContext, Object value) {
-		if (value == null) { return null; }
-		if (!(value instanceof String)) {
-			throw new Xb4jException(String.format("Expected a %s, but encountered a %s", String.class.getName(), 
-					value.getClass().getName()));
-		}
-		return validator.isValid((String)value);
-	}
-	
-	public Class<?> getJavaType() {
-	    return String.class;
-	}
-	
+
+    public static final NOPConverter INSTANCE = new NOPConverter();
+
+    private final IValidator validator = NoValidator.INSTANCE;
+
+    @Override
+    public Object toObject(JavaContext javaContext, String value) {
+        return value;
+    }
+
+    @Override
+    public String toText(JavaContext javaContext, Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (!(value instanceof String)) {
+            throw new Xb4jException(String.format("Expected a %s, but encountered a %s", String.class.getName(),
+                    value.getClass().getName()));
+        }
+        return validator.isValid((String) value);
+    }
+
+    @Override
+    public Class<?> getJavaType() {
+        return String.class;
+    }
+
 }

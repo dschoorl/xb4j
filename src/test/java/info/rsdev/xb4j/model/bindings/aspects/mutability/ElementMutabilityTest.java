@@ -21,14 +21,14 @@ import javax.xml.namespace.QName;
 
 import org.junit.Before;
 
-public class ElementMutabilityTest extends AbstractSingleBindingMutabilityTest<Element>{
+public class ElementMutabilityTest extends AbstractSingleBindingMutabilityTest<Element> {
 
-	@Before
-	public void setUp() {
-		Root root = new Root(new QName("root"), Object.class);
-		immutableElement = new Element(new QName("level1"));
-		root.setChild(immutableElement);
-		root.makeImmutable();
-	}
-	
+    @Before
+    public void setUp() {
+        Root root = new Root(new QName("root"), Object.class);
+        immutableElement = new Element(new QName("level1"));
+        root.setChild(immutableElement);
+        root.makeImmutable();
+    }
+
 }

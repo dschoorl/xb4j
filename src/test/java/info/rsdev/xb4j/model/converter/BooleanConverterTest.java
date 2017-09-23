@@ -29,12 +29,12 @@ import org.junit.Test;
 public class BooleanConverterTest {
 
     private JavaContext mockContext = null;
-    
+
     @Before
     public void setup() {
         this.mockContext = mock(JavaContext.class);
     }
-    
+
     @After
     public void teardown() {
         verifyZeroInteractions(mockContext);    //JavaContext is not used by this converter
@@ -46,12 +46,12 @@ public class BooleanConverterTest {
         assertTrue(BooleanConverter.INSTANCE.toObject(mockContext, "true"));
         assertFalse(BooleanConverter.INSTANCE.toObject(mockContext, "false"));
     }
-    
-    @Test(expected=ValidationException.class)
+
+    @Test(expected = ValidationException.class)
     public void testToObjectNoBoolean() {
         BooleanConverter.INSTANCE.toObject(mockContext, "some value");
     }
-    
+
     @Test
     public void testToText() {
         assertNull(BooleanConverter.INSTANCE.toText(mockContext, null));
@@ -60,8 +60,8 @@ public class BooleanConverterTest {
         assertEquals("false", BooleanConverter.INSTANCE.toText(mockContext, Boolean.FALSE));
         assertEquals("false", BooleanConverter.INSTANCE.toText(mockContext, false));
     }
-    
-    @Test(expected=ValidationException.class)
+
+    @Test(expected = ValidationException.class)
     public void testToTextNoBoolean() {
         BooleanConverter.INSTANCE.toText(mockContext, new Object());
     }

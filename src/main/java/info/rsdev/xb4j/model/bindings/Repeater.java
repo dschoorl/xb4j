@@ -26,9 +26,7 @@ import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-
 import java.util.Collection;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
@@ -134,7 +132,7 @@ public class Repeater extends AbstractBinding {
         boolean proceed = true;
         while (proceed) {
             result = itemBinding.toJava(staxReader, javaCollectionContext);
-            
+
             /* Proceed in the following circumstances:
              * - A binding returned a value (either handled or unhandled), except for Ignore...?
              * - There are no errors
@@ -294,7 +292,7 @@ public class Repeater extends AbstractBinding {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName()).append("[");
         String separator = "";
         QName element = getElement();
@@ -311,7 +309,6 @@ public class Repeater extends AbstractBinding {
         IBinding item = resolveItemBinding(itemBinding);
         if (item != null) {
             sb.append(separator).append("item=").append(item.toString());
-            separator = ",";
         }
         sb.append("]");
         return sb.toString();

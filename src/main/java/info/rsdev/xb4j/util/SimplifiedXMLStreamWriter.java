@@ -15,22 +15,21 @@
 package info.rsdev.xb4j.util;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
-
+import java.io.IOException;
 import java.io.InputStream;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 public class SimplifiedXMLStreamWriter {
-	
-	private static final String EMPTY = "";
+
+    private static final String EMPTY = "";
 
     private XMLStreamWriter staxWriter;
-    
+
     private NamespaceContext namespaceContext;
-    
+
     /**
      * @param staxWriter
      */
@@ -41,7 +40,7 @@ public class SimplifiedXMLStreamWriter {
         this.staxWriter = staxWriter;
         this.namespaceContext = new NamespaceContext();
     }
-    
+
     public void writeElement(QName element, boolean isEmptyElement) throws XMLStreamException {
         String namespace = element.getNamespaceURI();
         if (namespace.equals(XMLConstants.NULL_NS_URI)) {
@@ -71,9 +70,11 @@ public class SimplifiedXMLStreamWriter {
             }
         }
     }
-    
+
     public void writeAttribute(QName elementName, QName attributeName, String value) throws XMLStreamException {
-    	if (value == null) { value = EMPTY; }
+        if (value == null) {
+            value = EMPTY;
+        }
         String namespace = attributeName.getNamespaceURI();
         if (namespace.equals(XMLConstants.NULL_NS_URI)) {
             staxWriter.writeAttribute(attributeName.getLocalPart(), value);
@@ -86,34 +87,33 @@ public class SimplifiedXMLStreamWriter {
                 staxWriter.writeNamespace(prefix, namespace);
                 staxWriter.writeAttribute(prefix, namespace, attributeName.getLocalPart(), value);
             }
-                
+
         }
     }
-    
+
     /**
      * Insert the bytes of the inputStream into the staxWriter
-     * 
+     *
      * @param in
+     * @return 
      */
     public int elementContentFromInputStream(InputStream in) {
-    	int totalCharsRead = 0;
-    	try {
-//        	InputStreamReader reader = new InputStreamReader(in, this.encodingOfXmlStream);
-        	byte[] buffer = new byte[1024];
-        	int charsRead = 0;
-//        	while (reader.ready() && (charsRead = reader.read(buffer)) != -1) {
-           	while ((charsRead = in.read(buffer)) != -1) {
-        		totalCharsRead += charsRead;
-        		if (charsRead > 0) {
-        			staxWriter.writeCharacters(new String(buffer, 0, charsRead));
-        		}
-        	}
-    	} catch (Exception e) {
-    		throw new Xb4jException("Exception occured when inserting contents from external stream", e);
-    	}
-    	return totalCharsRead;
+        int totalCharsRead = 0;
+        try {
+            byte[] buffer = new byte[1024];
+            int charsRead;
+            while ((charsRead = in.read(buffer)) != -1) {
+                totalCharsRead += charsRead;
+                if (charsRead > 0) {
+                    staxWriter.writeCharacters(new String(buffer, 0, charsRead));
+                }
+            }
+        } catch (IOException | XMLStreamException e) {
+            throw new Xb4jException("Exception occured when inserting contents from external stream", e);
+        }
+        return totalCharsRead;
     }
-    
+
     public void closeElement(QName element) throws XMLStreamException {
         staxWriter.writeEndElement();
         namespaceContext.unregisterNamespacesFor(element);
@@ -124,12 +124,12 @@ public class SimplifiedXMLStreamWriter {
             staxWriter.writeCharacters(content);
         }
     }
-    
+
     public void close() throws XMLStreamException {
-    	staxWriter.writeCharacters("");
-    	staxWriter.flush();
+        staxWriter.writeCharacters("");
+        staxWriter.flush();
         namespaceContext = null;
-    	staxWriter = null;	//do not close the underlying staxWriter, because we do not control it
+        staxWriter = null;	//do not close the underlying staxWriter, because we do not control it
     }
-    
+
 }

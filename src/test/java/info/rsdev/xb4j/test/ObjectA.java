@@ -15,25 +15,26 @@
 package info.rsdev.xb4j.test;
 
 /**
- * Simple helper class that is subject of marshall/unmarshall in tests. This class has an immutable API and contains a single 
- * String attribute.
- * 
+ * Simple helper class that is subject of marshall/unmarshall in tests. This class has an immutable API and contains a single String
+ * attribute.
+ *
  * @author Dave Schoorl
  */
 public class ObjectA implements ITestSubject {
-    
+
     private String name = null;
-    
-    ObjectA() {}
-    
+
+    ObjectA() {
+    }
+
     public ObjectA(String name) {
         this.name = name;
     }
-    
+
     public String getAName() {
         return this.name;
     }
-    
+
     protected ObjectA setAName(String newName) {
         if (newName == null) {
             throw new NullPointerException("Name cannot be null");
@@ -47,5 +48,4 @@ public class ObjectA implements ITestSubject {
         return "ObjectA [name=" + name + "]";
     }
 
-    
 }

@@ -15,7 +15,7 @@
 package info.rsdev.xb4j.test;
 
 /**
- * Marker interface to indicate that a class is a helper class for marshall / unmarshall tests. 
+ * Marker interface to indicate that a class is a helper class for marshall / unmarshall tests.
  */
 public interface ITestSubject {
 

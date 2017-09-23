@@ -26,24 +26,24 @@ import javax.xml.namespace.QName;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RepeaterMutabilityTest extends BaseBindingMutabilityTest<Repeater>{
+public class RepeaterMutabilityTest extends BaseBindingMutabilityTest<Repeater> {
 
-	@Before
-	public void setUp() {
-		Root root = new Root(new QName("root"), Object.class);
-		immutableElement = new Repeater(new QName("level1"), ArrayList.class);
-		root.setChild(immutableElement);
-		root.makeImmutable();
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetMaxOccurs() {
-		immutableElement.setMaxOccurs(3);
-	}
+    @Before
+    public void setUp() {
+        Root root = new Root(new QName("root"), Object.class);
+        immutableElement = new Repeater(new QName("level1"), ArrayList.class);
+        root.setChild(immutableElement);
+        root.makeImmutable();
+    }
 
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetItem() {
-		immutableElement.setItem(new Element(new QName("item")));
-	}
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetMaxOccurs() {
+        immutableElement.setMaxOccurs(3);
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetItem() {
+        immutableElement.setItem(new Element(new QName("item")));
+    }
 
 }

@@ -14,28 +14,27 @@
  */
 package info.rsdev.xb4j.model.java.accessor;
 
-import java.lang.reflect.Method;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.JavaContext;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Set a value on a parent object by calling a setter method. The setter must take a single parameter that must accept the type of
  * the value to set.
- * 
+ *
  * @author Dave Schoorl
  */
 public class MethodSetter extends AbstractMethodAccessor implements ISetter {
-    
-    private Logger logger = LoggerFactory.getLogger(MethodSetter.class);
-    
+
+    private final Logger logger = LoggerFactory.getLogger(MethodSetter.class);
+
     public MethodSetter(String methodname) {
         super(methodname);
     }
-    
+
     @Override
     public boolean set(JavaContext javaContext, Object propertyValue) {
         Class<?> parameterType = (propertyValue == null ? null : propertyValue.getClass());
@@ -49,15 +48,15 @@ public class MethodSetter extends AbstractMethodAccessor implements ISetter {
             return true;
         } catch (RuntimeException e) {
             throw e; // to signal FindBugs that I consciously do not handle RuntimeExceptions
-        } catch (Exception e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new Xb4jException(String.format("Could not set value '%s' in object '%s' through method '%s'", propertyValue,
                     javaContext.getContextObject(), this.methodname));
         }
     }
-    
+
     @Override
     public String toString() {
         return "MethodSetter[methodname=".concat(methodname).concat("]");
     }
-    
+
 }

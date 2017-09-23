@@ -22,26 +22,26 @@ import org.junit.Test;
 
 public abstract class AbstractAttributeMutabilityTest<T extends AbstractAttribute> {
 
-	protected T immutableAttribute = null;
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetGetter() {
-		immutableAttribute.setGetter(NoGetter.INSTANCE);
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetSetter() {
-		immutableAttribute.setSetter(NoSetter.INSTANCE);
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetRequired() {
-		immutableAttribute.setRequired(true);
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetDefault() {
-		immutableAttribute.setDefault("defaultValue");
-	}
-	
+    protected T immutableAttribute = null;
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetGetter() {
+        immutableAttribute.setGetter(NoGetter.INSTANCE);
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetSetter() {
+        immutableAttribute.setSetter(NoSetter.INSTANCE);
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetRequired() {
+        immutableAttribute.setRequired(true);
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetDefault() {
+        immutableAttribute.setDefault("defaultValue");
+    }
+
 }

@@ -17,31 +17,32 @@ package info.rsdev.xb4j.model.java.accessor;
 import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
- * Convenience class to provide a way to set multiple fields with the same value obtained from a single xml element. All
- * fields are expected to be part of the same java context.
+ * Convenience class to provide a way to set multiple fields with the same value obtained from a single xml element. All fields are
+ * expected to be part of the same java context.
+ *
  * @author Dave Schoorl
  */
 public class MultipleFieldSetter implements ISetter {
-	
-	private FieldSetter[] setters = null;
-	
-	public MultipleFieldSetter(String... fieldNames) {
-		if ((fieldNames == null) || (fieldNames.length == 0)) {
-			throw new NullPointerException("You must provide at least one fieldname");
-		}
-		
-		setters = new FieldSetter[fieldNames.length];
-		for (int i=0; i<fieldNames.length; i++) {
-			setters[i] = new FieldSetter(fieldNames[i]);
-		}
-	}
-	
-	@Override
-	public boolean set(JavaContext javaContext, Object propertyValue) {
-		for (FieldSetter setter: setters) {
-			setter.set(javaContext, propertyValue);
-		}
-		return true;
-	}
-	
+
+    private FieldSetter[] setters = null;
+
+    public MultipleFieldSetter(String... fieldNames) {
+        if ((fieldNames == null) || (fieldNames.length == 0)) {
+            throw new NullPointerException("You must provide at least one fieldname");
+        }
+
+        setters = new FieldSetter[fieldNames.length];
+        for (int i = 0; i < fieldNames.length; i++) {
+            setters[i] = new FieldSetter(fieldNames[i]);
+        }
+    }
+
+    @Override
+    public boolean set(JavaContext javaContext, Object propertyValue) {
+        for (FieldSetter setter : setters) {
+            setter.set(javaContext, propertyValue);
+        }
+        return true;
+    }
+
 }

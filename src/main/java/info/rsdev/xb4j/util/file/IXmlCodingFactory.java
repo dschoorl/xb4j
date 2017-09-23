@@ -16,42 +16,43 @@ package info.rsdev.xb4j.util.file;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
  * Provide factory methods to create decoding/encoding streams to and from files...?!? Please clarify this a bit Dave.
- *  
+ *
  * @author Dave Schoorl
  */
 public interface IXmlCodingFactory {
-	
-	/**
-	 * Create an InputStream that reads binary data from the fromFile, encodes the bytes to text, using the
-	 * xmlEncodingType. The {@link InputStream} can then be used to insert the binary data as element content
-	 * using {@link SimplifiedXMLStreamWriter#elementContentFromInputStream(InputStream)}.
-	 * 
-	 * @param fromFile
-	 * @param xmlEncodingType
-	 * @return
-	 * @throws Xb4jException
-	 */
-	public InputStream getEncodingStream(File fromFile, String xmlEncodingType, Object... parameters);
-	
-	/**
-	 * Decorate an existing InputStream, that reads binary data from some source, with encoding capabilities
-	 * according to the xmlEncodingType
-	 * @param in
-	 * @param xmlEncodingType
-	 * @return
-	 */
-	public InputStream getEncodingStream(InputStream in, String xmlEncodingType, Object... parameters);
-	
-	public OutputStream getDecodingStream(File toFile, String xmlDecodingType, Object... parameters);
-	
-	public OutputStream getDecodingStream(OutputStream out, String xmlDecodingType, Object... parameters);
-	
-	public boolean supports(String xmlCodingType);
+
+    /**
+     * Create an InputStream that reads binary data from the fromFile, encodes the bytes to text, using the xmlEncodingType. The
+     * {@link InputStream} can then be used to insert the binary data as element content using
+     * {@link SimplifiedXMLStreamWriter#elementContentFromInputStream(InputStream)}.
+     *
+     * @param fromFile
+     * @param xmlEncodingType
+     * @param parameters
+     * @return
+     * @throws Xb4jException
+     */
+    public InputStream getEncodingStream(File fromFile, String xmlEncodingType, Object... parameters);
+
+    /**
+     * Decorate an existing InputStream, that reads binary data from some source, with encoding capabilities according to the
+     * xmlEncodingType
+     *
+     * @param in
+     * @param xmlEncodingType
+     * @return
+     */
+    public InputStream getEncodingStream(InputStream in, String xmlEncodingType, Object... parameters);
+
+    public OutputStream getDecodingStream(File toFile, String xmlDecodingType, Object... parameters);
+
+    public OutputStream getDecodingStream(OutputStream out, String xmlDecodingType, Object... parameters);
+
+    public boolean supports(String xmlCodingType);
 }

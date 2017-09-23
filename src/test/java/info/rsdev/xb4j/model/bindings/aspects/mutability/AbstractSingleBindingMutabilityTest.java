@@ -26,19 +26,19 @@ import org.junit.Test;
 
 public abstract class AbstractSingleBindingMutabilityTest<T extends AbstractSingleBinding> extends BaseBindingMutabilityTest<T> {
 
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetChild() {
-		immutableElement.setChild(new Element(new QName("level2")));
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetChildViaConvenienceMethod() {
-		immutableElement.setChild(new Element(new QName("level2")), "someField");
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetChildViaGetterSetter() {
-		immutableElement.setChild(new Element(new QName("level2")), NoGetter.INSTANCE, NoSetter.INSTANCE);
-	}
-	
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetChild() {
+        immutableElement.setChild(new Element(new QName("level2")));
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetChildViaConvenienceMethod() {
+        immutableElement.setChild(new Element(new QName("level2")), "someField");
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetChildViaGetterSetter() {
+        immutableElement.setChild(new Element(new QName("level2")), NoGetter.INSTANCE, NoSetter.INSTANCE);
+    }
+
 }

@@ -190,9 +190,10 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
 
     /**
      * Get the STaX event type ({@link XMLStreamConstants}) of the xml most recently read, either from the stream or from the
-     * playback queue. 
+     * playback queue.
+     *
      * @return the current event type, or 0 when reading of the xml has not yet started.
-     * 
+     *
      */
     public int getEvent() {
         if (this.currentEvent == null) {
@@ -203,6 +204,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
 
     /**
      * Determine if the most recent STaX event represents a start- or end-element.
+     *
      * @return true if a start- or end-element event is most recently read, false otherwise
      */
     public boolean isAtElement() {
@@ -292,8 +294,9 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     }
 
     /**
-     * Get the {@link QName} of the xml element most recently read, either from the stream or from the
-     * playback queue. This may be a start- or end tag.
+     * Get the {@link QName} of the xml element most recently read, either from the stream or from the playback queue. This may be a
+     * start- or end tag.
+     *
      * @return the {@link QName} of the currently read xml element
      * @throws IllegalStateException when reading of the xml has not yet started.
      */
@@ -345,14 +348,15 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
 
     /**
      * Consume the current start-element and all its contents until the end-element is reached.
+     *
      * @return true if the element and it's content were skipped successfully.
-     * @throws XMLStreamException if start- and end-element do not match or there is a
-     *      mismatch between the number open- and close tags in the content.s
+     * @throws XMLStreamException if start- and end-element do not match or there is a mismatch between the number open- and close
+     * tags in the content.s
      */
     public boolean skipToElementEnd() throws XMLStreamException {
         if (getEvent() != START_ELEMENT) {
-            throw new XMLStreamException(String.format("Can only skip to element end when we are currently on element start. " +
-                    "Current event is '%s' %s).", EVENTNAMES[getEvent()], getRowColumn(getLocation())));
+            throw new XMLStreamException(String.format("Can only skip to element end when we are currently on element start. "
+                    + "Current event is '%s' %s).", EVENTNAMES[getEvent()], getRowColumn(getLocation())));
         }
 
         // first disable recording queue, so that skipped elements won't get
@@ -383,7 +387,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
             // Let's check this
             if (!getName().equals(expectedElement)) {
                 throw new XMLStreamException(String.format("Expected end element %s, but encountered unexpected end element %s ",
-                                expectedElement, getName()), getLocation());
+                        expectedElement, getName()), getLocation());
             }
 
             // add END_ELEMENT of the skipped element to the recording queue
@@ -552,7 +556,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                         // mixed content is currently not supported
                         throw new XMLStreamException(String.format(
                                 "Found %s <%s> while reading text for <%s>; mixed content is "
-                                        + "currently not supported %s",
+                                + "currently not supported %s",
                                 EVENTNAMES[eventType], staxReader.getName(), currentTextElement,
                                 getRowColumn(staxReader.getLocation())));
                     default:

@@ -27,10 +27,9 @@ public class Xb4jMarshallException extends Xb4jException {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Don't know what to do with this binding yet, but we could use it to make
-     * a better diagnostic message; when it will be used, we need to reconsider
-     * the transient keyword and realize that the binding basically holds
-     * references to the entire {@link BindingModel}
+     * Don't know what to do with this binding yet, but we could use it to make a better diagnostic message; when it will be used,
+     * we need to reconsider the transient keyword and realize that the binding basically holds references to the entire
+     * {@link BindingModel}
      */
     @SuppressWarnings("unused")
     private transient IBinding bindingContext = null;

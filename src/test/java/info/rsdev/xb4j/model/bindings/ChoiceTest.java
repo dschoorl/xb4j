@@ -37,69 +37,69 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ChoiceTest {
-	
-	private Choice choice = null;
-	
-	@Before
-	public void setup() {
-		Root root = new Root(new QName("sigh"), Object.class);
-		choice = root.setChild(new Choice());
-		choice.addOption(new SimpleType(new QName("elem1")), "name", new ContextInstanceOf(ObjectA.class));
-		choice.addOption(new SimpleType(new QName("elem2"), IntegerConverter.INSTANCE), "value", new ContextInstanceOf(ObjectB.class));
-	}
-	
-	@Test
-	public void testMarshallChoiceNoNamespaces() throws Exception {
-		ObjectA instanceA = new ObjectA("test");
-		String expected = "<elem1>test</elem1>";
-		
+
+    private Choice choice = null;
+
+    @Before
+    public void setup() {
+        Root root = new Root(new QName("sigh"), Object.class);
+        choice = root.setChild(new Choice());
+        choice.addOption(new SimpleType(new QName("elem1")), "name", new ContextInstanceOf(ObjectA.class));
+        choice.addOption(new SimpleType(new QName("elem2"), IntegerConverter.INSTANCE), "value", new ContextInstanceOf(ObjectB.class));
+    }
+
+    @Test
+    public void testMarshallChoiceNoNamespaces() throws Exception {
+        ObjectA instanceA = new ObjectA("test");
+        String expected = "<elem1>test</elem1>";
+
         StringWriter writer = new StringWriter();
         XMLStreamWriter staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
         choice.toXml(new SimplifiedXMLStreamWriter(staxWriter), new JavaContext(instanceA));
         assertEquals(expected, writer.toString());
-        
-		ObjectB instanceB = new ObjectB(42);
-		expected = "<elem2>42</elem2>";
-		
+
+        ObjectB instanceB = new ObjectB(42);
+        expected = "<elem2>42</elem2>";
+
         writer = new StringWriter();
         staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
         choice.toXml(new SimplifiedXMLStreamWriter(staxWriter), new JavaContext(instanceB));
         assertEquals(expected, writer.toString());
-	}
-	
-	@Test
-	public void testUnmarshallChoiceNoNamespaces() throws Exception {
-		//unmarshall first option
-		ByteArrayInputStream stream = new ByteArrayInputStream("<elem1>test1</elem1>".getBytes());
-		RecordAndPlaybackXMLStreamReader staxWriter = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
-		ObjectA contextObject = new ObjectA("");
-		choice.toJava(staxWriter, new JavaContext(contextObject));
-		assertEquals("test1", contextObject.getAName());
-		
-		//unmarshall second option
-		stream = new ByteArrayInputStream("<elem2>84</elem2>".getBytes());
-		staxWriter = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
-		ObjectB contextObjectB = new ObjectB(42);
-		choice.toJava(staxWriter, new JavaContext(contextObjectB));
-		assertEquals(new Integer(84), contextObjectB.getValue());
-	}
-	
-	@Test
-	public void testChoiceWithoutContentNorElementGeneratesNoOutput() {
-		assertFalse(choice.generatesOutput(new JavaContext(null)));
-	}
-	
-	@Test
-	public void testChoiceWithoutContentWithMandatoryElementGeneratesOutput() {
-		choice = new Choice(new QName("mandatory"));
-		assertTrue(choice.generatesOutput(new JavaContext(null)));
-	}
-	
-	@Test
-	public void testChoiceWithoutContentWithOptionalElementGeneratesNoOutput() {
-		choice = new Choice(new QName("optional"));
-		choice.setOptional(true);
-		assertFalse(choice.generatesOutput(new JavaContext(null)));
-	}
-	
+    }
+
+    @Test
+    public void testUnmarshallChoiceNoNamespaces() throws Exception {
+        //unmarshall first option
+        ByteArrayInputStream stream = new ByteArrayInputStream("<elem1>test1</elem1>".getBytes());
+        RecordAndPlaybackXMLStreamReader staxWriter = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
+        ObjectA contextObject = new ObjectA("");
+        choice.toJava(staxWriter, new JavaContext(contextObject));
+        assertEquals("test1", contextObject.getAName());
+
+        //unmarshall second option
+        stream = new ByteArrayInputStream("<elem2>84</elem2>".getBytes());
+        staxWriter = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
+        ObjectB contextObjectB = new ObjectB(42);
+        choice.toJava(staxWriter, new JavaContext(contextObjectB));
+        assertEquals(new Integer(84), contextObjectB.getValue());
+    }
+
+    @Test
+    public void testChoiceWithoutContentNorElementGeneratesNoOutput() {
+        assertFalse(choice.generatesOutput(new JavaContext(null)));
+    }
+
+    @Test
+    public void testChoiceWithoutContentWithMandatoryElementGeneratesOutput() {
+        choice = new Choice(new QName("mandatory"));
+        assertTrue(choice.generatesOutput(new JavaContext(null)));
+    }
+
+    @Test
+    public void testChoiceWithoutContentWithOptionalElementGeneratesNoOutput() {
+        choice = new Choice(new QName("optional"));
+        choice.setOptional(true);
+        assertFalse(choice.generatesOutput(new JavaContext(null)));
+    }
+
 }

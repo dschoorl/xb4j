@@ -22,6 +22,7 @@ import static org.junit.Assert.*;
 public class NoEndlessLoopTest {
 
     private static class DocRoot {
+
         List<Object> collection = null;
     }
 
@@ -41,7 +42,7 @@ public class NoEndlessLoopTest {
         aType.setChild(new SimpleType(new QName("name")), "name");
         Element bType = aAndBTypes.addOption(new Element(new QName("b"), ObjectB.class)).setOptional(true);
         bType.setChild(new SimpleType(new QName("number"), IntegerConverter.INSTANCE), "value");
-        
+
     }
 
     @Test(timeout = 500)
@@ -50,7 +51,7 @@ public class NoEndlessLoopTest {
         assertNotNull(docRoot.collection);
         assertEquals(1, docRoot.collection.size());
         assertSame(ArrayList.class, docRoot.collection.get(0).getClass());
-        assertEquals(3, ((ArrayList<?>)docRoot.collection.get(0)).size());
+        assertEquals(3, ((ArrayList<?>) docRoot.collection.get(0)).size());
     }
 
     @Test(timeout = 500)
@@ -60,26 +61,26 @@ public class NoEndlessLoopTest {
         assertNotNull(docRoot.collection);
         assertEquals(1, docRoot.collection.size());
         assertSame(ArrayList.class, docRoot.collection.get(0).getClass());
-        assertEquals(0, ((ArrayList<?>)docRoot.collection.get(0)).size());
+        assertEquals(0, ((ArrayList<?>) docRoot.collection.get(0)).size());
     }
 
-    private static final String EXAMPLE =
-        "<root>\n" +
-            "<with>\n" +
-                "<collection>\n" +
-                    "<a><name>Roy</name></a>\n" +
-                    "<b><number>42</number></b>\n" +
-                    "<a><name>Linda</name></a>\n" +
-                "</collection>\n" +
-            "</with>\n" +
-        "</root>\n";
+    private static final String EXAMPLE
+            = "<root>\n"
+            + "<with>\n"
+            + "<collection>\n"
+            + "<a><name>Roy</name></a>\n"
+            + "<b><number>42</number></b>\n"
+            + "<a><name>Linda</name></a>\n"
+            + "</collection>\n"
+            + "</with>\n"
+            + "</root>\n";
 
-    private static final String EMPTY_EXAMPLE =
-        "<root>\n" +
-            "<with>\n" +
-                "<collection />\n" +
-            "</with>\n" +
-        "</root>\n";
+    private static final String EMPTY_EXAMPLE
+            = "<root>\n"
+            + "<with>\n"
+            + "<collection />\n"
+            + "</with>\n"
+            + "</root>\n";
 
     private DocRoot unmarshall(String xmlSnippet) throws XMLStreamException {
         StringReader reader = new StringReader(xmlSnippet);

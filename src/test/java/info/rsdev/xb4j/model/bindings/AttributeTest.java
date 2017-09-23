@@ -29,50 +29,50 @@ import javax.xml.namespace.QName;
 import org.junit.Test;
 
 public class AttributeTest {
-	
-	@Test
-	public void testMarshallSingleAttributeNoNamespace() {
-		//Setup the test
-		BindingModel model = new BindingModel();
-		Root root = new Root(new QName("A"), ObjectA.class);
-		root.addAttribute(new Attribute(new QName("name")), "name");
-		model.register(root);
-		
+
+    @Test
+    public void testMarshallSingleAttributeNoNamespace() {
+        //Setup the test
+        BindingModel model = new BindingModel();
+        Root root = new Root(new QName("A"), ObjectA.class);
+        root.addAttribute(new Attribute(new QName("name")), "name");
+        model.register(root);
+
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		ObjectA instance = new ObjectA("test");
-		model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
-		assertEquals("<A name=\"test\"/>", stream.toString());
-	}
-	
+        ObjectA instance = new ObjectA("test");
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
+        assertEquals("<A name=\"test\"/>", stream.toString());
+    }
+
     @Test
     public void testUnmarshallSingleAttributeNoNamespace() {
-		//Setup the test
-		BindingModel model = new BindingModel();
-		Root root = new Root(new QName("A"), ObjectA.class);
-		root.addAttribute(new Attribute(new QName("name")), "name");
-		model.register(root);
-		
+        //Setup the test
+        BindingModel model = new BindingModel();
+        Root root = new Root(new QName("A"), ObjectA.class);
+        root.addAttribute(new Attribute(new QName("name")), "name");
+        model.register(root);
+
         byte[] buffer = "<A name=\"test\"/>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
-        ObjectA a = (ObjectA)instance;
+        ObjectA a = (ObjectA) instance;
         assertEquals("test", a.getAName());
     }
-    
-	@Test
-	public void testMarshallSingleAttributeWithNamespace() {
-		//Setup the test
-		BindingModel model = new BindingModel();
-		Root root = new Root(new QName("A"), ObjectA.class);
-		root.addAttribute(new Attribute(new QName("http://attrib/ns", "name", "test")), "name");
-		model.register(root);
-		
+
+    @Test
+    public void testMarshallSingleAttributeWithNamespace() {
+        //Setup the test
+        BindingModel model = new BindingModel();
+        Root root = new Root(new QName("A"), ObjectA.class);
+        root.addAttribute(new Attribute(new QName("http://attrib/ns", "name", "test")), "name");
+        model.register(root);
+
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		ObjectA instance = new ObjectA("test");
-		model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
-		assertEquals("<A xmlns:test=\"http://attrib/ns\" test:name=\"test\"/>", stream.toString());
-	}
-	
+        ObjectA instance = new ObjectA("test");
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
+        assertEquals("<A xmlns:test=\"http://attrib/ns\" test:name=\"test\"/>", stream.toString());
+    }
+
 }

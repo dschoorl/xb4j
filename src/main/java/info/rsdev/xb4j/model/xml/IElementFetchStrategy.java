@@ -18,14 +18,16 @@ import javax.xml.namespace.QName;
 
 /**
  * Define how a binding knows what xml element it is bound to
- * 
+ *
  * @author Dave Schoorl
  */
 public interface IElementFetchStrategy {
-	
-	public QName getElement();
-	
+
+    public QName getElement();
+
+    @Override
     public int hashCode();
-    
+
+    @Override
     public boolean equals(Object obj);
 }

@@ -23,14 +23,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class LongConverterTest {
-	
+
     private JavaContext mockContext = null;
-    
+
     @Before
     public void setup() {
         this.mockContext = mock(JavaContext.class);
     }
-    
+
     @After
     public void teardown() {
         verifyZeroInteractions(mockContext);    //JavaContext is not used by this converter
@@ -40,10 +40,10 @@ public class LongConverterTest {
     public void nullValuesAreNotValidated() {
         assertNull(LongConverter.POSITIVE.toObject(mockContext, null));
     }
-    
-	@Test
-	public void emptyStringsAreTreatedAsNullValues() {
+
+    @Test
+    public void emptyStringsAreTreatedAsNullValues() {
         assertNull(LongConverter.POSITIVE.toObject(mockContext, ""));
-	}
-	
+    }
+
 }

@@ -17,19 +17,20 @@ package info.rsdev.xb4j.model.java.accessor;
 import info.rsdev.xb4j.model.java.JavaContext;
 
 public final class NoGetter implements IGetter {
-	
-	public static final NoGetter INSTANCE = new NoGetter();
-	
-	private NoGetter() {}
-	
-	@Override
-	public JavaContext get(JavaContext javaContext) {
-		return javaContext;
-	}
-	
-	@Override
-	public String toString() {
-		return NoGetter.class.getSimpleName();
-	}
-	
+
+    public static final NoGetter INSTANCE = new NoGetter();
+
+    private NoGetter() {
+    }
+
+    @Override
+    public JavaContext get(JavaContext javaContext) {
+        return javaContext;
+    }
+
+    @Override
+    public String toString() {
+        return NoGetter.class.getSimpleName();
+    }
+
 }

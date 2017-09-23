@@ -27,42 +27,42 @@ import org.junit.Test;
 
 public abstract class BaseBindingMutabilityTest<T extends IBinding> {
 
-	protected T immutableElement = null;
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotAddAttributeViaConvenienceMethod() {
-		immutableElement.addAttribute(new Attribute(new QName("number")), "hashcode");
-	}
+    protected T immutableElement = null;
 
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotAddAttributeWithGetterSetter() {
-		immutableElement.addAttribute(new Attribute(new QName("number")), NoGetter.INSTANCE, NoSetter.INSTANCE);
-	}
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotAddAttributeViaConvenienceMethod() {
+        immutableElement.addAttribute(new Attribute(new QName("number")), "hashcode");
+    }
 
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotAddAction() {
-		immutableElement.addAction(new StoreInContext("myKey", Object.class));
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetGetter() {
-		immutableElement.setGetter(NoGetter.INSTANCE);
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetOptional() {
-		immutableElement.setOptional(true);
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetParent() {
-		IBinding root = immutableElement.getParent();
-		immutableElement.setParent(root);
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotSetSetter() {
-		immutableElement.setSetter(NoSetter.INSTANCE);
-	}
-	
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotAddAttributeWithGetterSetter() {
+        immutableElement.addAttribute(new Attribute(new QName("number")), NoGetter.INSTANCE, NoSetter.INSTANCE);
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotAddAction() {
+        immutableElement.addAction(new StoreInContext("myKey", Object.class));
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetGetter() {
+        immutableElement.setGetter(NoGetter.INSTANCE);
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetOptional() {
+        immutableElement.setOptional(true);
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetParent() {
+        IBinding root = immutableElement.getParent();
+        immutableElement.setParent(root);
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotSetSetter() {
+        immutableElement.setSetter(NoSetter.INSTANCE);
+    }
+
 }

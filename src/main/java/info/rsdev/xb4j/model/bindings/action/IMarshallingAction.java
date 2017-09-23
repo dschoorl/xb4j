@@ -18,14 +18,14 @@ import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
- * Extension point that allows users of this framework to generate a value for an xml element or an attribute, where the
- * implementor has the freedom to generate the value that must be inserted in the xml stream.
- * 
+ * Extension point that allows users of this framework to generate a value for an xml element or an attribute, where the implementor
+ * has the freedom to generate the value that must be inserted in the xml stream.
+ *
  * @author Dave Schoorl
  */
 @FunctionalInterface
 public interface IMarshallingAction {
-	
-	public String execute(JavaContext javaContext) throws Xb4jMarshallException;
-	
+
+    public String execute(JavaContext javaContext) throws Xb4jMarshallException;
+
 }

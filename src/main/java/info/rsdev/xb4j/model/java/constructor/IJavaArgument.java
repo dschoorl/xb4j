@@ -23,14 +23,14 @@ import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 
 /**
- * This class marks an {@link IBinding} or {@link IAttribute} as a parameter value. This means that the unmarshalled value will
- * not be set on a {@link JavaContext}, but instead, it will be used in a {@link ICreator} implementation
- * 
+ * This class marks an {@link IBinding} or {@link IAttribute} as a parameter value. This means that the unmarshalled value will not
+ * be set on a {@link JavaContext}, but instead, it will be used in a {@link ICreator} implementation
+ *
  * @author Dave Schoorl
  * @see ArgsConstructor an {@link ICreator} implementation that calls a Java constructor with parameters
  */
 public interface IJavaArgument {
-    
+
     public UnmarshallResult getParameterValue(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException;
 
 }

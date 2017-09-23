@@ -24,12 +24,12 @@ import org.junit.Before;
 
 public class StaticAttributeMutabilityTest extends AbstractAttributeMutabilityTest<StaticAttribute> {
 
-	@Before
-	public void setUp() {
-		Root root = new Root(new QName("root"), Object.class);
-		immutableAttribute = new StaticAttribute(new QName("attrib"), "staticValue");
-		root.addAttribute(immutableAttribute, "hashcode");
-		root.makeImmutable();
-	}
-	
+    @Before
+    public void setUp() {
+        Root root = new Root(new QName("root"), Object.class);
+        immutableAttribute = new StaticAttribute(new QName("attrib"), "staticValue");
+        root.addAttribute(immutableAttribute, "hashcode");
+        root.makeImmutable();
+    }
+
 }

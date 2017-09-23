@@ -26,19 +26,19 @@ import org.junit.Test;
 
 public abstract class AbstractContainerBindingMutabilityTest<T extends AbstractContainerBinding> extends BaseBindingMutabilityTest<T> {
 
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotAddBinding() {
-		immutableElement.add(new Element(new QName("level2")));
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotAddBindingViaConvenienceMethod() {
-		immutableElement.add(new Element(new QName("level2")), "someField");
-	}
-	
-	@Test(expected=Xb4jMutabilityException.class)
-	public void testCannotAddBindingViaGetterSetter() {
-		immutableElement.add(new Element(new QName("level2")), NoGetter.INSTANCE, NoSetter.INSTANCE);
-	}
-	
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotAddBinding() {
+        immutableElement.add(new Element(new QName("level2")));
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotAddBindingViaConvenienceMethod() {
+        immutableElement.add(new Element(new QName("level2")), "someField");
+    }
+
+    @Test(expected = Xb4jMutabilityException.class)
+    public void testCannotAddBindingViaGetterSetter() {
+        immutableElement.add(new Element(new QName("level2")), NoGetter.INSTANCE, NoSetter.INSTANCE);
+    }
+
 }

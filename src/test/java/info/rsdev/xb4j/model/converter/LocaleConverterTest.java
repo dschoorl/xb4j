@@ -27,59 +27,59 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class LocaleConverterTest {
-	
+
     private JavaContext mockContext = null;
-    
+
     @Before
     public void setup() {
         this.mockContext = mock(JavaContext.class);
     }
-    
+
     @After
     public void teardown() {
         verifyZeroInteractions(mockContext);    //JavaContext is not used by this converter
     }
 
-	@Test
-	public void testToObjectLanguageOnly() {
-		assertNull(LocaleConverter.INSTANCE.toObject(mockContext, null));
-		assertEquals(new Locale("nl"), LocaleConverter.INSTANCE.toObject(mockContext, "nl"));
-		assertEquals(Locale.ENGLISH, LocaleConverter.INSTANCE.toObject(mockContext, "en"));
-	}
-	
-	@Test
-	public void testToObjectLanguagePlusCountry() {
-		assertEquals(Locale.UK, LocaleConverter.INSTANCE.toObject(mockContext, "en_GB"));
-		assertEquals(new Locale("nl", "NL"), LocaleConverter.INSTANCE.toObject(mockContext, "nl_NL"));
-	}
-	
-	@Test
-	public void testToObjectLanguagePlusCountryPlusVariant() {
-		assertEquals(new Locale("es", "ES", "Traditional_WIN"), LocaleConverter.INSTANCE.toObject(mockContext, "es_ES_Traditional_WIN"));
-	}
-	
-	@Test
-	public void testToTextLanguageOnly() {
-		assertNull(LocaleConverter.INSTANCE.toText(mockContext, null));
-		assertEquals("nl", LocaleConverter.INSTANCE.toText(mockContext, new Locale("nl")));
-		assertEquals("en", LocaleConverter.INSTANCE.toText(mockContext, Locale.ENGLISH));
-		assertEquals("en", LocaleConverter.INSTANCE.toText(mockContext, new Locale("en", "", "")));	//omit unneccesary underscores
-	}
-	
-	@Test
-	public void testToTextLanguagePlusCountry() {
-		assertEquals("nl_NL", LocaleConverter.INSTANCE.toText(mockContext, new Locale("nl", "NL")));
-		assertEquals("en_GB", LocaleConverter.INSTANCE.toText(mockContext, Locale.UK));
-	}
-	
-	@Test
-	public void testToTextLanguagePlusCountryPlusVariant() {
-		assertEquals("es_ES_Traditional_WIN", LocaleConverter.INSTANCE.toText(mockContext, new Locale("es", "ES", "Traditional_WIN")));
-	}
-	
-	@Test
-	public void testGetJavaType() {
-		assertSame(Locale.class, LocaleConverter.INSTANCE.getJavaType());
-	}
-	
+    @Test
+    public void testToObjectLanguageOnly() {
+        assertNull(LocaleConverter.INSTANCE.toObject(mockContext, null));
+        assertEquals(new Locale("nl"), LocaleConverter.INSTANCE.toObject(mockContext, "nl"));
+        assertEquals(Locale.ENGLISH, LocaleConverter.INSTANCE.toObject(mockContext, "en"));
+    }
+
+    @Test
+    public void testToObjectLanguagePlusCountry() {
+        assertEquals(Locale.UK, LocaleConverter.INSTANCE.toObject(mockContext, "en_GB"));
+        assertEquals(new Locale("nl", "NL"), LocaleConverter.INSTANCE.toObject(mockContext, "nl_NL"));
+    }
+
+    @Test
+    public void testToObjectLanguagePlusCountryPlusVariant() {
+        assertEquals(new Locale("es", "ES", "Traditional_WIN"), LocaleConverter.INSTANCE.toObject(mockContext, "es_ES_Traditional_WIN"));
+    }
+
+    @Test
+    public void testToTextLanguageOnly() {
+        assertNull(LocaleConverter.INSTANCE.toText(mockContext, null));
+        assertEquals("nl", LocaleConverter.INSTANCE.toText(mockContext, new Locale("nl")));
+        assertEquals("en", LocaleConverter.INSTANCE.toText(mockContext, Locale.ENGLISH));
+        assertEquals("en", LocaleConverter.INSTANCE.toText(mockContext, new Locale("en", "", "")));	//omit unneccesary underscores
+    }
+
+    @Test
+    public void testToTextLanguagePlusCountry() {
+        assertEquals("nl_NL", LocaleConverter.INSTANCE.toText(mockContext, new Locale("nl", "NL")));
+        assertEquals("en_GB", LocaleConverter.INSTANCE.toText(mockContext, Locale.UK));
+    }
+
+    @Test
+    public void testToTextLanguagePlusCountryPlusVariant() {
+        assertEquals("es_ES_Traditional_WIN", LocaleConverter.INSTANCE.toText(mockContext, new Locale("es", "ES", "Traditional_WIN")));
+    }
+
+    @Test
+    public void testGetJavaType() {
+        assertSame(Locale.class, LocaleConverter.INSTANCE.getJavaType());
+    }
+
 }

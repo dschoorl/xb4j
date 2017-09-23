@@ -117,7 +117,7 @@ public class IgnoreTest {
 
         XMLAssert.assertXMLEqual(expected, stream.toString());
     }
-    
+
     @Test
     public void ignoreRepeatingMandatoryElements() throws XMLStreamException {
         Ignore ignore = new Ignore(new QName("stuff"));
@@ -135,7 +135,7 @@ public class IgnoreTest {
         UnmarshallResult result = ignore.toJava(reader, Mockito.mock(JavaContext.class));
         assertEquals(UnmarshallResult.VOID_RESULT, result);
     }
-    
+
     private void unmarshallAndAssert(String snippet) {
         Object instance = model.toJava(XmlStreamFactory.makeReader(new StringReader(snippet)));
         assertNotNull(instance);

@@ -10,40 +10,40 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class NamespaceContextTest {
-	
-	private NamespaceContext context = null;
-	
-	@Before
-	public void setup() throws Exception {
-		this.context = new NamespaceContext();
-	}
-	
-	@Test
-	public void testRegisterNamespace() {
-		assertFalse(context.isRegistered("http://first/level/namespace"));
-		String prefix = context.registerNamespace(new QName("http://root", "root", "rt"), "http://first/level/namespace", null);
-		assertEquals("ns0", prefix);
-		assertTrue(context.isRegistered("http://first/level/namespace"));
-	}
-	
-	@Test
-	public void testUnregisterNamespacesFor() {
-	    this.context.registerNamespace(new QName("http://root", "root", "rt"));
-		assertTrue(context.isRegistered("http://root"));
-		context.unregisterNamespacesFor(new QName("http://root", "root", "rt"));
-		assertFalse(context.isRegistered("http://root"));
-	}
-	
-	@Test
-	public void reusePrefixFromPreviousRegistration() {
-	    context.registerNamespace(new QName("http://namespace/one", "root", "one"));
-	    assertEquals("one", context.getPrefix("http://namespace/one"));
-	    assertEquals(1, context.size());
-	    context.registerNamespace(new QName("http://namespace/one", "child"));
+
+    private NamespaceContext context = null;
+
+    @Before
+    public void setup() throws Exception {
+        this.context = new NamespaceContext();
+    }
+
+    @Test
+    public void testRegisterNamespace() {
+        assertFalse(context.isRegistered("http://first/level/namespace"));
+        String prefix = context.registerNamespace(new QName("http://root", "root", "rt"), "http://first/level/namespace", null);
+        assertEquals("ns0", prefix);
+        assertTrue(context.isRegistered("http://first/level/namespace"));
+    }
+
+    @Test
+    public void testUnregisterNamespacesFor() {
+        this.context.registerNamespace(new QName("http://root", "root", "rt"));
+        assertTrue(context.isRegistered("http://root"));
+        context.unregisterNamespacesFor(new QName("http://root", "root", "rt"));
+        assertFalse(context.isRegistered("http://root"));
+    }
+
+    @Test
+    public void reusePrefixFromPreviousRegistration() {
+        context.registerNamespace(new QName("http://namespace/one", "root", "one"));
         assertEquals("one", context.getPrefix("http://namespace/one"));
         assertEquals(1, context.size());
-	}
-	
+        context.registerNamespace(new QName("http://namespace/one", "child"));
+        assertEquals("one", context.getPrefix("http://namespace/one"));
+        assertEquals(1, context.size());
+    }
+
     @Test
     public void reusePrefixFromOlderRegistration() {
         context.registerNamespace(new QName("http://namespace/one", "localOne", "one"));
@@ -52,7 +52,7 @@ public class NamespaceContextTest {
         assertEquals("one", context.getPrefix("http://namespace/one"));
         assertEquals(2, context.size());
     }
-    
+
     @Test
     public void doNotChangePrefixesOfEarlierRegistrations() {
         context.registerNamespace(new QName("http://namespace/two", "localTwo", "two"));
@@ -62,7 +62,7 @@ public class NamespaceContextTest {
         assertEquals("two", context.getPrefix("http://namespace/two"));
         assertEquals(2, context.size());
     }
-    
+
     @Test
     public void registerMultipleNamespacesOnElement() {
         QName contextElement = new QName("http://namespace/one", "localOne", "one");
@@ -73,7 +73,7 @@ public class NamespaceContextTest {
         assertEquals("two", context.getPrefix("http://namespace/two"));
         assertEquals(1, context.size());
     }
-    
+
     @Test
     public void unregisterLastElementWithMultipleContextElements() {
         context.registerNamespace(new QName("http://namespace/one", "localOne", "one"));

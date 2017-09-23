@@ -17,28 +17,29 @@ package info.rsdev.xb4j.model.bindings;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Provide a utility class that can be used as a placeholder for IModelAware instances, to facilitate nullsafe
- * locking and unlocking for bindings that are not yet added to a complete binding tree (meaning: they have not 
- * yet been directly or indirectly added to an {@link IModelAware} instance, such as {@link Root} or {@link ComplexType}).
- *  
+ * Provide a utility class that can be used as a placeholder for IModelAware instances, to facilitate nullsafe locking and unlocking
+ * for bindings that are not yet added to a complete binding tree (meaning: they have not yet been directly or indirectly added to
+ * an {@link IModelAware} instance, such as {@link Root} or {@link ComplexType}).
+ *
  * @author Dave Schoorl
  */
 public final class NullSafeSemaphore implements ISemaphore {
-	
-	public static final NullSafeSemaphore INSTANCE = new NullSafeSemaphore();
-	
-	private ReentrantLock lock = new ReentrantLock();
 
-	private NullSafeSemaphore() {}
+    public static final NullSafeSemaphore INSTANCE = new NullSafeSemaphore();
 
-	@Override
+    private final ReentrantLock lock = new ReentrantLock();
+
+    private NullSafeSemaphore() {
+    }
+
+    @Override
     public void lock() {
-    	this.lock.lock();
+        this.lock.lock();
     }
-    
-	@Override
+
+    @Override
     public void unlock() {
-    	this.lock.unlock();
+        this.lock.unlock();
     }
-	
+
 }

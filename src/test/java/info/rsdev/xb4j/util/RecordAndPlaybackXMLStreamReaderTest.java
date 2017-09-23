@@ -177,24 +177,24 @@ public class RecordAndPlaybackXMLStreamReaderTest {
 
     @Test
     public void consumeEndTagWhenSkippingOverContent() throws XMLStreamException {
-        QName root = new QName("root"); 
+        QName root = new QName("root");
         staxReader = makeReader("<root><level1><level2><child>Dit is tekst</child></level2></level1></root>");
         assertTrue(staxReader.isNextAnElementStart(root));
         assertTrue(staxReader.skipToElementEnd());
         assertEquals(XMLStreamReader.END_ELEMENT, staxReader.getEvent());
         assertEquals(root, staxReader.getName());
     }
-    
+
     @Test
     public void consumeEndTagWhenSkippingEmptyElement() throws XMLStreamException {
-        QName root = new QName("root"); 
+        QName root = new QName("root");
         staxReader = makeReader("<root />");
         assertTrue(staxReader.isNextAnElementStart(root));
         assertTrue(staxReader.skipToElementEnd());
         assertEquals(XMLStreamReader.END_ELEMENT, staxReader.getEvent());
         assertEquals(root, staxReader.getName());
     }
-    
+
     private RecordAndPlaybackXMLStreamReader makeReader(String snippet) throws XMLStreamException {
         XMLStreamReader myReader = XmlStreamFactory.makeReader(new StringReader(snippet));
         return new RecordAndPlaybackXMLStreamReader(myReader);

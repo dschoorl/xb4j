@@ -33,29 +33,29 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class AttributeInjectorTest {
-	
-	private IMarshallingAction action = null;
-	
-	private StringWriter writer = null;
-	
-	private SimplifiedXMLStreamWriter staxWriter = null;	
-	
-	@Before
-	public void setup() throws Exception {
-		action = new FixedValueTestAction();
+
+    private IMarshallingAction action = null;
+
+    private StringWriter writer = null;
+
+    private SimplifiedXMLStreamWriter staxWriter = null;
+
+    @Before
+    public void setup() throws Exception {
+        action = new FixedValueTestAction();
         writer = new StringWriter();
         staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
-	}
-	
-	@Test
-	public void testToXml() throws Exception {
-		Root root = new Root(new QName("Root"), Object.class);
-		SimpleType simpleElement = root.setChild(new SimpleType(new QName("Simple"), NullConverter.INSTANCE));
-		simpleElement.addAttribute(new AttributeInjector(new QName("attribute"), action), NoGetter.INSTANCE, NoSetter.INSTANCE);
-		simpleElement.toXml(staxWriter, new JavaContext(new ObjectA("true")));
-		staxWriter.close();
-		
-		assertEquals("<Simple attribute=\"Fixed value\"/>", this.writer.toString());
-	}
-	
+    }
+
+    @Test
+    public void testToXml() throws Exception {
+        Root root = new Root(new QName("Root"), Object.class);
+        SimpleType simpleElement = root.setChild(new SimpleType(new QName("Simple"), NullConverter.INSTANCE));
+        simpleElement.addAttribute(new AttributeInjector(new QName("attribute"), action), NoGetter.INSTANCE, NoSetter.INSTANCE);
+        simpleElement.toXml(staxWriter, new JavaContext(new ObjectA("true")));
+        staxWriter.close();
+
+        assertEquals("<Simple attribute=\"Fixed value\"/>", this.writer.toString());
+    }
+
 }

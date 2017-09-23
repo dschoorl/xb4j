@@ -15,7 +15,6 @@
 package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.model.java.JavaContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +47,7 @@ public class UnmarshallResult implements ErrorCodes {
             throw new UnsupportedOperationException("The NO_RESULT UnmarshallResult Singleton is immutable");
         }
     };
-    
+
     public static final UnmarshallResult VOID_RESULT = new UnmarshallResult(Void.TYPE, true);
 
     /**
@@ -126,7 +125,7 @@ public class UnmarshallResult implements ErrorCodes {
     public boolean isUnmarshallSuccessful() {
         return (errorCode == null) || (errorCode.equals(MISSING_OPTIONAL_ERROR));
     }
-    
+
     public boolean hasUnmarshalledObject() {
         return this.unmarshalledObject != null;
     }
@@ -163,16 +162,15 @@ public class UnmarshallResult implements ErrorCodes {
     public Integer getErrorCode() {
         return errorCode;
     }
-    
+
     /**
      * Check if the unmarshall has resulted in an error code. For clarity: this includes a missing optional element.
+     *
      * @return true if an error code is set on this {@link UnmarshallResult}, false otherwise
      */
     public boolean isError() {
         return errorCode != null;
     }
-
-
 
     /**
      * Get the binding context where the error occurred
@@ -204,8 +202,9 @@ public class UnmarshallResult implements ErrorCodes {
     }
 
     /**
-     * FActory method to create an {@link UnmarshallResult} that indicates the error that a mandatory element is missing
-     * in the binding.
+     * FActory method to create an {@link UnmarshallResult} that indicates the error that a mandatory element is missing in the
+     * binding.
+     *
      * @param bindingWithError
      * @return
      */
@@ -226,21 +225,38 @@ public class UnmarshallResult implements ErrorCodes {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (!(obj instanceof UnmarshallResult)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof UnmarshallResult)) {
+            return false;
+        }
         UnmarshallResult other = (UnmarshallResult) obj;
         if (errorCode == null) {
-            if (other.errorCode != null) return false;
-        } else if (!errorCode.equals(other.errorCode)) return false;
+            if (other.errorCode != null) {
+                return false;
+            }
+        } else if (!errorCode.equals(other.errorCode)) {
+            return false;
+        }
         if (errorMessage == null) {
-            if (other.errorMessage != null) return false;
-        } else if (!errorMessage.equals(other.errorMessage)) return false;
+            if (other.errorMessage != null) {
+                return false;
+            }
+        } else if (!errorMessage.equals(other.errorMessage)) {
+            return false;
+        }
         if (faultyBinding == null) {
-            if (other.faultyBinding != null) return false;
-        } else if (!faultyBinding.equals(other.faultyBinding)) return false;
-        if (unmarshalledObjectIsHandled != other.unmarshalledObjectIsHandled) return false;
-        return true;
+            if (other.faultyBinding != null) {
+                return false;
+            }
+        } else if (!faultyBinding.equals(other.faultyBinding)) {
+            return false;
+        }
+        return unmarshalledObjectIsHandled == other.unmarshalledObjectIsHandled;
     }
 
     @Override

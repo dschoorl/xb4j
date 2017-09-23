@@ -20,32 +20,34 @@ import java.lang.reflect.Field;
 
 /**
  * Get or set the value of a class property by accessing it's {@link Field} by fieldname
+ *
  * @author Dave Schoorl
  */
 public class FieldAccessor implements ISetter, IGetter {
-	
-	private FieldGetter getter = null;
-	
-	private FieldSetter setter = null;
-	
-	public FieldAccessor(String fieldName) {
-		getter = new FieldGetter(fieldName);
-		setter = new FieldSetter(fieldName);
-	}
-	
-	@Override
-	public boolean set(JavaContext javaContext, Object propertyValue) {
-		return setter.set(javaContext, propertyValue);
-	}
-	
-	@Override
-	public JavaContext get(JavaContext contextInstance) {
-		return getter.get(contextInstance);
-	}
-	
-	@Override
-	public String toString() {
-		return String.format("%s[getter=%s, setter=%s]", FieldAccessor.class.getSimpleName(), this.getter, this.setter);
-	};
-	
+
+    private FieldGetter getter = null;
+
+    private FieldSetter setter = null;
+
+    public FieldAccessor(String fieldName) {
+        getter = new FieldGetter(fieldName);
+        setter = new FieldSetter(fieldName);
+    }
+
+    @Override
+    public boolean set(JavaContext javaContext, Object propertyValue) {
+        return setter.set(javaContext, propertyValue);
+    }
+
+    @Override
+    public JavaContext get(JavaContext contextInstance) {
+        return getter.get(contextInstance);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s[getter=%s, setter=%s]", FieldAccessor.class.getSimpleName(), this.getter, this.setter);
+    }
+;
+
 }
