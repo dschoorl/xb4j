@@ -8,6 +8,9 @@ bin
 .idea
 *.iml
 
+# ignore netbeans related files and directories
+/nbproject/
+
 # ignore maven related files and directories
 target
 

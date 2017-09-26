@@ -126,6 +126,8 @@ public class Element extends AbstractSingleBinding {
                     throw new Xb4jUnmarshallException(String.format("Unmarshalled object '%s' not set in %s by binding %s",
                             result.getUnmarshalledObject(), select(javaContext, newJavaContext), this), this);
                 }
+            } else {
+                result.setHandled();
             }
         } else {
             //or set the newly created Java object in the current Java context
@@ -133,8 +135,11 @@ public class Element extends AbstractSingleBinding {
                 return new UnmarshallResult(newJavaContext.getContextObject(), true);
             }
         }
-
-        return new UnmarshallResult(newJavaContext.getContextObject());
+        
+        if (newJavaContext.getContextObject() != null) {
+            return new UnmarshallResult(newJavaContext.getContextObject());
+        }
+        return result;
     }
 
     @Override
