@@ -321,4 +321,14 @@ public class Repeater extends AbstractBinding {
             branch.resolveReferences();
         }
     }
+
+    @Override
+    public void validateContextObject(JavaContext javaContext) throws Xb4jException {
+        Object collection = getProperty(javaContext).getContextObject();
+        if (collection != null) {
+            if (!(collection instanceof Collection<?>)) {
+                throw new Xb4jMarshallException(String.format("Not a Collection type: %s", collection.getClass()), this);
+            }
+        }
+    }
 }

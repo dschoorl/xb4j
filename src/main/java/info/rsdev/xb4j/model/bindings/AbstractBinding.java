@@ -432,7 +432,11 @@ public abstract class AbstractBinding implements IBinding {
 
     @Override
     public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
+        if (logger.isTraceEnabled()) {
+            logger.trace("{Marshalling} " + getPath());
+        }
         javaContext = this.actionManager.executeActions(ExecutionPhase.BEFORE_MARSHALLING, javaContext);
+        validateContextObject(javaContext);
         marshall(staxWriter, javaContext);
         this.actionManager.executeActions(ExecutionPhase.AFTER_MARSHALLING, javaContext);
     }

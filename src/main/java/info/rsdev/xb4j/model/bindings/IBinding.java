@@ -14,6 +14,8 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
+import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.bindings.action.IPhasedAction;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.IGetter;
@@ -43,7 +45,7 @@ public interface IBinding {
      * @return the {@link UnmarshallResult} from this binding.
      * @throws XMLStreamException
      */
-    public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException;
+    UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException;
 
     /**
      *
@@ -51,37 +53,37 @@ public interface IBinding {
      * @param javaContext
      * @throws XMLStreamException
      */
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException;
+    void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException;
 
     /**
      * Determine if the binding will output anything to xmlStream, so that we can know if we have to output an empty mandatory
-     * container tag, or suppress an empty optional container tag. Or, ofcourse, output a non-empty element to the xml stream.
+     * container tag, or suppress an empty optional container tag. Or, of course, output a non-empty element to the xml stream.
      *
      * @param javaContext
      * @return
      */
-    public boolean generatesOutput(JavaContext javaContext);
+    boolean generatesOutput(JavaContext javaContext);
 
     /**
      * Bindings are organized in a hierarchy. Call setParent to build the hierarchy of bindings.
      *
      * @param parent the parent {@link IBinding} that this binding is a child of.
      */
-    public void setParent(IBinding parent);
+    void setParent(IBinding parent);
 
     /**
      *
      * @return
      */
-    public IBinding getParent();
+    IBinding getParent();
 
-    public QName getElement();
+    QName getElement();
 
-    public IBinding addAttribute(IAttribute attribute, String fieldName);
+    IBinding addAttribute(IAttribute attribute, String fieldName);
 
-    public IBinding addAttribute(IAttribute attribute, IGetter getter, ISetter setter);
+    IBinding addAttribute(IAttribute attribute, IGetter getter, ISetter setter);
 
-    public Class<?> getJavaType();
+    Class getJavaType();
 
     /**
      * Get the {@link JavaContext} that will be passed on to nested bindings. The new JavaContext is based on the currentContext,
@@ -93,11 +95,11 @@ public interface IBinding {
      * @param currentContext the current JavaContext that was passed on to this binding
      * @return a new {@link JavaContext} with the context object created by this binding or null when no contex object is created
      */
-    public JavaContext newInstance(RecordAndPlaybackXMLStreamReader staxReader, JavaContext currentContext);
+    JavaContext newInstance(RecordAndPlaybackXMLStreamReader staxReader, JavaContext currentContext);
 
-    public Object getProperty(JavaContext javaContext);
+    JavaContext getProperty(JavaContext javaContext);
 
-    public boolean setProperty(JavaContext javaContext, Object propertyValue);
+    boolean setProperty(JavaContext javaContext, Object propertyValue);
 
     /**
      * The implementation of an {@link IGetter} to be used when the binding wants to obtain the Java instance that needs to be
@@ -107,7 +109,7 @@ public interface IBinding {
      * changed
      * @return this {@link IBinding}
      */
-    public IBinding setGetter(IGetter getter);
+    IBinding setGetter(IGetter getter);
 
     /**
      * The implementation of an {@link ISetter} to be used when the binding wants to process it's unmarshalled result through the
@@ -117,9 +119,9 @@ public interface IBinding {
      * be handled by this {@link IBinding}, but by one of it's ancestors in the binding tree.
      * @return this {@link IBinding}
      */
-    public IBinding setSetter(ISetter setter);
+    IBinding setSetter(ISetter setter);
 
-    public IBinding addAction(IPhasedAction action);
+    IBinding addAction(IPhasedAction action);
 
     /**
      * Whether a binding is optional, is only relevant when it has an xml representation. Checking for presence of an element in
@@ -128,17 +130,17 @@ public interface IBinding {
      *
      * @return true if the element (when applicable) can appear in the xml, false if it must appear in the xml
      */
-    public boolean isOptional();
+    boolean isOptional();
 
-    public <T extends IBinding> T setOptional(boolean isOptional);
-
-    @Override
-    public int hashCode();
+    <T extends IBinding> T setOptional(boolean isOptional);
 
     @Override
-    public boolean equals(Object obj);
+    int hashCode();
 
-    public String getPath();
+    @Override
+    boolean equals(Object obj);
+
+    String getPath();
 
     /**
      * Get the {@link ISemaphore} instance that is at the root of the binding tree that this binding belongs to. If the binding does
@@ -148,21 +150,37 @@ public interface IBinding {
      * @return An {@link ISemaphore} instance that represent the root of the binding tree, or {@link NullSafeSemaphore} when the
      * root is not an instance of {@link ISemaphore}
      */
-    public ISemaphore getSemaphore();
+    ISemaphore getSemaphore();
 
-    public IModelAware getModelAware();
+    IModelAware getModelAware();
 
-    public void validateMutability();
+    void validateMutability();
 
-    public void resolveReferences();
+    void resolveReferences();
 
     /**
      * Search the binding tree for the {@link IBinding} or {@link IAttribute} that can create the java object that is required as an
      * argument by an {@link ICreator} implementation.
      *
      * @param argumentQName the element or attribute name that identifies the xml snippet to unmarshall to the IJavaArgument
-     * @return 
+     * @return
      */
-    public IJavaArgument findArgumentBindingOrAttribute(QName argumentQName);
+    IJavaArgument findArgumentBindingOrAttribute(QName argumentQName);
+
+    /**
+     * Check if the java type being marshalled matches what is expected by the binding.
+     *
+     * @param javaContext the java context containing the context object to validate
+     * @throws Xb4jException when there is a mismatch between the expected and the actual Java context object
+     */
+    default void validateContextObject(JavaContext javaContext) throws Xb4jException {
+        javaContext = getProperty(javaContext);
+        if ((this.getJavaType() != null) && (javaContext.getContextObject() != null)) {
+            if (!this.getJavaType().isAssignableFrom(javaContext.getContextObject().getClass())) {
+                throw new Xb4jUnmarshallException(String.format("expected %s, but encountered %s",
+                        this.getJavaType(), javaContext.getContextObject().getClass()), this);
+            }
+        }
+    }
 
 }
