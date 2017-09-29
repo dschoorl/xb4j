@@ -1,11 +1,12 @@
 package info.rsdev.xb4j.util;
 
+import javax.xml.namespace.QName;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-
-import javax.xml.namespace.QName;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -82,5 +83,13 @@ public class NamespaceContextTest {
         assertEquals("one", context.getPrefix("http://namespace/one"));
         assertFalse(context.isRegistered("http://namespace/two"));
         assertEquals(1, context.size());
+    }
+    
+    @Test
+    public void doNotMixupRegisteredNamespaceOnSiblingElement() {
+        String prefix1 = context.registerNamespace(new QName("http://namespace/one", "localOne"));
+        context.unregisterNamespacesFor(new QName("http://namespace/one", "localOne"));
+        String prefix2 = context.registerNamespace(new QName("http://namespace/one", "localTwo"));
+        assertThat(prefix1, not(equalTo(prefix2)));
     }
 }

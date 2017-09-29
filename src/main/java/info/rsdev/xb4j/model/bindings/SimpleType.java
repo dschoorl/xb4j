@@ -99,13 +99,13 @@ public class SimpleType extends AbstractBinding {
         }
 
         String value = this.converter.toText(javaContext, javaContext.getContextObject());
-        boolean isEmpty = (value == null);
-        if (!isOptional() || !isEmpty) {
-            staxWriter.writeElement(element, isEmpty);	//suppress empty optional elements
+        boolean isEmptyElement = (value == null);
+        if (!isOptional() || !isEmptyElement) {
+            staxWriter.writeElement(element, isEmptyElement);	//suppress empty optional elements
             attributesToXml(staxWriter, javaContext);
         }
 
-        if (!isEmpty) {
+        if (!isEmptyElement) {
             staxWriter.writeContent(value);
             staxWriter.closeElement(element);
         }

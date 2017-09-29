@@ -57,6 +57,7 @@ public class SimplifiedXMLStreamWriter {
                     staxWriter.writeEmptyElement(namespace, element.getLocalPart());
                 } else {
                     staxWriter.writeEmptyElement(prefix, element.getLocalPart(), namespace);
+                    namespaceContext.unregisterNamespacesFor(element);
                 }
             } else {
                 if (nsIsKnown) {

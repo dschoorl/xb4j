@@ -21,6 +21,8 @@ import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.Marker;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -99,6 +101,11 @@ public class XmlStreamer {
             binding.toXml(simpleWriter, new JavaContext(instance));
             simpleWriter.close();
         } catch (XMLStreamException e) {
+            try {
+                staxWriter.flush();
+            } catch (XMLStreamException ex) {
+                Logger.getLogger(XmlStreamer.class.getName()).log(Level.SEVERE, null, ex);
+            }
             throw new Xb4jException("Exception occured when writing object to xml stream", e);
         }
     }

@@ -24,7 +24,7 @@ import javax.xml.namespace.QName;
 /**
  * A helper class to keep track of the namespaces that are known and available within an xml element tree that is being streamed
  *
- * @author dschoorl
+ * @author Dave Schoorl
  */
 public class NamespaceContext {
 
@@ -57,7 +57,8 @@ public class NamespaceContext {
         if ((namespaceUri == null) || (namespaceUri.equals(XMLConstants.NULL_NS_URI))) {
             return XMLConstants.DEFAULT_NS_PREFIX;
         }
-
+        
+        // only re-use prefix, when the namespace is defined below the 
         if (isRegistered(namespaceUri)) {
             return getPrefix(namespaceUri);
         }
@@ -109,7 +110,7 @@ public class NamespaceContext {
     private ContextEntry getOrCreateContextEntry(QName element) {
         ContextEntry entry;
         if (!context.isEmpty() && (context.peek().getElement().equals(element))) {
-            entry = context.peekLast();
+            entry = context.peek();
         } else {
             //TODO: check if the element exists on a lower level and if so, disallow... or allow?
             entry = new ContextEntry(element);
@@ -122,8 +123,16 @@ public class NamespaceContext {
         return DEFAULT_NS_PREFIX + generatedPrefixCounter++;
     }
 
+    @Override
+    public String toString() {
+        return "NamespaceContext{" + "generatedPrefixCounter=" + generatedPrefixCounter + ", context=" + context + '}';
+    }
+
     private static class ContextEntry {
 
+        /**
+         * The element where the namespaces for this context are defined on
+         */
         private final QName element;
 
         /**
@@ -152,6 +161,12 @@ public class NamespaceContext {
                 namespacesInContext.put(namespaceUri, prefix);
             }
         }
+
+        @Override
+        public String toString() {
+            return "ContextEntry{" + "element=" + element + ", namespacesInContext=" + namespacesInContext + '}';
+        }
+        
     }
 
 }
