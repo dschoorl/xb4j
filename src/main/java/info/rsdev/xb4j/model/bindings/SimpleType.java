@@ -107,8 +107,8 @@ public class SimpleType extends AbstractBinding {
 
         if (!isEmptyElement) {
             staxWriter.writeContent(value);
-            staxWriter.closeElement(element);
         }
+        staxWriter.closeElement(element, isEmptyElement);
     }
 
     @Override

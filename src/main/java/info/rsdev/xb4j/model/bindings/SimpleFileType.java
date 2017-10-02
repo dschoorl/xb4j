@@ -236,7 +236,7 @@ public class SimpleFileType extends AbstractBinding {
                     }
                 }
             }
-            staxWriter.closeElement(element);
+            staxWriter.closeElement(element, isEmpty);
         }
     }
 

@@ -18,6 +18,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.java.JavaContext;
+import info.rsdev.xb4j.model.java.accessor.NoGetter;
+import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.util.XmlStreamFactory;
 
@@ -73,6 +76,21 @@ public class AttributeTest {
         ObjectA instance = new ObjectA("test");
         model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals("<A xmlns:test=\"http://attrib/ns\" test:name=\"test\"/>", stream.toString());
+    }
+    
+    @Test
+    public void marshallEmptyElementWithNamespaceContainingAttributesInDifferentNamespace() {
+        BindingModel model = new BindingModel();
+        Root root = new Root(new QName("http://namespace/A", "A", "a"), ObjectA.class);
+        root.addAttribute(new Attribute(new QName("http://attrib/ns", "name", "attr")), "name");
+        IAttribute simpleAttrib = new AttributeInjector(new QName("http://attrib/ns", "type"), (JavaContext ctx) -> "simple");
+        root.addAttribute(simpleAttrib, NoGetter.INSTANCE, NoSetter.INSTANCE);
+        model.register(root);
+        
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        ObjectA instance = new ObjectA("test");
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
+        assertEquals("<a:A xmlns:a=\"http://namespace/A\" xmlns:attr=\"http://attrib/ns\" attr:name=\"test\" attr:type=\"simple\"/>", stream.toString());
     }
 
 }

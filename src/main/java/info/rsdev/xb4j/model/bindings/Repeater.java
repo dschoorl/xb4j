@@ -250,8 +250,8 @@ public class Repeater extends AbstractBinding {
             }
         }
 
-        if (!isEmptyElement && (element != null)) {
-            staxWriter.closeElement(element);
+        if (element != null) {
+            staxWriter.closeElement(element, isEmptyElement);
         }
     }
 

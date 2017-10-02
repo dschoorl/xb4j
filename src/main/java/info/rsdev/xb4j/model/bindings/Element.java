@@ -154,7 +154,7 @@ public class Element extends AbstractSingleBinding {
         IBinding child = getChildBinding();
         JavaContext nextJavaContext = getProperty(javaContext);
         boolean isEmpty = (child == null) || !child.generatesOutput(nextJavaContext);
-        boolean outputElement = ((element != null) && (!isOptional() || !isEmpty));
+        boolean outputElement = ((element != null) && (!isOptional() || !isEmpty || hasAttributes()));
         if (outputElement) {
             staxWriter.writeElement(element, isEmpty);
             attributesToXml(staxWriter, nextJavaContext);
@@ -164,8 +164,8 @@ public class Element extends AbstractSingleBinding {
             child.toXml(staxWriter, nextJavaContext);
         }
 
-        if (outputElement && !isEmpty) {
-            staxWriter.closeElement(element);
+        if (outputElement) {
+            staxWriter.closeElement(element, isEmpty);
         }
     }
 

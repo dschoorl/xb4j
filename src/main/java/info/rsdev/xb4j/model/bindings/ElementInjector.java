@@ -70,8 +70,8 @@ public class ElementInjector extends AbstractBinding {
             staxWriter.writeContent(value);
         }
 
-        if (outputElement && !isEmpty) {
-            staxWriter.closeElement(element);
+        if (outputElement) {
+            staxWriter.closeElement(element, isEmpty);
         }
 
     }

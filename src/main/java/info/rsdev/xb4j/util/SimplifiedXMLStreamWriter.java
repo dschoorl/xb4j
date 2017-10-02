@@ -57,7 +57,6 @@ public class SimplifiedXMLStreamWriter {
                     staxWriter.writeEmptyElement(namespace, element.getLocalPart());
                 } else {
                     staxWriter.writeEmptyElement(prefix, element.getLocalPart(), namespace);
-                    namespaceContext.unregisterNamespacesFor(element);
                 }
             } else {
                 if (nsIsKnown) {
@@ -115,8 +114,10 @@ public class SimplifiedXMLStreamWriter {
         return totalCharsRead;
     }
 
-    public void closeElement(QName element) throws XMLStreamException {
-        staxWriter.writeEndElement();
+    public void closeElement(QName element, boolean isEmptyElement) throws XMLStreamException {
+        if (!isEmptyElement) {
+            staxWriter.writeEndElement();
+        }
         namespaceContext.unregisterNamespacesFor(element);
     }
 

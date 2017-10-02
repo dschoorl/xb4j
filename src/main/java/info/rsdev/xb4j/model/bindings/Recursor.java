@@ -167,8 +167,8 @@ public class Recursor extends AbstractSingleBinding {
 
         marshallRecursor(staxWriter, getChild(recurringObject));
 
-        if (!isEmptyElement && (element != null)) {
-            staxWriter.closeElement(element);
+        if (element != null) {
+            staxWriter.closeElement(element, isEmptyElement);
         }
 
     }

@@ -198,8 +198,8 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
             child.toXml(staxWriter, nextJavaContext);
         }
 
-        if (outputElement && !isEmpty) {
-            staxWriter.closeElement(element);
+        if (outputElement) {
+            staxWriter.closeElement(element, isEmpty);
         }
     }
 

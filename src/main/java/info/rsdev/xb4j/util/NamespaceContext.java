@@ -20,6 +20,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A helper class to keep track of the namespaces that are known and available within an xml element tree that is being streamed
@@ -29,6 +31,8 @@ import javax.xml.namespace.QName;
 public class NamespaceContext {
 
     private static final String DEFAULT_NS_PREFIX = "ns";
+    
+    private final Logger logger = LoggerFactory.getLogger(NamespaceContext.class);
 
     private int generatedPrefixCounter = 0;
 
@@ -69,6 +73,9 @@ public class NamespaceContext {
 
         ContextEntry contextEntry = getOrCreateContextEntry(element);
         contextEntry.addNamespace(namespaceUri, prefix);
+        if (logger.isTraceEnabled()) {
+            logger.trace(String.format("Add xmlns:%s='%s' to NamespaceContext entry %s", prefix, namespaceUri, element));
+        }
         return prefix;
     }
 
@@ -78,7 +85,10 @@ public class NamespaceContext {
         }
         //assume wellformed xml
         if (!context.isEmpty() && (context.peek().getElement().equals(element))) {
-            context.pop();
+            ContextEntry entry = context.pop();
+            if (logger.isTraceEnabled()) {
+                logger.trace(String.format("Removing NamespaceContext entry %s", entry));
+            }
         }
     }
 
@@ -115,6 +125,9 @@ public class NamespaceContext {
             //TODO: check if the element exists on a lower level and if so, disallow... or allow?
             entry = new ContextEntry(element);
             context.push(entry);
+            if (logger.isTraceEnabled()) {
+                logger.trace(String.format("Create new NamespaceContext entry for %s", element));
+            }
         }
         return entry;
     }

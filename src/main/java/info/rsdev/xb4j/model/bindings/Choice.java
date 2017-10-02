@@ -247,8 +247,8 @@ public class Choice extends AbstractBinding {
             selected.toXml(staxWriter, javaContext);
         }
 
-        if (!isEmptyElement && (element != null)) {
-            staxWriter.closeElement(element);
+        if (element != null) {
+            staxWriter.closeElement(element, isEmptyElement);
         }
     }
 
