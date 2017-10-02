@@ -62,7 +62,7 @@ public interface IBinding {
      * @param javaContext
      * @return
      */
-    boolean generatesOutput(JavaContext javaContext);
+    OutputState generatesOutput(JavaContext javaContext);
 
     /**
      * Bindings are organized in a hierarchy. Call setParent to build the hierarchy of bindings.

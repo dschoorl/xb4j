@@ -18,7 +18,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectC;
@@ -33,6 +32,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
+import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
 
@@ -76,7 +76,7 @@ public class SequenceTest {
         Sequence sequence = root.setChild(new Sequence().setOptional(true));
         sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
         sequence.add(new SimpleType(new QName("description")), "description");	//mandatory: will output empty description tag??
-        assertFalse(sequence.generatesOutput(new JavaContext(null)));
+        assertSame(OutputState.NO_OUTPUT, sequence.generatesOutput(new JavaContext(null)));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class SequenceTest {
         Sequence sequence = root.setChild(new Sequence().setOptional(true));
         sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
         sequence.add(new SimpleType(new QName("description")).setOptional(true), "description");
-        assertFalse(sequence.generatesOutput(new JavaContext(new ObjectC())));
+        assertSame(OutputState.NO_OUTPUT, sequence.generatesOutput(new JavaContext(new ObjectC())));
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         XMLStreamWriter staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
@@ -99,6 +99,6 @@ public class SequenceTest {
         Sequence sequence = root.setChild(new Sequence().setOptional(true));
         sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
         sequence.add(new SimpleType(new QName("description")), "description");	//mandatory: will output empty description tag??
-        assertTrue(sequence.generatesOutput(new JavaContext(new ObjectC())));
+        assertSame(OutputState.HAS_OUTPUT, sequence.generatesOutput(new JavaContext(new ObjectC())));
     }
 }

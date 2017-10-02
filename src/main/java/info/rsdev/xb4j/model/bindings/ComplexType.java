@@ -178,7 +178,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (!generatesOutput(javaContext)) {
+        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
             return;
         }
 
@@ -187,7 +187,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
         //is element empty?
         IBinding child = getChildBinding();
         JavaContext nextJavaContext = getProperty(javaContext);
-        boolean isEmpty = (child == null) || !child.generatesOutput(nextJavaContext);
+        boolean isEmpty = (child == null) || (child.generatesOutput(javaContext) == OutputState.NO_OUTPUT);
         boolean outputElement = ((element != null) && (!isOptional() || !isEmpty));
         if (outputElement) {
             staxWriter.writeElement(element, isEmpty);
@@ -204,17 +204,20 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     }
 
     @Override
-    public boolean generatesOutput(JavaContext javaContext) {
+    public OutputState generatesOutput(JavaContext javaContext) {
         javaContext = getProperty(javaContext);
         if (javaContext.getContextObject() != null) {
             IBinding child = getChildBinding();
-            if ((child != null) && child.generatesOutput(javaContext)) {
-                return true;
+            if ((child != null) && (child.generatesOutput(javaContext) == OutputState.HAS_OUTPUT)) {
+                return OutputState.HAS_OUTPUT;
             }
         }
 
         //At this point, the childBinding will have no output
-        return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
+        if ((getElement() != null) && (hasAttributes() || !isOptional())) {	//suppress optional empty elements (empty means: no content and no attributes)
+            return OutputState.HAS_OUTPUT;
+        }
+        return OutputState.NO_OUTPUT;
     }
 
     /**

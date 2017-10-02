@@ -170,25 +170,25 @@ public class RepeaterTest {
     @Test
     public void testRepeaterNoCollectionNoElementGeneratesNoOutput() {
         Repeater repeater = new Repeater(ArrayList.class);
-        assertFalse(repeater.generatesOutput(new JavaContext(null)));
+        assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testRepeaterEmptyCollectionNoElementGeneratesNoOutput() {
         Repeater repeater = new Repeater(ArrayList.class);
-        assertFalse(repeater.generatesOutput(new JavaContext(new ArrayList<>())));
+        assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(new ArrayList<>())));
     }
 
     @Test
     public void testRepeaterEmptyCollectionOptionalElementGeneratesNoOutput() {
         Repeater repeater = new Repeater(new QName("optional"), ArrayList.class, true);
-        assertFalse(repeater.generatesOutput(new JavaContext(new ArrayList<>())));
+        assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(new ArrayList<>())));
     }
 
     @Test
     public void testRepeaterEmptyCollectionMandatoryElementGeneratesNoOutput() {
         Repeater repeater = new Repeater(new QName("mandatory"), ArrayList.class, false);
-        assertTrue(repeater.generatesOutput(new JavaContext(new ArrayList<>())));
+        assertSame(OutputState.HAS_OUTPUT, repeater.generatesOutput(new JavaContext(new ArrayList<>())));
     }
 
     @Test

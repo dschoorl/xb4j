@@ -79,8 +79,8 @@ public class Ignore implements IBinding {
     }
 
     @Override
-    public boolean generatesOutput(JavaContext javaContext) {
-        return false;
+    public OutputState generatesOutput(JavaContext javaContext) {
+        return OutputState.NO_OUTPUT;
     }
 
     @Override

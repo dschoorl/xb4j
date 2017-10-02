@@ -131,7 +131,7 @@ public class Sequence extends AbstractContainerBinding {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (!generatesOutput(javaContext)) {
+        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
             return;
         }
 
@@ -166,18 +166,21 @@ public class Sequence extends AbstractContainerBinding {
      * @return
      */
     @Override
-    public boolean generatesOutput(JavaContext javaContext) {
+    public OutputState generatesOutput(JavaContext javaContext) {
         javaContext = getProperty(javaContext);
         if (javaContext.getContextObject() != null) {
             for (IBinding child : getChildren()) {
-                if (child.generatesOutput(javaContext)) {
-                    return true;
+                if (child.generatesOutput(javaContext) == OutputState.HAS_OUTPUT) {
+                    return OutputState.HAS_OUTPUT;
                 }
             }
         }
 
         //At this point, the children will produce no output
-        return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
+        if ((getElement() != null) && (hasAttributes() || !isOptional())) {	//suppress optional empty elements (empty means: no content and no attributes)
+            return OutputState.HAS_OUTPUT;
+        }
+        return OutputState.NO_OUTPUT;
     }
 
 }

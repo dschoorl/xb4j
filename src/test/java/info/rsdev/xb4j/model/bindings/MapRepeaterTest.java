@@ -174,25 +174,25 @@ public class MapRepeaterTest {
     @Test
     public void testRepeaterNoMapNoElementGeneratesNoOutput() {
         MapRepeater repeater = new MapRepeater(LinkedHashMap.class);
-        assertFalse(repeater.generatesOutput(new JavaContext(null)));
+        assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testRepeaterEmptyMapNoElementGeneratesNoOutput() {
         MapRepeater repeater = new MapRepeater(LinkedHashMap.class);
-        assertFalse(repeater.generatesOutput(new JavaContext(new LinkedHashMap<>())));
+        assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(new LinkedHashMap<>())));
     }
 
     @Test
     public void testRepeaterEmptyMapOptionalElementGeneratesNoOutput() {
         MapRepeater repeater = new MapRepeater(new QName("optional"), LinkedHashMap.class, true);
-        assertFalse(repeater.generatesOutput(new JavaContext(new LinkedHashMap<>())));
+        assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(new LinkedHashMap<>())));
     }
 
     @Test
     public void testRepeaterEmptyCollectionMandatoryElementGeneratesNoOutput() {
         Repeater repeater = new Repeater(new QName("mandatory"), ArrayList.class, false);
-        assertTrue(repeater.generatesOutput(new JavaContext(new ArrayList<>())));
+        assertSame(OutputState.HAS_OUTPUT, repeater.generatesOutput(new JavaContext(new ArrayList<>())));
     }
 
     @Test

@@ -88,7 +88,7 @@ public class SimpleType extends AbstractBinding {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (!generatesOutput(javaContext)) {
+        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
             return;
         }
 
@@ -112,12 +112,15 @@ public class SimpleType extends AbstractBinding {
     }
 
     @Override
-    public boolean generatesOutput(JavaContext javaContext) {
+    public OutputState generatesOutput(JavaContext javaContext) {
         javaContext = getProperty(javaContext);
         if ((javaContext != null) && javaContext.getContextObject() != null) {
-            return true;
+            return OutputState.HAS_OUTPUT;
         }
-        return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
+        if ((getElement() != null) && (hasAttributes() || !isOptional())) {	//suppress optional empty elements (empty means: no content and no attributes)
+            return OutputState.HAS_OUTPUT;
+        }
+        return OutputState.NO_OUTPUT;
     }
 
     private void setConverter(IValueConverter converter) {

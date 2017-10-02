@@ -208,7 +208,7 @@ public class MapRepeater extends AbstractBinding {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (!generatesOutput(javaContext)) {
+        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
             return;
         }
 
@@ -252,7 +252,7 @@ public class MapRepeater extends AbstractBinding {
     }
 
     @Override
-    public boolean generatesOutput(JavaContext javaContext) {
+    public OutputState generatesOutput(JavaContext javaContext) {
         Object map = getProperty(javaContext).getContextObject();
         if (map != null) {
             if (!(map instanceof Map<?, ?>)) {
@@ -260,16 +260,19 @@ public class MapRepeater extends AbstractBinding {
             }
             if (!((Map<?, ?>) map).isEmpty()) {
                 for (Entry<?, ?> keyValue : ((Map<?, ?>) map).entrySet()) {
-                    if (keyBinding.generatesOutput(javaContext.newContext(keyValue.getKey()))
-                            || valueBinding.generatesOutput(javaContext.newContext(keyValue.getValue()))) {
-                        return true;
+                    if ((keyBinding.generatesOutput(javaContext.newContext(keyValue.getKey())) == OutputState.HAS_OUTPUT) || 
+                            (valueBinding.generatesOutput(javaContext.newContext(keyValue.getValue())) == OutputState.HAS_OUTPUT)) {
+                        return OutputState.HAS_OUTPUT;
                     }
                 }
             }
         }
 
         //At this point, the we established that the itemBinding will not output content
-        return (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
+        if ((getElement() != null) && (hasAttributes() || !isOptional())) {	//suppress optional empty elements (empty means: no content and no attributes)
+            return OutputState.HAS_OUTPUT;
+        }
+        return OutputState.NO_OUTPUT;
     }
 
     public MapRepeater setMaxOccurs(int newMaxOccurs) {

@@ -77,8 +77,8 @@ public class ElementInjector extends AbstractBinding {
     }
 
     @Override
-    public boolean generatesOutput(JavaContext javaContext) {
-        return true;
+    public OutputState generatesOutput(JavaContext javaContext) {
+        return OutputState.HAS_OUTPUT;
     }
 
     @Override

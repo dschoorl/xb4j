@@ -143,13 +143,13 @@ public class Recursor extends AbstractSingleBinding {
 
     private void marshallRecursor(SimplifiedXMLStreamWriter staxWriter, JavaContext recurringObject) throws XMLStreamException {
         int recurrenceCount = recurringObject.getIndexInCollection();
-        if (!generatesOutput(recurringObject, recurrenceCount)) {
+        if ((generatesOutput(recurringObject, recurrenceCount)) == OutputState.NO_OUTPUT) {
             return;
         }
 
         //when this Binding must not output an element, the getElement() method should return null
         QName element = getElement();
-        boolean isEmptyElement = !generatesOutput(getChild(recurringObject), recurrenceCount + 1);
+        boolean isEmptyElement = (generatesOutput(getChild(recurringObject), recurrenceCount + 1) == OutputState.NO_OUTPUT);
         if (element != null) {
             staxWriter.writeElement(element, isEmptyElement);
             attributesToXml(staxWriter, recurringObject);
@@ -174,19 +174,23 @@ public class Recursor extends AbstractSingleBinding {
     }
 
     @Override
-    public boolean generatesOutput(JavaContext javaContext) {
+    public OutputState generatesOutput(JavaContext javaContext) {
         return generatesOutput(getProperty(javaContext), 0);
     }
 
-    public boolean generatesOutput(JavaContext recurringObject, int recurrenceCount) {
+    public OutputState generatesOutput(JavaContext recurringObject, int recurrenceCount) {
         if ((recurringObject != null) && (getChildBinding() != null)) {
-            if (getChildBinding().generatesOutput(recurringObject)) {
-                return true;
+            if ((getChildBinding().generatesOutput(recurringObject)) == OutputState.HAS_OUTPUT) {
+                return OutputState.HAS_OUTPUT;
             }
         }
 
         //At this point, we established that the contentBinding will not output content
-        return ((recurringObject != null) && (recurringObject.getContextObject() != null)) && (getElement() != null) && (hasAttributes() || !isOptional());	//suppress optional empty elements (empty means: no content and no attributes)
+        if (((recurringObject != null) && (recurringObject.getContextObject() != null)) 
+                && (getElement() != null) && (hasAttributes() || !isOptional())) {	//suppress optional empty elements (empty means: no content and no attributes)
+            return OutputState.HAS_OUTPUT;
+        }
+        return OutputState.NO_OUTPUT;
     }
 
     public Recursor setMaxOccurs(int newMaxOccurs) {

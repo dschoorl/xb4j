@@ -63,19 +63,19 @@ public class ElementTest {
     @Test
     public void testNoXmlElementAndNoContentGeneratesNoOutput() {
         Element element = (Element) new Element(Object.class);
-        assertFalse(element.generatesOutput(new JavaContext(null)));
+        assertSame(OutputState.NO_OUTPUT, element.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testOptionalXmlElementNoContentGeneratesNoOutput() {
         Element element = (Element) new Element(new QName("optional")).setOptional(true);
-        assertFalse(element.generatesOutput(new JavaContext(null)));
+        assertSame(OutputState.NO_OUTPUT, element.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testMandatoryXmlElementNoContentGeneratesOutput() {
         Element element = (Element) new Element(new QName("mandatory"));
-        assertTrue(element.generatesOutput(new JavaContext(null)));
+        assertSame(OutputState.HAS_OUTPUT, element.generatesOutput(new JavaContext(null)));
     }
 
     /* When an {@link Element} has no child binding, but creates a new Java object and has a setter, the new object is set on 

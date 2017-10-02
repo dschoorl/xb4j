@@ -229,7 +229,7 @@ public class Choice extends AbstractBinding {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (!generatesOutput(javaContext)) {
+        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
             return;
         }
 
@@ -253,23 +253,23 @@ public class Choice extends AbstractBinding {
     }
 
     @Override
-    public boolean generatesOutput(JavaContext javaContext) {
+    public OutputState generatesOutput(JavaContext javaContext) {
         // a quick check: when the element is not optional or it has attributes, generate output, regardless if the
         // element has content
         if ((getElement() != null) && (hasAttributes() || !isOptional())) {
-            return true;
+            return OutputState.HAS_OUTPUT;
         }
 
         // check if the element has any contents
         javaContext = getProperty(javaContext);
         if (javaContext != null) {
             IBinding child = selectBinding(javaContext);
-            if ((child != null) && child.generatesOutput(javaContext)) {
-                return true;
+            if ((child != null) && (child.generatesOutput(javaContext) == OutputState.HAS_OUTPUT)) {
+                return OutputState.HAS_OUTPUT;
             }
         }
 
-        return false;
+        return OutputState.NO_OUTPUT;
     }
 
     @Override

@@ -15,10 +15,8 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.converter.NullConverter;
 import info.rsdev.xb4j.model.java.JavaContext;
@@ -152,19 +150,19 @@ public class SimpleTypeTest {
     @Test
     public void testOptionalSimpleTypeNoContentGeneratesNoOutput() {
         IBinding simple = new SimpleType(new QName("optional")).setOptional(true);
-        assertFalse(simple.generatesOutput(new JavaContext(null)));
+        assertSame(OutputState.NO_OUTPUT, simple.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testManadatorySimpleTypeNoContentGeneratesOutput() {
         IBinding simple = new SimpleType(new QName("mandatory"));
-        assertTrue(simple.generatesOutput(new JavaContext(null)));
+        assertSame(OutputState.HAS_OUTPUT, simple.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testOptionalSimpleTypeWithContentGeneratesOutput() {
         IBinding simple = new SimpleType(new QName("optional")).setOptional(true);
-        assertTrue(simple.generatesOutput(new JavaContext("a value")));
+        assertSame(OutputState.HAS_OUTPUT, simple.generatesOutput(new JavaContext("a value")));
     }
 
     @Test

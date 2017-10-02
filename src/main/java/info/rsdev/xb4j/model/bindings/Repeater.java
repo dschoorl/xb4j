@@ -217,7 +217,7 @@ public class Repeater extends AbstractBinding {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (!generatesOutput(javaContext)) {
+        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
             return;
         }
 
@@ -256,7 +256,7 @@ public class Repeater extends AbstractBinding {
     }
 
     @Override
-    public boolean generatesOutput(JavaContext javaContext) {
+    public OutputState generatesOutput(JavaContext javaContext) {
         Object collection = getProperty(javaContext).getContextObject();
         if (collection != null) {
             if (!(collection instanceof Collection<?>)) {
@@ -264,16 +264,18 @@ public class Repeater extends AbstractBinding {
             }
             if (!((Collection<?>) collection).isEmpty()) {
                 for (Object item : (Collection<?>) collection) {
-                    if (itemBinding.generatesOutput(javaContext.newContext(item))) {
-                        return true;
+                    if (itemBinding.generatesOutput(javaContext.newContext(item)) == OutputState.HAS_OUTPUT) {
+                        return OutputState.HAS_OUTPUT;
                     }
                 }
             }
         }
 
         // At this point, the we established that the itemBinding will not output content
-        return (getElement() != null) && (hasAttributes() || !isOptional()); // suppress optional empty elements (empty means: no
-        // content and no attributes)
+        if ((getElement() != null) && (hasAttributes() || !isOptional())) {	//suppress optional empty elements (empty means: no content and no attributes)
+            return OutputState.HAS_OUTPUT;
+        }
+        return OutputState.NO_OUTPUT;
     }
 
     public Repeater setMaxOccurs(int newMaxOccurs) {

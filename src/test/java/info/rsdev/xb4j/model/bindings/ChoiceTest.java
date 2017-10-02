@@ -32,6 +32,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
+import static org.junit.Assert.assertSame;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -86,20 +87,20 @@ public class ChoiceTest {
 
     @Test
     public void testChoiceWithoutContentNorElementGeneratesNoOutput() {
-        assertFalse(choice.generatesOutput(new JavaContext(null)));
+        assertSame(OutputState.NO_OUTPUT, choice.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testChoiceWithoutContentWithMandatoryElementGeneratesOutput() {
         choice = new Choice(new QName("mandatory"));
-        assertTrue(choice.generatesOutput(new JavaContext(null)));
+        assertSame(OutputState.HAS_OUTPUT, choice.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testChoiceWithoutContentWithOptionalElementGeneratesNoOutput() {
         choice = new Choice(new QName("optional"));
         choice.setOptional(true);
-        assertFalse(choice.generatesOutput(new JavaContext(null)));
+        assertSame(OutputState.NO_OUTPUT, choice.generatesOutput(new JavaContext(null)));
     }
 
 }

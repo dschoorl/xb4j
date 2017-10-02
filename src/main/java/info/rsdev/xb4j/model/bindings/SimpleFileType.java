@@ -129,14 +129,14 @@ public class SimpleFileType extends AbstractBinding {
     }
 
     @Override
-    public boolean generatesOutput(JavaContext javaContext) {
+    public OutputState generatesOutput(JavaContext javaContext) {
         javaContext = getProperty(javaContext);
         Object inputObject = javaContext.getContextObject();
         if ((inputObject != null) && !(inputObject instanceof File)) {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Expected an instance of File, but encountered %s", inputObject));
             }
-            return false;	//no file -- no output
+            return OutputState.NO_OUTPUT;	//no file -- no output
         }
         File inputFile = (File) inputObject;
         boolean isEmpty = (inputFile == null) || !inputFile.isFile() || (inputFile.length() == 0);
@@ -144,7 +144,7 @@ public class SimpleFileType extends AbstractBinding {
             String path = (inputFile == null ? null : inputFile.getAbsolutePath());
             logger.debug(String.format("No data will be obtained for File %s", path));
         }
-        return !isOptional() || !isEmpty;
+        return !isOptional() || !isEmpty ? OutputState.HAS_OUTPUT : OutputState.NO_OUTPUT;
     }
 
     @Override
@@ -195,7 +195,7 @@ public class SimpleFileType extends AbstractBinding {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (!generatesOutput(javaContext)) {
+        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
             return;
         }
 
