@@ -59,20 +59,20 @@
             add it as dependency to your project's pom yourself when you need it -->
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.6</version>
+            <version>1.10</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
+            <version>2.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.2</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>

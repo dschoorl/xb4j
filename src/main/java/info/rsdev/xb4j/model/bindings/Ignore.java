@@ -84,6 +84,11 @@ public class Ignore implements IBinding {
     }
 
     @Override
+    public OutputState attributesGenerateOutput(JavaContext javaContext) {
+        return OutputState.NO_OUTPUT;
+    }
+
+    @Override
     public void setParent(IBinding parent) {
         if (parent == null) {
             throw new NullPointerException("Parent IBinding cannot be null");

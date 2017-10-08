@@ -74,7 +74,7 @@ public class Attribute extends AbstractAttribute {
      * Get the value of this attribute from the {@link JavaContext}, fallback on a possible defaultValue defined by this attribute.
      *
      * @param javaContext
-     * @return the value
+     * @return the value to write to xml
      */
     @Override
     public String getValue(JavaContext javaContext) {
@@ -94,7 +94,7 @@ public class Attribute extends AbstractAttribute {
     }
 
     @Override
-    public IAttribute setDefault(String defaultValue) {
+    public Attribute setDefault(String defaultValue) {
         if (defaultValue == null) {
             throw new NullPointerException("No value provided for default value");
         }

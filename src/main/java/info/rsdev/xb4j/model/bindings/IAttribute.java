@@ -28,11 +28,11 @@ import javax.xml.stream.XMLStreamException;
  */
 public interface IAttribute {
 
-    public QName getAttributeName();
+    QName getAttributeName();
 
-    public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException;
+    void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException;
 
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException;
+    void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException;
 
     /**
      * Get the value of this attribute from the {@link JavaContext}, fallback on a possible defaultValue defined by this attribute.
@@ -40,24 +40,31 @@ public interface IAttribute {
      * @param javaContext
      * @return the value
      */
-    public String getValue(JavaContext javaContext);
+    String getValue(JavaContext javaContext);
 
-    public Object getProperty(JavaContext javaContext);
+    JavaContext getProperty(JavaContext javaContext);
 
-    public boolean setProperty(JavaContext javaContext, Object propertyValue);
+    boolean setProperty(JavaContext javaContext, Object propertyValue);
 
-    public IAttribute setGetter(IGetter getter);
+    <T extends IAttribute> T setGetter(IGetter getter);
 
-    public IAttribute setSetter(ISetter setter);
+    <T extends IAttribute> T setSetter(ISetter setter);
 
-    public boolean isRequired();
+    boolean isRequired();
 
-    public IAttribute setRequired(boolean isRequired);
+    <T extends IAttribute> T setRequired(boolean isRequired);
 
-    public IAttribute setDefault(String defaultValue);
+    <T extends IAttribute> T setDefault(String defaultValue);
 
-    public String getDefaultValue();
+    String getDefaultValue();
 
-    public IAttribute copy(IBinding newParent);
-
+    <T extends IAttribute> T copy(IBinding newParent);
+    
+    /**
+     * Determine if the binding will output anything to xmlStream.
+     *
+     * @param javaContext
+     * @return
+     */
+    OutputState generatesOutput(JavaContext javaContext);
 }

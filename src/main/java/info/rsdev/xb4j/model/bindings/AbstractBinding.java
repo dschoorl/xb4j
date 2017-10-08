@@ -376,6 +376,8 @@ public abstract class AbstractBinding implements IBinding {
         }
         return (T) this;
     }
+    
+    
 
     public void attributesToXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
         if ((attributes != null) && !attributes.isEmpty()) {
@@ -585,6 +587,20 @@ public abstract class AbstractBinding implements IBinding {
         }
 
         return null;
+    }
+
+    @Override
+    public OutputState attributesGenerateOutput(JavaContext javaContext) {
+        if (hasAttributes()) {
+            for (IAttribute attribute : getAttributes()) {
+                OutputState attributeOutputState = attribute.generatesOutput(javaContext);
+                if ((attributeOutputState == OutputState.HAS_OUTPUT) || 
+                        ((attributeOutputState == OutputState.COLLABORATE) && !isOptional())) {
+                    return OutputState.HAS_OUTPUT;
+                }
+            }
+        }
+        return OutputState.NO_OUTPUT;
     }
 
 }

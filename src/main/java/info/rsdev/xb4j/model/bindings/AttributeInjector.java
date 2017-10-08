@@ -38,15 +38,6 @@ public class AttributeInjector extends AbstractAttribute {
     }
 
     @Override
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException {
-        QName attributeName = getAttributeName();
-        String value = getValue(javaContext);
-        if (isRequired() || (value != null)) {
-            staxWriter.writeAttribute(elementName, attributeName, value);
-        }
-    }
-
-    @Override
     public IAttribute setDefault(String defaultValue) {
         IBinding parent = attachedBinding;
         if (parent != null) {

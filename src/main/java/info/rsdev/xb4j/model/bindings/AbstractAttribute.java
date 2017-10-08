@@ -19,8 +19,10 @@ import info.rsdev.xb4j.model.java.accessor.IGetter;
 import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
+import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 /**
  *
@@ -108,7 +110,7 @@ public abstract class AbstractAttribute implements IAttribute {
     }
 
     @Override
-    public IAttribute setGetter(IGetter getter) {
+    public <T extends IAttribute> T setGetter(IGetter getter) {
         if (getter == null) {
             getter = NoGetter.INSTANCE;
         }
@@ -126,11 +128,11 @@ public abstract class AbstractAttribute implements IAttribute {
                 parent.getSemaphore().unlock();
             }
         }
-        return this;
+        return (T)this;
     }
 
     @Override
-    public IAttribute setSetter(ISetter setter) {
+    public <T extends IAttribute> T setSetter(ISetter setter) {
         if (setter == null) {
             setter = NoSetter.INSTANCE;
         }
@@ -148,7 +150,7 @@ public abstract class AbstractAttribute implements IAttribute {
                 parent.getSemaphore().unlock();
             }
         }
-        return this;
+        return (T)this;
     }
 
     @Override
@@ -157,7 +159,23 @@ public abstract class AbstractAttribute implements IAttribute {
     }
 
     @Override
-    public IAttribute setRequired(boolean isRequired) {
+    public OutputState generatesOutput(JavaContext javaContext) {
+        if ((getValue(javaContext) != null) || isRequired()) {
+            return OutputState.HAS_OUTPUT;
+        }
+        return OutputState.NO_OUTPUT;
+    }
+    
+    @Override
+    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException {
+        String value = getValue(javaContext);
+        if (isRequired() || (value != null)) {
+            staxWriter.writeAttribute(elementName, attributeName, value);
+        }
+    }
+
+    @Override
+    public <T extends IAttribute> T setRequired(boolean isRequired) {
         IBinding parent = attachedBinding;
         if (parent != null) {
             parent.getSemaphore().lock();
@@ -172,7 +190,7 @@ public abstract class AbstractAttribute implements IAttribute {
                 parent.getSemaphore().unlock();
             }
         }
-        return this;
+        return (T)this;
     }
 
     @Override

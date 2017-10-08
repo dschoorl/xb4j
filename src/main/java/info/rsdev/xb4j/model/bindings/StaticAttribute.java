@@ -14,10 +14,10 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.converter.IValueConverter;
 import info.rsdev.xb4j.model.converter.NOPConverter;
 import info.rsdev.xb4j.model.java.JavaContext;
-import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
@@ -54,7 +54,7 @@ public class StaticAttribute extends AbstractAttribute {
      */
     public StaticAttribute(QName attributeName, String staticValue, IValueConverter converter) {
         super(attributeName);
-        setDefault(staticValue);
+        this.staticValue = staticValue;
         setConverter(converter);
     }
 
@@ -71,25 +71,28 @@ public class StaticAttribute extends AbstractAttribute {
         setProperty(javaContext, value);
     }
 
-    @Override
-    public void toXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext, QName elementName) throws XMLStreamException {
-        QName attributeName = getAttributeName();
-        String value = getValue(javaContext);
-        if (isRequired() || (value != null)) {
-            staxWriter.writeAttribute(elementName, attributeName, value);
-        }
-    }
-
     /**
      * Get the static value defined for this attribute, ignore the {@link JavaContext}
      *
      * @param javaContext
-     * @return the value
+     * @return the value to write to xml
      */
     @Override
     public String getValue(JavaContext javaContext) {
-        //Ignore value from the Java Object Tree
         return this.staticValue;
+    }
+
+    /**
+     * 
+     * @param javaContext
+     * @return 
+     */
+    @Override
+    public OutputState generatesOutput(JavaContext javaContext) {
+        if (isRequired()) {
+            return OutputState.HAS_OUTPUT;
+        }
+        return OutputState.COLLABORATE;
     }
 
     private void setConverter(IValueConverter converter) {
@@ -100,26 +103,15 @@ public class StaticAttribute extends AbstractAttribute {
         this.converter = converter;
     }
 
+    /**
+     * Override the static value from the constructor with a new static value. This can only be done when the attribute has not yet 
+     * been used in a marshall / unmarshall operation
+     * @param defaultValue 
+     * @return 
+     */
     @Override
-    public IAttribute setDefault(String defaultValue) {
-        if (defaultValue == null) {
-            throw new NullPointerException("No value provided for default value");
-        }
-        IBinding parent = attachedBinding;
-        if (parent != null) {
-            parent.getSemaphore().lock();
-        }
-        try {
-            if (parent != null) {
-                parent.validateMutability();
-            }
-            this.staticValue = defaultValue;
-        } finally {
-            if (parent != null) {
-                parent.getSemaphore().unlock();
-            }
-        }
-        return this;
+    public StaticAttribute setDefault(String defaultValue) {
+        throw new Xb4jException("StaticAttribute supports default values as static values through the constructor");
     }
 
     @Override

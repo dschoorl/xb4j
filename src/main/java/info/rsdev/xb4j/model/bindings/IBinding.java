@@ -64,6 +64,9 @@ public interface IBinding {
      */
     OutputState generatesOutput(JavaContext javaContext);
 
+    
+    OutputState attributesGenerateOutput(JavaContext javaContext);
+
     /**
      * Bindings are organized in a hierarchy. Call setParent to build the hierarchy of bindings.
      *

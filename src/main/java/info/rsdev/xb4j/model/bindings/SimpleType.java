@@ -14,7 +14,6 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.converter.IValueConverter;
@@ -94,7 +93,7 @@ public class SimpleType extends AbstractBinding {
 
         QName element = getElement();
         javaContext = getProperty(javaContext);
-        if ((javaContext == null) && !isOptional()) {	//TODO: check if element is nillable and output nill value for this element
+        if ((javaContext.getContextObject() == null) && !isOptional()) {	//TODO: check if element is nillable and output nill value for this element
             throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
         }
 
@@ -114,15 +113,19 @@ public class SimpleType extends AbstractBinding {
     @Override
     public OutputState generatesOutput(JavaContext javaContext) {
         javaContext = getProperty(javaContext);
-        if ((javaContext != null) && javaContext.getContextObject() != null) {
+        if (javaContext.getContextObject() != null) {
+            //when a binding has data for output, it should always be generated
             return OutputState.HAS_OUTPUT;
         }
-        if ((getElement() != null) && (hasAttributes() || !isOptional())) {	//suppress optional empty elements (empty means: no content and no attributes)
+        
+        if (attributesGenerateOutput(javaContext) == OutputState.HAS_OUTPUT) {
             return OutputState.HAS_OUTPUT;
         }
-        return OutputState.NO_OUTPUT;
+        
+        //when there is nothing to output
+        return isOptional() ? OutputState.NO_OUTPUT : OutputState.COLLABORATE;
     }
-
+    
     private void setConverter(IValueConverter converter) {
         if (converter == null) {
             throw new NullPointerException("IValueConverter cannot be null");

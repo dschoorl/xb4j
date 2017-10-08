@@ -94,11 +94,11 @@ public class SequenceTest {
     }
 
     @Test
-    public void testOutputEmptySequenceWithMandatoryChild() {
-        Root root = new Root(new QName("container"), Object.class);
+    public void surpressEmptyOptionalSequenceWithMandatoryChild() {
+        Root root = new Root(new QName("container"), ObjectC.class);
         Sequence sequence = root.setChild(new Sequence().setOptional(true));
         sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
         sequence.add(new SimpleType(new QName("description")), "description");	//mandatory: will output empty description tag??
-        assertSame(OutputState.HAS_OUTPUT, sequence.generatesOutput(new JavaContext(new ObjectC())));
+        assertSame(OutputState.NO_OUTPUT, sequence.generatesOutput(new JavaContext(new ObjectC())));
     }
 }

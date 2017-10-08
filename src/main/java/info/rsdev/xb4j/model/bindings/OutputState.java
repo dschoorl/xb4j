@@ -28,7 +28,13 @@ public enum OutputState {
     NO_OUTPUT,
     
     /**
-     * The binding generates xml output for the given context object
+     * The binding will generate output when it's parent is marshalled, but it will not force it's
+     * parent to be generated.
+     */
+    COLLABORATE,
+    
+    /**
+     * The binding generates xml output for the given context object. It will force it's parent to be generated.
      */
     HAS_OUTPUT;
 }

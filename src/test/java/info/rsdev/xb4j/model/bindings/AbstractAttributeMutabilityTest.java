@@ -14,6 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
@@ -39,7 +40,7 @@ public abstract class AbstractAttributeMutabilityTest<T extends AbstractAttribut
         immutableAttribute.setRequired(true);
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
+    @Test(expected = Xb4jException.class)
     public void testCannotSetDefault() {
         immutableAttribute.setDefault("defaultValue");
     }

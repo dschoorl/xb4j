@@ -169,18 +169,22 @@ public class Sequence extends AbstractContainerBinding {
     public OutputState generatesOutput(JavaContext javaContext) {
         javaContext = getProperty(javaContext);
         if (javaContext.getContextObject() != null) {
+            //when a binding has data for output, it should always be generated
             for (IBinding child : getChildren()) {
-                if (child.generatesOutput(javaContext) == OutputState.HAS_OUTPUT) {
+                OutputState outputState = child.generatesOutput(javaContext);
+                if ((outputState == OutputState.HAS_OUTPUT) || 
+                        ((outputState == OutputState.COLLABORATE) && !isOptional())) {
                     return OutputState.HAS_OUTPUT;
                 }
             }
         }
-
-        //At this point, the children will produce no output
-        if ((getElement() != null) && (hasAttributes() || !isOptional())) {	//suppress optional empty elements (empty means: no content and no attributes)
+        
+        if (attributesGenerateOutput(javaContext) == OutputState.HAS_OUTPUT) {
             return OutputState.HAS_OUTPUT;
         }
-        return OutputState.NO_OUTPUT;
+        
+        //when there is nothing to output
+        return isOptional() ? OutputState.NO_OUTPUT : OutputState.COLLABORATE;
     }
 
 }

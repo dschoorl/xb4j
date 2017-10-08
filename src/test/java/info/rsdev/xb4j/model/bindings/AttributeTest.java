@@ -28,18 +28,26 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import javax.xml.namespace.QName;
+import org.junit.Before;
 
 import org.junit.Test;
 
 public class AttributeTest {
+    
+    private BindingModel model = null;
+    private Root root = null;
+    
+    @Before
+    public void setupModelWithObjectABinding() {
+        model = new BindingModel();
+        root = new Root(new QName("A"), ObjectA.class);
+        model.register(root);
+    }
 
     @Test
     public void testMarshallSingleAttributeNoNamespace() {
         //Setup the test
-        BindingModel model = new BindingModel();
-        Root root = new Root(new QName("A"), ObjectA.class);
         root.addAttribute(new Attribute(new QName("name")), "name");
-        model.register(root);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectA instance = new ObjectA("test");
@@ -50,10 +58,7 @@ public class AttributeTest {
     @Test
     public void testUnmarshallSingleAttributeNoNamespace() {
         //Setup the test
-        BindingModel model = new BindingModel();
-        Root root = new Root(new QName("A"), ObjectA.class);
         root.addAttribute(new Attribute(new QName("name")), "name");
-        model.register(root);
 
         byte[] buffer = "<A name=\"test\"/>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
@@ -67,10 +72,7 @@ public class AttributeTest {
     @Test
     public void testMarshallSingleAttributeWithNamespace() {
         //Setup the test
-        BindingModel model = new BindingModel();
-        Root root = new Root(new QName("A"), ObjectA.class);
         root.addAttribute(new Attribute(new QName("http://attrib/ns", "name", "test")), "name");
-        model.register(root);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectA instance = new ObjectA("test");
@@ -80,17 +82,46 @@ public class AttributeTest {
     
     @Test
     public void marshallEmptyElementWithNamespaceContainingAttributesInDifferentNamespace() {
-        BindingModel model = new BindingModel();
-        Root root = new Root(new QName("http://namespace/A", "A", "a"), ObjectA.class);
-        root.addAttribute(new Attribute(new QName("http://attrib/ns", "name", "attr")), "name");
+        QName rootQName = new QName("http://namespace/A", "A", "a");
+        Root myRoot = new Root(rootQName, ObjectA.class);
+        myRoot.addAttribute(new Attribute(new QName("http://attrib/ns", "name", "attr")), "name");
         IAttribute simpleAttrib = new AttributeInjector(new QName("http://attrib/ns", "type"), (JavaContext ctx) -> "simple");
-        root.addAttribute(simpleAttrib, NoGetter.INSTANCE, NoSetter.INSTANCE);
-        model.register(root);
+        myRoot.addAttribute(simpleAttrib, NoGetter.INSTANCE, NoSetter.INSTANCE);
+        model.register(myRoot);
         
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectA instance = new ObjectA("test");
-        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), rootQName).toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals("<a:A xmlns:a=\"http://namespace/A\" xmlns:attr=\"http://attrib/ns\" attr:name=\"test\" attr:type=\"simple\"/>", stream.toString());
+    }
+    
+    @Test 
+    public void outputOptionalAttributeWhenItHasAValue() {
+        assertEquals(OutputState.HAS_OUTPUT, getAttributeUnderTest().generatesOutput(new JavaContext("value")));
+    }
+
+    @Test 
+    public void doNotOutputOptionalAttributeWithoutValue() {
+        assertEquals(OutputState.NO_OUTPUT, getAttributeUnderTest().generatesOutput(new JavaContext(null)));
+    }
+
+    @Test 
+    public void outputEmptyOptionalAttributeWithDefaultValue() {
+        Attribute attributeUnderTest = getAttributeUnderTest().setDefault("default");
+        assertEquals(OutputState.HAS_OUTPUT, attributeUnderTest.generatesOutput(new JavaContext(null)));
+    }
+
+    @Test 
+    public void outputEmptyRequiredAttribute() {
+        Attribute attributeUnderTest = getAttributeUnderTest().setRequired(true);
+        assertEquals(OutputState.HAS_OUTPUT, attributeUnderTest.generatesOutput(new JavaContext(null)));
+    }
+    
+    private Attribute getAttributeUnderTest() {
+        Attribute attributeUnderTest = new Attribute(new QName("x"));
+        attributeUnderTest.setGetter(NoGetter.INSTANCE);
+        root.addAttribute(attributeUnderTest, NoGetter.INSTANCE, NoSetter.INSTANCE);
+        return attributeUnderTest;
     }
 
 }
