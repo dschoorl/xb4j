@@ -17,7 +17,7 @@ package info.rsdev.xb4j.model.bindings.chooser;
 import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
- * A match is made when the current javaContext is of the given java type
+ * A match is made when the current context object is an instance of the given java type
  *
  * @author Dave Schoorl
  */
@@ -27,9 +27,9 @@ public class ContextInstanceOf implements IChooser {
 
     /**
      * Create a new instance of {@link ContextInstanceOf}. This implementation of {@link IChooser} will match a choice when the type
-     * of the current java context matches this javaType
+     * of the current java context is an instance of this javaType
      *
-     * @param javaType the type that the java context object must have for the {@link IChooser} to match this choice
+     * @param javaType the type that the java context object must be an instance of have for the {@link IChooser} to match this choice
      */
     public ContextInstanceOf(Class<?> javaType) {
         if (javaType == null) {
