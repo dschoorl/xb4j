@@ -41,19 +41,38 @@ import org.junit.Test;
  */
 public class SimpleTypeTest {
 
-    private BindingModel model = null;
+    private static final QName UNQ_ROOT = new QName("root");
+    private static final QName Q_ROOT = new QName("urn:test/namespace", "root", "tst");
+    private static final QName Q_TREE = new QName("urn:test/namespace/tree", "tree", "tst");
+    private static final QName Q_MYOBJECT = new QName("urn:test/namespace", "myobject", "tst");
 
+    private BindingModel model = null;
+    private Root treeBinding = null;
+    private Root rootBinding = null;
+    private Root nestedBinding = null;
+    
     @Before
     public void setupModel() {
         model = new BindingModel();
+        model.register(new Root(Q_ROOT, Object.class));
+
+        rootBinding = new Root(UNQ_ROOT, Object.class);
+        model.register(rootBinding);
+        
+        treeBinding = new Root(Q_TREE, ObjectTree.class);
+        model.register(treeBinding);
+        
+        nestedBinding = new Root(Q_MYOBJECT, ObjectA.class);
+        nestedBinding.setChild(new SimpleType(new QName("name")), "name");
+        model.register(nestedBinding);
+
     }
 
     @Test
     public void testMarshallingToEmptyElementNoNamespace() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new Object();
-        model.register(new Root(new QName("root"), Object.class));
-        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), UNQ_ROOT).toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals("<root/>", stream.toString());
     }
 
@@ -61,7 +80,6 @@ public class SimpleTypeTest {
     public void testUnmarshallingFromEmptyElementNoNamespace() {
         byte[] buffer = "<root/>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
-        model.register(new Root(new QName("root"), Object.class));
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(Object.class, instance.getClass());
@@ -71,8 +89,7 @@ public class SimpleTypeTest {
     public void testMarshallingToEmptyElementWithNamespace() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new Object();
-        model.register(new Root(new QName("urn:test/namespace", "root", "tst"), Object.class));
-        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
+        model.getXmlStreamer(instance.getClass(), Q_ROOT).toXml(XmlStreamFactory.makeWriter(stream), instance);
         assertEquals("<tst:root xmlns:tst=\"urn:test/namespace\"/>", stream.toString());
     }
 
@@ -80,7 +97,6 @@ public class SimpleTypeTest {
     public void testUnmarshallingFromEmptyElementWithNamespace() {
         byte[] buffer = "<tst:root xmlns:tst=\"urn:test/namespace\"/>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
-        model.register(new Root(new QName("urn:test/namespace", "root", "tst"), Object.class));
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
         assertNotNull(instance);
         assertSame(Object.class, instance.getClass());
@@ -88,11 +104,9 @@ public class SimpleTypeTest {
 
     @Test
     public void testUnmarshalFromNestedXmlWithNamespaces() {
-        Root binding = new Root(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
-        binding.setChild(new Element(new QName("urn:test/namespace", "child", "tst"), ObjectA.class), "myObject");
-        model.register(binding);
-
-        byte[] buffer = "<tst:root xmlns:tst=\"urn:test/namespace\"><tst:child/></tst:root>".getBytes();
+        treeBinding.setChild(new Element(new QName("urn:test/namespace/tree", "child", "tst"), ObjectA.class), "myObject");
+        
+        byte[] buffer = "<tst:tree xmlns:tst=\"urn:test/namespace/tree\"><tst:child/></tst:tree>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
 
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -103,15 +117,13 @@ public class SimpleTypeTest {
 
     @Test
     public void testMarshallNestedBinding() throws Exception {
-        Root binding = new Root(new QName("urn:test/namespace", "root", "tst"), ObjectTree.class);
-        binding.setChild(new Element(new QName("urn:test/namespace", "child", "tst"), ObjectA.class), "myObject");
-        model.register(binding);
+        treeBinding.setChild(new Element(new QName("urn:test/namespace/tree", "child", "tst"), ObjectA.class), "myObject");
 
         ObjectTree instance = new ObjectTree();
         instance.setMyObject(new ObjectA("test"));
-        String expected = "<tst:root xmlns:tst=\"urn:test/namespace\">"
-                + "<tst:child/>"
-                + "</tst:root>";
+        String expected = "<tst:tree xmlns:tst=\"urn:test/namespace/tree\">" +
+                          "<tst:child/>" +
+                          "</tst:tree>";
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
@@ -120,10 +132,6 @@ public class SimpleTypeTest {
 
     @Test
     public void testMarshallValue() throws Exception {
-        Root binding = new Root(new QName("urn:test/namespace", "myobject", "tst"), ObjectA.class);
-        binding.setChild(new SimpleType(new QName("name")), "name");
-        model.register(binding);
-
         ObjectA instance = new ObjectA("test");
 
         String expected = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>test</name></tst:myobject>";
@@ -134,10 +142,6 @@ public class SimpleTypeTest {
 
     @Test
     public void testUnmarshallValue() throws Exception {
-        Root binding = new Root(new QName("urn:test/namespace", "myobject", "tst"), ObjectA.class);
-        binding.setChild(new SimpleType(new QName("name")), "name");
-        model.register(binding);
-
         byte[] buffer = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>test</name></tst:myobject>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
 
@@ -148,12 +152,32 @@ public class SimpleTypeTest {
     }
 
     @Test
+    public void testMarshallValueWithDiacritics() throws Exception {
+        ObjectA instance = new ObjectA("Garçon");
+
+        String expected = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>Garçon</name></tst:myobject>";
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        model.getXmlStreamer(instance.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), instance);
+        assertEquals(expected, stream.toString());
+    }
+
+    @Test
+    public void testUnmarshallValueWithDiacritics() throws Exception {
+        byte[] buffer = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>Garçon</name></tst:myobject>".getBytes();
+        ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
+
+        Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
+        assertNotNull(instance);
+        assertSame(ObjectA.class, instance.getClass());
+        assertEquals("Garçon", ((ObjectA) instance).getAName());
+    }
+
+    @Test
     public void testMarshallMandatorySimpleTypeNoTextWithAttributes() throws Exception {
         StringWriter writer = new StringWriter();
         SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
 
-        Root root = new Root(new QName("Root"), Object.class);
-        SimpleType simple = root.setChild(new SimpleType(new QName("Simple"), NullConverter.INSTANCE));
+        SimpleType simple = rootBinding.setChild(new SimpleType(new QName("Simple"), NullConverter.INSTANCE));
         simple.addAttribute(new Attribute(new QName("name")), "name");
         simple.toXml(staxWriter, new JavaContext(new ObjectA("soul")));
         staxWriter.close();

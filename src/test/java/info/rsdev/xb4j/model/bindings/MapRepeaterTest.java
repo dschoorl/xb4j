@@ -42,10 +42,10 @@ public class MapRepeaterTest {
     @Test
     public void testMarshallValueMapNoContainerElement() {
         //fixture
-        Root root = new Root(new QName("root"), ObjectTree.class);
+        BindingModel model = new BindingModel();
+        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
         MapRepeater map = root.setChild(new MapRepeater(LinkedHashMap.class), "codes");
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
-        BindingModel model = new BindingModel().register(root);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectTree instance = new ObjectTree();
@@ -60,10 +60,10 @@ public class MapRepeaterTest {
     @Test
     public void testMarshallRootAsMapType() {
         //fixture
-        Root root = new Root(new QName("root"), LinkedHashMap.class);
+        BindingModel model = new BindingModel();
+        Root root = model.register(new Root(new QName("root"), LinkedHashMap.class));
         MapRepeater map = root.setChild(new MapRepeater());
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
-        BindingModel model = new BindingModel().register(root);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Map<String, String> instance = new LinkedHashMap<>();
@@ -78,10 +78,10 @@ public class MapRepeaterTest {
     @Test(expected = Xb4jMarshallException.class)
     public void testMarshallExpectParentBindingToProvideMapButNoMap() {
         //fixture
-        Root root = new Root(new QName("root"), ObjectTree.class);	//Root binding must represent Map type, but does not
+        BindingModel model = new BindingModel();
+        Root root = model.register(new Root(new QName("root"), ObjectTree.class));	//Root binding must represent Map type, but does not
         MapRepeater map = root.setChild(new MapRepeater());
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
-        BindingModel model = new BindingModel().register(root);
 
         model.getXmlStreamer(ObjectTree.class, null).toXml(XmlStreamFactory.makeWriter(new ByteArrayOutputStream()), new ObjectTree());
     }
@@ -89,10 +89,10 @@ public class MapRepeaterTest {
     @Test
     public void testMarshallValueMapWithContainerElement() {
         //fixture
-        Root root = new Root(new QName("root"), ObjectTree.class);
+        BindingModel model = new BindingModel();
+        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
         MapRepeater map = root.setChild(new MapRepeater(new QName("mapping"), LinkedHashMap.class), "codes");
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
-        BindingModel model = new BindingModel().register(root);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectTree instance = new ObjectTree();
@@ -107,10 +107,10 @@ public class MapRepeaterTest {
     @Test
     public void testUnmarshallValueMapNoContainerElement() {
         //fixture
-        Root root = new Root(new QName("root"), ObjectTree.class);
+        BindingModel model = new BindingModel();
+        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
         MapRepeater map = root.setChild(new MapRepeater(LinkedHashMap.class), "codes");
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
-        BindingModel model = new BindingModel().register(root);
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><key>1</key><value>Een</value><key>2</key><value>Twee</value></root>".getBytes());
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -126,10 +126,10 @@ public class MapRepeaterTest {
     @Test
     public void testUnmarshallRootAsMapType() {
         //fixture
-        Root root = new Root(new QName("root"), LinkedHashMap.class);
+        BindingModel model = new BindingModel();
+        Root root = model.register(new Root(new QName("root"), LinkedHashMap.class));
         MapRepeater map = root.setChild(new MapRepeater());
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
-        BindingModel model = new BindingModel().register(root);
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><key>1</key><value>Een</value><key>2</key><value>Twee</value></root>".getBytes());
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -144,10 +144,10 @@ public class MapRepeaterTest {
     @Test(expected = Xb4jUnmarshallException.class)
     public void testUnmarshallExpectParentBindingToProvideMapButNoMap() {
         //fixture
-        Root root = new Root(new QName("root"), ObjectTree.class);	//Root binding must represent Map type, but does not
+        BindingModel model = new BindingModel();
+        Root root = model.register(new Root(new QName("root"), ObjectTree.class));	//Root binding must represent Map type, but does not
         MapRepeater map = root.setChild(new MapRepeater());
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
-        BindingModel model = new BindingModel().register(root);
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><key>1</key><value>Een</value><key>2</key><value>Twee</value></root>".getBytes());
         model.toJava(XmlStreamFactory.makeReader(stream));
@@ -156,10 +156,10 @@ public class MapRepeaterTest {
     @Test
     public void testUnmarshallValueMapWithContainerElement() {
         //fixture
-        Root root = new Root(new QName("root"), ObjectTree.class);
+        BindingModel model = new BindingModel();
+        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
         MapRepeater map = root.setChild(new MapRepeater(new QName("mapping"), LinkedHashMap.class), "codes");
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
-        BindingModel model = new BindingModel().register(root);
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><mapping><key>1</key><value>Een</value><key>2</key><value>Twee</value></mapping></root>".getBytes());
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -200,11 +200,10 @@ public class MapRepeaterTest {
     public void testMarshallCollectionIndexAsAttribute() throws Exception {
         //work on a collection of Strings
         BindingModel model = new BindingModel();
-        Root root = new Root(new QName("root"), ObjectTree.class);
+        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
         Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
         SimpleType item = collection.setItem(new SimpleType(new QName("item")));
         item.addAttribute(new AttributeInjector(new QName("seqnr"), Indexer.INSTANCE), NoGetter.INSTANCE, NoSetter.INSTANCE);
-        model.register(root);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectTree instance = new ObjectTree();

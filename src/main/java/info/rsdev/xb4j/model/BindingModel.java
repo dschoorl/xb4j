@@ -168,7 +168,7 @@ public class BindingModel {
         }
     }
 
-    public BindingModel register(Root binding) {
+    public Root register(Root binding) {
         if (binding == null) {
             throw new NullPointerException("RootBinding cannot be null when registering it");
         }
@@ -206,10 +206,10 @@ public class BindingModel {
         boundToClass.add(binding);
 
         binding.setModel(this);
-        return this;
+        return binding;
     }
 
-    public BindingModel register(ComplexType complexType, boolean errorIfExists) {
+    public ComplexType register(ComplexType complexType, boolean errorIfExists) {
         if (complexType == null) {
             throw new NullPointerException("ComplexTypeBinding cannot be null");
         }
@@ -230,7 +230,7 @@ public class BindingModel {
         }
         this.complexTypes.put(fqComplexTypeName, complexType);
         complexType.setModel(this);
-        return this;
+        return complexType;
     }
 
     /**

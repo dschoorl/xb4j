@@ -40,11 +40,11 @@ public class SequenceTest {
 
     @Test
     public void testMarshallMultipleElementsNoNamespace() {
-        Root root = new Root(new QName("root"), ObjectC.class);
+        BindingModel model = new BindingModel();
+        Root root = model.register(new Root(new QName("root"), ObjectC.class));
         Sequence sequence = root.setChild(new Sequence());
         sequence.add(new SimpleType(new QName("naam")), "name");
         sequence.add(new SimpleType(new QName("omschrijving")), "description");
-        BindingModel model = new BindingModel().register(root);
 
         ObjectC instance = new ObjectC().setAName("tester").setDescription("Ik test dingen");
 
