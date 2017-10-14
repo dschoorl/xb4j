@@ -31,11 +31,11 @@ public class ReferenceMutabilityTest extends BaseBindingMutabilityTest<Reference
         Root root = new Root(new QName("root"), Object.class);
         immutableElement = new Reference(new QName("level1"), "identifier", "namespace");
         root.setChild(immutableElement);
-        model.register(root);
+        model.registerRoot(root);
 
         //add ComplexType to BindingModel that can be resolved as well...
         ComplexType type = new ComplexType("identifier", "namespace");
-        model.register(type, false);
+        model.registerComplexType(type, false);
 
         root.makeImmutable();	//this will resolve all Reference objects and replace them with a copy of the referenced ComplexType
     }

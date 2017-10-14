@@ -168,7 +168,7 @@ public class BindingModel {
         }
     }
 
-    public Root register(Root binding) {
+    public Root registerRoot(Root binding) {
         if (binding == null) {
             throw new NullPointerException("RootBinding cannot be null when registering it");
         }
@@ -209,7 +209,7 @@ public class BindingModel {
         return binding;
     }
 
-    public ComplexType register(ComplexType complexType, boolean errorIfExists) {
+    public ComplexType registerComplexType(ComplexType complexType, boolean errorIfExists) {
         if (complexType == null) {
             throw new NullPointerException("ComplexTypeBinding cannot be null");
         }

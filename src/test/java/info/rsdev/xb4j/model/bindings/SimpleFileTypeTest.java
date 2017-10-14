@@ -64,7 +64,7 @@ public class SimpleFileTypeTest {
         fileType.addAttribute(new Attribute(new QName("Encoding")), "xmlEncoding");
         fileType.addAttribute(new StaticAttribute(new QName("Name"), "temp.zip"), NoGetter.INSTANCE, NoSetter.INSTANCE);
         fileType.addAttribute(new StaticAttribute(new QName("MimeType"), "application/octet-stream"), NoGetter.INSTANCE, NoSetter.INSTANCE);
-        this.model.register(root);
+        this.model.registerRoot(root);
     }
 
     @Test

@@ -43,7 +43,7 @@ public class MapRepeaterTest {
     public void testMarshallValueMapNoContainerElement() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
         MapRepeater map = root.setChild(new MapRepeater(LinkedHashMap.class), "codes");
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
 
@@ -61,7 +61,7 @@ public class MapRepeaterTest {
     public void testMarshallRootAsMapType() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), LinkedHashMap.class));
+        Root root = model.registerRoot(new Root(new QName("root"), LinkedHashMap.class));
         MapRepeater map = root.setChild(new MapRepeater());
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
 
@@ -79,7 +79,7 @@ public class MapRepeaterTest {
     public void testMarshallExpectParentBindingToProvideMapButNoMap() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));	//Root binding must represent Map type, but does not
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));	//Root binding must represent Map type, but does not
         MapRepeater map = root.setChild(new MapRepeater());
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
 
@@ -90,7 +90,7 @@ public class MapRepeaterTest {
     public void testMarshallValueMapWithContainerElement() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
         MapRepeater map = root.setChild(new MapRepeater(new QName("mapping"), LinkedHashMap.class), "codes");
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
 
@@ -108,7 +108,7 @@ public class MapRepeaterTest {
     public void testUnmarshallValueMapNoContainerElement() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
         MapRepeater map = root.setChild(new MapRepeater(LinkedHashMap.class), "codes");
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
 
@@ -127,7 +127,7 @@ public class MapRepeaterTest {
     public void testUnmarshallRootAsMapType() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), LinkedHashMap.class));
+        Root root = model.registerRoot(new Root(new QName("root"), LinkedHashMap.class));
         MapRepeater map = root.setChild(new MapRepeater());
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
 
@@ -145,7 +145,7 @@ public class MapRepeaterTest {
     public void testUnmarshallExpectParentBindingToProvideMapButNoMap() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));	//Root binding must represent Map type, but does not
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));	//Root binding must represent Map type, but does not
         MapRepeater map = root.setChild(new MapRepeater());
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
 
@@ -157,7 +157,7 @@ public class MapRepeaterTest {
     public void testUnmarshallValueMapWithContainerElement() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
         MapRepeater map = root.setChild(new MapRepeater(new QName("mapping"), LinkedHashMap.class), "codes");
         map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
 
@@ -200,7 +200,7 @@ public class MapRepeaterTest {
     public void testMarshallCollectionIndexAsAttribute() throws Exception {
         //work on a collection of Strings
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
         Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
         SimpleType item = collection.setItem(new SimpleType(new QName("item")));
         item.addAttribute(new AttributeInjector(new QName("seqnr"), Indexer.INSTANCE), NoGetter.INSTANCE, NoSetter.INSTANCE);
@@ -224,7 +224,7 @@ public class MapRepeaterTest {
         Sequence content = collection.setItem(new Sequence(new QName("item")));
         content.add(new SimpleType(new QName("value")));
         content.add(new ElementInjector(new QName("seqnr"), Indexer.INSTANCE));
-        model.register(root);
+        model.registerRoot(root);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectTree instance = new ObjectTree();

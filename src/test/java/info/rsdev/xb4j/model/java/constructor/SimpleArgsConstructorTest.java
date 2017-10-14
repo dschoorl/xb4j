@@ -38,7 +38,7 @@ public class SimpleArgsConstructorTest {
         objectSequence = content.add(new Sequence(NoElementFetchStrategy.INSTANCE, new ArgsConstructor(ObjectA.class, new QName("name"))), "myObject");
         Repeater messages = (Repeater) content.add(new Repeater(new QName("messages"), LinkedList.class).setOptional(true), "messages");
         messages.setItem(new SimpleType(new QName("message")));
-        model.register(root);
+        model.registerRoot(root);
     }
 
     @Test

@@ -45,7 +45,7 @@ public class IgnoreTest {
         model = new BindingModel();
         root = new Root(new QName("root"), ObjectA.class);
         root.addAttribute(new Attribute(new QName("name")).setRequired(false), "name");
-        model.register(root);
+        model.registerRoot(root);
     }
 
     @Test

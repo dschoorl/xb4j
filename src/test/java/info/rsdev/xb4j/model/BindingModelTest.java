@@ -27,13 +27,13 @@ public class BindingModelTest {
         model = new BindingModel();
         Root binding = new Root(UP_QNAME, ObjectA.class);
         binding.setChild(new SimpleType(new QName("name")), "name");
-        model.register(binding);
+        model.registerRoot(binding);
 
         binding = new Root(LO_QNAME, ObjectA.class);
         binding.setChild(new SimpleType(new QName("eman")), "name");
-        model.register(binding);
+        model.registerRoot(binding);
 
-        model.register(new Root(new QName("B"), ObjectB.class));
+        model.registerRoot(new Root(new QName("B"), ObjectB.class));
     }
 
     @Test
@@ -74,15 +74,15 @@ public class BindingModelTest {
     @Test(expected = Xb4jException.class)
     public void testBindJavaclassTwiceToSameQName() throws Exception {
         BindingModel aModel = new BindingModel();
-        aModel.register(new Root(new QName("http://bkwi.nl/1", "eenVersie"), ObjectA.class));
-        aModel.register(new Root(new QName("http://bkwi.nl/1", "eenVersie"), ObjectA.class));	//same class must use different QName, if not: Xb4jException is thrown
+        aModel.registerRoot(new Root(new QName("http://bkwi.nl/1", "eenVersie"), ObjectA.class));
+        aModel.registerRoot(new Root(new QName("http://bkwi.nl/1", "eenVersie"), ObjectA.class));	//same class must use different QName, if not: Xb4jException is thrown
     }
 
     @Test
     public void testBindJavaclassTwiceWithDifferentQName() throws Exception {
         BindingModel aModel = new BindingModel();
-        aModel.register(new Root(new QName("http://bkwi.nl/1", "eenVersie"), ObjectA.class));
-        aModel.register(new Root(new QName("http://bkwi.nl/2", "eenVersie"), ObjectA.class));
+        aModel.registerRoot(new Root(new QName("http://bkwi.nl/1", "eenVersie"), ObjectA.class));
+        aModel.registerRoot(new Root(new QName("http://bkwi.nl/2", "eenVersie"), ObjectA.class));
     }
 
 }

@@ -71,7 +71,7 @@ public class RecursorTest {
         Recursor childRecursor = root.setChild(new Recursor(new QName("Kind"), ChinesePerson.class, "child"), "child");
         childRecursor.addAttribute(new Attribute(new QName("Voornaam")), "firstName");
         childRecursor.addAttribute(new Attribute(new QName("Achternaam")), "sirName");
-        model.register(root);
+        model.registerRoot(root);
     }
 
     @Test

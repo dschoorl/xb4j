@@ -41,7 +41,7 @@ public class RepeaterTest {
     public void testMarshallValueCollectionNoContainerElement() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
         Repeater collection = root.setChild(new Repeater(ArrayList.class), "messages");
         collection.setItem(new SimpleType(new QName("detail")));
 
@@ -59,7 +59,7 @@ public class RepeaterTest {
     public void testMarshallRootAsCollectionType() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ArrayList.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ArrayList.class));
         Repeater collection = root.setChild(new Repeater());
         collection.setItem(new SimpleType(new QName("detail")));
 
@@ -77,7 +77,7 @@ public class RepeaterTest {
     public void testMarshallExpectParentBindingToProvideCollectionButNoCollection() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
         Repeater collection = root.setChild(new Repeater());	//Root binding must represent collection type, but does not
         collection.setItem(new SimpleType(new QName("detail")));
 
@@ -88,7 +88,7 @@ public class RepeaterTest {
     public void testMarshallValueCollectionWithContainerElement() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
         Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
         collection.setItem(new SimpleType(new QName("detail")));
 
@@ -106,7 +106,7 @@ public class RepeaterTest {
     public void testUnmarshallValueCollectionNoContainerElement() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
         Repeater collection = root.setChild(new Repeater(ArrayList.class), "messages");
         collection.setItem(new SimpleType(new QName("detail")));
 
@@ -124,7 +124,7 @@ public class RepeaterTest {
     public void testUnmarshallRootAsCollectionType() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ArrayList.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ArrayList.class));
         Repeater collection = root.setChild(new Repeater());
         collection.setItem(new SimpleType(new QName("detail")));
 
@@ -141,7 +141,7 @@ public class RepeaterTest {
     public void testUnmarshallExpectParentBindingToProvideCollectionButNoCollection() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
         Repeater collection = root.setChild(new Repeater());	//Root binding must represent collection type, but does not
         collection.setItem(new SimpleType(new QName("detail")));
 
@@ -153,7 +153,7 @@ public class RepeaterTest {
     public void testUnmarshallValueCollectionWithContainerElement() {
         //fixture
         BindingModel model = new BindingModel();
-        Root root = model.register(new Root(new QName("root"), ObjectTree.class));
+        Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
         Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
         collection.setItem(new SimpleType(new QName("detail")));
 
@@ -199,7 +199,7 @@ public class RepeaterTest {
         Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
         SimpleType item = collection.setItem(new SimpleType(new QName("item")));
         item.addAttribute(new AttributeInjector(new QName("seqnr"), Indexer.INSTANCE), NoGetter.INSTANCE, NoSetter.INSTANCE);
-        model.register(root);
+        model.registerRoot(root);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectTree instance = new ObjectTree();
@@ -219,7 +219,7 @@ public class RepeaterTest {
         Sequence content = collection.setItem(new Sequence(new QName("item")));
         content.add(new SimpleType(new QName("value")));
         content.add(new ElementInjector(new QName("seqnr"), Indexer.INSTANCE));
-        model.register(root);
+        model.registerRoot(root);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectTree instance = new ObjectTree();

@@ -36,7 +36,7 @@ public class StaticAttributeTest {
     public void setupModelWithObjectABinding() {
         model = new BindingModel();
         root = new Root(new QName("A"), ObjectA.class);
-        model.register(root);
+        model.registerRoot(root);
     }
 
     @Test 

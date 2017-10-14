@@ -43,7 +43,7 @@ public class SimpleArgumentTest {
         Root root = (new Root(new QName("root"), ObjectTree.class));
         Sequence objectB = root.setChild(new Sequence((IElementFetchStrategy) null, new ArgsConstructor(ObjectB.class, GETAL)), "myObject");
         objectB.add(new SimpleArgument(GETAL, IntegerConverter.INSTANCE).setOptional(true), "value");
-        model.register(root);
+        model.registerRoot(root);
     }
 
     @Test

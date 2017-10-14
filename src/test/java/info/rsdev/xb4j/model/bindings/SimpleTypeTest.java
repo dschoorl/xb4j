@@ -54,17 +54,17 @@ public class SimpleTypeTest {
     @Before
     public void setupModel() {
         model = new BindingModel();
-        model.register(new Root(Q_ROOT, Object.class));
+        model.registerRoot(new Root(Q_ROOT, Object.class));
 
         rootBinding = new Root(UNQ_ROOT, Object.class);
-        model.register(rootBinding);
+        model.registerRoot(rootBinding);
         
         treeBinding = new Root(Q_TREE, ObjectTree.class);
-        model.register(treeBinding);
+        model.registerRoot(treeBinding);
         
         nestedBinding = new Root(Q_MYOBJECT, ObjectA.class);
         nestedBinding.setChild(new SimpleType(new QName("name")), "name");
-        model.register(nestedBinding);
+        model.registerRoot(nestedBinding);
 
     }
 

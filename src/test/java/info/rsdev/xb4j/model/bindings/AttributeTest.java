@@ -41,7 +41,7 @@ public class AttributeTest {
     public void setupModelWithObjectABinding() {
         model = new BindingModel();
         root = new Root(new QName("A"), ObjectA.class);
-        model.register(root);
+        model.registerRoot(root);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class AttributeTest {
         myRoot.addAttribute(new Attribute(new QName("http://attrib/ns", "name", "attr")), "name");
         IAttribute simpleAttrib = new AttributeInjector(new QName("http://attrib/ns", "type"), (JavaContext ctx) -> "simple");
         myRoot.addAttribute(simpleAttrib, NoGetter.INSTANCE, NoSetter.INSTANCE);
-        model.register(myRoot);
+        model.registerRoot(myRoot);
         
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectA instance = new ObjectA("test");

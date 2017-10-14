@@ -45,9 +45,9 @@ public class ComplexTypeTest {
         complexType.setChild(new SimpleType(new QName("name")), "name");
 
         model = new BindingModel();
-        model.register(complexType, true);
-        model.register(root);
-        model.register(hoofdmap);
+        model.registerComplexType(complexType, true);
+        model.registerRoot(root);
+        model.registerRoot(hoofdmap);
     }
 
     @Test
@@ -93,11 +93,11 @@ public class ComplexTypeTest {
         BindingModel myModel = new BindingModel();
         Root root = new Root(new QName("root"), ObjectA.class);
         root.setChild(new Reference(new QName("reference"), "complexType", null), NoGetter.INSTANCE, NoSetter.INSTANCE);
-        myModel.register(root);
+        myModel.registerRoot(root);
 
         ComplexType complexType = new ComplexType("complexType", null);
         complexType.setChild(new SimpleType(new QName("name")), "name");
-        myModel.register(complexType, true);
+        myModel.registerComplexType(complexType, true);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectA instance = new ObjectA("test");

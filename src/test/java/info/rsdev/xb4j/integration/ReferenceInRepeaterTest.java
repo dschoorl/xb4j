@@ -54,8 +54,8 @@ public class ReferenceInRepeaterTest {
         textMessageType.setChild(new SimpleType(new QName("message")));
         
         model = new BindingModel();
-        model.register(root);
-        model.register(textMessageType, true);
+        model.registerRoot(root);
+        model.registerComplexType(textMessageType, true);
     }
     
     @Test
