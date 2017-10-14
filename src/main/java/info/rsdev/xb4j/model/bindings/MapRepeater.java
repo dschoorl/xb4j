@@ -54,7 +54,11 @@ public class MapRepeater extends AbstractBinding {
      * use case is to support the {@link Root} xml element to contain a {@link Map} without an additional container element.
      */
     public MapRepeater() {
-        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
+        this(false);
+    }
+
+    public MapRepeater(boolean isOptional) {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional);
         setSetter(MimicSetter.INSTANCE);
     }
 
@@ -65,21 +69,19 @@ public class MapRepeater extends AbstractBinding {
      * @param mapType
      */
     public MapRepeater(Class<?> mapType) {
-        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(mapType));
+        this(mapType, false);
     }
 
     public MapRepeater(Class<?> mapType, boolean isOptional) {
-        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(mapType));
-        setOptional(isOptional);
+        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(mapType), isOptional);
     }
 
     public MapRepeater(QName element, Class<?> mapType) {
-        this(element, mapType, true);
+        this(element, mapType, false);
     }
 
     public MapRepeater(QName element, Class<?> mapType, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(mapType));
-        setOptional(isOptional);
+        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(mapType), isOptional);
     }
 
     public <T extends IBinding> MapRepeater setKeyValue(T keyBinding, T valueBinding) {
@@ -260,7 +262,7 @@ public class MapRepeater extends AbstractBinding {
             }
             if (!((Map<?, ?>) map).isEmpty()) {
                 for (Entry<?, ?> keyValue : ((Map<?, ?>) map).entrySet()) {
-                    if ((keyBinding.generatesOutput(javaContext.newContext(keyValue.getKey())) == OutputState.HAS_OUTPUT) || 
+                    if ((keyBinding.generatesOutput(javaContext.newContext(keyValue.getKey())) == OutputState.HAS_OUTPUT) ||
                             (valueBinding.generatesOutput(javaContext.newContext(keyValue.getValue())) == OutputState.HAS_OUTPUT)) {
                         return OutputState.HAS_OUTPUT;
                     }

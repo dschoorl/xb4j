@@ -14,6 +14,10 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
@@ -23,9 +27,6 @@ import info.rsdev.xb4j.util.XmlStreamFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import javax.xml.namespace.QName;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,10 +37,10 @@ public class ComplexTypeTest {
     @Before
     public void setup() {
         Root root = new Root(new QName("root"), ObjectA.class);   //has element, but class comes from child
-        root.setChild(new Reference("typeO", null), NoGetter.INSTANCE, NoSetter.INSTANCE);
+        root.setChild(new Reference("typeO", null, false), NoGetter.INSTANCE, NoSetter.INSTANCE);
 
         Root hoofdmap = new Root(new QName("directory"), ObjectTree.class);
-        hoofdmap.setChild(new Reference(ObjectA.class, "typeO", null), "myObject");
+        hoofdmap.setChild(new Reference(ObjectA.class, "typeO", null, false), "myObject");
 
         ComplexType complexType = new ComplexType("typeO", null);
         complexType.setChild(new SimpleType(new QName("name")), "name");
@@ -92,7 +93,7 @@ public class ComplexTypeTest {
         //Setup the binding model
         BindingModel myModel = new BindingModel();
         Root root = new Root(new QName("root"), ObjectA.class);
-        root.setChild(new Reference(new QName("reference"), "complexType", null), NoGetter.INSTANCE, NoSetter.INSTANCE);
+        root.setChild(new Reference(new QName("reference"), "complexType", null, false), NoGetter.INSTANCE, NoSetter.INSTANCE);
         myModel.registerRoot(root);
 
         ComplexType complexType = new ComplexType("complexType", null);

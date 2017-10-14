@@ -49,14 +49,26 @@ public class Choice extends AbstractBinding {
     private final List<IChooser> choosers = new LinkedList<>();
 
     /**
-     * Create a new {@link Choice}.
+     * Create a new mandatory {@link Choice}.
      */
     public Choice() {
-        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
+        this(false);
+    }
+
+    /**
+     * Create a new {@link Choice}.
+     * @param isOptional
+     */
+    public Choice(boolean isOptional) {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional);
     }
 
     public Choice(QName element) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
+        this(element, false);
+    }
+
+    public Choice(QName element, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
     }
 
     @Override

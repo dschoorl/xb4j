@@ -49,7 +49,11 @@ public class Repeater extends AbstractBinding {
      * use case is to support the {@link Root} xml element to contain a {@link Collection} without an additional container element.
      */
     public Repeater() {
-        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
+        this(false);
+    }
+
+    public Repeater(boolean isOptional) {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, false);
         setSetter(MimicSetter.INSTANCE);
     }
 
@@ -60,21 +64,19 @@ public class Repeater extends AbstractBinding {
      * @param collectionType
      */
     public Repeater(Class<?> collectionType) {
-        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(collectionType));
+        this(collectionType, false);
     }
 
     public Repeater(Class<?> collectionType, boolean isOptional) {
-        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(collectionType));
-        setOptional(isOptional);
+        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(collectionType), isOptional);
     }
 
     public Repeater(QName element, Class<?> collectionType) {
-        this(element, collectionType, true);
+        this(element, collectionType, false);
     }
 
     public Repeater(QName element, Class<?> collectionType, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(collectionType));
-        setOptional(isOptional);
+        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(collectionType), isOptional);
     }
 
     public <T extends IBinding> T setItem(T itemBinding) {
@@ -137,8 +139,8 @@ public class Repeater extends AbstractBinding {
              * - A binding returned a value (either handled or unhandled), except for Ignore...?
              * - There are no errors
              * - All yielded values of a sequence have been handled
-             * 
-             * Do NOT proceed, when 
+             *
+             * Do NOT proceed, when
              * - A choice returned NO_RESULT (none of the optional values were found)
              */
             proceed = !result.isError();

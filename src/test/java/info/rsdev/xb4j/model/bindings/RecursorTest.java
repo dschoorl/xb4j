@@ -14,16 +14,17 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.test.ChinesePerson;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
 import javax.xml.namespace.QName;
-
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
@@ -68,7 +69,7 @@ public class RecursorTest {
     public void setup() {
         model = new BindingModel();
         Root root = new Root(new QName("Stamboom"), FamilyTree.class);
-        Recursor childRecursor = root.setChild(new Recursor(new QName("Kind"), ChinesePerson.class, "child"), "child");
+        Recursor childRecursor = root.setChild(new Recursor(new QName("Kind"), ChinesePerson.class, "child", true), "child");
         childRecursor.addAttribute(new Attribute(new QName("Voornaam")), "firstName");
         childRecursor.addAttribute(new Attribute(new QName("Achternaam")), "sirName");
         model.registerRoot(root);

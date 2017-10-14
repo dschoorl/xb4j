@@ -100,11 +100,19 @@ public class SimpleFileType extends AbstractBinding {
      * @param element
      */
     public SimpleFileType(QName element) {
-        this(element, FixedDirectoryOutputStrategy.INSTANCE, DefaultXmlCodingFactory.INSTANCE);
+        this(element, FixedDirectoryOutputStrategy.INSTANCE, DefaultXmlCodingFactory.INSTANCE, false);
+    }
+
+    public SimpleFileType(QName element, boolean isOptional) {
+        this(element, FixedDirectoryOutputStrategy.INSTANCE, DefaultXmlCodingFactory.INSTANCE, isOptional);
     }
 
     public SimpleFileType(QName element, IFileOutputStrategy fileOutputStrategy) {
-        this(element, fileOutputStrategy, DefaultXmlCodingFactory.INSTANCE);
+        this(element, fileOutputStrategy, DefaultXmlCodingFactory.INSTANCE, false);
+    }
+
+    public SimpleFileType(QName element, IFileOutputStrategy fileOutputStrategy, boolean isOptional) {
+        this(element, fileOutputStrategy, DefaultXmlCodingFactory.INSTANCE, isOptional);
     }
 
     /**
@@ -114,8 +122,8 @@ public class SimpleFileType extends AbstractBinding {
      * @param fileOutputStrategy
      * @param xmlCodingFactory
      */
-    public SimpleFileType(QName element, IFileOutputStrategy fileOutputStrategy, IXmlCodingFactory xmlCodingFactory) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
+    public SimpleFileType(QName element, IFileOutputStrategy fileOutputStrategy, IXmlCodingFactory xmlCodingFactory, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
         if (fileOutputStrategy == null) {
             throw new NullPointerException("IFileOutputStrategy cannot be null");
         }

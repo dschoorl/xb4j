@@ -29,8 +29,8 @@ public abstract class AbstractContainerBinding extends AbstractBinding implement
 
     private final ArrayList<IBinding> children = new ArrayList<>();
 
-    protected AbstractContainerBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
-        super(elementFetcher, objectCreator);
+    protected AbstractContainerBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator, boolean isOptional) {
+        super(elementFetcher, objectCreator, isOptional);
     }
 
     /**

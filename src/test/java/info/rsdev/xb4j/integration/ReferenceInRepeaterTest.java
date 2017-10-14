@@ -15,6 +15,10 @@
  */
 package info.rsdev.xb4j.integration;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.ComplexType;
 import info.rsdev.xb4j.model.bindings.Element;
@@ -31,13 +35,12 @@ import java.util.ArrayList;
 import javax.xml.namespace.QName;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
  */
 public class ReferenceInRepeaterTest {
-    
+
     private BindingModel model = null;
 
     @Before
@@ -46,18 +49,18 @@ public class ReferenceInRepeaterTest {
         Sequence content = root.setChild(new Sequence());
         Element a = content.add(new Element(new QName("a"), ObjectA.class), "myObject");
         a.setChild(new SimpleType(new QName("name")), "name");
-        
+
         Repeater messages = content.add(new Repeater(ArrayList.class), "messages");
-        messages.setItem(new Reference("tekstMeldingType", null));
-        
+        messages.setItem(new Reference("tekstMeldingType", null, false));
+
         ComplexType textMessageType = new ComplexType("tekstMeldingType", null);
         textMessageType.setChild(new SimpleType(new QName("message")));
-        
+
         model = new BindingModel();
         model.registerRoot(root);
         model.registerComplexType(textMessageType, true);
     }
-    
+
     @Test
     public void unmarshall() {
         Object result = model.toJava(XmlStreamFactory.makeReader(new StringReader(REPEATING_VALUES)));
@@ -65,12 +68,12 @@ public class ReferenceInRepeaterTest {
         assertSame(ObjectTree.class, result.getClass());
         assertEquals(3, ((ObjectTree)result).getMessages().size());
     }
-    
+
 //    @Test
 //    public void marshall() {
-//        
+//
 //    }
-    
+
     private static final String REPEATING_VALUES =
        "<root>\n" +
        "  <a><name>subject</name></a>\n" +
@@ -78,5 +81,5 @@ public class ReferenceInRepeaterTest {
        "  <message>2</message>" +
        "  <message>presto finito</message>" +
        "</root>";
-    
+
 }

@@ -31,7 +31,6 @@ import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,10 +38,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,12 +71,13 @@ public abstract class AbstractBinding implements IBinding {
 
     private boolean isOptional = false; // by default, everything is mandatory, unless explicitly made optional
 
-    protected AbstractBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
+    protected AbstractBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator, boolean isOptional) {
         setElementFetchStrategy(elementFetcher);
         setObjectCreator(objectCreator);
         this.getter = NoGetter.INSTANCE;
         this.setter = NoSetter.INSTANCE;
         this.actionManager = new ActionManager();
+        this.isOptional = isOptional;
     }
 
     /**
@@ -376,8 +374,8 @@ public abstract class AbstractBinding implements IBinding {
         }
         return (T) this;
     }
-    
-    
+
+
 
     public void attributesToXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
         if ((attributes != null) && !attributes.isEmpty()) {
@@ -594,7 +592,7 @@ public abstract class AbstractBinding implements IBinding {
         if (hasAttributes()) {
             for (IAttribute attribute : getAttributes()) {
                 OutputState attributeOutputState = attribute.generatesOutput(javaContext);
-                if ((attributeOutputState == OutputState.HAS_OUTPUT) || 
+                if ((attributeOutputState == OutputState.HAS_OUTPUT) ||
                         ((attributeOutputState == OutputState.COLLABORATE) && !isOptional())) {
                     return OutputState.HAS_OUTPUT;
                 }

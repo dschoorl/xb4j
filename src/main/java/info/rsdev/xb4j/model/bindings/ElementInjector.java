@@ -21,7 +21,6 @@ import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
@@ -35,8 +34,8 @@ public class ElementInjector extends AbstractBinding {
 
     private IMarshallingAction valueProvider = null;
 
-    public ElementInjector(QName element, IMarshallingAction valueProvider) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
+    public ElementInjector(QName element, IMarshallingAction valueProvider, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
         setMarshallingAction(valueProvider);
     }
 

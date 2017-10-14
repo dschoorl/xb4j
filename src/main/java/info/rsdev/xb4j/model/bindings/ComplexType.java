@@ -52,19 +52,24 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      */
     private final AtomicBoolean isImmutable = new AtomicBoolean(false);
 
+    public ComplexType(QName element, IBinding parent, String fieldName) {
+        this(element, parent, fieldName, false);
+    }
+
     /**
      * Create a ComplexTypeReference for an anonymous ComplexType (not registered with {@link BindingModel}
      *
      * @param element
      * @param parent
      * @param fieldName
+     * @param isOptional
      */
-    public ComplexType(QName element, IBinding parent, String fieldName) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
+    public ComplexType(QName element, IBinding parent, String fieldName, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
         if (parent == null) {
             throw new NullPointerException("Parent IBinding cannot be null");
         }
-        Reference reference = new Reference(element, this);
+        Reference reference = new Reference(element, this, isOptional);
         if (parent instanceof ISingleBinding) {
             ((ISingleBinding) parent).setChild(reference);
         } else if (parent instanceof IContainerBinding) {
@@ -77,14 +82,19 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
         setSetter(provider);
     }
 
+    public ComplexType(String identifier, String namespaceUri) {
+        this(identifier, namespaceUri, false);
+    }
+
     /**
      * Create a new {@link ComplexType} with the purpose to be referenced by a {@link Reference}
      *
      * @param identifier
      * @param namespaceUri
+     * @param isOptional
      */
-    public ComplexType(String identifier, String namespaceUri) {
-        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
+    public ComplexType(String identifier, String namespaceUri, boolean isOptional) {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
         //the element fetch strategy will be replaced by a real one when this 'type' is copied into a binding hierarchy
@@ -94,7 +104,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      * Copy constructor that creates a copy of ComplexTypeBinding with the given {@link Reference parent} as it's parent
      */
     private ComplexType(ComplexType original) {
-        super(original, NoElementFetchStrategy.INSTANCE);	//dirty hack, I want to do: new FetchFromParentStrategy(this), but cannot pass on 'this' in super contructor call 
+        super(original, NoElementFetchStrategy.INSTANCE);	//dirty hack, I want to do: new FetchFromParentStrategy(this), but cannot pass on 'this' in super contructor call
         this.identifier = original.identifier;
         this.namespaceUri = original.namespaceUri;
     }
@@ -165,7 +175,7 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 
         /* The unmarshall result of the childbinding is handled. It is set on the newly created context object, if it is not null,
 	 * otherwise it is set on the existing context object. However, if the new context object is not null, it could be that
-	 * it must be set on the existing context object or being handled by the parent binding 
+	 * it must be set on the existing context object or being handled by the parent binding
          */
 //        if (newJavaContext.getContextObject() != null) {
         if (setProperty(javaContext, newJavaContext.getContextObject())) {

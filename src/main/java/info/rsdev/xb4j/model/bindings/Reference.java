@@ -18,7 +18,6 @@ import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
@@ -37,26 +36,26 @@ public class Reference extends Element {
 
     private String namespaceUri = null;
 
-    public Reference(String identifier, String namespaceUri) {
-        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
+    public Reference(String identifier, String namespaceUri, boolean isOptional) {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }
 
-    public Reference(QName element, Class<?> javaType, String identifier, String namespaceUri) {
-        super(element, javaType);
+    public Reference(QName element, Class<?> javaType, String identifier, String namespaceUri, boolean isOptional) {
+        super(element, javaType, isOptional);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }
 
-    public Reference(Class<?> javaType, String identifier, String namespaceUri) {
-        super(javaType);
+    public Reference(Class<?> javaType, String identifier, String namespaceUri, boolean isOptional) {
+        super(javaType, isOptional);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }
 
-    public Reference(QName element, String identifier, String namespaceUri) {
-        super(element);
+    public Reference(QName element, String identifier, String namespaceUri, boolean isOptional) {
+        super(element, isOptional);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }
@@ -68,8 +67,8 @@ public class Reference extends Element {
      * @param element
      * @param referencedBinding
      */
-    Reference(QName element, ComplexType referencedBinding) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
+    Reference(QName element, ComplexType referencedBinding, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
         //TODO: simplify -> can we not skip ComplexTypeReference when dealing with anonymous type (just use only a ComplexTypeBinding)
         if (referencedBinding == null) {
             throw new NullPointerException("ComplexTypeBinding cannot be null");

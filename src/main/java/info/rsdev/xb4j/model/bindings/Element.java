@@ -47,23 +47,35 @@ public class Element extends AbstractSingleBinding {
      * @param element the element
      */
     public Element(QName element) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
+        this(element, false);
+    }
+
+    public Element(QName element, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
     }
 
     public Element(Class<?> javaType) {
-        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType));
+        this(javaType, false);
+    }
+
+    public Element(Class<?> javaType, boolean isOptional) {
+        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType), isOptional);
     }
 
     public Element(QName element, Class<?> javaType) {
-        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(javaType));
+        this(element, javaType, false);
     }
 
-    public Element(QName element, ICreator creator) {
-        super(new DefaultElementFetchStrategy(element), creator);
+    public Element(QName element, Class<?> javaType, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(javaType), isOptional);
     }
 
-    public Element(IElementFetchStrategy elementFetcher, ICreator creator) {
-        super(elementFetcher, creator);
+    public Element(QName element, ICreator creator, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), creator, isOptional);
+    }
+
+    public Element(IElementFetchStrategy elementFetcher, ICreator creator, boolean isOptional) {
+        super(elementFetcher, creator, isOptional);
     }
 
     /**
@@ -114,8 +126,8 @@ public class Element extends AbstractSingleBinding {
         }
 
         //process the UnmarshallResult
-        /* When the UnmarshallResult yields an object, it must either be set on the current context or passed on to it's parent. 
-         * 
+        /* When the UnmarshallResult yields an object, it must either be set on the current context or passed on to it's parent.
+         *
          */
         if ((result != null) && result.mustHandleUnmarshalledObject()) {
             if (!setProperty(select(javaContext, newJavaContext), result.getUnmarshalledObject())) {
@@ -135,7 +147,7 @@ public class Element extends AbstractSingleBinding {
                 return new UnmarshallResult(newJavaContext.getContextObject(), true);
             }
         }
-        
+
         if (newJavaContext.getContextObject() != null) {
             return new UnmarshallResult(newJavaContext.getContextObject());
         }

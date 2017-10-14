@@ -18,9 +18,7 @@ import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.ComplexType;
 import info.rsdev.xb4j.model.bindings.Reference;
 import info.rsdev.xb4j.model.bindings.Root;
-
 import javax.xml.namespace.QName;
-
 import org.junit.Before;
 
 public class ReferenceMutabilityTest extends BaseBindingMutabilityTest<Reference> {
@@ -29,7 +27,7 @@ public class ReferenceMutabilityTest extends BaseBindingMutabilityTest<Reference
     public void setUp() {
         BindingModel model = new BindingModel();
         Root root = new Root(new QName("root"), Object.class);
-        immutableElement = new Reference(new QName("level1"), "identifier", "namespace");
+        immutableElement = new Reference(new QName("level1"), "identifier", "namespace", false);
         root.setChild(immutableElement);
         model.registerRoot(root);
 

@@ -14,6 +14,11 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.BindingModel;
@@ -28,7 +33,6 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.xml.namespace.QName;
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 /**
@@ -218,7 +222,7 @@ public class RepeaterTest {
         Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
         Sequence content = collection.setItem(new Sequence(new QName("item")));
         content.add(new SimpleType(new QName("value")));
-        content.add(new ElementInjector(new QName("seqnr"), Indexer.INSTANCE));
+        content.add(new ElementInjector(new QName("seqnr"), Indexer.INSTANCE, false));
         model.registerRoot(root);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();

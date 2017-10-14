@@ -17,9 +17,7 @@ package info.rsdev.xb4j.model.bindings.aspects.mutability;
 import info.rsdev.xb4j.model.bindings.ElementInjector;
 import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.test.FixedValueTestAction;
-
 import javax.xml.namespace.QName;
-
 import org.junit.Before;
 
 public class ElementInjectorMutabilityTest extends BaseBindingMutabilityTest<ElementInjector> {
@@ -27,7 +25,7 @@ public class ElementInjectorMutabilityTest extends BaseBindingMutabilityTest<Ele
     @Before
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
-        immutableElement = new ElementInjector(new QName("level1"), FixedValueTestAction.INSTANCE);
+        immutableElement = new ElementInjector(new QName("level1"), FixedValueTestAction.INSTANCE, false);
         root.setChild(immutableElement);
         root.makeImmutable();
     }

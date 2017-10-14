@@ -14,6 +14,11 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.BindingModel;
@@ -29,7 +34,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.xml.namespace.QName;
-import static org.junit.Assert.*;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -223,7 +227,7 @@ public class MapRepeaterTest {
         Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
         Sequence content = collection.setItem(new Sequence(new QName("item")));
         content.add(new SimpleType(new QName("value")));
-        content.add(new ElementInjector(new QName("seqnr"), Indexer.INSTANCE));
+        content.add(new ElementInjector(new QName("seqnr"), Indexer.INSTANCE, false));
         model.registerRoot(root);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();

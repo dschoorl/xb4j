@@ -14,7 +14,10 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.converter.IntegerConverter;
 import info.rsdev.xb4j.model.java.constructor.ArgsConstructor;
@@ -22,12 +25,9 @@ import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.test.ObjectB;
 import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-
 import javax.xml.namespace.QName;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,7 +41,7 @@ public class SimpleArgumentTest {
     public void setUp() throws Exception {
         model = new BindingModel();
         Root root = (new Root(new QName("root"), ObjectTree.class));
-        Sequence objectB = root.setChild(new Sequence((IElementFetchStrategy) null, new ArgsConstructor(ObjectB.class, GETAL)), "myObject");
+        Sequence objectB = root.setChild(new Sequence((IElementFetchStrategy) null, new ArgsConstructor(ObjectB.class, GETAL), false), "myObject");
         objectB.add(new SimpleArgument(GETAL, IntegerConverter.INSTANCE).setOptional(true), "value");
         model.registerRoot(root);
     }

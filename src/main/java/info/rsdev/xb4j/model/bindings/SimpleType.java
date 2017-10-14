@@ -23,7 +23,6 @@ import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.DefaultElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
@@ -46,11 +45,19 @@ public class SimpleType extends AbstractBinding {
      * @param element the element
      */
     public SimpleType(QName element) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
+        this(element, false);
+    }
+
+    public SimpleType(QName element, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
     }
 
     public SimpleType(QName element, IValueConverter converter) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
+        this(element, converter, false);
+    }
+
+    public SimpleType(QName element, IValueConverter converter, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
         setConverter(converter);
     }
 
@@ -117,15 +124,15 @@ public class SimpleType extends AbstractBinding {
             //when a binding has data for output, it should always be generated
             return OutputState.HAS_OUTPUT;
         }
-        
+
         if (attributesGenerateOutput(javaContext) == OutputState.HAS_OUTPUT) {
             return OutputState.HAS_OUTPUT;
         }
-        
+
         //when there is nothing to output
         return isOptional() ? OutputState.NO_OUTPUT : OutputState.COLLABORATE;
     }
-    
+
     private void setConverter(IValueConverter converter) {
         if (converter == null) {
             throw new NullPointerException("IValueConverter cannot be null");

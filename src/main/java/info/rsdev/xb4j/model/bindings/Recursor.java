@@ -51,15 +51,14 @@ public class Recursor extends AbstractSingleBinding {
      * @param propertyName
      */
     public Recursor(QName element, Class<?> recursiveType, String propertyName) {
-        this(element, recursiveType, propertyName, true);
+        this(element, recursiveType, propertyName, false);
     }
 
     public Recursor(QName element, Class<?> recursiveType, String propertyName, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(recursiveType));
+        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(recursiveType), isOptional);
         BeanPropertyAccessor accessor = new BeanPropertyAccessor(propertyName);
         this.recursiveGetter = accessor;
         this.recursiveSetter = accessor;
-        setOptional(isOptional);
     }
 
     @Override
@@ -186,7 +185,7 @@ public class Recursor extends AbstractSingleBinding {
         }
 
         //At this point, we established that the contentBinding will not output content
-        if (((recurringObject != null) && (recurringObject.getContextObject() != null)) 
+        if (((recurringObject != null) && (recurringObject.getContextObject() != null))
                 && (getElement() != null) && (hasAttributes() || !isOptional())) {	//suppress optional empty elements (empty means: no content and no attributes)
             return OutputState.HAS_OUTPUT;
         }

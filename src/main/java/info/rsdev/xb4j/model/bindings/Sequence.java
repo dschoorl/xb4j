@@ -24,9 +24,7 @@ import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-
 import java.util.Collection;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
@@ -42,7 +40,11 @@ public class Sequence extends AbstractContainerBinding {
      * Create a new {@link Sequence} which inherits it's element and javatype from it's parent
      */
     public Sequence() {
-        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE);
+        this(false);
+    }
+
+    public Sequence(boolean isOptional) {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional);
     }
 
     /**
@@ -51,26 +53,39 @@ public class Sequence extends AbstractContainerBinding {
      *
      * @param elementFetcher The {@link IElementFetchStrategy} to use. If not provided, {@link NoElementFetchStrategy} is used.
      * @param objectCreator The {@link ICreator} to use. If not provided, {@link NullCreator} is used.
+     * @param isOptional
      */
-    public Sequence(IElementFetchStrategy elementFetcher, ICreator objectCreator) {
+    public Sequence(IElementFetchStrategy elementFetcher, ICreator objectCreator, boolean isOptional) {
         super((elementFetcher == null ? NoElementFetchStrategy.INSTANCE : elementFetcher),
-                (objectCreator == null ? NullCreator.INSTANCE : objectCreator));
+                (objectCreator == null ? NullCreator.INSTANCE : objectCreator), isOptional);
     }
 
     public Sequence(QName element) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE);
+        this(element, false);
+    }
+
+    public Sequence(QName element, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
     }
 
     public Sequence(Class<?> javaType) {
-        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType));
+        this(javaType, false);
+    }
+
+    public Sequence(Class<?> javaType, boolean isOptional) {
+        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType), isOptional);
     }
 
     public Sequence(QName element, Class<?> javaType) {
-        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(javaType));
+        this(element, javaType, false);
     }
 
-    public Sequence(QName element, ICreator creator) {
-        super(new DefaultElementFetchStrategy(element), creator);
+    public Sequence(QName element, Class<?> javaType, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(javaType), isOptional);
+    }
+
+    public Sequence(QName element, ICreator creator, boolean isOptional) {
+        super(new DefaultElementFetchStrategy(element), creator, isOptional);
     }
 
     @Override
@@ -172,17 +187,17 @@ public class Sequence extends AbstractContainerBinding {
             //when a binding has data for output, it should always be generated
             for (IBinding child : getChildren()) {
                 OutputState outputState = child.generatesOutput(javaContext);
-                if ((outputState == OutputState.HAS_OUTPUT) || 
+                if ((outputState == OutputState.HAS_OUTPUT) ||
                         ((outputState == OutputState.COLLABORATE) && !isOptional())) {
                     return OutputState.HAS_OUTPUT;
                 }
             }
         }
-        
+
         if (attributesGenerateOutput(javaContext) == OutputState.HAS_OUTPUT) {
             return OutputState.HAS_OUTPUT;
         }
-        
+
         //when there is nothing to output
         return isOptional() ? OutputState.NO_OUTPUT : OutputState.COLLABORATE;
     }
