@@ -47,11 +47,8 @@ public class Repeater extends AbstractBinding {
     /**
      * Create a {@link Repeater} where the collection instance is passed on from the parent binding in the binding tree. The main
      * use case is to support the {@link Root} xml element to contain a {@link Collection} without an additional container element.
+     * @param isOptional
      */
-    public Repeater() {
-        this(false);
-    }
-
     public Repeater(boolean isOptional) {
         super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, false);
         setSetter(MimicSetter.INSTANCE);
@@ -62,17 +59,10 @@ public class Repeater extends AbstractBinding {
      * can be created during unmarshalling process (xml to java).
      *
      * @param collectionType
+     * @param isOptional
      */
-    public Repeater(Class<?> collectionType) {
-        this(collectionType, false);
-    }
-
     public Repeater(Class<?> collectionType, boolean isOptional) {
         super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(collectionType), isOptional);
-    }
-
-    public Repeater(QName element, Class<?> collectionType) {
-        this(element, collectionType, false);
     }
 
     public Repeater(QName element, Class<?> collectionType, boolean isOptional) {

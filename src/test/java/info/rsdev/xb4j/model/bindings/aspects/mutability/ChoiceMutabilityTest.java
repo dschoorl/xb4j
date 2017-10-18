@@ -32,24 +32,24 @@ public class ChoiceMutabilityTest extends BaseBindingMutabilityTest<Choice> {
     @Before
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
-        immutableElement = new Choice(new QName("level1"));
+        immutableElement = new Choice(new QName("level1"), false);
         root.setChild(immutableElement);
         root.makeImmutable();
     }
 
     @Test(expected = Xb4jMutabilityException.class)
     public void testCannotAddOptionViaConvenienceMethod() {
-        immutableElement.addOption(new Element(new QName("level2")));
+        immutableElement.addOption(new Element(new QName("level2"), false));
     }
 
     @Test(expected = Xb4jMutabilityException.class)
     public void testCannotAddOptionWithFieldnameAndChooser() {
-        immutableElement.addOption(new Element(new QName("level2")), "someField", new PropertyNotNullChooser("someField"));
+        immutableElement.addOption(new Element(new QName("level2"), false), "someField", new PropertyNotNullChooser("someField"));
     }
 
     @Test(expected = Xb4jMutabilityException.class)
     public void testCannotAddOptionWithChooser() {
-        immutableElement.addOption(new Element(new QName("level2")), new PropertyNotNullChooser("someField"));
+        immutableElement.addOption(new Element(new QName("level2"), false), new PropertyNotNullChooser("someField"));
     }
 
     @Test(expected = Xb4jException.class)

@@ -135,8 +135,6 @@ public interface IBinding {
      */
     boolean isOptional();
 
-    <T extends IBinding> T setOptional(boolean isOptional);
-
     @Override
     int hashCode();
 

@@ -39,17 +39,17 @@ public class NoEndlessLoopTest {
     @Before
     public void setupBinding() {
         root = new Root(new QName("root"), DocRoot.class);
-        Element with = root.setChild(new Element(new QName("with")));
+        Element with = root.setChild(new Element(new QName("with"), false));
         Repeater collection = with.setChild(new Repeater(new QName("collection"), ArrayList.class, true), "collection");  //we enter a endless loop when collection is empty or all items are ignored
-        Sequence collectionItems = collection.setItem(new Sequence());
+        Sequence collectionItems = collection.setItem(new Sequence(false));
 
         //define an unbounded choice between ObjectA en ObjectB types
         Repeater aAndBs = collectionItems.add(new Repeater(ArrayList.class, true));
         Choice aAndBTypes = aAndBs.setItem(new Choice(true));
         Element aType = aAndBTypes.addOption(new Element(new QName("a"), ObjectA.class, true));
-        aType.setChild(new SimpleType(new QName("name")), "name");
+        aType.setChild(new SimpleType(new QName("name"), false), "name");
         Element bType = aAndBTypes.addOption(new Element(new QName("b"), ObjectB.class, true));
-        bType.setChild(new SimpleType(new QName("number"), IntegerConverter.INSTANCE), "value");
+        bType.setChild(new SimpleType(new QName("number"), IntegerConverter.INSTANCE, false), "value");
 
     }
 

@@ -43,9 +43,10 @@ public class ElementInjector extends AbstractBinding {
      * Copy constructor
      *
      * @param original
+     * @param isOptional
      */
-    protected ElementInjector(ElementInjector original) {
-        super(original);
+    protected ElementInjector(ElementInjector original, boolean isOptional) {
+        super(original, isOptional);
         this.valueProvider = original.valueProvider;
     }
 

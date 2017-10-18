@@ -32,15 +32,15 @@ public class UnboundedChoicesTest {
     @Before
     public void setup() {
         Root root = new Root(new QName("sigh"), Object.class);
-        repeater = root.setChild(new Repeater(new QName("list"), ArrayList.class));
-        choice = repeater.setItem(new Choice());
+        repeater = root.setChild(new Repeater(new QName("list"), ArrayList.class, true));
+        choice = repeater.setItem(new Choice(false));
     }
 
     @Test
     public void combinationsOfUnboundedChoicesAreSupported() throws Exception {
         //setup
-        choice.addOption(new Element(new QName("elem1"), ObjectA.class));
-        choice.addOption(new Element(new QName("elem2"), ObjectB.class));
+        choice.addOption(new Element(new QName("elem1"), ObjectA.class, false));
+        choice.addOption(new Element(new QName("elem2"), ObjectB.class, false));
 
         //run test
         ArrayList<?> collection = unmarshall("<list>\n<elem1 />\n<elem2 />\n<elem1 />\n</list>\n");
@@ -54,8 +54,8 @@ public class UnboundedChoicesTest {
 
     @Test
     public void ignoreChoicesInUnboundedMandatoryChoiceAndOptions() throws Exception {
-        choice.addOption(new Ignore(new QName("elem1")), NeverChooser.INSTANCE);
-        choice.addOption(new Ignore(new QName("elem2")), NeverChooser.INSTANCE);
+        choice.addOption(new Ignore(new QName("elem1"), false), NeverChooser.INSTANCE);
+        choice.addOption(new Ignore(new QName("elem2"), false), NeverChooser.INSTANCE);
 
         //run test
         ArrayList<?> collection = unmarshall("<list>\n<elem1 />\n<elem2 />\n<elem1 />\n</list>\n");
@@ -66,10 +66,9 @@ public class UnboundedChoicesTest {
 
     @Test
     public void ignoreChoicesInUnboundedOptionalChoiceAndMandatoryOptions() throws Exception {
-        repeater.setOptional(true);
-        choice.setOptional(true);
-        choice.addOption(new Ignore(new QName("elem1"), true), NeverChooser.INSTANCE);
-        choice.addOption(new Ignore(new QName("elem2"), true), NeverChooser.INSTANCE);
+        choice = repeater.setItem(new Choice(true));
+        choice.addOption(new Ignore(new QName("elem1"), false), NeverChooser.INSTANCE);
+        choice.addOption(new Ignore(new QName("elem2"), false), NeverChooser.INSTANCE);
 
         //run test
         ArrayList<?> collection = unmarshall("<list>\n<elem1 />\n<elem2 />\n<elem1 />\n</list>\n");

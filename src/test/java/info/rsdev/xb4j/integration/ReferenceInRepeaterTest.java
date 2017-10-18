@@ -46,15 +46,15 @@ public class ReferenceInRepeaterTest {
     @Before
     public void setupBinding() {
         Root root = new Root(new QName("root"), ObjectTree.class);
-        Sequence content = root.setChild(new Sequence());
-        Element a = content.add(new Element(new QName("a"), ObjectA.class), "myObject");
-        a.setChild(new SimpleType(new QName("name")), "name");
+        Sequence content = root.setChild(new Sequence(false));
+        Element a = content.add(new Element(new QName("a"), ObjectA.class, false), "myObject");
+        a.setChild(new SimpleType(new QName("name"), false), "name");
 
-        Repeater messages = content.add(new Repeater(ArrayList.class), "messages");
+        Repeater messages = content.add(new Repeater(ArrayList.class, false), "messages");
         messages.setItem(new Reference("tekstMeldingType", null, false));
 
-        ComplexType textMessageType = new ComplexType("tekstMeldingType", null);
-        textMessageType.setChild(new SimpleType(new QName("message")));
+        ComplexType textMessageType = new ComplexType("tekstMeldingType", null, false);
+        textMessageType.setChild(new SimpleType(new QName("message"), false));
 
         model = new BindingModel();
         model.registerRoot(root);
@@ -68,11 +68,6 @@ public class ReferenceInRepeaterTest {
         assertSame(ObjectTree.class, result.getClass());
         assertEquals(3, ((ObjectTree)result).getMessages().size());
     }
-
-//    @Test
-//    public void marshall() {
-//
-//    }
 
     private static final String REPEATING_VALUES =
        "<root>\n" +

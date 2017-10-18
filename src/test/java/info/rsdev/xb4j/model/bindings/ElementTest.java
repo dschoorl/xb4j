@@ -52,7 +52,7 @@ public class ElementTest {
         SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
 
         Root root = new Root(new QName("Root"), Object.class);
-        Element element = root.setChild(new Element(new QName("Element")));
+        Element element = root.setChild(new Element(new QName("Element"), false));
         element.addAttribute(new Attribute(new QName("attribute")).setRequired(true), "name");
         element.toXml(staxWriter, new JavaContext(new ObjectA("single")));
         staxWriter.close();
@@ -62,19 +62,19 @@ public class ElementTest {
 
     @Test
     public void testNoXmlElementAndNoContentGeneratesNoOutput() {
-        Element element = (Element) new Element(Object.class);
+        Element element = new Element(Object.class, false);
         assertSame(OutputState.NO_OUTPUT, element.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testOptionalXmlElementNoContentGeneratesNoOutput() {
-        Element element = (Element) new Element(new QName("optional")).setOptional(true);
+        Element element = new Element(new QName("optional"), true);
         assertSame(OutputState.NO_OUTPUT, element.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testMandatoryXmlElementNoContentGeneratesOutput() {
-        Element element = (Element) new Element(new QName("mandatory"));
+        Element element = new Element(new QName("mandatory"), false);
         assertSame(OutputState.HAS_OUTPUT, element.generatesOutput(new JavaContext(null)));
     }
 
@@ -84,7 +84,7 @@ public class ElementTest {
     @Test
     public void setNewObjectOnJavaContextObject() throws XMLStreamException {
         JavaContext context = new JavaContext(new ObjectTree());
-        Element element = (Element) new Element(ObjectA.class).setSetter(new FieldSetter("myObject"));
+        Element element = (Element) new Element(ObjectA.class, false).setSetter(new FieldSetter("myObject"));
         UnmarshallResult result = element.unmarshall(mockReader, context);
         assertFalse(result.mustHandleUnmarshalledObject());
     }
@@ -95,7 +95,7 @@ public class ElementTest {
     @Test
     public void passNewObjectOnToParent() throws XMLStreamException {
         JavaContext context = new JavaContext(new ObjectTree());
-        Element element = new Element(ObjectA.class);
+        Element element = new Element(ObjectA.class, false);
         UnmarshallResult result = element.unmarshall(mockReader, context);
         assertTrue(result.mustHandleUnmarshalledObject());
         assertNotNull(result.getUnmarshalledObject());
@@ -109,7 +109,7 @@ public class ElementTest {
     public void setResultOnParentContext() throws XMLStreamException {
         JavaContext context = new JavaContext(new ObjectTree());
         when(mockBinding.toJava(any(), any())).thenReturn(UnmarshallResult.NO_RESULT);
-        Element element = new Element(ObjectA.class);
+        Element element = new Element(ObjectA.class, false);
         element.setChild(mockBinding);
         UnmarshallResult result = element.unmarshall(mockReader, context);
     }

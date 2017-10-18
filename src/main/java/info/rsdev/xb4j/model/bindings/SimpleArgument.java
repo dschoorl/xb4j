@@ -26,12 +26,12 @@ public class SimpleArgument extends SimpleType implements IJavaArgument {
 
     private Ignore xmlConsumer = null;
 
-    public SimpleArgument(QName element) {
-        super(element);
+    public SimpleArgument(QName element, boolean isOptional) {
+        super(element, isOptional);
     }
 
-    public SimpleArgument(QName element, IValueConverter converter) {
-        super(element, converter);
+    public SimpleArgument(QName element, IValueConverter converter, boolean isOptional) {
+        super(element, converter, isOptional);
     }
 
     @Override
@@ -43,8 +43,7 @@ public class SimpleArgument extends SimpleType implements IJavaArgument {
     @Override
     public UnmarshallResult toJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         if (xmlConsumer == null) {
-            xmlConsumer = new Ignore(getElement());
-            xmlConsumer.setOptional(isOptional());
+            xmlConsumer = new Ignore(getElement(), isOptional());
         }
         return xmlConsumer.toJava(staxReader, javaContext);
     }

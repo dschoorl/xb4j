@@ -45,25 +45,14 @@ public class Element extends AbstractSingleBinding {
      * Create a new {@link Element} with a {@link DefaultElementFetchStrategy}
      *
      * @param element the element
+     * @param isOptional
      */
-    public Element(QName element) {
-        this(element, false);
-    }
-
     public Element(QName element, boolean isOptional) {
         super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
     }
 
-    public Element(Class<?> javaType) {
-        this(javaType, false);
-    }
-
     public Element(Class<?> javaType, boolean isOptional) {
         super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType), isOptional);
-    }
-
-    public Element(QName element, Class<?> javaType) {
-        this(element, javaType, false);
     }
 
     public Element(QName element, Class<?> javaType, boolean isOptional) {

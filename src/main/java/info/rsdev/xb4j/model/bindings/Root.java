@@ -45,8 +45,7 @@ public class Root extends Element implements IModelAware, ISemaphore {
     private final AtomicBoolean isImmutable = new AtomicBoolean(false);
 
     public Root(QName element, Class<?> javaType) {
-        super(element, javaType);
-        super.setOptional(false);
+        super(element, javaType, false);
     }
 
     /**
@@ -94,14 +93,6 @@ public class Root extends Element implements IModelAware, ISemaphore {
     @Override
     public BindingModel getModel() {
         return this.model;
-    }
-
-    @Override
-    public IBinding setOptional(boolean isOptional) {
-        if (isOptional == true) {
-            throw new Xb4jException("A Root binding cannot be made optional");
-        }
-        return this;
     }
 
     @Override

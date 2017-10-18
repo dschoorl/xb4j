@@ -43,17 +43,10 @@ public class SimpleType extends AbstractBinding {
      * Create a new {@link SimpleType} with a {@link DefaultElementFetchStrategy}
      *
      * @param element the element
+     * @param isOptional
      */
-    public SimpleType(QName element) {
-        this(element, false);
-    }
-
     public SimpleType(QName element, boolean isOptional) {
         super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
-    }
-
-    public SimpleType(QName element, IValueConverter converter) {
-        this(element, converter, false);
     }
 
     public SimpleType(QName element, IValueConverter converter, boolean isOptional) {

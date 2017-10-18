@@ -60,7 +60,7 @@ public class SimpleFileTypeTest {
     public void setUp() throws Exception {
         this.model = new BindingModel();
         Root root = new Root(new QName("Root"), ObjectF.class);
-        SimpleFileType fileType = root.setChild(new SimpleFileType(new QName("File")), "file");
+        SimpleFileType fileType = root.setChild(new SimpleFileType(new QName("File"), false), "file");
         fileType.addAttribute(new Attribute(new QName("Encoding")), "xmlEncoding");
         fileType.addAttribute(new StaticAttribute(new QName("Name"), "temp.zip"), NoGetter.INSTANCE, NoSetter.INSTANCE);
         fileType.addAttribute(new StaticAttribute(new QName("MimeType"), "application/octet-stream"), NoGetter.INSTANCE, NoSetter.INSTANCE);

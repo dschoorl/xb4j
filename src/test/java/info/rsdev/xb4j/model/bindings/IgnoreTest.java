@@ -51,7 +51,7 @@ public class IgnoreTest {
     @Test
     public void testMarshallWithoutAccessors() {
         //the root is only made read-only after first use (marshall/unmarshall)
-        root.setChild(new Ignore(new QName("ignore-me")));
+        root.setChild(new Ignore(new QName("ignore-me"), false));
 
         String snippet = "<root name='Repelsteeltje'>"
                 + "  <ignore-me please='true'><leaf /><nested><nested hasAttribute='true'><leaf /></nested></nested></ignore-me>"
@@ -63,7 +63,7 @@ public class IgnoreTest {
     @Test
     public void testMarshallWithAccessors() {
         //the root is only made read-only after first use (marshall/unmarshall)
-        root.setChild(new Ignore(new QName("ignore-me")), "nonExistentProperty");
+        root.setChild(new Ignore(new QName("ignore-me"), false), "nonExistentProperty");
 
         String snippet = "<root name='Repelsteeltje'>"
                 + "  <ignore-me please='true'><leaf /><nested><nested hasAttribute='true'><leaf /></nested></nested></ignore-me>"
@@ -82,9 +82,9 @@ public class IgnoreTest {
     @Test
     public void testMarshallIgnoreRepeatedly() {
         //the root is only made read-only after first use (marshall/unmarshall)
-        Sequence content = root.setChild(new Sequence());
+        Sequence content = root.setChild(new Sequence(false));
         content.add(new Ignore(new QName("ignore-me"), true), "nonExistentProperty");
-        content.add(new SimpleType(new QName("name")), "name"); //test it with a trailing sibling that must not be ignored
+        content.add(new SimpleType(new QName("name"), false), "name"); //test it with a trailing sibling that must not be ignored
 
         String snippet = "<root>"
                 + "  <ignore-me>please</ignore-me>"
@@ -97,7 +97,7 @@ public class IgnoreTest {
     @Test
     public void testUnmarshallWithAccessors() throws Exception {
         //the root is only made read-only after first use (marshall/unmarshall)
-        root.setChild(new Ignore(new QName("ignore-me")), "nonExistentProperty");
+        root.setChild(new Ignore(new QName("ignore-me"), false), "nonExistentProperty");
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         model.getXmlStreamer(ObjectA.class, null).toXml(XmlStreamFactory.makeWriter(stream), new ObjectA("Repelsteeltje"));
@@ -109,7 +109,7 @@ public class IgnoreTest {
     @Test
     public void testUnmarshallWithoutAccessors() throws Exception {
         //the root is only made read-only after first use (marshall/unmarshall)
-        root.setChild(new Ignore(new QName("ignore-me")));
+        root.setChild(new Ignore(new QName("ignore-me"), false));
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         model.getXmlStreamer(ObjectA.class, null).toXml(XmlStreamFactory.makeWriter(stream), new ObjectA("Repelsteeltje"));
@@ -120,7 +120,7 @@ public class IgnoreTest {
 
     @Test
     public void ignoreRepeatingMandatoryElements() throws XMLStreamException {
-        Ignore ignore = new Ignore(new QName("stuff"));
+        Ignore ignore = new Ignore(new QName("stuff"), false);
         RecordAndPlaybackXMLStreamReader reader = makeReader("<start><stuff /><stuff /></start>");
         assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());
         UnmarshallResult result = ignore.toJava(reader, Mockito.mock(JavaContext.class));
@@ -129,7 +129,7 @@ public class IgnoreTest {
 
     @Test
     public void ignoreSingleMandatoryElement() throws XMLStreamException {
-        Ignore ignore = new Ignore(new QName("stuff"));
+        Ignore ignore = new Ignore(new QName("stuff"), false);
         RecordAndPlaybackXMLStreamReader reader = makeReader("<start><stuff /><fluff /></start>");
         assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());
         UnmarshallResult result = ignore.toJava(reader, Mockito.mock(JavaContext.class));

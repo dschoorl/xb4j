@@ -42,9 +42,9 @@ public class SequenceTest {
     public void testMarshallMultipleElementsNoNamespace() {
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectC.class));
-        Sequence sequence = root.setChild(new Sequence());
-        sequence.add(new SimpleType(new QName("naam")), "name");
-        sequence.add(new SimpleType(new QName("omschrijving")), "description");
+        Sequence sequence = root.setChild(new Sequence(false));
+        sequence.add(new SimpleType(new QName("naam"), false), "name");
+        sequence.add(new SimpleType(new QName("omschrijving"), false), "description");
 
         ObjectC instance = new ObjectC().setAName("tester").setDescription("Ik test dingen");
 
@@ -57,9 +57,9 @@ public class SequenceTest {
     @Test
     public void testUnmarshallIncompleteSequence() throws Exception {
         Root root = new Root(new QName("root"), ObjectC.class);
-        Sequence sequence = root.setChild(new Sequence());
-        sequence.add(new SimpleType(new QName("name")), "name");
-        sequence.add(new SimpleType(new QName("description")), "description");
+        Sequence sequence = root.setChild(new Sequence(false));
+        sequence.add(new SimpleType(new QName("name"), false), "name");
+        sequence.add(new SimpleType(new QName("description"), false), "description");
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><name>Jan</name><initialized>true</initialized></root>".getBytes());
         RecordAndPlaybackXMLStreamReader staxReader = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
@@ -73,18 +73,18 @@ public class SequenceTest {
     @Test
     public void testOutputSequenceWithNullJavaContextAndMandatoryChild() {
         Root root = new Root(new QName("container"), Object.class);
-        Sequence sequence = root.setChild(new Sequence().setOptional(true));
-        sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
-        sequence.add(new SimpleType(new QName("description")), "description");	//mandatory: will output empty description tag??
+        Sequence sequence = root.setChild(new Sequence(true));
+        sequence.add(new SimpleType(new QName("name"), true), "name");
+        sequence.add(new SimpleType(new QName("description"), false), "description");	//mandatory: will output empty description tag??
         assertSame(OutputState.NO_OUTPUT, sequence.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testOutputEmptyOptionalSequence() throws Exception {
         Root root = new Root(new QName("container"), Object.class);
-        Sequence sequence = root.setChild(new Sequence().setOptional(true));
-        sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
-        sequence.add(new SimpleType(new QName("description")).setOptional(true), "description");
+        Sequence sequence = root.setChild(new Sequence(true));
+        sequence.add(new SimpleType(new QName("name"), true), "name");
+        sequence.add(new SimpleType(new QName("description"), true), "description");
         assertSame(OutputState.NO_OUTPUT, sequence.generatesOutput(new JavaContext(new ObjectC())));
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -96,9 +96,9 @@ public class SequenceTest {
     @Test
     public void surpressEmptyOptionalSequenceWithMandatoryChild() {
         Root root = new Root(new QName("container"), ObjectC.class);
-        Sequence sequence = root.setChild(new Sequence().setOptional(true));
-        sequence.add(new SimpleType(new QName("name")).setOptional(true), "name");
-        sequence.add(new SimpleType(new QName("description")), "description");	//mandatory: will output empty description tag??
+        Sequence sequence = root.setChild(new Sequence(true));
+        sequence.add(new SimpleType(new QName("name"), true), "name");
+        sequence.add(new SimpleType(new QName("description"), true), "description");	//mandatory: will output empty description tag??
         assertSame(OutputState.NO_OUTPUT, sequence.generatesOutput(new JavaContext(new ObjectC())));
     }
 }

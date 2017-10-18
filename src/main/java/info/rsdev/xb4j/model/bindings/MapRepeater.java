@@ -52,11 +52,8 @@ public class MapRepeater extends AbstractBinding {
     /**
      * Create a {@link MapRepeater} where the collection instance is passed on from the parent binding in the binding tree. The main
      * use case is to support the {@link Root} xml element to contain a {@link Map} without an additional container element.
+     * @param isOptional
      */
-    public MapRepeater() {
-        this(false);
-    }
-
     public MapRepeater(boolean isOptional) {
         super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional);
         setSetter(MimicSetter.INSTANCE);
@@ -67,17 +64,10 @@ public class MapRepeater extends AbstractBinding {
      * it can be created during unmarshalling process (xml to java).
      *
      * @param mapType
+     * @param isOptional
      */
-    public MapRepeater(Class<?> mapType) {
-        this(mapType, false);
-    }
-
     public MapRepeater(Class<?> mapType, boolean isOptional) {
         super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(mapType), isOptional);
-    }
-
-    public MapRepeater(QName element, Class<?> mapType) {
-        this(element, mapType, false);
     }
 
     public MapRepeater(QName element, Class<?> mapType, boolean isOptional) {

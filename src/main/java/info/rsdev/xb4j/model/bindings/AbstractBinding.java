@@ -69,7 +69,7 @@ public abstract class AbstractBinding implements IBinding {
 
     private List<IAttribute> attributes = null;
 
-    private boolean isOptional = false; // by default, everything is mandatory, unless explicitly made optional
+    private final boolean isOptional;
 
     protected AbstractBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator, boolean isOptional) {
         setElementFetchStrategy(elementFetcher);
@@ -84,8 +84,10 @@ public abstract class AbstractBinding implements IBinding {
      * Copy constructor that copies the properties of the original binding in a
      *
      * @param original
+     * @param isOptional
      */
-    protected AbstractBinding(AbstractBinding original) {
+    protected AbstractBinding(AbstractBinding original, boolean isOptional) {
+        this.isOptional = isOptional;
         copyFields(original, original.elementFetcher);
     }
 
@@ -96,6 +98,7 @@ public abstract class AbstractBinding implements IBinding {
      * @param elementFetcher
      */
     protected AbstractBinding(AbstractBinding original, IElementFetchStrategy elementFetcher) {
+        this.isOptional = original.isOptional;
         copyFields(original, elementFetcher);
     }
 
@@ -105,7 +108,6 @@ public abstract class AbstractBinding implements IBinding {
         this.objectCreator = original.objectCreator;
         this.getter = original.getter;
         this.setter = original.setter;
-        this.isOptional = original.isOptional;
         if (original.attributes != null) {
             this.attributes = new LinkedList<>();
             original.attributes.forEach((originalAttribute) -> {
@@ -361,21 +363,6 @@ public abstract class AbstractBinding implements IBinding {
     public boolean isOptional() {
         return this.isOptional;
     }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends IBinding> T setOptional(boolean isOptional) {
-        getSemaphore().lock();
-        try {
-            validateMutability();
-            this.isOptional = isOptional;
-        } finally {
-            getSemaphore().unlock();
-        }
-        return (T) this;
-    }
-
-
 
     public void attributesToXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
         if ((attributes != null) && !attributes.isEmpty()) {

@@ -26,11 +26,11 @@ public class BindingModelTest {
     public void setup() {
         model = new BindingModel();
         Root binding = new Root(UP_QNAME, ObjectA.class);
-        binding.setChild(new SimpleType(new QName("name")), "name");
+        binding.setChild(new SimpleType(new QName("name"), false), "name");
         model.registerRoot(binding);
 
         binding = new Root(LO_QNAME, ObjectA.class);
-        binding.setChild(new SimpleType(new QName("eman")), "name");
+        binding.setChild(new SimpleType(new QName("eman"), false), "name");
         model.registerRoot(binding);
 
         model.registerRoot(new Root(new QName("B"), ObjectB.class));

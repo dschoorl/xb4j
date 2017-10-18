@@ -28,7 +28,7 @@ public class RecursorMutabilityTest extends AbstractSingleBindingMutabilityTest<
     @Before
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
-        immutableElement = new Recursor(new QName("level1"), Object.class, "hashcode");
+        immutableElement = new Recursor(new QName("level1"), Object.class, "hashcode", false);
         root.setChild(immutableElement);
         root.makeImmutable();
     }

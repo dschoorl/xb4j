@@ -43,9 +43,9 @@ public class SurpressEmptyXmlStructuresTest {
     public void setup() {
         //JavaContext object contains an ObjectTree
         Root root = new Root(new QName("tree"), ObjectC.class);
-        koopsom = root.setChild(new Sequence(new QName("C")).setOptional(true));
-        Sequence bedrag = new Sequence(new QName("extraLevel"));
-        bedrag.add(new SimpleType(new QName("number")), "max");
+        koopsom = root.setChild(new Sequence(new QName("C"), true));
+        Sequence bedrag = new Sequence(new QName("extraLevel"), false);
+        bedrag.add(new SimpleType(new QName("number"), false), "max");
     }
 
     @Test

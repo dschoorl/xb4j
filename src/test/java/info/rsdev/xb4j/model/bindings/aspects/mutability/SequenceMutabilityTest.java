@@ -32,22 +32,11 @@ public class SequenceMutabilityTest extends AbstractSingleBindingMutabilityTest<
         immutableElement.makeImmutable();
     }
 
-    @Test(expected = Xb4jException.class)
-    @Override
-    public void testCannotSetOptional() {
-        immutableElement.setOptional(true);
-    }
-
-    @Test
-    public void testMakeRootMandatoryHasNoEffect() {
-        assertSame(immutableElement, immutableElement.setOptional(false));
-    }
-
     @Test(expected = Xb4jMutabilityException.class)
     @Override
     public void testCannotSetParent() {
         assertNull(immutableElement.getParent());
-        immutableElement.setParent(new Element(new QName("ghost")));
+        immutableElement.setParent(new Element(new QName("ghost"), false));
     }
 
 }

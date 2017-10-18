@@ -31,7 +31,7 @@ public class RepeaterMutabilityTest extends BaseBindingMutabilityTest<Repeater> 
     @Before
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
-        immutableElement = new Repeater(new QName("level1"), ArrayList.class);
+        immutableElement = new Repeater(new QName("level1"), ArrayList.class, true);
         root.setChild(immutableElement);
         root.makeImmutable();
     }
@@ -43,7 +43,7 @@ public class RepeaterMutabilityTest extends BaseBindingMutabilityTest<Repeater> 
 
     @Test(expected = Xb4jMutabilityException.class)
     public void testCannotSetItem() {
-        immutableElement.setItem(new Element(new QName("item")));
+        immutableElement.setItem(new Element(new QName("item"), false));
     }
 
 }

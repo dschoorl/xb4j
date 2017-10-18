@@ -28,7 +28,7 @@ public class SimpleFileTypeMutabilityTest extends BaseBindingMutabilityTest<Simp
     @Before
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
-        immutableElement = new SimpleFileType(new QName("level1"));
+        immutableElement = new SimpleFileType(new QName("level1"), false);
         root.setChild(immutableElement);
         root.makeImmutable();
     }

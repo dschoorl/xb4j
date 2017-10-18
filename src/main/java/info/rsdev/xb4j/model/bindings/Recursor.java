@@ -49,11 +49,8 @@ public class Recursor extends AbstractSingleBinding {
      * @param element
      * @param recursiveType
      * @param propertyName
+     * @param isOptional
      */
-    public Recursor(QName element, Class<?> recursiveType, String propertyName) {
-        this(element, recursiveType, propertyName, false);
-    }
-
     public Recursor(QName element, Class<?> recursiveType, String propertyName, boolean isOptional) {
         super(new DefaultElementFetchStrategy(element), new DefaultConstructor(recursiveType), isOptional);
         BeanPropertyAccessor accessor = new BeanPropertyAccessor(propertyName);
@@ -217,12 +214,6 @@ public class Recursor extends AbstractSingleBinding {
 
     private boolean setChild(JavaContext recurringObject, Object propertyValue) {
         return this.recursiveSetter.set(recurringObject, propertyValue);
-    }
-
-    @Override
-    public Recursor setOptional(boolean isOptional) {
-        super.setOptional(isOptional);
-        return this;
     }
 
 }

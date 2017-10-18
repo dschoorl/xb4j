@@ -42,8 +42,8 @@ public class ComplexTypeTest {
         Root hoofdmap = new Root(new QName("directory"), ObjectTree.class);
         hoofdmap.setChild(new Reference(ObjectA.class, "typeO", null, false), "myObject");
 
-        ComplexType complexType = new ComplexType("typeO", null);
-        complexType.setChild(new SimpleType(new QName("name")), "name");
+        ComplexType complexType = new ComplexType("typeO", null, false);
+        complexType.setChild(new SimpleType(new QName("name"), false), "name");
 
         model = new BindingModel();
         model.registerComplexType(complexType, true);
@@ -96,8 +96,8 @@ public class ComplexTypeTest {
         root.setChild(new Reference(new QName("reference"), "complexType", null, false), NoGetter.INSTANCE, NoSetter.INSTANCE);
         myModel.registerRoot(root);
 
-        ComplexType complexType = new ComplexType("complexType", null);
-        complexType.setChild(new SimpleType(new QName("name")), "name");
+        ComplexType complexType = new ComplexType("complexType", null, false);
+        complexType.setChild(new SimpleType(new QName("name"), false), "name");
         myModel.registerComplexType(complexType, true);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();

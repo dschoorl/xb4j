@@ -63,7 +63,7 @@ public class SimpleTypeTest {
         model.registerRoot(treeBinding);
         
         nestedBinding = new Root(Q_MYOBJECT, ObjectA.class);
-        nestedBinding.setChild(new SimpleType(new QName("name")), "name");
+        nestedBinding.setChild(new SimpleType(new QName("name"), false), "name");
         model.registerRoot(nestedBinding);
 
     }
@@ -104,7 +104,7 @@ public class SimpleTypeTest {
 
     @Test
     public void testUnmarshalFromNestedXmlWithNamespaces() {
-        treeBinding.setChild(new Element(new QName("urn:test/namespace/tree", "child", "tst"), ObjectA.class), "myObject");
+        treeBinding.setChild(new Element(new QName("urn:test/namespace/tree", "child", "tst"), ObjectA.class, false), "myObject");
         
         byte[] buffer = "<tst:tree xmlns:tst=\"urn:test/namespace/tree\"><tst:child/></tst:tree>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
@@ -117,7 +117,7 @@ public class SimpleTypeTest {
 
     @Test
     public void testMarshallNestedBinding() throws Exception {
-        treeBinding.setChild(new Element(new QName("urn:test/namespace/tree", "child", "tst"), ObjectA.class), "myObject");
+        treeBinding.setChild(new Element(new QName("urn:test/namespace/tree", "child", "tst"), ObjectA.class, false), "myObject");
 
         ObjectTree instance = new ObjectTree();
         instance.setMyObject(new ObjectA("test"));
@@ -177,7 +177,7 @@ public class SimpleTypeTest {
         StringWriter writer = new StringWriter();
         SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
 
-        SimpleType simple = rootBinding.setChild(new SimpleType(new QName("Simple"), NullConverter.INSTANCE));
+        SimpleType simple = rootBinding.setChild(new SimpleType(new QName("Simple"), NullConverter.INSTANCE, false));
         simple.addAttribute(new Attribute(new QName("name")), "name");
         simple.toXml(staxWriter, new JavaContext(new ObjectA("soul")));
         staxWriter.close();
@@ -187,19 +187,19 @@ public class SimpleTypeTest {
 
     @Test
     public void testOptionalSimpleTypeNoContentGeneratesNoOutput() {
-        IBinding simple = new SimpleType(new QName("optional")).setOptional(true);
+        IBinding simple = new SimpleType(new QName("optional"), true);
         assertSame(OutputState.NO_OUTPUT, simple.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testManadatorySimpleTypeNoContentWillColaborate() {
-        IBinding simple = new SimpleType(new QName("mandatory"));
+        IBinding simple = new SimpleType(new QName("mandatory"), false);
         assertSame(OutputState.COLLABORATE, simple.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testOptionalSimpleTypeWithContentGeneratesOutput() {
-        IBinding simple = new SimpleType(new QName("optional")).setOptional(true);
+        IBinding simple = new SimpleType(new QName("optional"), true);
         assertSame(OutputState.HAS_OUTPUT, simple.generatesOutput(new JavaContext("a value")));
     }
 

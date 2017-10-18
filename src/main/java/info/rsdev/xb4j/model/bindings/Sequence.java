@@ -38,11 +38,8 @@ public class Sequence extends AbstractContainerBinding {
 
     /**
      * Create a new {@link Sequence} which inherits it's element and javatype from it's parent
+     * @param isOptional
      */
-    public Sequence() {
-        this(false);
-    }
-
     public Sequence(boolean isOptional) {
         super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional);
     }
@@ -60,24 +57,12 @@ public class Sequence extends AbstractContainerBinding {
                 (objectCreator == null ? NullCreator.INSTANCE : objectCreator), isOptional);
     }
 
-    public Sequence(QName element) {
-        this(element, false);
-    }
-
     public Sequence(QName element, boolean isOptional) {
         super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
     }
 
-    public Sequence(Class<?> javaType) {
-        this(javaType, false);
-    }
-
     public Sequence(Class<?> javaType, boolean isOptional) {
         super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType), isOptional);
-    }
-
-    public Sequence(QName element, Class<?> javaType) {
-        this(element, javaType, false);
     }
 
     public Sequence(QName element, Class<?> javaType, boolean isOptional) {

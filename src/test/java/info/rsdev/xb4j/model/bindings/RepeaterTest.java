@@ -46,8 +46,8 @@ public class RepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
-        Repeater collection = root.setChild(new Repeater(ArrayList.class), "messages");
-        collection.setItem(new SimpleType(new QName("detail")));
+        Repeater collection = root.setChild(new Repeater(ArrayList.class, false), "messages");
+        collection.setItem(new SimpleType(new QName("detail"), false));
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectTree instance = new ObjectTree();
@@ -64,8 +64,8 @@ public class RepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ArrayList.class));
-        Repeater collection = root.setChild(new Repeater());
-        collection.setItem(new SimpleType(new QName("detail")));
+        Repeater collection = root.setChild(new Repeater(false));
+        collection.setItem(new SimpleType(new QName("detail"), false));
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ArrayList<String> instance = new ArrayList<>();
@@ -82,8 +82,8 @@ public class RepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
-        Repeater collection = root.setChild(new Repeater());	//Root binding must represent collection type, but does not
-        collection.setItem(new SimpleType(new QName("detail")));
+        Repeater collection = root.setChild(new Repeater(false));	//Root binding must represent collection type, but does not
+        collection.setItem(new SimpleType(new QName("detail"), false));
 
         model.getXmlStreamer(ObjectTree.class, null).toXml(XmlStreamFactory.makeWriter(new ByteArrayOutputStream()), new ObjectTree());
     }
@@ -93,8 +93,8 @@ public class RepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
-        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
-        collection.setItem(new SimpleType(new QName("detail")));
+        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class, true), "messages");
+        collection.setItem(new SimpleType(new QName("detail"), false));
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectTree instance = new ObjectTree();
@@ -111,8 +111,8 @@ public class RepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
-        Repeater collection = root.setChild(new Repeater(ArrayList.class), "messages");
-        collection.setItem(new SimpleType(new QName("detail")));
+        Repeater collection = root.setChild(new Repeater(ArrayList.class, false), "messages");
+        collection.setItem(new SimpleType(new QName("detail"), false));
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><detail>bericht1</detail><detail>bericht2</detail></root>".getBytes());
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -129,8 +129,8 @@ public class RepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ArrayList.class));
-        Repeater collection = root.setChild(new Repeater());
-        collection.setItem(new SimpleType(new QName("detail")));
+        Repeater collection = root.setChild(new Repeater(false));
+        collection.setItem(new SimpleType(new QName("detail"), false));
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><detail>bericht1</detail><detail>bericht2</detail></root>".getBytes());
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -146,8 +146,8 @@ public class RepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
-        Repeater collection = root.setChild(new Repeater());	//Root binding must represent collection type, but does not
-        collection.setItem(new SimpleType(new QName("detail")));
+        Repeater collection = root.setChild(new Repeater(false));	//Root binding must represent collection type, but does not
+        collection.setItem(new SimpleType(new QName("detail"), false));
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><detail>bericht1</detail><detail>bericht2</detail></root>".getBytes());
         model.toJava(XmlStreamFactory.makeReader(stream));
@@ -158,8 +158,8 @@ public class RepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
-        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
-        collection.setItem(new SimpleType(new QName("detail")));
+        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class, true), "messages");
+        collection.setItem(new SimpleType(new QName("detail"), false));
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><collection><detail>bericht1</detail><detail>bericht2</detail></collection></root>".getBytes());
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -173,13 +173,13 @@ public class RepeaterTest {
 
     @Test
     public void testRepeaterNoCollectionNoElementGeneratesNoOutput() {
-        Repeater repeater = new Repeater(ArrayList.class);
+        Repeater repeater = new Repeater(ArrayList.class, false);
         assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testRepeaterEmptyCollectionNoElementGeneratesNoOutput() {
-        Repeater repeater = new Repeater(ArrayList.class);
+        Repeater repeater = new Repeater(ArrayList.class, false);
         assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(new ArrayList<>())));
     }
 
@@ -200,8 +200,8 @@ public class RepeaterTest {
         //work on a collection of Strings
         BindingModel model = new BindingModel();
         Root root = new Root(new QName("root"), ObjectTree.class);
-        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
-        SimpleType item = collection.setItem(new SimpleType(new QName("item")));
+        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class, true), "messages");
+        SimpleType item = collection.setItem(new SimpleType(new QName("item"), false));
         item.addAttribute(new AttributeInjector(new QName("seqnr"), Indexer.INSTANCE), NoGetter.INSTANCE, NoSetter.INSTANCE);
         model.registerRoot(root);
 
@@ -219,9 +219,9 @@ public class RepeaterTest {
     public void testMarshallCollectionIndexAsElement() throws Exception {
         BindingModel model = new BindingModel();
         Root root = new Root(new QName("root"), ObjectTree.class);
-        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
-        Sequence content = collection.setItem(new Sequence(new QName("item")));
-        content.add(new SimpleType(new QName("value")));
+        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class, true), "messages");
+        Sequence content = collection.setItem(new Sequence(new QName("item"), false));
+        content.add(new SimpleType(new QName("value"), false));
         content.add(new ElementInjector(new QName("seqnr"), Indexer.INSTANCE, false));
         model.registerRoot(root);
 

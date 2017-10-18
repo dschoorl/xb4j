@@ -48,8 +48,8 @@ public class MapRepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
-        MapRepeater map = root.setChild(new MapRepeater(LinkedHashMap.class), "codes");
-        map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
+        MapRepeater map = root.setChild(new MapRepeater(LinkedHashMap.class, false), "codes");
+        map.setKeyValue(new SimpleType(new QName("key"), false), new SimpleType(new QName("value"), false));
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectTree instance = new ObjectTree();
@@ -66,8 +66,8 @@ public class MapRepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), LinkedHashMap.class));
-        MapRepeater map = root.setChild(new MapRepeater());
-        map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
+        MapRepeater map = root.setChild(new MapRepeater(false));
+        map.setKeyValue(new SimpleType(new QName("key"), false), new SimpleType(new QName("value"), false));
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Map<String, String> instance = new LinkedHashMap<>();
@@ -84,8 +84,8 @@ public class MapRepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));	//Root binding must represent Map type, but does not
-        MapRepeater map = root.setChild(new MapRepeater());
-        map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
+        MapRepeater map = root.setChild(new MapRepeater(false));
+        map.setKeyValue(new SimpleType(new QName("key"), false), new SimpleType(new QName("value"), false));
 
         model.getXmlStreamer(ObjectTree.class, null).toXml(XmlStreamFactory.makeWriter(new ByteArrayOutputStream()), new ObjectTree());
     }
@@ -95,8 +95,8 @@ public class MapRepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
-        MapRepeater map = root.setChild(new MapRepeater(new QName("mapping"), LinkedHashMap.class), "codes");
-        map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
+        MapRepeater map = root.setChild(new MapRepeater(new QName("mapping"), LinkedHashMap.class, true), "codes");
+        map.setKeyValue(new SimpleType(new QName("key"), false), new SimpleType(new QName("value"), false));
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectTree instance = new ObjectTree();
@@ -113,8 +113,8 @@ public class MapRepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
-        MapRepeater map = root.setChild(new MapRepeater(LinkedHashMap.class), "codes");
-        map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
+        MapRepeater map = root.setChild(new MapRepeater(LinkedHashMap.class, false), "codes");
+        map.setKeyValue(new SimpleType(new QName("key"), false), new SimpleType(new QName("value"), false));
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><key>1</key><value>Een</value><key>2</key><value>Twee</value></root>".getBytes());
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -132,8 +132,8 @@ public class MapRepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), LinkedHashMap.class));
-        MapRepeater map = root.setChild(new MapRepeater());
-        map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
+        MapRepeater map = root.setChild(new MapRepeater(false));
+        map.setKeyValue(new SimpleType(new QName("key"), false), new SimpleType(new QName("value"), false));
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><key>1</key><value>Een</value><key>2</key><value>Twee</value></root>".getBytes());
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -150,8 +150,8 @@ public class MapRepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));	//Root binding must represent Map type, but does not
-        MapRepeater map = root.setChild(new MapRepeater());
-        map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
+        MapRepeater map = root.setChild(new MapRepeater(false));
+        map.setKeyValue(new SimpleType(new QName("key"), false), new SimpleType(new QName("value"), false));
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><key>1</key><value>Een</value><key>2</key><value>Twee</value></root>".getBytes());
         model.toJava(XmlStreamFactory.makeReader(stream));
@@ -162,8 +162,8 @@ public class MapRepeaterTest {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
-        MapRepeater map = root.setChild(new MapRepeater(new QName("mapping"), LinkedHashMap.class), "codes");
-        map.setKeyValue(new SimpleType(new QName("key")), new SimpleType(new QName("value")));
+        MapRepeater map = root.setChild(new MapRepeater(new QName("mapping"), LinkedHashMap.class, true), "codes");
+        map.setKeyValue(new SimpleType(new QName("key"), false), new SimpleType(new QName("value"), false));
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><mapping><key>1</key><value>Een</value><key>2</key><value>Twee</value></mapping></root>".getBytes());
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -177,13 +177,13 @@ public class MapRepeaterTest {
 
     @Test
     public void testRepeaterNoMapNoElementGeneratesNoOutput() {
-        MapRepeater repeater = new MapRepeater(LinkedHashMap.class);
+        MapRepeater repeater = new MapRepeater(LinkedHashMap.class, false);
         assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testRepeaterEmptyMapNoElementGeneratesNoOutput() {
-        MapRepeater repeater = new MapRepeater(LinkedHashMap.class);
+        MapRepeater repeater = new MapRepeater(LinkedHashMap.class, false);
         assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(new LinkedHashMap<>())));
     }
 
@@ -205,8 +205,8 @@ public class MapRepeaterTest {
         //work on a collection of Strings
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
-        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
-        SimpleType item = collection.setItem(new SimpleType(new QName("item")));
+        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class, true), "messages");
+        SimpleType item = collection.setItem(new SimpleType(new QName("item"), false));
         item.addAttribute(new AttributeInjector(new QName("seqnr"), Indexer.INSTANCE), NoGetter.INSTANCE, NoSetter.INSTANCE);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -224,9 +224,9 @@ public class MapRepeaterTest {
     public void testMarshallCollectionIndexAsElement() throws Exception {
         BindingModel model = new BindingModel();
         Root root = new Root(new QName("root"), ObjectTree.class);
-        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class), "messages");
-        Sequence content = collection.setItem(new Sequence(new QName("item")));
-        content.add(new SimpleType(new QName("value")));
+        Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class, true), "messages");
+        Sequence content = collection.setItem(new Sequence(new QName("item"), false));
+        content.add(new SimpleType(new QName("value"), false));
         content.add(new ElementInjector(new QName("seqnr"), Indexer.INSTANCE, false));
         model.registerRoot(root);
 

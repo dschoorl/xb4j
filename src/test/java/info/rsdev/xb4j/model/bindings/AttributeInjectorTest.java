@@ -50,7 +50,7 @@ public class AttributeInjectorTest {
     @Test
     public void testToXml() throws Exception {
         Root root = new Root(new QName("Root"), Object.class);
-        SimpleType simpleElement = root.setChild(new SimpleType(new QName("Simple"), NullConverter.INSTANCE));
+        SimpleType simpleElement = root.setChild(new SimpleType(new QName("Simple"), NullConverter.INSTANCE, false));
         simpleElement.addAttribute(new AttributeInjector(new QName("attribute"), action), NoGetter.INSTANCE, NoSetter.INSTANCE);
         simpleElement.toXml(staxWriter, new JavaContext(new ObjectA("true")));
         staxWriter.close();

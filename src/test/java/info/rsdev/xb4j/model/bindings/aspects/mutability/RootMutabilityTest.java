@@ -26,7 +26,7 @@ public class RootMutabilityTest extends AbstractContainerBindingMutabilityTest<S
     @Before
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
-        immutableElement = new Sequence(new QName("level1"));
+        immutableElement = new Sequence(new QName("level1"), false);
         root.setChild(immutableElement);
         root.makeImmutable();
     }

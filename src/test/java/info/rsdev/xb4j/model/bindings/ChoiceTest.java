@@ -15,8 +15,6 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import info.rsdev.xb4j.model.bindings.chooser.ContextInstanceOf;
 import info.rsdev.xb4j.model.converter.IntegerConverter;
 import info.rsdev.xb4j.model.java.JavaContext;
@@ -44,9 +42,9 @@ public class ChoiceTest {
     @Before
     public void setup() {
         Root root = new Root(new QName("sigh"), Object.class);
-        choice = root.setChild(new Choice());
-        choice.addOption(new SimpleType(new QName("elem1")), "name", new ContextInstanceOf(ObjectA.class));
-        choice.addOption(new SimpleType(new QName("elem2"), IntegerConverter.INSTANCE), "value", new ContextInstanceOf(ObjectB.class));
+        choice = root.setChild(new Choice(false));
+        choice.addOption(new SimpleType(new QName("elem1"), false), "name", new ContextInstanceOf(ObjectA.class));
+        choice.addOption(new SimpleType(new QName("elem2"), IntegerConverter.INSTANCE, false), "value", new ContextInstanceOf(ObjectB.class));
     }
 
     @Test
@@ -92,14 +90,13 @@ public class ChoiceTest {
 
     @Test
     public void testChoiceWithoutContentWithMandatoryElementGeneratesOutput() {
-        choice = new Choice(new QName("mandatory"));
+        choice = new Choice(new QName("mandatory"), false);
         assertSame(OutputState.HAS_OUTPUT, choice.generatesOutput(new JavaContext(null)));
     }
 
     @Test
     public void testChoiceWithoutContentWithOptionalElementGeneratesNoOutput() {
-        choice = new Choice(new QName("optional"));
-        choice.setOptional(true);
+        choice = new Choice(new QName("optional"), true);
         assertSame(OutputState.NO_OUTPUT, choice.generatesOutput(new JavaContext(null)));
     }
 

@@ -28,17 +28,17 @@ public abstract class AbstractContainerBindingMutabilityTest<T extends AbstractC
 
     @Test(expected = Xb4jMutabilityException.class)
     public void testCannotAddBinding() {
-        immutableElement.add(new Element(new QName("level2")));
+        immutableElement.add(new Element(new QName("level2"), false));
     }
 
     @Test(expected = Xb4jMutabilityException.class)
     public void testCannotAddBindingViaConvenienceMethod() {
-        immutableElement.add(new Element(new QName("level2")), "someField");
+        immutableElement.add(new Element(new QName("level2"), false), "someField");
     }
 
     @Test(expected = Xb4jMutabilityException.class)
     public void testCannotAddBindingViaGetterSetter() {
-        immutableElement.add(new Element(new QName("level2")), NoGetter.INSTANCE, NoSetter.INSTANCE);
+        immutableElement.add(new Element(new QName("level2"), false), NoGetter.INSTANCE, NoSetter.INSTANCE);
     }
 
 }

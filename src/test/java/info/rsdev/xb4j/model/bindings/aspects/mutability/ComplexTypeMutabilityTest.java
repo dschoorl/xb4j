@@ -32,7 +32,7 @@ public class ComplexTypeMutabilityTest extends AbstractSingleBindingMutabilityTe
 
     @Before
     public void setUp() {
-        immutableElement = new ComplexType("identifier", "namespace");
+        immutableElement = new ComplexType("identifier", "namespace", false);
         immutableElement.makeImmutable();
     }
 
@@ -40,14 +40,14 @@ public class ComplexTypeMutabilityTest extends AbstractSingleBindingMutabilityTe
     @Override
     public void testCannotSetParent() {
         assertNull(immutableElement.getParent());
-        immutableElement.setParent(new Element(new QName("ghost")));
+        immutableElement.setParent(new Element(new QName("ghost"), false));
     }
 
     @Test(expected = Xb4jMutabilityException.class)
     @Override
     public void testCannotAddAttributeWithGetterSetter() {
         Root root = new Root(new QName("root"), Object.class);
-        ComplexType type = new ComplexType(new QName("complex"), root, "hashcode");
+        ComplexType type = new ComplexType(new QName("complex"), root, "hashcode", false);
         root.makeImmutable();
         type.addAttribute(new Attribute(new QName("number")), NoGetter.INSTANCE, NoSetter.INSTANCE);
     }

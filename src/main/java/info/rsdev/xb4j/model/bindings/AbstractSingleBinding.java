@@ -37,9 +37,10 @@ public abstract class AbstractSingleBinding extends AbstractBinding implements I
      * Copy constructor
      *
      * @param original
+     * @param isOptional
      */
-    protected AbstractSingleBinding(AbstractSingleBinding original) {
-        super(original);
+    protected AbstractSingleBinding(AbstractSingleBinding original, boolean isOptional) {
+        super(original, isOptional);
         this.childBinding = original.childBinding;
     }
 

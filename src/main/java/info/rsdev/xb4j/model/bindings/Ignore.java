@@ -31,11 +31,7 @@ public class Ignore implements IBinding {
 
     private IBinding parent = null;
 
-    private boolean isOptional = false; //by default, everything is mandatory, unless explicitly made optional
-
-    public Ignore(QName element) {
-        this(element, false);
-    }
+    private final boolean isOptional;
 
     public Ignore(QName element, boolean isOptional) {
         if (element == null) {
@@ -186,19 +182,6 @@ public class Ignore implements IBinding {
     @Override
     public boolean isOptional() {
         return this.isOptional;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends IBinding> T setOptional(boolean isOptional) {
-        getSemaphore().lock();
-        try {
-            validateMutability();
-            this.isOptional = isOptional;
-            return (T) this;
-        } finally {
-            getSemaphore().unlock();
-        }
     }
 
     @Override

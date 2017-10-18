@@ -28,17 +28,17 @@ public abstract class AbstractSingleBindingMutabilityTest<T extends AbstractSing
 
     @Test(expected = Xb4jMutabilityException.class)
     public void testCannotSetChild() {
-        immutableElement.setChild(new Element(new QName("level2")));
+        immutableElement.setChild(new Element(new QName("level2"), false));
     }
 
     @Test(expected = Xb4jMutabilityException.class)
     public void testCannotSetChildViaConvenienceMethod() {
-        immutableElement.setChild(new Element(new QName("level2")), "someField");
+        immutableElement.setChild(new Element(new QName("level2"), false), "someField");
     }
 
     @Test(expected = Xb4jMutabilityException.class)
     public void testCannotSetChildViaGetterSetter() {
-        immutableElement.setChild(new Element(new QName("level2")), NoGetter.INSTANCE, NoSetter.INSTANCE);
+        immutableElement.setChild(new Element(new QName("level2"), false), NoGetter.INSTANCE, NoSetter.INSTANCE);
     }
 
 }

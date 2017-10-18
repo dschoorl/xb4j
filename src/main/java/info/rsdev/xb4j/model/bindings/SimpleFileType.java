@@ -98,17 +98,10 @@ public class SimpleFileType extends AbstractBinding {
      * Create a new {@link SimpleFileType} that will use the user's temp directory for storage
      *
      * @param element
+     * @param isOptional
      */
-    public SimpleFileType(QName element) {
-        this(element, FixedDirectoryOutputStrategy.INSTANCE, DefaultXmlCodingFactory.INSTANCE, false);
-    }
-
     public SimpleFileType(QName element, boolean isOptional) {
         this(element, FixedDirectoryOutputStrategy.INSTANCE, DefaultXmlCodingFactory.INSTANCE, isOptional);
-    }
-
-    public SimpleFileType(QName element, IFileOutputStrategy fileOutputStrategy) {
-        this(element, fileOutputStrategy, DefaultXmlCodingFactory.INSTANCE, false);
     }
 
     public SimpleFileType(QName element, IFileOutputStrategy fileOutputStrategy, boolean isOptional) {
@@ -121,6 +114,7 @@ public class SimpleFileType extends AbstractBinding {
      * @param element the element that contains the file data
      * @param fileOutputStrategy
      * @param xmlCodingFactory
+     * @param isOptional
      */
     public SimpleFileType(QName element, IFileOutputStrategy fileOutputStrategy, IXmlCodingFactory xmlCodingFactory, boolean isOptional) {
         super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);

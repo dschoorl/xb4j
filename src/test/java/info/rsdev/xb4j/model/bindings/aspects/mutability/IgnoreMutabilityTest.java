@@ -26,7 +26,7 @@ public class IgnoreMutabilityTest extends BaseBindingMutabilityTest<Ignore> {
     @Before
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
-        immutableElement = new Ignore(new QName("level1"));
+        immutableElement = new Ignore(new QName("level1"), false);
         root.setChild(immutableElement);
         root.makeImmutable();
     }

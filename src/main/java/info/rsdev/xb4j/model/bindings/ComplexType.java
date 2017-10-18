@@ -52,10 +52,6 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      */
     private final AtomicBoolean isImmutable = new AtomicBoolean(false);
 
-    public ComplexType(QName element, IBinding parent, String fieldName) {
-        this(element, parent, fieldName, false);
-    }
-
     /**
      * Create a ComplexTypeReference for an anonymous ComplexType (not registered with {@link BindingModel}
      *
@@ -80,10 +76,6 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
         FieldAccessor provider = new FieldAccessor(fieldName);
         setGetter(provider);
         setSetter(provider);
-    }
-
-    public ComplexType(String identifier, String namespaceUri) {
-        this(identifier, namespaceUri, false);
     }
 
     /**
@@ -260,18 +252,6 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
     @Override
     public BindingModel getModel() {
         return this.model;
-    }
-
-    @Override
-    public ComplexType setOptional(boolean isOptional) {
-        getSemaphore().lock();
-        try {
-            validateMutability();
-            super.setOptional(isOptional);
-        } finally {
-            getSemaphore().unlock();
-        }
-        return this;
     }
 
     @Override

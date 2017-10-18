@@ -32,7 +32,7 @@ public class ReferenceMutabilityTest extends BaseBindingMutabilityTest<Reference
         model.registerRoot(root);
 
         //add ComplexType to BindingModel that can be resolved as well...
-        ComplexType type = new ComplexType("identifier", "namespace");
+        ComplexType type = new ComplexType("identifier", "namespace", false);
         model.registerComplexType(type, false);
 
         root.makeImmutable();	//this will resolve all Reference objects and replace them with a copy of the referenced ComplexType

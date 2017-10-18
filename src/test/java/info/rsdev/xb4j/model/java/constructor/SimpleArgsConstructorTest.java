@@ -34,16 +34,16 @@ public class SimpleArgsConstructorTest {
     public void setup() {
         model = new BindingModel();
         Root root = new Root(new QName("root"), ObjectTree.class);
-        Sequence content = root.setChild(new Sequence());
+        Sequence content = root.setChild(new Sequence(false));
         objectSequence = content.add(new Sequence(NoElementFetchStrategy.INSTANCE, new ArgsConstructor(ObjectA.class, new QName("name")), false), "myObject");
-        Repeater messages = (Repeater) content.add(new Repeater(new QName("messages"), LinkedList.class).setOptional(true), "messages");
-        messages.setItem(new SimpleType(new QName("message")));
+        Repeater messages = (Repeater) content.add(new Repeater(new QName("messages"), LinkedList.class, true), "messages");
+        messages.setItem(new SimpleType(new QName("message"), false));
         model.registerRoot(root);
     }
 
     @Test
     public void testCreateObjectWithNextXmlElementInStream() throws XMLStreamException {
-        objectSequence.add(new SimpleArgument(new QName("name")), "AName");
+        objectSequence.add(new SimpleArgument(new QName("name"), false), "AName");
         staxReader = XmlStreamFactory.makeReader(new StringReader("<root><name>Repelsteeltje</name></root>"));
 
         Object instance = model.toJava(staxReader);
@@ -55,9 +55,9 @@ public class SimpleArgsConstructorTest {
 
     @Test
     public void testCreateObjectFromXmlElementInStreamSkippingSome() throws XMLStreamException {
-        objectSequence.add(new Ignore(new QName("bla")));
-        objectSequence.add(new SimpleArgument(new QName("name")), "AName");
-        objectSequence.add(new Ignore(new QName("bla")));
+        objectSequence.add(new Ignore(new QName("bla"), false));
+        objectSequence.add(new SimpleArgument(new QName("name"), false), "AName");
+        objectSequence.add(new Ignore(new QName("bla"), false));
         staxReader = XmlStreamFactory.makeReader(new StringReader("<root><bla /><name>Repelsteeltje</name><bla /></root>"));
 
         Object instance = model.toJava(staxReader);

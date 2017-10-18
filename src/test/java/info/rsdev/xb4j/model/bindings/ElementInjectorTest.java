@@ -55,8 +55,7 @@ public class ElementInjectorTest {
 
     @Test
     public void testInjectOptionalElementNoText() throws Exception {
-        ElementInjector xmlInjector = new ElementInjector(new QName("Injected"), new NullValueTestAction(), false);
-        xmlInjector.setOptional(true);
+        ElementInjector xmlInjector = new ElementInjector(new QName("Injected"), new NullValueTestAction(), true);
         xmlInjector.toXml(staxWriter, new JavaContext(new ObjectA("true")));
         staxWriter.close();
 
@@ -66,7 +65,6 @@ public class ElementInjectorTest {
     @Test(expected = Xb4jMarshallException.class)
     public void testInjectMandatoryElementNoText() throws Exception {
         ElementInjector xmlInjector = new ElementInjector(new QName("Injected"), new NullValueTestAction(), false);
-        xmlInjector.setOptional(false);	//default value is mandatory, for clarity, set it explicity
         xmlInjector.toXml(staxWriter, new JavaContext(new ObjectA("true")));
     }
 
@@ -75,7 +73,6 @@ public class ElementInjectorTest {
         Root root = new Root(new QName("Root"), Object.class);
         ElementInjector xmlInjector = root.setChild(new ElementInjector(new QName("Injected"), new NullValueTestAction(), false));
         xmlInjector.addAttribute(new Attribute(new QName("attributes")), "name");
-        xmlInjector.setOptional(false);	//default value is mandatory, for clarity, set it explicity
         xmlInjector.toXml(staxWriter, new JavaContext(new ObjectA("true")));
         staxWriter.close();
 

@@ -50,11 +50,6 @@ public abstract class BaseBindingMutabilityTest<T extends IBinding> {
     }
 
     @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotSetOptional() {
-        immutableElement.setOptional(true);
-    }
-
-    @Test(expected = Xb4jMutabilityException.class)
     public void testCannotSetParent() {
         IBinding root = immutableElement.getParent();
         immutableElement.setParent(root);
