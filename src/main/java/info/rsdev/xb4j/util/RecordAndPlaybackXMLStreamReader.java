@@ -248,23 +248,24 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                             StringBuffer content = new StringBuffer();
                             while (eventType == CHARACTERS || eventType == CDATA || eventType == ENTITY_REFERENCE) {
                                 content.append(staxReader.getText());
-                                eventType = staxReader.next(); // read uptil the
-                                // proper
-                                // END_ELEMENT
+                                eventType = staxReader.next(); // read uptil the proper END_ELEMENT
                             }
-                            // TODO: check that endtag and starttag match -- or
-                            // is that not our concern...
+                            // TODO: check that endtag and starttag match -- or is that not our concern...
                             eventData = new ParseEventData(CHARACTERS, content.toString(), staxReader.getLocation());
                             if (logger.isTraceEnabled()) {
-                                logger.trace(String.format("Skipping over stax event %s: %s", EVENTNAMES[eventType],
-                                        content));
+                                boolean whitespaceOnly = content.toString().trim().isEmpty();
+                                if (whitespaceOnly) {
+                                    logger.trace("Skipping whitespace");
+                                } else {
+                                    logger.trace(String.format("Skipping over element data of %s: '%s'", staxReader.getName(),
+                                            content));
+                                }
                             }
                             if (this.recordingQueue != null) {
                                 this.recordingQueue.add(eventData);
                             }
                         } else {
-                            // ignore characters that do not directly follow a
-                            // start-element section
+                            // ignore characters that do not directly follow a start-element section
                             eventType = staxReader.next();
                         }
                     } else if ((eventType != START_ELEMENT) && (eventType != END_ELEMENT)
@@ -476,7 +477,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         }
     }
 
-    private boolean isNextElement(QName expectedElement, int eventType) throws XMLStreamException {
+    private boolean isNextElement(QName expectedElement, int expectedEventType) throws XMLStreamException {
         if (expectedElement != null) {
             boolean matchesExpected = false;
             Marker marker = startRecording();
@@ -488,7 +489,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                     if (realEvent == START_ELEMENT || realEvent == END_ELEMENT) {
                         encounteredName = getName();
                     }
-                    if (realEvent == eventType) { // should only be start- or end element
+                    if (realEvent == expectedEventType) { // should only be start- or end element
                         matchesExpected = expectedElement.equals(encounteredName);
                     }
                 }
@@ -496,8 +497,29 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                 if (!matchesExpected) {
                     rewindAndPlayback(marker);
                     if (logger.isTraceEnabled()) {
-                        logger.trace(String.format("Expected %s (%s), but found %s (%s %s)", EVENTNAMES[eventType],
-                                expectedElement, EVENTNAMES[realEvent], encounteredName, getRowColumn(getLocation())));
+                        if (encounteredName != null) {
+                            boolean sameNamespace = expectedElement.getNamespaceURI().equals(encounteredName.getNamespaceURI());
+                            boolean sameLocalName = expectedElement.getLocalPart().equals(encounteredName.getLocalPart());
+                            boolean sameEvent = expectedEventType == realEvent;
+                            if (sameEvent) {
+                                if (sameLocalName && !sameNamespace) {
+                                    logger.trace(String.format("%s has wrong namespace: expected '%s' but was '%s'", 
+                                            expectedElement.getLocalPart(), expectedElement.getNamespaceURI(), 
+                                            encounteredName.getNamespaceURI()));
+                                } else if (sameNamespace && !sameLocalName) {
+                                    logger.trace(String.format("Expected %s %s, but found %s (%s)", EVENTNAMES[expectedEventType],
+                                        expectedElement.getLocalPart(), encounteredName.getLocalPart(), 
+                                        getRowColumn(getLocation())));
+                                }
+                            } else {
+                                logger.trace(String.format("Expected %s (%s), but found %s (%s %s)", EVENTNAMES[expectedEventType],
+                                        expectedElement, EVENTNAMES[realEvent], encounteredName, getRowColumn(getLocation())));
+                            }
+                        }
+                        if (realEvent == END_DOCUMENT) {
+                            logger.trace(String.format("Expected %s (%s), but reached the end of the document", 
+                                    EVENTNAMES[expectedEventType], expectedElement));
+                        }
                     }
                 } else {
                     stopRecording(marker);

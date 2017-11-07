@@ -1,28 +1,23 @@
 package info.rsdev.xb4j.integration;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static info.rsdev.xb4j.test.UnmarshallUtils.*;
 
 import info.rsdev.xb4j.model.bindings.Choice;
 import info.rsdev.xb4j.model.bindings.Element;
 import info.rsdev.xb4j.model.bindings.Ignore;
 import info.rsdev.xb4j.model.bindings.Repeater;
 import info.rsdev.xb4j.model.bindings.Root;
-import info.rsdev.xb4j.model.bindings.UnmarshallResult;
 import info.rsdev.xb4j.model.bindings.chooser.NeverChooser;
-import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectB;
-import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
-import info.rsdev.xb4j.util.XmlStreamFactory;
 
 public class UnboundedChoicesTest {
 
@@ -43,8 +38,8 @@ public class UnboundedChoicesTest {
         choice.addOption(new Element(new QName("elem2"), ObjectB.class, false));
 
         //run test
-        ArrayList<?> collection = unmarshall("<list>\n<elem1 />\n<elem2 />\n<elem1 />\n</list>\n");
-
+        ArrayList<?> collection = unmarshall(repeater, ArrayList.class, "<list>\n<elem1 />\n<elem2 />\n<elem1 />\n</list>\n");
+        
         //assert
         assertEquals(3, collection.size());
         assertSame(ObjectA.class, collection.get(0).getClass());
@@ -58,7 +53,7 @@ public class UnboundedChoicesTest {
         choice.addOption(new Ignore(new QName("elem2"), false), NeverChooser.INSTANCE);
 
         //run test
-        ArrayList<?> collection = unmarshall("<list>\n<elem1 />\n<elem2 />\n<elem1 />\n</list>\n");
+        ArrayList<?> collection = unmarshall(repeater, ArrayList.class, "<list>\n<elem1 />\n<elem2 />\n<elem1 />\n</list>\n");
 
         //assert
         assertEquals(0, collection.size());
@@ -71,20 +66,10 @@ public class UnboundedChoicesTest {
         choice.addOption(new Ignore(new QName("elem2"), false), NeverChooser.INSTANCE);
 
         //run test
-        ArrayList<?> collection = unmarshall("<list>\n<elem1 />\n<elem2 />\n<elem1 />\n</list>\n");
+        ArrayList<?> collection =  unmarshall(repeater, ArrayList.class, "<list>\n<elem1 />\n<elem2 />\n<elem1 />\n</list>\n");
 
         //assert
         assertEquals(0, collection.size());
-    }
-
-    private ArrayList<?> unmarshall(String xmlSnippet) throws XMLStreamException {
-        StringReader reader = new StringReader(xmlSnippet);
-        RecordAndPlaybackXMLStreamReader staxReader = new RecordAndPlaybackXMLStreamReader(XmlStreamFactory.makeReader(reader));
-
-        UnmarshallResult result = repeater.toJava(staxReader, new JavaContext(null));
-        assertTrue(result.isUnmarshallSuccessful());
-        assertSame(ArrayList.class, result.getUnmarshalledObject().getClass());
-        return (ArrayList<?>) result.getUnmarshalledObject();
     }
 
 }

@@ -150,18 +150,19 @@ public class Repeater extends AbstractBinding {
         }
 
         // determine if the childBinding has no more occurences or whether the xml fragment of the childBinding is incomplete
-        if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode())
-                && !result.getFaultyBinding().equals(resolveItemBinding(itemBinding))) {
-            return result;
-        }
-
         if ((occurences == 0) && !isOptional()) {
+            if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode())) {
+                return result;
+            }
             return new UnmarshallResult(UnmarshallResult.MISSING_MANDATORY_ERROR,
                     String.format("Mandatory %s has no content: %s", this, staxReader.getLocation()), this);
         }
 
         // read end of enclosing collection element (if defined)
         if ((collectionElement != null) && !staxReader.isNextAnElementEnd(collectionElement) && startTagFound) {
+            if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode())) {
+                return result;
+            }
             String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
             throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s",
                     collectionElement, staxReader.getEventName(), encountered), this);

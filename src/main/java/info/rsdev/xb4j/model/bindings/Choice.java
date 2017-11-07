@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * From the children in this group, only one can be chosen. However, a choice can be placed in a {@link Sequence} and be repeatable.
+ * The first element in the binding tree of an option must be unique within this choice.
  *
  * @author Dave Schoorl
  */
@@ -175,11 +176,14 @@ public class Choice extends AbstractBinding {
         boolean matchingOptionFound = false;
         UnmarshallResult result = null;
         int optionCounter = 1;
+        /* We want to report to the user per option why it failed, therefore we need to collect all results */
+            List<UnmarshallResult> results = new LinkedList<>();
         for (IBinding candidate : options) {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("[Unmarshal] Trying option %d from %d of %s", optionCounter, options.size(), this));
             }
             result = candidate.toJava(staxReader, getProperty(javaContext));
+            results.add(result);
             if (!result.isError()) {
                 matchingOptionFound = true;
                 if (logger.isDebugEnabled()) {
@@ -209,13 +213,12 @@ public class Choice extends AbstractBinding {
 
         if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement)) {
             String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
-            throw new Xb4jUnmarshallException(
-                    String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
-                            staxReader.getEventName(), encountered),
-                    this);
+            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", 
+                    expectedElement, staxReader.getEventName(), encountered), this);
         }
 
         if (!matchingOptionFound && !isOptional()) {
+            //TODO: analyse and report
             return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR,
                     String.format("No matching option found in xml for mandatory %s", this), this);
         }
@@ -273,8 +276,8 @@ public class Choice extends AbstractBinding {
 
     @Override
     public void resolveReferences() {
-        options.forEach((choice) -> {
-            choice.resolveReferences();
+        options.forEach((option) -> {
+            option.resolveReferences();
         });
     }
 
