@@ -17,6 +17,7 @@ package info.rsdev.xb4j.model;
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.bindings.ComplexType;
 import info.rsdev.xb4j.model.bindings.ISemaphore;
+import info.rsdev.xb4j.model.bindings.Reference;
 import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.model.bindings.UnmarshallResult;
 import info.rsdev.xb4j.model.java.JavaContext;
@@ -131,16 +132,30 @@ public class BindingModel {
     }
 
     /**
-     * Get the {@link Root} that is bound to the supplied type. When multiple bindings are bound to the supplied type, a
+     * Get the {@link Root} that is bound to the supplied type. When multiple bindings are bound to the supplied type, an
+     * exception is thrown.
      *
-     * @param type
-     * @return a {@link Root} or null when no binding is bound to the Java type
-     * @throws Xb4jException when multiple bindings are bound to
+     * @param type the Java type to get the binding for
+     * @return a {@link Root} or null when no binding is defined for the Java type
+     * @throws Xb4jException when multiple bindings are bound to the provided type
+     * @see #getBinding(java.lang.Class, javax.xml.namespace.QName) 
      */
     protected Root getBinding(Class<?> type) {
         return getBinding(type, null);
     }
 
+    /**
+     * Get the {@link Root} that is bound to the supplied Java type and who's element equals the given selector. The selector is
+     * mandatory when a single Java type has been bound through multiple root bindings to different xml elements, in order to make 
+     * the appropriate selection.
+     * 
+     * @param type the Java type to obtain the root binding for
+     * @param selector When multiple {@link Root} bindings exist for the given Java type, the binding is chosen who's element 
+     *      matches this QName
+     * @return a {@link Root} or null when no binding is defined for the Java type and selector
+     * @throws Xb4jException when multiple root bindings are bound to the given Java type, but no selector was provided to 
+     *      select the right one
+     */
     protected Root getBinding(Class<?> type, QName selector) {
         if (!this.classToXml.containsKey(type)) {
             return null;
@@ -168,6 +183,12 @@ public class BindingModel {
         }
     }
 
+    /**
+     * Register a {@link Root} binding with this binding model.
+     * @param binding the {@link Root} to register with this model
+     * @return the registered Root binding for further fluent programming
+     * @throws IllegalArgumentException when a root binding with the same type and element QName is already registered
+     */
     public Root registerRoot(Root binding) {
         if (binding == null) {
             throw new NullPointerException("RootBinding cannot be null when registering it");
@@ -209,6 +230,14 @@ public class BindingModel {
         return binding;
     }
 
+    /**
+     * Register a {@link ComplexType} with this binding model, provided that no complex type with the same namespace and identifier 
+     * has already been registered. 
+     * @param complexType the complex type to register
+     * @param errorIfExists flag to ignore or throw exception when a complex type registration collides with a previous one
+     * @return the registered {@link ComplexType} for further fluent programming
+     * @throws IllegalArgumentException when an registration collision occurs and is not allowed vi parameter errorIfExists
+     */
     public ComplexType registerComplexType(ComplexType complexType, boolean errorIfExists) {
         if (complexType == null) {
             throw new NullPointerException("ComplexTypeBinding cannot be null");
@@ -234,9 +263,13 @@ public class BindingModel {
     }
 
     /**
-     * @param identifier
-     * @param namespaceUri
-     * @return 
+     * Get the instance of the {@link ComplexType} with the given identifier in the given namespace. This method is used by the 
+     * framework to resolve {@link Reference references}
+     * 
+     * @param namespaceUri the namespace uri in which the complex type lives
+     * @param identifier the identifier for the complex type within the given namespace
+     * @return the {@link ComplexType} requested
+     * @throws Xb4jException when there is no complex type registered by the given identifier and namespace
      * @deprecated TODO: remove public access once the complex type references are resolved when obtaining an {@link XmlStreamer}
      */
     public ComplexType getComplexType(String identifier, String namespaceUri) {
