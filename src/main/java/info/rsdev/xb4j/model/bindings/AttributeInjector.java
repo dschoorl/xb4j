@@ -33,7 +33,7 @@ public class AttributeInjector extends AbstractAttribute {
     }
 
     @Override
-    public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException {
+    public void toJava(String valueAsText, JavaContext javaContext) {
         //do nothing -- swallow xml attribute
     }
 

@@ -65,7 +65,7 @@ public class StaticAttribute extends AbstractAttribute {
     }
 
     @Override
-    public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException {
+    public void toJava(String valueAsText, JavaContext javaContext) {
         //Ignore provided value from the xml stream; always use the static value
         Object value = this.converter.toObject(javaContext, this.staticValue);
         setProperty(javaContext, value);

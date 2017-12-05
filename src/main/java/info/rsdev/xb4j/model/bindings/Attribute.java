@@ -53,7 +53,7 @@ public class Attribute extends AbstractAttribute {
     }
 
     @Override
-    public void toJava(String valueAsText, JavaContext javaContext) throws XMLStreamException {
+    public void toJava(String valueAsText, JavaContext javaContext) {
         if ((valueAsText == null) && (this.defaultValue != null)) {
             valueAsText = this.defaultValue;
         }
