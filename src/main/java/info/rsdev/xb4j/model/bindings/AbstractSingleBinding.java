@@ -29,8 +29,9 @@ public abstract class AbstractSingleBinding extends AbstractBinding implements I
 
     private IBinding childBinding = null;
 
-    protected AbstractSingleBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator, boolean isOptional) {
-        super(elementFetcher, objectCreator, isOptional);
+    protected AbstractSingleBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator, 
+            boolean isOptional, Enum<? extends BindOption>... options) {
+        super(elementFetcher, objectCreator, isOptional, options);
     }
 
     /**

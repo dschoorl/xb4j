@@ -52,13 +52,16 @@ public class Choice extends AbstractBinding {
     /**
      * Create a new {@link Choice}.
      * @param isOptional
+     * @param options
      */
-    public Choice(boolean isOptional) {
-        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public Choice(boolean isOptional, Enum<? extends BindOption>... options) {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional, options);
     }
 
-    public Choice(QName element, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public Choice(QName element, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional, options);
     }
 
     @Override

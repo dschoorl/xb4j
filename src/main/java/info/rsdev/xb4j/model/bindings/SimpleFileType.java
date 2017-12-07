@@ -99,13 +99,17 @@ public class SimpleFileType extends AbstractBinding {
      *
      * @param element
      * @param isOptional
+     * @param options
      */
-    public SimpleFileType(QName element, boolean isOptional) {
-        this(element, FixedDirectoryOutputStrategy.INSTANCE, DefaultXmlCodingFactory.INSTANCE, isOptional);
+    @SafeVarargs
+    public SimpleFileType(QName element, boolean isOptional, Enum<? extends BindOption>... options) {
+        this(element, FixedDirectoryOutputStrategy.INSTANCE, DefaultXmlCodingFactory.INSTANCE, isOptional, options);
     }
 
-    public SimpleFileType(QName element, IFileOutputStrategy fileOutputStrategy, boolean isOptional) {
-        this(element, fileOutputStrategy, DefaultXmlCodingFactory.INSTANCE, isOptional);
+    @SafeVarargs
+    public SimpleFileType(QName element, IFileOutputStrategy fileOutputStrategy, boolean isOptional, 
+            Enum<? extends BindOption>... options) {
+        this(element, fileOutputStrategy, DefaultXmlCodingFactory.INSTANCE, isOptional, options);
     }
 
     /**
@@ -115,9 +119,12 @@ public class SimpleFileType extends AbstractBinding {
      * @param fileOutputStrategy
      * @param xmlCodingFactory
      * @param isOptional
+     * @param options
      */
-    public SimpleFileType(QName element, IFileOutputStrategy fileOutputStrategy, IXmlCodingFactory xmlCodingFactory, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public SimpleFileType(QName element, IFileOutputStrategy fileOutputStrategy, IXmlCodingFactory xmlCodingFactory, 
+            boolean isOptional, Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional, options);
         if (fileOutputStrategy == null) {
             throw new NullPointerException("IFileOutputStrategy cannot be null");
         }

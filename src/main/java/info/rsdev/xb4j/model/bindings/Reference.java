@@ -36,26 +36,33 @@ public class Reference extends Element {
 
     private String namespaceUri = null;
 
-    public Reference(String identifier, String namespaceUri, boolean isOptional) {
-        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public Reference(String identifier, String namespaceUri, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional, options);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }
 
-    public Reference(QName element, Class<?> javaType, String identifier, String namespaceUri, boolean isOptional) {
-        super(element, javaType, isOptional);
+    @SafeVarargs
+    public Reference(QName element, Class<?> javaType, String identifier, String namespaceUri, 
+            boolean isOptional, Enum<? extends BindOption>... options) {
+        super(element, javaType, isOptional, options);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }
 
-    public Reference(Class<?> javaType, String identifier, String namespaceUri, boolean isOptional) {
-        super(javaType, isOptional);
+    @SafeVarargs
+    public Reference(Class<?> javaType, String identifier, String namespaceUri, boolean isOptional, 
+            Enum<? extends BindOption>... options) {
+        super(javaType, isOptional, options);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }
 
-    public Reference(QName element, String identifier, String namespaceUri, boolean isOptional) {
-        super(element, isOptional);
+    @SafeVarargs
+    public Reference(QName element, String identifier, String namespaceUri, boolean isOptional, 
+            Enum<? extends BindOption>... options) {
+        super(element, isOptional, options);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
     }

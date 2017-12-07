@@ -158,6 +158,13 @@ public interface IBinding {
     void validateMutability();
 
     void resolveReferences();
+    
+    /**
+     * Check if the given {@link SchemaOption option}  is set on this binding.
+     * @param option the option value to check
+     * @return true if the option is set, false otherwise
+     */
+    boolean hasOption(Enum<?> option);
 
     /**
      * Search the binding tree for the {@link IBinding} or {@link IAttribute} that can create the java object that is required as an

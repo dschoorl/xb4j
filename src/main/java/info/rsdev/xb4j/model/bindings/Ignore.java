@@ -12,6 +12,7 @@ import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -32,13 +33,17 @@ public class Ignore implements IBinding {
     private IBinding parent = null;
 
     private final boolean isOptional;
-
-    public Ignore(QName element, boolean isOptional) {
+    
+    private final Enum<?>[] options;
+    
+    @SafeVarargs
+    public Ignore(QName element, boolean isOptional, Enum<?>... options) {
         if (element == null) {
             throw new NullPointerException("Element cannot be null");
         }
         this.element = element;
         this.isOptional = isOptional;
+        this.options = Arrays.copyOf(options, options.length);
         this.actionManager = new ActionManager();
     }
 
@@ -275,4 +280,15 @@ public class Ignore implements IBinding {
         return null;
     }
 
+    @Override
+    public boolean hasOption(Enum<?> option) {
+        if (this.options != null) {
+            for (Enum<?> candidate: this.options) {
+                if (candidate == option) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

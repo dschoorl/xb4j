@@ -39,9 +39,11 @@ public class Sequence extends AbstractContainerBinding {
     /**
      * Create a new {@link Sequence} which inherits it's element and javatype from it's parent
      * @param isOptional
+     * @param options
      */
-    public Sequence(boolean isOptional) {
-        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public Sequence(boolean isOptional, Enum<? extends BindOption>... options) {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional, options);
     }
 
     /**
@@ -51,26 +53,33 @@ public class Sequence extends AbstractContainerBinding {
      * @param elementFetcher The {@link IElementFetchStrategy} to use. If not provided, {@link NoElementFetchStrategy} is used.
      * @param objectCreator The {@link ICreator} to use. If not provided, {@link NullCreator} is used.
      * @param isOptional
+     * @param options
      */
-    public Sequence(IElementFetchStrategy elementFetcher, ICreator objectCreator, boolean isOptional) {
+    @SafeVarargs
+    public Sequence(IElementFetchStrategy elementFetcher, ICreator objectCreator, boolean isOptional, 
+            Enum<? extends BindOption>... options) {
         super((elementFetcher == null ? NoElementFetchStrategy.INSTANCE : elementFetcher),
-                (objectCreator == null ? NullCreator.INSTANCE : objectCreator), isOptional);
+                (objectCreator == null ? NullCreator.INSTANCE : objectCreator), isOptional, options);
     }
 
-    public Sequence(QName element, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public Sequence(QName element, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional, options);
     }
 
-    public Sequence(Class<?> javaType, boolean isOptional) {
-        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType), isOptional);
+    @SafeVarargs
+    public Sequence(Class<?> javaType, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType), isOptional, options);
     }
 
-    public Sequence(QName element, Class<?> javaType, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(javaType), isOptional);
+    @SafeVarargs
+    public Sequence(QName element, Class<?> javaType, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(javaType), isOptional, options);
     }
 
-    public Sequence(QName element, ICreator creator, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), creator, isOptional);
+    @SafeVarargs
+    public Sequence(QName element, ICreator creator, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), creator, isOptional, options);
     }
 
     @Override

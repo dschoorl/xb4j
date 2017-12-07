@@ -53,9 +53,11 @@ public class MapRepeater extends AbstractBinding {
      * Create a {@link MapRepeater} where the collection instance is passed on from the parent binding in the binding tree. The main
      * use case is to support the {@link Root} xml element to contain a {@link Map} without an additional container element.
      * @param isOptional
+     * @param options
      */
-    public MapRepeater(boolean isOptional) {
-        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public MapRepeater(boolean isOptional, Enum<? extends BindOption>... options) {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional, options);
         setSetter(MimicSetter.INSTANCE);
     }
 
@@ -65,13 +67,16 @@ public class MapRepeater extends AbstractBinding {
      *
      * @param mapType
      * @param isOptional
+     * @param options
      */
-    public MapRepeater(Class<?> mapType, boolean isOptional) {
-        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(mapType), isOptional);
+    @SafeVarargs
+    public MapRepeater(Class<?> mapType, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(mapType), isOptional, options);
     }
 
-    public MapRepeater(QName element, Class<?> mapType, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(mapType), isOptional);
+    @SafeVarargs
+    public MapRepeater(QName element, Class<?> mapType, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(mapType), isOptional, options);
     }
 
     public <T extends IBinding> MapRepeater setKeyValue(T keyBinding, T valueBinding) {

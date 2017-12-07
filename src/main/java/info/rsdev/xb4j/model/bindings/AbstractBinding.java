@@ -32,6 +32,7 @@ import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Schoorl
  */
 public abstract class AbstractBinding implements IBinding {
-
+    
     private final Logger logger = LoggerFactory.getLogger(AbstractBinding.class);
 
     private ActionManager actionManager = null;
@@ -70,14 +71,17 @@ public abstract class AbstractBinding implements IBinding {
     private List<IAttribute> attributes = null;
 
     private final boolean isOptional;
-
-    protected AbstractBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator, boolean isOptional) {
+    
+    private final Enum<? extends BindOption>[] options;
+    
+    protected AbstractBinding(IElementFetchStrategy elementFetcher, ICreator objectCreator, boolean isOptional, Enum<? extends BindOption>... options) {
         setElementFetchStrategy(elementFetcher);
         setObjectCreator(objectCreator);
         this.getter = NoGetter.INSTANCE;
         this.setter = NoSetter.INSTANCE;
         this.actionManager = new ActionManager();
         this.isOptional = isOptional;
+        this.options = Arrays.copyOf(options, options.length);
     }
 
     /**
@@ -88,6 +92,7 @@ public abstract class AbstractBinding implements IBinding {
      */
     protected AbstractBinding(AbstractBinding original, boolean isOptional) {
         this.isOptional = isOptional;
+        this.options = Arrays.copyOf(original.options, original.options.length);
         copyFields(original, original.elementFetcher);
     }
 
@@ -99,6 +104,7 @@ public abstract class AbstractBinding implements IBinding {
      */
     protected AbstractBinding(AbstractBinding original, IElementFetchStrategy elementFetcher) {
         this.isOptional = original.isOptional;
+        this.options = Arrays.copyOf(original.options, original.options.length);
         copyFields(original, elementFetcher);
     }
 
@@ -588,4 +594,15 @@ public abstract class AbstractBinding implements IBinding {
         return OutputState.NO_OUTPUT;
     }
 
+    @Override
+    public boolean hasOption(Enum<?> option) {
+        if (this.options != null) {
+            for (Enum<?> candidate: this.options) {
+                if (candidate == option) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
