@@ -46,25 +46,32 @@ public class Element extends AbstractSingleBinding {
      *
      * @param element the element
      * @param isOptional
+     * @param options
      */
-    public Element(QName element, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public Element(QName element, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional, options);
     }
 
-    public Element(Class<?> javaType, boolean isOptional) {
-        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType), isOptional);
+    @SafeVarargs
+    public Element(Class<?> javaType, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(javaType), isOptional, options);
     }
 
-    public Element(QName element, Class<?> javaType, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(javaType), isOptional);
+    @SafeVarargs
+    public Element(QName element, Class<?> javaType, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(javaType), isOptional, options);
     }
 
-    public Element(QName element, ICreator creator, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), creator, isOptional);
+    @SafeVarargs
+    public Element(QName element, ICreator creator, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), creator, isOptional, options);
     }
 
-    public Element(IElementFetchStrategy elementFetcher, ICreator creator, boolean isOptional) {
-        super(elementFetcher, creator, isOptional);
+    @SafeVarargs
+    public Element(IElementFetchStrategy elementFetcher, ICreator creator, boolean isOptional, 
+            Enum<? extends BindOption>... options) {
+        super(elementFetcher, creator, isOptional, options);
     }
 
     /**

@@ -44,8 +44,9 @@ public class Root extends Element implements IModelAware, ISemaphore {
      */
     private final AtomicBoolean isImmutable = new AtomicBoolean(false);
 
-    public Root(QName element, Class<?> javaType) {
-        super(element, javaType, false);
+    @SafeVarargs
+    public Root(QName element, Class<?> javaType, Enum<? extends BindOption>... options) {
+        super(element, javaType, false, options);
     }
 
     /**

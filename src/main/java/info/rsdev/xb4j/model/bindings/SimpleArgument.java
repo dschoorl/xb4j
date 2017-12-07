@@ -26,12 +26,14 @@ public class SimpleArgument extends SimpleType implements IJavaArgument {
 
     private Ignore xmlConsumer = null;
 
-    public SimpleArgument(QName element, boolean isOptional) {
-        super(element, isOptional);
+    @SafeVarargs
+    public SimpleArgument(QName element, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(element, isOptional, options);
     }
 
-    public SimpleArgument(QName element, IValueConverter converter, boolean isOptional) {
-        super(element, converter, isOptional);
+    @SafeVarargs
+    public SimpleArgument(QName element, IValueConverter converter, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(element, converter, isOptional, options);
     }
 
     @Override

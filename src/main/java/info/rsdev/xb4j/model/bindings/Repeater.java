@@ -48,9 +48,11 @@ public class Repeater extends AbstractBinding {
      * Create a {@link Repeater} where the collection instance is passed on from the parent binding in the binding tree. The main
      * use case is to support the {@link Root} xml element to contain a {@link Collection} without an additional container element.
      * @param isOptional
+     * @param options
      */
-    public Repeater(boolean isOptional) {
-        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, false);
+    @SafeVarargs
+    public Repeater(boolean isOptional, Enum<? extends BindOption>... options) {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional, options);
         setSetter(MimicSetter.INSTANCE);
     }
 
@@ -60,13 +62,16 @@ public class Repeater extends AbstractBinding {
      *
      * @param collectionType
      * @param isOptional
+     * @param options
      */
-    public Repeater(Class<?> collectionType, boolean isOptional) {
-        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(collectionType), isOptional);
+    @SafeVarargs
+    public Repeater(Class<?> collectionType, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(NoElementFetchStrategy.INSTANCE, new DefaultConstructor(collectionType), isOptional, options);
     }
 
-    public Repeater(QName element, Class<?> collectionType, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(collectionType), isOptional);
+    @SafeVarargs
+    public Repeater(QName element, Class<?> collectionType, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(collectionType), isOptional, options);
     }
 
     public <T extends IBinding> T setItem(T itemBinding) {

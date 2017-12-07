@@ -44,18 +44,22 @@ public class SimpleType extends AbstractBinding {
      *
      * @param element the element
      * @param isOptional
+     * @param options
      */
-    public SimpleType(QName element, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public SimpleType(QName element, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional, options);
     }
 
-    public SimpleType(QName element, IValueConverter converter, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public SimpleType(QName element, IValueConverter converter, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional, options);
         setConverter(converter);
     }
 
     @Override
-    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
+    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) 
+            throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();	//should never be null for a SimpleType
         boolean startTagFound = false;
@@ -78,8 +82,8 @@ public class SimpleType extends AbstractBinding {
 
         if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {    //this also consumes the end element
             String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
-            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
-                    staxReader.getEventName(), encountered), this);
+            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", 
+                    expectedElement, staxReader.getEventName(), encountered), this);
         }
 
         return new UnmarshallResult(value, isValueHandled);

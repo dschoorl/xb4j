@@ -50,9 +50,12 @@ public class Recursor extends AbstractSingleBinding {
      * @param recursiveType
      * @param propertyName
      * @param isOptional
+     * @param options
      */
-    public Recursor(QName element, Class<?> recursiveType, String propertyName, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(recursiveType), isOptional);
+    @SafeVarargs
+    public Recursor(QName element, Class<?> recursiveType, String propertyName, boolean isOptional, 
+            Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), new DefaultConstructor(recursiveType), isOptional, options);
         BeanPropertyAccessor accessor = new BeanPropertyAccessor(propertyName);
         this.recursiveGetter = accessor;
         this.recursiveSetter = accessor;

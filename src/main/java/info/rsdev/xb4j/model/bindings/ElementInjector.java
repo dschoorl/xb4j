@@ -34,8 +34,10 @@ public class ElementInjector extends AbstractBinding {
 
     private IMarshallingAction valueProvider = null;
 
-    public ElementInjector(QName element, IMarshallingAction valueProvider, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public ElementInjector(QName element, IMarshallingAction valueProvider, boolean isOptional, 
+            Enum<? extends BindOption>... options) {
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional, options);
         setMarshallingAction(valueProvider);
     }
 

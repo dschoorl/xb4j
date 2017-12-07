@@ -47,8 +47,8 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 
     /**
      * Flag that indicates whether this {@link ComplexType} can be changed or not. A complex type is made immutable, when it is
-     * linked to a {@link Reference} type (useualy the first time it is used to marshall/unmarshall, so that it can be used in a
-     * threadsafe manner. When a {@link #copy()} is made, the copy is mutable again.
+     * linked to a {@link Reference} type (usually the first time it is used to marshall/unmarshall, so that it can be used in a
+     * thread safe manner. When a {@link #copy()} is made, the copy is mutable again.
      */
     private final AtomicBoolean isImmutable = new AtomicBoolean(false);
 
@@ -59,9 +59,11 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      * @param parent
      * @param fieldName
      * @param isOptional
+     * @param options
      */
-    public ComplexType(QName element, IBinding parent, String fieldName, boolean isOptional) {
-        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public ComplexType(QName element, IBinding parent, String fieldName, boolean isOptional, Enum<? extends BindOption>... options){
+        super(new DefaultElementFetchStrategy(element), NullCreator.INSTANCE, isOptional, options);
         if (parent == null) {
             throw new NullPointerException("Parent IBinding cannot be null");
         }
@@ -84,9 +86,11 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
      * @param identifier
      * @param namespaceUri
      * @param isOptional
+     * @param options
      */
-    public ComplexType(String identifier, String namespaceUri, boolean isOptional) {
-        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional);
+    @SafeVarargs
+    public ComplexType(String identifier, String namespaceUri, boolean isOptional, Enum<? extends BindOption>... options) {
+        super(NoElementFetchStrategy.INSTANCE, NullCreator.INSTANCE, isOptional, options);
         setIdentifier(identifier);
         setNamespaceUri(namespaceUri);
         //the element fetch strategy will be replaced by a real one when this 'type' is copied into a binding hierarchy
