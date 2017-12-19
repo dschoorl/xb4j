@@ -14,24 +14,25 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
 import info.rsdev.xb4j.model.bindings.chooser.ContextInstanceOf;
 import info.rsdev.xb4j.model.converter.IntegerConverter;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectB;
+import info.rsdev.xb4j.test.UnmarshallUtils;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import static org.junit.Assert.assertSame;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -100,4 +101,12 @@ public class ChoiceTest {
         assertSame(OutputState.NO_OUTPUT, choice.generatesOutput(new JavaContext(null)));
     }
 
+    @Test
+    public void ignoreMissingMandatoryChildrenWhenNilIsSetTrue() throws XMLStreamException {
+        Choice nillableChoice = new Choice(new QName("elem"), false, NILLABLE);
+        nillableChoice.addOption(new SimpleType(new QName("option"), false), "name", new ContextInstanceOf(ObjectA.class));
+
+        UnmarshallResult result = UnmarshallUtils.unmarshall(nillableChoice, "<elem xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
+        assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
 }

@@ -19,17 +19,7 @@ import static info.rsdev.xb4j.test.UnmarshallUtils.unmarshall;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.StringReader;
-import java.util.ArrayList;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.Choice;
@@ -39,11 +29,15 @@ import info.rsdev.xb4j.model.bindings.Sequence;
 import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.model.bindings.UnmarshallResult;
 import info.rsdev.xb4j.test.ObjectC;
-import info.rsdev.xb4j.util.XmlStreamFactory;
+import java.util.ArrayList;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test the usability of feedback messages when mandatory elements are missing
- * 
+ *
  * @author Dave Schoorl
  */
 class MissingElementsFeedbackTest {
@@ -54,21 +48,21 @@ class MissingElementsFeedbackTest {
     private static final QName SECOND = new QName("second");
     private static final QName OPTION1 = new QName("option1");
     private static final QName OPTION2 = new QName("option2");
-    
+
     private ObjectC contextObject = null;
     private BindingModel modelUnderTest = null;
     private Sequence container = null;
-    
+
     @BeforeEach
     void setUp() {
         modelUnderTest = new BindingModel();
         Root root = modelUnderTest.registerRoot(new Root(ROOT, ObjectC.class));
         container = root.setChild(new Sequence(CONTAINER, false));
         container.add(new SimpleType(FIRST, false), "name");
-        
+
         contextObject = new ObjectC();
     }
-    
+
     @Test
     void informUserOfMissingFirstMandatorySimpleElement() throws XMLStreamException {
         UnmarshallResult result = unmarshall(container, contextObject, "<container />");
@@ -76,14 +70,14 @@ class MissingElementsFeedbackTest {
         assertEquals(UnmarshallResult.MISSING_MANDATORY_ERROR, result.getErrorCode());
         assertEquals("Mandatory element not encountered in xml: first", result.getErrorMessage());
     }
-    
+
     @Test
     void informUserOfAdditionalMissingMandatorySimpleElement() throws XMLStreamException {
         //test fixture: add a second (mandatory) element to the container
         container.add(new SimpleType(SECOND, false), "description");
         assertMandatoryElementMissing(SECOND, unmarshall(container, contextObject, "<container><first>name</first></container>"));
     }
-    
+
     @Test
     void informUserOfMissingMandatoryChoice() throws XMLStreamException {
         //test fixture: add a second (mandatory) element to the container
@@ -92,7 +86,7 @@ class MissingElementsFeedbackTest {
         choice.addOption(new SimpleType(OPTION2, false));
         assertMandatoryElementMissing(SECOND, unmarshall(container, contextObject, "<container><first>name</first></container>"));
     }
-    
+
     @Test
     void informUserOfMissingMandatoryOption() throws XMLStreamException {
         //test fixture: add a second (mandatory) element to the container
@@ -101,14 +95,14 @@ class MissingElementsFeedbackTest {
         choice.addOption(new SimpleType(OPTION2, false));
         assertMandatoryOptionMissing(unmarshall(container, contextObject, "<container><first>name</first><second /></container>"));
     }
-    
+
     @Test
     void informUserOfMissingMandatoryChoiceInOptionalRepeater() throws XMLStreamException {
         Repeater repeater = container.add(new Repeater(REPEATER, ArrayList.class, true), "details");
         Choice choice = repeater.setItem(new Choice(SECOND, false));
         choice.addOption(new SimpleType(OPTION1, true));
         choice.addOption(new SimpleType(OPTION2, true));
-        
+
         String xmlSnippet = "<container>"
                 + "<first>first</first>"
                 + "<repeater><option1><bomb /></option1></repeater>"
@@ -126,13 +120,13 @@ class MissingElementsFeedbackTest {
         String xmlSnippet = "<container><first>name</first><second /></container>";
         assertMandatoryElementMissing(CONTAINER, unmarshall(container, contextObject, xmlSnippet));
     }
-    
+
     private void assertMandatoryElementMissing(QName missingElement, UnmarshallResult result) {
         assertTrue(result.isError());
         assertEquals(UnmarshallResult.MISSING_MANDATORY_ERROR, result.getErrorCode());
         assertEquals("Mandatory element not encountered in xml: " + missingElement, result.getErrorMessage());
     }
-    
+
     private void assertMandatoryOptionMissing(UnmarshallResult result) {
         assertTrue(result.isError());
         assertEquals(UnmarshallResult.MISSING_MANDATORY_ERROR, result.getErrorCode());

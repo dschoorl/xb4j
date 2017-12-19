@@ -16,6 +16,7 @@ package info.rsdev.xb4j.model.bindings;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
+import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
 import info.rsdev.xb4j.model.bindings.action.ActionManager;
 import info.rsdev.xb4j.model.bindings.action.IPhasedAction;
 import info.rsdev.xb4j.model.bindings.action.IPhasedAction.ExecutionPhase;
@@ -30,6 +31,7 @@ import info.rsdev.xb4j.model.java.constructor.IJavaArgument;
 import info.rsdev.xb4j.model.java.constructor.NullCreator;
 import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.ParseEventData;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +51,9 @@ import org.slf4j.LoggerFactory;
  * @author Dave Schoorl
  */
 public abstract class AbstractBinding implements IBinding {
-    
+
+    static final QName NIL_ATTRIBUTE = new QName("http://www.w3.org/2001/XMLSchema-instance", "nil", "xsi");
+
     private final Logger logger = LoggerFactory.getLogger(AbstractBinding.class);
 
     private ActionManager actionManager = null;
@@ -175,7 +179,7 @@ public abstract class AbstractBinding implements IBinding {
         return Collections.unmodifiableCollection(this.attributes);
     }
 
-    public boolean hasAttributes() {
+    boolean hasAttributes() {
         return (this.attributes != null) && !this.attributes.isEmpty();
     }
 
@@ -370,7 +374,7 @@ public abstract class AbstractBinding implements IBinding {
         return this.isOptional;
     }
 
-    public void attributesToXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
+    void attributesToXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
         if ((attributes != null) && !attributes.isEmpty()) {
             for (IAttribute attribute : this.attributes) {
                 attribute.toXml(staxWriter, javaContext, getElement());
@@ -378,7 +382,7 @@ public abstract class AbstractBinding implements IBinding {
         }
     }
 
-    public void attributesToJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
+    void attributesToJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         Collection<IAttribute> expectedAttributes = getAttributes();
         if ((expectedAttributes != null) && !expectedAttributes.isEmpty()) {
             Map<QName, String> actualAttributes = staxReader.getAttributes();
@@ -605,4 +609,59 @@ public abstract class AbstractBinding implements IBinding {
         }
         return false;
     }
+
+    boolean containsNil(Map<QName, String> attributes) {
+        if (attributes == null) {
+            return false;
+        }
+        return Boolean.parseBoolean(attributes.get(NIL_ATTRIBUTE));
+    }
+
+    /**
+     * Check if the element is a valid nil-element,meaning, it has no content, and return {@linkplain UnmarshallResult#NO_RESULT}
+     *
+     * @param staxReader the xml stream positioned directly after this element's open tag.
+     * @return
+     * @throws XMLStreamException propagate exceptions that may occur while reading the xml stream
+     * @throws Xb4jUnmarshallException when the nil-element contains content
+     */
+    UnmarshallResult handleNil(RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
+        QName expectedElement = getElement();
+
+        // The end-element is included in the list of skippedEvents
+        List<ParseEventData> skippedEvents = staxReader.skipToElementEnd();
+        if (!skippedEvents.isEmpty()) {
+            throw new Xb4jUnmarshallException(String.format("Nil element <%s> cannot contain content", expectedElement), this);
+        }
+        return UnmarshallResult.NO_RESULT;
+    }
+
+    /**
+     * Check if the xml element for this binding has a xsi:nil attribute set to true and if we must honor this, meaning if 
+     * it {@link #isNillable() }
+     *
+     * @param staxReader the staReader that has just read this binding's start element tag.
+     * @return true if the element from this stream representing this binding is nil.
+     * @throws XMLStreamException propagate exceptions that may occur while reading the xml stream
+     */
+    boolean isNil(RecordAndPlaybackXMLStreamReader staxReader) throws XMLStreamException {
+        if (containsNil(staxReader.getAttributes())) {
+            if (!isNillable()) {
+                throw new Xb4jUnmarshallException(String.format("Found unexpected nil-attribute on xml element <%s>. Consider "
+                        + "adding the NILLABLE option to the binding", getElement()), this);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Determine if the xml for this binding can contain the nil-attribute
+     *
+     * @return true if this binding supports the nil-attribute, false otherwise
+     */
+    boolean isNillable() {
+        return (getElement() != null) && hasOption(SchemaOptions.NILLABLE);
+    }
+
 }

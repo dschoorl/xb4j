@@ -10,11 +10,9 @@ import info.rsdev.xb4j.model.java.accessor.ISetter;
 import info.rsdev.xb4j.model.java.constructor.IJavaArgument;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
@@ -33,7 +31,7 @@ public class Ignore implements IBinding {
     private IBinding parent = null;
 
     private final boolean isOptional;
-    
+
     private final Enum<?>[] options;
     
     @SafeVarargs
@@ -61,7 +59,7 @@ public class Ignore implements IBinding {
         this.actionManager.executeActions(ExecutionPhase.BEFORE_UNMARSHALLING, javaContext);
 
         //start tag is found: consume and ignore xml stream until end tag and do so for all repeating elements (if any)
-        while (staxReader.skipToElementEnd()) {
+        while (staxReader.skipToElementEnd() != null) {
             if (!staxReader.isNextAnElementStart(expectedElement)) {
                 break;
             }

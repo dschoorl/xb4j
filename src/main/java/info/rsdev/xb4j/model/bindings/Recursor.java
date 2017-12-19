@@ -83,9 +83,8 @@ public class Recursor extends AbstractSingleBinding {
             if (recurrenceCount == 0) {
                 if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
-                } else {
-                    return UnmarshallResult.newMissingElement(this);
                 }
+                return UnmarshallResult.newMissingElement(this);
             } else {
                 return UnmarshallResult.NO_RESULT;
             }
@@ -94,44 +93,48 @@ public class Recursor extends AbstractSingleBinding {
         JavaContext nestedObjectContext = newInstance(staxReader, javaContext);
         attributesToJava(staxReader, nestedObjectContext);
 
-        if (getChildBinding() != null) {
-            UnmarshallResult result = getChildBinding().toJava(staxReader, nestedObjectContext);
+        if (isNil(staxReader)) {
+            return handleNil(staxReader);
+        } else {
+            if (getChildBinding() != null) {
+                UnmarshallResult result = getChildBinding().toJava(staxReader, nestedObjectContext);
+                if (!result.isUnmarshallSuccessful()) {
+                    return result;
+                }
+                if (result.mustHandleUnmarshalledObject()) {
+                    //we expect that the contentBinding has set it's constructed artifacts in the object tree... so, throw an exception
+                    throw new Xb4jUnmarshallException("Unmarshalled result should have been handled by the ContentBinding", this);
+                }
+            }
+
+            recurrenceCount++;
+            if ((maxOccurs != UNBOUNDED) && (recurrenceCount > maxOccurs)) {
+                throw new Xb4jUnmarshallException(String.format("Found %d nested occurences of element <%s>, but no mare than %d "
+                        + "levels are allowed", recurrenceCount, element, maxOccurs), this);
+            }
+
+            //Recurse -- create one level deeper nested object
+            UnmarshallResult result = unmarshall(staxReader, nestedObjectContext, recurrenceCount);
             if (!result.isUnmarshallSuccessful()) {
                 return result;
             }
+
+            //handle nested child object -- add to object tree
             if (result.mustHandleUnmarshalledObject()) {
-                //we expect that the contentBinding has set it's constructed artifacts in the object tree... so, throw an exception
-                throw new Xb4jUnmarshallException("Unmarshalled result should have been handled by the ContentBinding", this);
+                if (!setChild(nestedObjectContext, result.getUnmarshalledObject())) {
+                    throw new Xb4jUnmarshallException("Cannot set nested element into it's parent object", this);
+                }
             }
-        }
 
-        recurrenceCount++;
-        if ((maxOccurs != UNBOUNDED) && (recurrenceCount > maxOccurs)) {
-            throw new Xb4jUnmarshallException(String.format("Found %d nested occurences of element <%s>, but no mare than %d "
-                    + "levels are allowed", recurrenceCount, element, maxOccurs), this);
-        }
-
-        //Recurse -- create one level deeper nested object
-        UnmarshallResult result = unmarshall(staxReader, nestedObjectContext, recurrenceCount);
-        if (!result.isUnmarshallSuccessful()) {
-            return result;
-        }
-
-        //handle nested child object -- add to object tree
-        if (result.mustHandleUnmarshalledObject()) {
-            if (!setChild(nestedObjectContext, result.getUnmarshalledObject())) {
-                throw new Xb4jUnmarshallException("Cannot set nested element into it's parent object", this);
+            //check that element close is encountered and return unmarshalled result if appropriate
+            if (!staxReader.isNextAnElementEnd(element)) {
+                String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
+                throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered %s %s", element,
+                        staxReader.getEventName(), encountered), this);
             }
-        }
 
-        //check that element close is encountered and return unmarshalled result if appropriate
-        if (!staxReader.isNextAnElementEnd(element)) {
-            String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
-            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered %s %s", element,
-                    staxReader.getEventName(), encountered), this);
+            return new UnmarshallResult(nestedObjectContext.getContextObject());
         }
-
-        return new UnmarshallResult(nestedObjectContext.getContextObject());
     }
 
     @Override

@@ -14,26 +14,29 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.FieldSetter;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectTree;
+import info.rsdev.xb4j.test.UnmarshallUtils;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import java.io.StringWriter;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ElementTest {
 
@@ -78,7 +81,7 @@ public class ElementTest {
         assertSame(OutputState.HAS_OUTPUT, element.generatesOutput(new JavaContext(null)));
     }
 
-    /* When an {@link Element} has no child binding, but creates a new Java object and has a setter, the new object is set on 
+    /* When an {@link Element} has no child binding, but creates a new Java object and has a setter, the new object is set on
      * the parent JavaContext.
      */
     @Test
@@ -112,5 +115,14 @@ public class ElementTest {
         Element element = new Element(ObjectA.class, false);
         element.setChild(mockBinding);
         UnmarshallResult result = element.unmarshall(mockReader, context);
+    }
+
+    @Test
+    public void ignoreMissingMandatoryChildWhenNilIsSetTrue() throws XMLStreamException {
+        Element nillableElement = new Element(new QName("elem"), ObjectA.class, false, NILLABLE);
+        nillableElement.setChild(new SimpleType(new QName("mandatory"), false));
+
+        UnmarshallResult result = UnmarshallUtils.unmarshall(nillableElement, "<elem xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
+        assertEquals(UnmarshallResult.NO_RESULT, result);
     }
 }

@@ -112,63 +112,63 @@ public class MapRepeater extends AbstractBinding {
 
         //read enclosing collection element (if defined)
         QName containerElement = getElement();
-        boolean startTagFound = false;
         if (containerElement != null) {
             if (!staxReader.isNextAnElementStart(containerElement)) {
                 if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
-                } else {
-                    return UnmarshallResult.newMissingElement(this);
                 }
-            } else {
-                startTagFound = true;
+                return UnmarshallResult.newMissingElement(this);
             }
         }
 
         attributesToJava(staxReader, javaMapContext);
 
-        int occurences = 0;
-        UnmarshallResult keyResult = null;
-        UnmarshallResult valueResult = null;
-        boolean proceed = true;
-        while (proceed) {
-            keyResult = keyBinding.toJava(staxReader, javaMapContext);
-            valueResult = valueBinding.toJava(staxReader, javaContext);
-            proceed = keyResult.isUnmarshallSuccessful() && valueResult.isUnmarshallSuccessful();
-            if (proceed) {
-                occurences++;
-                if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
-                    throw new Xb4jUnmarshallException(String.format("Found %d occurences, but no more than %d are allowed", occurences, maxOccurs), this);
+        if (isNil(staxReader)) {
+            return handleNil(staxReader);
+        } else {
+            int occurences = 0;
+            UnmarshallResult keyResult = null;
+            UnmarshallResult valueResult = null;
+            boolean proceed = true;
+            while (proceed) {
+                keyResult = keyBinding.toJava(staxReader, javaMapContext);
+                valueResult = valueBinding.toJava(staxReader, javaContext);
+                proceed = keyResult.isUnmarshallSuccessful() && valueResult.isUnmarshallSuccessful();
+                if (proceed) {
+                    occurences++;
+                    if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
+                        throw new Xb4jUnmarshallException(String.format("Found %d occurences, but no more than %d are allowed", occurences, maxOccurs), this);
+                    }
+                    map.put(keyResult.getUnmarshalledObject(), valueResult.getUnmarshalledObject());
                 }
-                map.put(keyResult.getUnmarshalledObject(), valueResult.getUnmarshalledObject());
             }
-        }
 
-        //determine if the keyValue bindings have no more occurences or whether the xml fragment of those bindings are incomplete
-        if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(keyResult.getErrorCode()) && !keyResult.getFaultyBinding().equals(resolveBinding(keyBinding))) {
-            return keyResult;
-        }
-        if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(valueResult.getErrorCode()) && !valueResult.getFaultyBinding().equals(resolveBinding(valueBinding))) {
-            return keyResult;
-        }
+            //determine if the keyValue bindings have no more occurences or whether the xml fragment of those bindings are incomplete
+            if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(keyResult.getErrorCode()) && !keyResult.getFaultyBinding().equals(resolveBinding(keyBinding))) {
+                return keyResult;
+            }
+            if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(valueResult.getErrorCode()) && !valueResult.getFaultyBinding().equals(resolveBinding(valueBinding))) {
+                return keyResult;
+            }
 
-        if ((occurences == 0) && !isOptional()) {
-            return new UnmarshallResult(UnmarshallResult.MISSING_MANDATORY_ERROR, String.format("Mandatory %s has no content: %s",
-                    this, staxReader.getLocation()), this);
-        }
+            if ((occurences == 0) && !isOptional()) {
+                return new UnmarshallResult(UnmarshallResult.MISSING_MANDATORY_ERROR, String.format("Mandatory %s has no content: %s",
+                        this, staxReader.getLocation()), this);
+            }
 
-        //read end of enclosing collection element (if defined)
-        if ((containerElement != null) && !staxReader.isNextAnElementEnd(containerElement) && startTagFound) {
-            String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
-            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", containerElement,
-                    staxReader.getEventName(), encountered), this);
-        }
+            //read end of enclosing collection element (if defined)
+            if ((containerElement != null) && !staxReader.isNextAnElementEnd(containerElement)) {
+                String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
+                throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", containerElement,
+                        staxReader.getEventName(), encountered), this);
+            }
 
-        boolean isHandled = false;
-        if (javaContext.getContextObject() != null) {
-            isHandled = setProperty(javaContext, map);
+            boolean isHandled = false;
+            if (javaContext.getContextObject() != null) {
+                isHandled = setProperty(javaContext, map);
+            }
+            return new UnmarshallResult(map, isHandled);
         }
-        return new UnmarshallResult(map, isHandled);
     }
 
     /**

@@ -15,7 +15,9 @@
  */
 package info.rsdev.xb4j.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import info.rsdev.xb4j.model.bindings.IBinding;
 import info.rsdev.xb4j.model.bindings.Root;
@@ -31,7 +33,7 @@ import javax.xml.stream.XMLStreamException;
  * @author Dave Schoorl
  */
 public interface UnmarshallUtils {
-    
+
     /**
      * Boilerplate code to process the provided xmlSnippet into a Java object using the provided binding. The unmarshal
      * process will start without a contextObject, meaning: it is the responsibility of the binding to create all appropriate
@@ -87,12 +89,17 @@ public interface UnmarshallUtils {
      * @param <T>
      * @param expectedType the expected instance of the unmarshaling
      * @param actualResult the {@link UnmarshallResult}
-     * @return 
+     * @return
      */
     static <T> T getContextObject(Class<T> expectedType, UnmarshallResult actualResult) {
         assertTrue("Unexpected failure: " + actualResult, actualResult.isUnmarshallSuccessful());
         assertSame(expectedType, actualResult.getUnmarshalledObject().getClass());
         return (T)actualResult.getUnmarshalledObject();
+    }
+
+    static RecordAndPlaybackXMLStreamReader getStaxReader(String xmlSnippet) throws XMLStreamException {
+        StringReader reader = new StringReader(xmlSnippet);
+        return new RecordAndPlaybackXMLStreamReader(XmlStreamFactory.makeReader(reader));
     }
 
 }

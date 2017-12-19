@@ -14,6 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -21,10 +22,13 @@ import static org.junit.Assert.assertSame;
 
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.test.ChinesePerson;
+import info.rsdev.xb4j.test.UnmarshallUtils;
 import info.rsdev.xb4j.util.XmlStreamFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.TreeMap;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
@@ -171,4 +175,11 @@ public class RecursorTest {
         assertEquals("Mao Anqing", tree.getChild().getChild().getChild().getParent().getFirstName());
     }
 
+    @Test
+    public void ignoreMissingMandatoryItemWhenNilIsSetTrue() throws XMLStreamException {
+        Recursor nillableMapRepeater = new Recursor(new QName("recurse"), ChinesePerson.class, "child", false, NILLABLE);
+
+        UnmarshallResult result = UnmarshallUtils.unmarshall(nillableMapRepeater, "<recurse xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
+        assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
 }

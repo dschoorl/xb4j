@@ -14,19 +14,24 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
 
 import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.bindings.chooser.ContextInstanceOf;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectTree;
+import info.rsdev.xb4j.test.UnmarshallUtils;
 import info.rsdev.xb4j.util.XmlStreamFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -106,4 +111,11 @@ public class ComplexTypeTest {
         assertEquals("<root><reference><name>test</name></reference></root>", stream.toString());
     }
 
+    @Test
+    public void ignoreMissingMandatoryChildrenWhenNilIsSetTrue() throws XMLStreamException {
+        ComplexType nillableComplexType = new ComplexType(new QName("complex"), mock(IBinding.class), "complex", false, NILLABLE);
+
+        UnmarshallResult result = UnmarshallUtils.unmarshall(nillableComplexType, "<complex xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
+        assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
 }

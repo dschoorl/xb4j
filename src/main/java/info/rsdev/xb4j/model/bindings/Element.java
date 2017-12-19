@@ -88,66 +88,66 @@ public class Element extends AbstractSingleBinding {
     public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();
-        boolean startTagFound = false;
         if (expectedElement != null) {
             if (!staxReader.isCurrentAnElementStart(expectedElement) && !staxReader.isNextAnElementStart(expectedElement)) {
                 if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
-                } else {
-                    return UnmarshallResult.newMissingElement(this);
                 }
-            } else {
-                startTagFound = true;
+                return UnmarshallResult.newMissingElement(this);
             }
         }
 
         JavaContext newJavaContext = newInstance(staxReader, javaContext);
         attributesToJava(staxReader, select(javaContext, newJavaContext));
 
-        IBinding childBinding = getChildBinding();
-        UnmarshallResult result = null;
-        if (childBinding != null) {
-            result = childBinding.toJava(staxReader, select(javaContext, newJavaContext));
-        }
+        if (isNil(staxReader)) {
+            return handleNil(staxReader);
+        } else {
+            IBinding childBinding = getChildBinding();
+            UnmarshallResult result = null;
+            if (childBinding != null) {
+                result = childBinding.toJava(staxReader, select(javaContext, newJavaContext));
+            }
 
-        if ((result != null) && !result.isUnmarshallSuccessful()) {
-            return result;	//abort unmarshalling and let error bubble up
-        }
+            if ((result != null) && !result.isUnmarshallSuccessful()) {
+                return result;	//abort unmarshalling and let error bubble up
+            }
 
-        //before processing the result of the unmarshalling, first check if the xml is well-formed
-        if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {
-            String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
-            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered %s %s", expectedElement,
-                    staxReader.getEventName(), encountered), this);
-        }
+            //before processing the result of the unmarshalling, first check if the xml is well-formed
+            if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement)) {
+                String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
+                throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered %s %s", expectedElement,
+                        staxReader.getEventName(), encountered), this);
+            }
 
-        //process the UnmarshallResult
-        /* When the UnmarshallResult yields an object, it must either be set on the current context or passed on to it's parent.
-         *
-         */
-        if ((result != null) && result.mustHandleUnmarshalledObject()) {
-            if (!setProperty(select(javaContext, newJavaContext), result.getUnmarshalledObject())) {
-                //the unmarshalled object could net be set on the (new) java context
-                if (newJavaContext == null) {
-                    return result;
+            //process the UnmarshallResult
+            /* When the UnmarshallResult yields an object, it must either be set on the current context or passed on to it's parent.
+             *
+             */
+            if ((result != null) && result.mustHandleUnmarshalledObject()) {
+                if (!setProperty(select(javaContext, newJavaContext), result.getUnmarshalledObject())) {
+                    //the unmarshalled object could net be set on the (new) java context
+                    if (newJavaContext == null) {
+                        return result;
+                    } else {
+                        throw new Xb4jUnmarshallException(String.format("Unmarshalled object '%s' not set in %s by binding %s",
+                                result.getUnmarshalledObject(), select(javaContext, newJavaContext), this), this);
+                    }
                 } else {
-                    throw new Xb4jUnmarshallException(String.format("Unmarshalled object '%s' not set in %s by binding %s",
-                            result.getUnmarshalledObject(), select(javaContext, newJavaContext), this), this);
+                    result.setHandled();
                 }
             } else {
-                result.setHandled();
+                //or set the newly created Java object in the current Java context
+                if (setProperty(javaContext, newJavaContext.getContextObject())) {
+                    return new UnmarshallResult(newJavaContext.getContextObject(), true);
+                }
             }
-        } else {
-            //or set the newly created Java object in the current Java context
-            if (setProperty(javaContext, newJavaContext.getContextObject())) {
-                return new UnmarshallResult(newJavaContext.getContextObject(), true);
-            }
-        }
 
-        if (newJavaContext.getContextObject() != null) {
-            return new UnmarshallResult(newJavaContext.getContextObject());
+            if (newJavaContext.getContextObject() != null) {
+                return new UnmarshallResult(newJavaContext.getContextObject());
+            }
+            return result;
         }
-        return result;
     }
 
     @Override
@@ -168,7 +168,7 @@ public class Element extends AbstractSingleBinding {
             attributesToXml(staxWriter, nextJavaContext);
         }
 
-        if (!isEmpty) {
+        if ((child != null) && !isEmpty) {
             child.toXml(staxWriter, nextJavaContext);
         }
 

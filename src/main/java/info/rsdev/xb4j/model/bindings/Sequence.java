@@ -85,57 +85,56 @@ public class Sequence extends AbstractContainerBinding {
     @Override
     public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         QName expectedElement = getElement();
-        boolean startTagFound = false;
         if (expectedElement != null) {
             if (!staxReader.isNextAnElementStart(expectedElement)) {
                 if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
-                } else {
-                    return UnmarshallResult.newMissingElement(this);
                 }
-            } else {
-                startTagFound = true;
+                return UnmarshallResult.newMissingElement(this);
             }
         }
 
         JavaContext newJavaContext = newInstance(staxReader, javaContext);
-
         attributesToJava(staxReader, select(javaContext, newJavaContext));
 
-        for (IBinding child : getChildren()) {
-            UnmarshallResult unmarshallChildResult = child.toJava(staxReader, select(javaContext, newJavaContext));
-            if (!unmarshallChildResult.isUnmarshallSuccessful()) {
-                return unmarshallChildResult;	//this sequence is incomplete (mandatory elements are missing)
-            }
-            if (unmarshallChildResult.mustHandleUnmarshalledObject()) {
-                if (!setProperty(select(javaContext, newJavaContext), unmarshallChildResult.getUnmarshalledObject())) {
-                    //the unmarshalled object could not be set on the (new) java context
-                    String message = String.format("Unmarshalled object '%s' not set in Java context '%s'. ",
-                            unmarshallChildResult.getUnmarshalledObject(), select(javaContext, newJavaContext).getContextObject());
-                    if (!hasSetter()) {
-                        message = message.concat("No ISetter defined.");
+        if (isNil(staxReader)) {
+            return handleNil(staxReader);
+        } else {
+            for (IBinding child : getChildren()) {
+                UnmarshallResult unmarshallChildResult = child.toJava(staxReader, select(javaContext, newJavaContext));
+                if (!unmarshallChildResult.isUnmarshallSuccessful()) {
+                    return unmarshallChildResult;	//this sequence is incomplete (mandatory elements are missing)
+                }
+                if (unmarshallChildResult.mustHandleUnmarshalledObject()) {
+                    if (!setProperty(select(javaContext, newJavaContext), unmarshallChildResult.getUnmarshalledObject())) {
+                        //the unmarshalled object could not be set on the (new) java context
+                        String message = String.format("Unmarshalled object '%s' not set in Java context '%s'. ",
+                                unmarshallChildResult.getUnmarshalledObject(), select(javaContext, newJavaContext).getContextObject());
+                        if (!hasSetter()) {
+                            message = message.concat("No ISetter defined.");
+                        }
+                        throw new Xb4jUnmarshallException(message, this);
                     }
-                    throw new Xb4jUnmarshallException(message, this);
                 }
             }
-        }
 
-        //before processing the result of the unmarshalling, first check if the xml is wellformed
-        if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {
-            String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
-            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
-                    staxReader.getEventName(), encountered), this);
-        }
-
-        //or set the newly created Java object in the current Java context
-        if (newJavaContext.getContextObject() != null) {
-            if (setProperty(javaContext, newJavaContext.getContextObject())) {
-                return new UnmarshallResult(newJavaContext.getContextObject(), true);
+            //before processing the result of the unmarshalling, first check if the xml is wellformed
+            if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement)) {
+                String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
+                throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+                        staxReader.getEventName(), encountered), this);
             }
-            return new UnmarshallResult(newJavaContext.getContextObject());
-        }
 
-        return UnmarshallResult.NO_RESULT;
+            //or set the newly created Java object in the current Java context
+            if (newJavaContext.getContextObject() != null) {
+                if (setProperty(javaContext, newJavaContext.getContextObject())) {
+                    return new UnmarshallResult(newJavaContext.getContextObject(), true);
+                }
+                return new UnmarshallResult(newJavaContext.getContextObject());
+            }
+
+            return UnmarshallResult.NO_RESULT;
+        }
     }
 
     @Override

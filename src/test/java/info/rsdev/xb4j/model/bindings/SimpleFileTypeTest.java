@@ -14,6 +14,9 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
+import static org.junit.Assert.assertEquals;
+
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
@@ -26,9 +29,14 @@ import javax.xml.namespace.QName;
 import org.apache.commons.io.FileUtils;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+
+import info.rsdev.xb4j.test.UnmarshallUtils;
+import java.util.TreeMap;
+import javax.xml.stream.XMLStreamException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -93,4 +101,11 @@ public class SimpleFileTypeTest {
         assertTrue(FileUtils.contentEquals(ZIPFILE, file));
     }
 
+    @Test
+    public void ignoreMissingMandatoryItemWhenNilIsSetTrue() throws XMLStreamException {
+        SimpleFileType nillableSimpleFileType = new SimpleFileType(new QName("file"), false, NILLABLE);
+
+        UnmarshallResult result = UnmarshallUtils.unmarshall(nillableSimpleFileType, "<file xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
+        assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
 }
