@@ -75,7 +75,7 @@ public class SimpleFileType extends AbstractBinding {
     private QName codingTypeAttributeName = null;
 
     /**
-     * The way the xml elementis coded, E.g. Base64. This value is used when it cannot dynamically be detected (from the element's
+     * The way the xml element is coded, E.g. Base64. This value is used when it cannot dynamically be detected (from the element's
      * attributes)
      */
     private String codingType = null;
@@ -86,7 +86,7 @@ public class SimpleFileType extends AbstractBinding {
     private QName filenameAttributeName = null;
 
     /**
-     * A sugestion for the filename
+     * A suggestion for the filename
      */
     private String filenameHint = null;
 
@@ -159,16 +159,12 @@ public class SimpleFileType extends AbstractBinding {
     @Override
     public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         QName expectedElement = getElement();	//should never be null for a SimpleType
-        boolean startTagFound = false;
         if (expectedElement != null) {
             if (!staxReader.isNextAnElementStart(expectedElement)) {
                 if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
-                } else {
-                    return UnmarshallResult.newMissingElement(this);
                 }
-            } else {
-                startTagFound = true;
+                return UnmarshallResult.newMissingElement(this);
             }
         }
 
@@ -177,29 +173,33 @@ public class SimpleFileType extends AbstractBinding {
 
         attributesToJava(staxReader, javaContext);
 
-        File outputFile = this.fileOutputStrategy.getAndCreateFile(filenameHint);
-        OutputStream outputStream = null;
-        try {
-            outputStream = this.xmlCodingFactory.getDecodingStream(outputFile, codingType);
-            staxReader.elementContentToOutputStream(outputStream);
-        } finally {
-            if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                    throw new Xb4jException("Exception while closing stream from element content", e);
+        if (isNil(staxReader)) {
+            return handleNil(staxReader);
+        } else {
+            File outputFile = this.fileOutputStrategy.getAndCreateFile(filenameHint);
+            OutputStream outputStream = null;
+            try {
+                outputStream = this.xmlCodingFactory.getDecodingStream(outputFile, codingType);
+                staxReader.elementContentToOutputStream(outputStream);
+            } finally {
+                if (outputStream != null) {
+                    try {
+                        outputStream.close();
+                    } catch (IOException e) {
+                        throw new Xb4jException("Exception while closing stream from element content", e);
+                    }
                 }
             }
-        }
 
-        if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {
-            String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
-            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
-                    staxReader.getEventName(), encountered), this);
-        }
+            if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement)) {
+                String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
+                throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", expectedElement,
+                        staxReader.getEventName(), encountered), this);
+            }
 
-        boolean isValueHandled = setProperty(javaContext, outputFile);
-        return new UnmarshallResult(outputFile, isValueHandled);
+            boolean isValueHandled = setProperty(javaContext, outputFile);
+            return new UnmarshallResult(outputFile, isValueHandled);
+        }
     }
 
     @Override
@@ -210,7 +210,7 @@ public class SimpleFileType extends AbstractBinding {
 
         QName element = getElement();
         JavaContext newJavaContext = getProperty(javaContext);
-        if ((newJavaContext == null) && !isOptional()) {	//TODO: check if element is nillable and output nill value for this element
+        if ((newJavaContext == null) && !isOptional()) {	//TODO: check if element is nillable and output nil value for this element
             throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
         }
 

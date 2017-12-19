@@ -174,62 +174,63 @@ public class Choice extends AbstractBinding {
             }
         }
 
-        // Should we start recording to return to this element when necessary - currently this is responsibility of the
-        // options
-        boolean matchingOptionFound = false;
-        UnmarshallResult result = null;
-        int optionCounter = 1;
-        /* We want to report to the user per option why it failed, therefore we need to collect all results */
-            List<UnmarshallResult> results = new LinkedList<>();
-        for (IBinding candidate : options) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(String.format("[Unmarshal] Trying option %d from %d of %s", optionCounter, options.size(), this));
-            }
-            result = candidate.toJava(staxReader, getProperty(javaContext));
-            results.add(result);
-            if (!result.isError()) {
-                matchingOptionFound = true;
+        if (isNil(staxReader)) {
+            return handleNil(staxReader);
+        } else {
+            // Should we start recording to return to this element when necessary - currently this is responsibility of the
+            // options
+            boolean matchingOptionFound = false;
+            UnmarshallResult result = null;
+            int optionCounter = 1;
+            for (IBinding candidate : options) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("[Unmarshal] Option %d for %s works out fine -- won't look any further",
-                            optionCounter, this));
+                    logger.debug(String.format("[Unmarshal] Trying option %d from %d of %s", optionCounter, options.size(), this));
                 }
-                if (result.mustHandleUnmarshalledObject()) {
-                    if (setProperty(javaContext, result.getUnmarshalledObject())) {
-                        result.setHandled();
+                result = candidate.toJava(staxReader, getProperty(javaContext));
+                if (!result.isError()) {
+                    matchingOptionFound = true;
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(String.format("[Unmarshal] Option %d for %s works out fine -- won't look any further",
+                                optionCounter, this));
                     }
+                    if (result.mustHandleUnmarshalledObject()) {
+                        if (setProperty(javaContext, result.getUnmarshalledObject())) {
+                            result.setHandled();
+                        }
+                    }
+
+                    /*
+                     * Do not validate if more options match, because that could be a plausible situation, when a Choice is
+                     * placed in a repeating binding, such as a Repeater (to simulate unbounded choices)
+                     */
+                    break;
+                } else if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("[Unmarshal] Option %d is not a match for %s: %s", optionCounter, this, result));
                 }
-
-                /*
-                 * Do not validate if more options match, because that could be a plausible situation, when a Choice is
-                 * placed in a repeating binding, such as a Repeater (to simulate unbounded choices)
-                 */
-                break;
-            } else if (logger.isDebugEnabled()) {
-                logger.debug(String.format("[Unmarshal] Option %d is not a match for %s: %s", optionCounter, this, result));
+                optionCounter++;
             }
-            optionCounter++;
-        }
 
-        if (logger.isDebugEnabled() && !matchingOptionFound) {
-            logger.debug(String.format("No option matches: %s (optional=%b)", this, isOptional()));
-        }
+            if (logger.isDebugEnabled() && !matchingOptionFound) {
+                logger.debug(String.format("No option matches: %s (optional=%b)", this, isOptional()));
+            }
 
-        if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement)) {
-            String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
-            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", 
-                    expectedElement, staxReader.getEventName(), encountered), this);
-        }
+            if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement)) {
+                String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
+                throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s",
+                        expectedElement, staxReader.getEventName(), encountered), this);
+            }
 
-        if (!matchingOptionFound && !isOptional()) {
-            //TODO: analyse and report
-            return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR,
-                    String.format("No matching option found in xml for mandatory %s", this), this);
-        }
+            if (!matchingOptionFound && !isOptional()) {
+                //TODO: analyse and report
+                return new UnmarshallResult(ErrorCodes.MISSING_MANDATORY_ERROR,
+                        String.format("No matching option found in xml for mandatory %s", this), this);
+            }
 
-        if (!matchingOptionFound) {
-            return UnmarshallResult.NO_RESULT;
+            if (!matchingOptionFound) {
+                return UnmarshallResult.NO_RESULT;
+            }
+            return result;
         }
-        return result;
     }
 
     @Override

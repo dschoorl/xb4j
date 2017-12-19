@@ -14,6 +14,7 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,12 +28,14 @@ import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectTree;
+import info.rsdev.xb4j.test.UnmarshallUtils;
 import info.rsdev.xb4j.util.XmlStreamFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 import org.junit.Test;
 
 /**
@@ -235,4 +238,12 @@ public class RepeaterTest {
         assertEquals("<root><collection><item><value>string1</value><seqnr>0</seqnr></item><item><value>string2</value><seqnr>1</seqnr></item></collection></root>", result);
     }
 
+    @Test
+    public void ignoreMissingMandatoryItemWhenNilIsSetTrue() throws XMLStreamException {
+        Repeater nillableRepeater = new Repeater(new QName("elem"), ArrayList.class, false, NILLABLE);
+        nillableRepeater.setItem(new SimpleType(new QName("mandatory"), false));
+
+        UnmarshallResult result = UnmarshallUtils.unmarshall(nillableRepeater, "<elem xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
+        assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
 }

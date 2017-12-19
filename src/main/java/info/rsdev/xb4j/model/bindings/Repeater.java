@@ -104,80 +104,80 @@ public class Repeater extends AbstractBinding {
 
         // read enclosing collection element (if defined)
         QName collectionElement = getElement();
-        boolean startTagFound = false;
         if (collectionElement != null) {
             if (!staxReader.isNextAnElementStart(collectionElement)) {
                 if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
-                } else {
-                    return UnmarshallResult.newMissingElement(this);
                 }
-            } else {
-                startTagFound = true;
+                return UnmarshallResult.newMissingElement(this);
             }
         }
 
         attributesToJava(staxReader, javaCollectionContext);
 
-        int occurences = 0;
-        UnmarshallResult result = null;
+        if (isNil(staxReader)) {
+            return handleNil(staxReader);
+        } else {
+            int occurences = 0;
+            UnmarshallResult result = null;
 
-        /*
-         * We use a previous UnmarshallResult to detect when we are getting into an endless loop: in that case, the previous and
-         * current result will be equal to each other.
-         */
-        boolean proceed = true;
-        while (proceed) {
-            result = itemBinding.toJava(staxReader, javaCollectionContext);
-
-            /* Proceed in the following circumstances:
-             * - A binding returned a value (either handled or unhandled), except for Ignore...?
-             * - There are no errors
-             * - All yielded values of a sequence have been handled
-             *
-             * Do NOT proceed, when
-             * - A choice returned NO_RESULT (none of the optional values were found)
+            /*
+             * We use a previous UnmarshallResult to detect when we are getting into an endless loop: in that case, the previous and
+             * current result will be equal to each other.
              */
-            proceed = !result.isError();
-            proceed = proceed && result.hasUnmarshalledObject();
-            proceed = proceed && !result.mustHandleUnmarshalledObject();
-            if (proceed) {
-                if (result.mustHandleUnmarshalledObject()) {
-                    // the itemBinding has been given the add-method setter when it was set on this Repeater binding
-                    throw new Xb4jException("ItemBinding unexpectedly did not add unmarshalled object to Collection");
+            boolean proceed = true;
+            while (proceed) {
+                result = itemBinding.toJava(staxReader, javaCollectionContext);
+
+                /* Proceed in the following circumstances:
+                 * - A binding returned a value (either handled or unhandled), except for Ignore...?
+                 * - There are no errors
+                 * - All yielded values of a sequence have been handled
+                 *
+                 * Do NOT proceed, when
+                 * - A choice returned NO_RESULT (none of the optional values were found)
+                 */
+                proceed = !result.isError();
+                proceed = proceed && result.hasUnmarshalledObject();
+                proceed = proceed && !result.mustHandleUnmarshalledObject();
+                if (proceed) {
+                    if (result.mustHandleUnmarshalledObject()) {
+                        // the itemBinding has been given the add-method setter when it was set on this Repeater binding
+                        throw new Xb4jException("ItemBinding unexpectedly did not add unmarshalled object to Collection");
+                    }
+                    occurences++;
+                    if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
+                        throw new Xb4jUnmarshallException(
+                                String.format("Found %d occurences, but no more than %d are allowed", occurences, maxOccurs), this);
+                    }
                 }
-                occurences++;
-                if ((maxOccurs != UNBOUNDED) && (occurences > maxOccurs)) {
-                    throw new Xb4jUnmarshallException(
-                            String.format("Found %d occurences, but no more than %d are allowed", occurences, maxOccurs), this);
+            }
+
+            // determine if the childBinding has no more occurences or whether the xml fragment of the childBinding is incomplete
+            if ((occurences == 0) && !isOptional()) {
+                if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode())) {
+                    return result;
                 }
+                return new UnmarshallResult(UnmarshallResult.MISSING_MANDATORY_ERROR,
+                        String.format("Mandatory %s has no content: %s", this, staxReader.getLocation()), this);
             }
-        }
 
-        // determine if the childBinding has no more occurences or whether the xml fragment of the childBinding is incomplete
-        if ((occurences == 0) && !isOptional()) {
-            if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode())) {
-                return result;
+            // read end of enclosing collection element (if defined)
+            if ((collectionElement != null) && !staxReader.isNextAnElementEnd(collectionElement)) {
+                if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode())) {
+                    return result;
+                }
+                String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
+                throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s",
+                        collectionElement, staxReader.getEventName(), encountered), this);
             }
-            return new UnmarshallResult(UnmarshallResult.MISSING_MANDATORY_ERROR,
-                    String.format("Mandatory %s has no content: %s", this, staxReader.getLocation()), this);
-        }
 
-        // read end of enclosing collection element (if defined)
-        if ((collectionElement != null) && !staxReader.isNextAnElementEnd(collectionElement) && startTagFound) {
-            if (ErrorCodes.MISSING_MANDATORY_ERROR.equals(result.getErrorCode())) {
-                return result;
+            boolean isHandled = false;
+            if (javaContext.getContextObject() != null) {
+                isHandled = setProperty(javaContext, collection);
             }
-            String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
-            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s",
-                    collectionElement, staxReader.getEventName(), encountered), this);
+            return new UnmarshallResult(collection, isHandled);
         }
-
-        boolean isHandled = false;
-        if (javaContext.getContextObject() != null) {
-            isHandled = setProperty(javaContext, collection);
-        }
-        return new UnmarshallResult(collection, isHandled);
     }
 
     /**

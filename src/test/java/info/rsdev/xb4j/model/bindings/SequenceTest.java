@@ -14,26 +14,28 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.JavaContext;
+import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectC;
+import info.rsdev.xb4j.test.UnmarshallUtils;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import static org.junit.Assert.assertSame;
-
 import org.junit.Test;
 
 public class SequenceTest {
@@ -100,5 +102,14 @@ public class SequenceTest {
         sequence.add(new SimpleType(new QName("name"), true), "name");
         sequence.add(new SimpleType(new QName("description"), true), "description");	//mandatory: will output empty description tag??
         assertSame(OutputState.NO_OUTPUT, sequence.generatesOutput(new JavaContext(new ObjectC())));
+    }
+
+    @Test
+    public void ignoreMissingMandatoryChildrenWhenNilIsSetTrue() throws XMLStreamException {
+        Sequence nillableSequence = new Sequence(new QName("seq"), ObjectA.class, false, NILLABLE);
+        nillableSequence.add(new SimpleType(new QName("mandatory"), false));
+
+        UnmarshallResult result = UnmarshallUtils.unmarshall(nillableSequence, "<seq xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
+        assertEquals(UnmarshallResult.NO_RESULT, result);
     }
 }

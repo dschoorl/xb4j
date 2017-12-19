@@ -14,25 +14,26 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.converter.NullConverter;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectTree;
+import info.rsdev.xb4j.test.UnmarshallUtils;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import org.junit.Before;
-
 import org.junit.Test;
 
 /**
@@ -50,7 +51,7 @@ public class SimpleTypeTest {
     private Root treeBinding = null;
     private Root rootBinding = null;
     private Root nestedBinding = null;
-    
+
     @Before
     public void setupModel() {
         model = new BindingModel();
@@ -58,10 +59,10 @@ public class SimpleTypeTest {
 
         rootBinding = new Root(UNQ_ROOT, Object.class);
         model.registerRoot(rootBinding);
-        
+
         treeBinding = new Root(Q_TREE, ObjectTree.class);
         model.registerRoot(treeBinding);
-        
+
         nestedBinding = new Root(Q_MYOBJECT, ObjectA.class);
         nestedBinding.setChild(new SimpleType(new QName("name"), false), "name");
         model.registerRoot(nestedBinding);
@@ -105,7 +106,7 @@ public class SimpleTypeTest {
     @Test
     public void testUnmarshalFromNestedXmlWithNamespaces() {
         treeBinding.setChild(new Element(new QName("urn:test/namespace/tree", "child", "tst"), ObjectA.class, false), "myObject");
-        
+
         byte[] buffer = "<tst:tree xmlns:tst=\"urn:test/namespace/tree\"><tst:child/></tst:tree>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
 
@@ -203,4 +204,11 @@ public class SimpleTypeTest {
         assertSame(OutputState.HAS_OUTPUT, simple.generatesOutput(new JavaContext("a value")));
     }
 
+    @Test
+    public void ignoreMissingMandatoryContentWhenNilIsSetTrue() throws XMLStreamException {
+        SimpleType nillableSimpleType = new SimpleType(new QName("simple"), false, NILLABLE);
+
+        UnmarshallResult result = UnmarshallUtils.unmarshall(nillableSimpleType, "<simple xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
+        assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
 }

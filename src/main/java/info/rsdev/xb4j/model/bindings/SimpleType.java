@@ -58,35 +58,35 @@ public class SimpleType extends AbstractBinding {
     }
 
     @Override
-    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) 
+    public UnmarshallResult unmarshall(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext)
             throws XMLStreamException {
         //check if we are on the right element -- consume the xml when needed
         QName expectedElement = getElement();	//should never be null for a SimpleType
-        boolean startTagFound = false;
         if (expectedElement != null) {
             if (!staxReader.isCurrentAnElementStart(expectedElement) && !staxReader.isNextAnElementStart(expectedElement)) {
                 if (isOptional()) {
                     return UnmarshallResult.MISSING_OPTIONAL_ELEMENT;
-                } else {
-                    return UnmarshallResult.newMissingElement(this);
                 }
-            } else {
-                startTagFound = true;
+                return UnmarshallResult.newMissingElement(this);
             }
         }
 
         attributesToJava(staxReader, javaContext);
 
-        Object value = this.converter.toObject(javaContext, staxReader.getElementText());
-        boolean isValueHandled = setProperty(javaContext, value);
+        if (isNil(staxReader)) {
+            return handleNil(staxReader);
+        } else {
+            Object value = this.converter.toObject(javaContext, staxReader.getElementText());
+            boolean isValueHandled = setProperty(javaContext, value);
 
-        if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement) && startTagFound) {    //this also consumes the end element
-            String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
-            throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s", 
-                    expectedElement, staxReader.getEventName(), encountered), this);
+            if ((expectedElement != null) && !staxReader.isNextAnElementEnd(expectedElement)) {    //this also consumes the end element
+                String encountered = (staxReader.isAtElement() ? String.format("(%s)", staxReader.getName()) : "");
+                throw new Xb4jUnmarshallException(String.format("Malformed xml; expected end tag </%s>, but encountered a %s %s",
+                        expectedElement, staxReader.getEventName(), encountered), this);
+            }
+
+            return new UnmarshallResult(value, isValueHandled);
         }
-
-        return new UnmarshallResult(value, isValueHandled);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class SimpleType extends AbstractBinding {
 
         QName element = getElement();
         javaContext = getProperty(javaContext);
-        if ((javaContext.getContextObject() == null) && !isOptional()) {	//TODO: check if element is nillable and output nill value for this element
+        if ((javaContext.getContextObject() == null) && !isOptional()) {	//TODO: check if element is nillable and output nil value for this element
             throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
         }
 

@@ -15,7 +15,6 @@
 package info.rsdev.xb4j.util;
 
 import info.rsdev.xb4j.exceptions.Xb4jException;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -23,13 +22,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -277,7 +274,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                     }
                 }
 
-                // we have just read an
+                // we have just read an xml tag
                 if ((eventType == START_ELEMENT) || (eventType == END_ELEMENT)) {
                     eventData = ParseEventData.newParseEventData(eventType, staxReader);
                 } else if (eventType == END_DOCUMENT) {
@@ -348,23 +345,27 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
     }
 
     /**
-     * Consume the current start-element and all its contents until the end-element is reached.
+     * Consume the current start-element and all its contents until and including the end-element that matches the current start
+     * element.
      *
-     * @return true if the element and it's content were skipped successfully.
+     * @return the {@link ParseEventData} of the events skipped. They include start- and end tags and character content only. The
+     * start- and end tag of the current (ignored) element are not included.
      * @throws XMLStreamException if start- and end-element do not match or there is a mismatch between the number open- and close
-     * tags in the content.s
+     * tags in the contents
      */
-    public boolean skipToElementEnd() throws XMLStreamException {
+    public List<ParseEventData> skipToElementEnd() throws XMLStreamException {
         if (getEvent() != START_ELEMENT) {
             throw new XMLStreamException(String.format("Can only skip to element end when we are currently on element start. "
                     + "Current event is '%s' %s).", EVENTNAMES[getEvent()], getRowColumn(getLocation())));
         }
 
+        LinkedList<ParseEventData> skippedEvents = null;
+
         // first disable recording queue, so that skipped elements won't get
         // recorded -- that would not be useful
         LinkedList<ParseEventData> backupRecordingQueue = this.recordingQueue;
         try {
-            this.recordingQueue = null;
+            this.recordingQueue = new LinkedList<>();
             QName expectedElement = getName();
             int xmlElementLevelCount = 0;
             while (xmlElementLevelCount >= 0) {
@@ -391,8 +392,11 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                         expectedElement, getName()), getLocation());
             }
 
-            // add END_ELEMENT of the skipped element to the recording queue
+            skippedEvents = this.recordingQueue;
+            skippedEvents.pop();    //remove the end-element event
+
             if (backupRecordingQueue != null) {
+                // add END_ELEMENT of the skipped element to the recording queue
                 backupRecordingQueue.add(this.currentEvent);
             }
         } finally {
@@ -400,7 +404,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
             // queue
         }
 
-        return true;
+        return skippedEvents;
     }
 
     /**
@@ -503,12 +507,12 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                             boolean sameEvent = expectedEventType == realEvent;
                             if (sameEvent) {
                                 if (sameLocalName && !sameNamespace) {
-                                    logger.trace(String.format("%s has wrong namespace: expected '%s' but was '%s'", 
-                                            expectedElement.getLocalPart(), expectedElement.getNamespaceURI(), 
+                                    logger.trace(String.format("%s has wrong namespace: expected '%s' but was '%s'",
+                                            expectedElement.getLocalPart(), expectedElement.getNamespaceURI(),
                                             encounteredName.getNamespaceURI()));
                                 } else if (sameNamespace && !sameLocalName) {
                                     logger.trace(String.format("Expected %s %s, but found %s (%s)", EVENTNAMES[expectedEventType],
-                                        expectedElement.getLocalPart(), encounteredName.getLocalPart(), 
+                                        expectedElement.getLocalPart(), encounteredName.getLocalPart(),
                                         getRowColumn(getLocation())));
                                 }
                             } else {
@@ -517,7 +521,7 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
                             }
                         }
                         if (realEvent == END_DOCUMENT) {
-                            logger.trace(String.format("Expected %s (%s), but reached the end of the document", 
+                            logger.trace(String.format("Expected %s (%s), but reached the end of the document",
                                     EVENTNAMES[expectedEventType], expectedElement));
                         }
                     }
@@ -685,18 +689,20 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
         return sb.toString();
     }
 
-    private static final class ParseEventData {
+    public static final class ParseEventData {
 
-        private Location location = null;
-        private QName name = null;
-        private int eventType = -1;
-        private String text = null;
-        private Map<QName, String> attributes = null;
+        private final Location location;
+        private final QName name;
+        private final int eventType;
+        private final String text;
+        private final Map<QName, String> attributes;
 
         private ParseEventData(int eventType, String elementText, Location location) {
             this.eventType = eventType;
             this.text = elementText;
             this.location = location;
+            this.name = null;
+            this.attributes = null;
         }
 
         private ParseEventData(int eventType, QName elementName, Map<QName, String> attributes, Location location) {
@@ -704,6 +710,15 @@ public class RecordAndPlaybackXMLStreamReader implements XMLStreamConstants {
             this.name = elementName;
             this.location = location;
             this.attributes = attributes;
+            this.text = null;
+        }
+
+        public QName getName() {
+            return this.name;
+        }
+
+        public int getEventType() {
+            return this.eventType;
         }
 
         private static ParseEventData newParseEventData(int eventType, XMLStreamReader staxReader)

@@ -14,6 +14,12 @@
  */
 package info.rsdev.xb4j.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.Marker;
 import java.io.IOException;
 import java.io.StringReader;
@@ -22,7 +28,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.junit.After;
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class RecordAndPlaybackXMLStreamReaderTest {
@@ -180,7 +185,7 @@ public class RecordAndPlaybackXMLStreamReaderTest {
         QName root = new QName("root");
         staxReader = makeReader("<root><level1><level2><child>Dit is tekst</child></level2></level1></root>");
         assertTrue(staxReader.isNextAnElementStart(root));
-        assertTrue(staxReader.skipToElementEnd());
+        assertNotNull(staxReader.skipToElementEnd());
         assertEquals(XMLStreamReader.END_ELEMENT, staxReader.getEvent());
         assertEquals(root, staxReader.getName());
     }
@@ -190,7 +195,7 @@ public class RecordAndPlaybackXMLStreamReaderTest {
         QName root = new QName("root");
         staxReader = makeReader("<root />");
         assertTrue(staxReader.isNextAnElementStart(root));
-        assertTrue(staxReader.skipToElementEnd());
+        assertNotNull(staxReader.skipToElementEnd());
         assertEquals(XMLStreamReader.END_ELEMENT, staxReader.getEvent());
         assertEquals(root, staxReader.getName());
     }
