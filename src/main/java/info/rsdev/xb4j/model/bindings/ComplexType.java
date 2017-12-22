@@ -201,28 +201,31 @@ public class ComplexType extends AbstractSingleBinding implements IModelAware {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
-            return;
-        }
-
         //mixed content is not yet supported -- there are either child elements or there is content
-        QName element = getElement();
-        //is element empty?
-        IBinding child = getChildBinding();
         JavaContext nextJavaContext = getProperty(javaContext);
-        boolean isEmpty = (child == null) || (child.generatesOutput(javaContext) == OutputState.NO_OUTPUT);
-        boolean outputElement = ((element != null) && (!isOptional() || !isEmpty));
-        if (outputElement) {
-            staxWriter.writeElement(element, isEmpty);
-            attributesToXml(staxWriter, nextJavaContext);
-        }
+        if ((nextJavaContext.getContextObject()  == null) && isNillable()) {
+            nilToXml(staxWriter, nextJavaContext);
+        } else {
+            if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
+                return;
+            }
 
-        if (!isEmpty) {
-            child.toXml(staxWriter, nextJavaContext);
-        }
+            IBinding child = getChildBinding();
+            QName element = getElement();
+            boolean isEmpty = (child == null) || (child.generatesOutput(javaContext) == OutputState.NO_OUTPUT);
+            boolean mustOutputElement = ((element != null) && (!isOptional() || !isEmpty));
+            if (mustOutputElement) {
+                staxWriter.writeElement(element, isEmpty);
+                attributesToXml(staxWriter, nextJavaContext);
+            }
 
-        if (outputElement) {
-            staxWriter.closeElement(element, isEmpty);
+            if (!isEmpty) {
+                child.toXml(staxWriter, nextJavaContext);
+            }
+
+            if (mustOutputElement) {
+                staxWriter.closeElement(element, isEmpty);
+            }
         }
     }
 

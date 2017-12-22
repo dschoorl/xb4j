@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -22,15 +23,19 @@ import static org.mockito.Mockito.mock;
 
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.chooser.ContextInstanceOf;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.test.UnmarshallUtils;
+import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.util.XmlStreamFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import org.junit.Before;
 import org.junit.Test;
@@ -117,5 +122,31 @@ public class ComplexTypeTest {
 
         UnmarshallResult result = UnmarshallUtils.unmarshall(nillableComplexType, "<complex xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
         assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
+
+    @Test
+    public void writeNilElementForNullValuedNillableBinding() throws Exception {
+        ComplexType nillableComplexType = new ComplexType(new QName("complex"), mock(IBinding.class), "name", false, NILLABLE);
+
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableComplexType.toXml(staxWriter, new JavaContext(null));
+        staxWriter.close();
+
+        assertXMLEqual("<complex xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />", writer.toString());
+    }
+    
+    @Test
+    public void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
+        ComplexType nillableComplexType = new ComplexType(new QName("complex"), mock(IBinding.class), "name", false, NILLABLE);
+
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableComplexType.toXml(staxWriter, new JavaContext(new ObjectA("some_name")));
+        staxWriter.close();
+        
+        assertXMLEqual("<complex />", writer.toString());
     }
 }

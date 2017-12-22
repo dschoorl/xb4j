@@ -91,27 +91,30 @@ public class SimpleType extends AbstractBinding {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
-            return;
-        }
+        JavaContext nextJavaContext = getProperty(javaContext);
+        if ((nextJavaContext.getContextObject()  == null) && isNillable()) {
+            nilToXml(staxWriter, nextJavaContext);
+        } else {
+            if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
+                return;
+            }
+            QName element = getElement();
+            if ((nextJavaContext.getContextObject() == null) && !isOptional()) {	//TODO: check if element is nillable and output nil value for this element
+                throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
+            }
 
-        QName element = getElement();
-        javaContext = getProperty(javaContext);
-        if ((javaContext.getContextObject() == null) && !isOptional()) {	//TODO: check if element is nillable and output nil value for this element
-            throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
-        }
+            String value = this.converter.toText(nextJavaContext, nextJavaContext.getContextObject());
+            boolean isEmptyElement = (value == null);
+            if (!isOptional() || !isEmptyElement) {
+                staxWriter.writeElement(element, isEmptyElement);	//suppress empty optional elements
+                attributesToXml(staxWriter, nextJavaContext);
+            }
 
-        String value = this.converter.toText(javaContext, javaContext.getContextObject());
-        boolean isEmptyElement = (value == null);
-        if (!isOptional() || !isEmptyElement) {
-            staxWriter.writeElement(element, isEmptyElement);	//suppress empty optional elements
-            attributesToXml(staxWriter, javaContext);
+            if (!isEmptyElement) {
+                staxWriter.writeContent(value);
+            }
+            staxWriter.closeElement(element, isEmptyElement);
         }
-
-        if (!isEmptyElement) {
-            staxWriter.writeContent(value);
-        }
-        staxWriter.closeElement(element, isEmptyElement);
     }
 
     @Override

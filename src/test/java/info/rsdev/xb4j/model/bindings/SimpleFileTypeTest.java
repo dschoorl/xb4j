@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.junit.Assert.assertEquals;
 
 import info.rsdev.xb4j.model.BindingModel;
@@ -34,8 +35,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import info.rsdev.xb4j.model.java.JavaContext;
+import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.UnmarshallUtils;
-import java.util.TreeMap;
+import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
+import java.io.StringWriter;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import org.junit.Before;
 import org.junit.Test;
@@ -107,5 +112,29 @@ public class SimpleFileTypeTest {
 
         UnmarshallResult result = UnmarshallUtils.unmarshall(nillableSimpleFileType, "<file xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
         assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
+    
+    @Test
+    public void writeNilElementForNullValuedNillableBinding() throws Exception {
+        SimpleFileType nillableSimpleFileType = new SimpleFileType(new QName("file"), false, NILLABLE);
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableSimpleFileType.toXml(staxWriter, new JavaContext(null));
+        staxWriter.close();
+
+        assertXMLEqual("<file xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />", writer.toString());
+    }
+    
+    @Test
+    public void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
+        SimpleFileType nillableSimpleFileType = new SimpleFileType(new QName("file"), false, NILLABLE);
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableSimpleFileType.toXml(staxWriter, new JavaContext(ZIPFILE));
+        staxWriter.close();
+        String actual = writer.toString();
+        assertXMLEqual("<file>" + BASE64_ENCODED_ZIPFILE + "</file>", writer.toString());
     }
 }

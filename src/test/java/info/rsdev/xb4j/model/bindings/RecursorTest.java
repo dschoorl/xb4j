@@ -15,19 +15,26 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ChinesePerson;
 import info.rsdev.xb4j.test.UnmarshallUtils;
+import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.util.XmlStreamFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.TreeMap;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -177,9 +184,35 @@ public class RecursorTest {
 
     @Test
     public void ignoreMissingMandatoryItemWhenNilIsSetTrue() throws XMLStreamException {
-        Recursor nillableMapRepeater = new Recursor(new QName("recurse"), ChinesePerson.class, "child", false, NILLABLE);
+        Recursor nillableRecursor = new Recursor(new QName("recurse"), ChinesePerson.class, "child", false, NILLABLE);
 
-        UnmarshallResult result = UnmarshallUtils.unmarshall(nillableMapRepeater, "<recurse xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
+        UnmarshallResult result = UnmarshallUtils.unmarshall(nillableRecursor, "<recurse xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
         assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
+    
+    @Test
+    public void writeNilElementForNullValuedNillableBinding() throws Exception {
+        Recursor nillableRecursor = new Recursor(new QName("recurse"), ChinesePerson.class, "child", false, NILLABLE);
+
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableRecursor.toXml(staxWriter, new JavaContext(null));
+        staxWriter.close();
+
+        assertXMLEqual("<recurse xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />", writer.toString());
+    }
+    
+    @Test
+    public void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
+        Recursor nillableRecursor = new Recursor(new QName("recurse"), ChinesePerson.class, "child", false, NILLABLE);
+
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableRecursor.toXml(staxWriter, new JavaContext(new ChinesePerson("Jet", "Ski")));
+        staxWriter.close();
+
+        assertXMLEqual("<recurse />", writer.toString());
     }
 }

@@ -140,25 +140,30 @@ public class Recursor extends AbstractSingleBinding {
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
         Object contextObject = getProperty(javaContext).getContextObject();
-        marshallRecursor(staxWriter, javaContext.newContext(contextObject, 0));
+        //Currently, the nil-attribute is only supported on the topmost recurring element
+        if ((contextObject == null) && isNillable()) {
+            nilToXml(staxWriter, javaContext.newContext(null));
+        } else {
+            marshallRecursor(staxWriter, javaContext.newContext(contextObject, 0));
+        }
     }
 
-    private void marshallRecursor(SimplifiedXMLStreamWriter staxWriter, JavaContext recurringObject) throws XMLStreamException {
-        int recurrenceCount = recurringObject.getIndexInCollection();
-        if ((generatesOutput(recurringObject, recurrenceCount)) == OutputState.NO_OUTPUT) {
+    private void marshallRecursor(SimplifiedXMLStreamWriter staxWriter, JavaContext recurringContext) throws XMLStreamException {
+        int recurrenceCount = recurringContext.getIndexInCollection();
+        if ((generatesOutput(recurringContext, recurrenceCount)) == OutputState.NO_OUTPUT) {
             return;
         }
 
         //when this Binding must not output an element, the getElement() method should return null
         QName element = getElement();
-        boolean isEmptyElement = (generatesOutput(getChild(recurringObject), recurrenceCount + 1) == OutputState.NO_OUTPUT);
+        boolean isEmptyElement = (generatesOutput(getChild(recurringContext), recurrenceCount + 1) == OutputState.NO_OUTPUT);
         if (element != null) {
             staxWriter.writeElement(element, isEmptyElement);
-            attributesToXml(staxWriter, recurringObject);
+            attributesToXml(staxWriter, recurringContext);
         }
 
         if (getChildBinding() != null) {
-            getChildBinding().toXml(staxWriter, recurringObject);
+            getChildBinding().toXml(staxWriter, recurringContext);
         }
 
         recurrenceCount++;
@@ -167,7 +172,7 @@ public class Recursor extends AbstractSingleBinding {
                     recurrenceCount, maxOccurs), this);
         }
 
-        marshallRecursor(staxWriter, getChild(recurringObject));
+        marshallRecursor(staxWriter, getChild(recurringContext));
 
         if (element != null) {
             staxWriter.closeElement(element, isEmptyElement);

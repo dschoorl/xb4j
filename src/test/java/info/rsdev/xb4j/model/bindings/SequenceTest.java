@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -31,6 +32,7 @@ import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.util.XmlStreamFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
@@ -107,9 +109,37 @@ public class SequenceTest {
     @Test
     public void ignoreMissingMandatoryChildrenWhenNilIsSetTrue() throws XMLStreamException {
         Sequence nillableSequence = new Sequence(new QName("seq"), ObjectA.class, false, NILLABLE);
-        nillableSequence.add(new SimpleType(new QName("mandatory"), false));
+        nillableSequence.add(new SimpleType(new QName("mandatory"), false), "name");
 
         UnmarshallResult result = UnmarshallUtils.unmarshall(nillableSequence, "<seq xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
         assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
+    
+    @Test
+    public void writeNilElementForNullValuedNillableBinding() throws Exception {
+        Sequence nillableSequence = new Sequence(new QName("seq"), ObjectA.class, false, NILLABLE);
+        nillableSequence.add(new SimpleType(new QName("mandatory"), false), "name");
+
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableSequence.toXml(staxWriter, new JavaContext(null));
+        staxWriter.close();
+
+        assertXMLEqual("<seq xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />", writer.toString());
+    }
+    
+    @Test
+    public void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
+        Sequence nillableSequence = new Sequence(new QName("seq"), ObjectA.class, false, NILLABLE);
+        nillableSequence.add(new SimpleType(new QName("mandatory"), false), "name");
+
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableSequence.toXml(staxWriter, new JavaContext(new ObjectA("name")));
+        staxWriter.close();
+
+        assertXMLEqual("<seq><mandatory>name</mandatory></seq>", writer.toString());
     }
 }

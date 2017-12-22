@@ -235,26 +235,30 @@ public class Choice extends AbstractBinding {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
-            return;
-        }
-
         // mixed content is not yet supported -- there are either child elements or there is content
-        QName element = getElement();
-        javaContext = getProperty(javaContext);
-        IBinding selected = selectBinding(javaContext);
-        boolean isEmptyElement = selected == null;
-        if (element != null) {
-            staxWriter.writeElement(element, isEmptyElement);
-            attributesToXml(staxWriter, javaContext);
-        }
+        JavaContext nextJavaContext = getProperty(javaContext);
+        if ((nextJavaContext.getContextObject()  == null) && isNillable()) {
+            nilToXml(staxWriter, nextJavaContext);
+        } else {
+            if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
+                return;
+            }
 
-        if (selected != null) {
-            selected.toXml(staxWriter, javaContext);
-        }
+            IBinding selected = selectBinding(nextJavaContext);
+            boolean isEmptyElement = selected == null;
+            QName element = getElement();
+            if (element != null) {
+                staxWriter.writeElement(element, isEmptyElement);
+                attributesToXml(staxWriter, nextJavaContext);
+            }
 
-        if (element != null) {
-            staxWriter.closeElement(element, isEmptyElement);
+            if (selected != null) {
+                selected.toXml(staxWriter, nextJavaContext);
+            }
+
+            if (element != null) {
+                staxWriter.closeElement(element, isEmptyElement);
+            }
         }
     }
 

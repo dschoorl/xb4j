@@ -204,48 +204,52 @@ public class SimpleFileType extends AbstractBinding {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
-            return;
-        }
-
-        QName element = getElement();
         JavaContext newJavaContext = getProperty(javaContext);
-        if ((newJavaContext == null) && !isOptional()) {	//TODO: check if element is nillable and output nil value for this element
-            throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
-        }
+        if ((newJavaContext.getContextObject()  == null) && isNillable()) {
+            nilToXml(staxWriter, newJavaContext);
+        } else {
+            if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
+                return;
+            }
 
-        Object inputObject = (newJavaContext == null ? null : newJavaContext.getContextObject());
-        if ((inputObject != null) && !(inputObject instanceof File)) {
-            throw new Xb4jMarshallException(String.format("Expected a File instance, but encountered '%s'", inputObject), this);
-        }
-        File inputFile = (File) inputObject;
-        boolean isEmpty = (inputFile == null) || !inputFile.isFile() || (inputFile.length() == 0);
-        if (!isOptional() || !isEmpty) {
-            staxWriter.writeElement(element, isEmpty);
-            attributesToXml(staxWriter, javaContext);
-        }
+            QName element = getElement();
+            if ((newJavaContext == null) && !isOptional()) {
+                throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
+            }
 
-        if (!isEmpty) {
-            InputStream inputStream = null;
-            try {
-                inputStream = this.xmlCodingFactory.getEncodingStream(new BufferedInputStream(new FileInputStream(inputFile)), codingType);
-                int charsToXml = staxWriter.elementContentFromInputStream(inputStream);
-                if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("%d characters written to xml stream (element %s) for %s encoded file content",
-                            charsToXml, element, codingType));
-                }
-            } catch (FileNotFoundException e) {
-                throw new Xb4jMarshallException(String.format("Could not open input stream to file %s", inputFile), this);
-            } finally {
-                if (inputStream != null) {
-                    try {
-                        inputStream.close();
-                    } catch (IOException e) {
-                        throw new Xb4jException("Exception while closing stream to element content", e);
+            Object inputObject = (newJavaContext == null ? null : newJavaContext.getContextObject());
+            if ((inputObject != null) && !(inputObject instanceof File)) {
+                throw new Xb4jMarshallException(String.format("Expected a File instance, but encountered '%s'", inputObject), this);
+            }
+            File inputFile = (File) inputObject;
+            boolean isEmpty = (inputFile == null) || !inputFile.isFile() || (inputFile.length() == 0);
+            if (!isOptional() || !isEmpty) {
+                staxWriter.writeElement(element, isEmpty);
+                attributesToXml(staxWriter, javaContext);
+            }
+
+            if (!isEmpty) {
+                InputStream inputStream = null;
+                try {
+                    inputStream = this.xmlCodingFactory.getEncodingStream(new BufferedInputStream(new FileInputStream(inputFile)), codingType);
+                    int charsToXml = staxWriter.elementContentFromInputStream(inputStream);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(String.format("%d characters written to xml stream (element %s) for %s encoded file content",
+                                charsToXml, element, codingType));
+                    }
+                } catch (FileNotFoundException e) {
+                    throw new Xb4jMarshallException(String.format("Could not open input stream to file %s", inputFile), this);
+                } finally {
+                    if (inputStream != null) {
+                        try {
+                            inputStream.close();
+                        } catch (IOException e) {
+                            throw new Xb4jException("Exception while closing stream to element content", e);
+                        }
                     }
                 }
+                staxWriter.closeElement(element, isEmpty);
             }
-            staxWriter.closeElement(element, isEmpty);
         }
     }
 

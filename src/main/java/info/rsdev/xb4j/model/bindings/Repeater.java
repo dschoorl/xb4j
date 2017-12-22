@@ -215,41 +215,46 @@ public class Repeater extends AbstractBinding {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
-            return;
-        }
-
-        Object collection = getProperty(javaContext).getContextObject();
-        if ((collection != null) && (!(collection instanceof Collection<?>))) {
-            throw new Xb4jMarshallException(String.format("Not a Collection: %s", collection), this);
-        }
-
-        // when this Binding must not output an element, the getElement() method should return null
-        QName element = getElement();
-        if ((collection == null) || ((Collection<?>) collection).isEmpty()) {
-            if (isOptional()) {
+        JavaContext nextJavaContext = getProperty(javaContext);
+        if ((nextJavaContext.getContextObject()  == null) && isNillable()) {
+            nilToXml(staxWriter, nextJavaContext);
+        } else {
+            if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
                 return;
-            } else {
-                throw new Xb4jMarshallException(String.format("This collection is not optional: %s", this), this);
             }
-        }
 
-        boolean isEmptyElement = (itemBinding == null) || (javaContext == null);
-        if (element != null) {
-            staxWriter.writeElement(element, isEmptyElement);
-            attributesToXml(staxWriter, javaContext);
-        }
-
-        if (itemBinding != null) {
-            int index = 0;
-            for (Object item : (Collection<?>) collection) {
-                itemBinding.toXml(staxWriter, javaContext.newContext(item, index));
-                index++;
+            Object collection = nextJavaContext.getContextObject();
+            if ((collection != null) && (!(collection instanceof Collection<?>))) {
+                throw new Xb4jMarshallException(String.format("Not a Collection: %s", collection), this);
             }
-        }
 
-        if (element != null) {
-            staxWriter.closeElement(element, isEmptyElement);
+            if ((collection == null) || ((Collection<?>) collection).isEmpty()) {
+                if (isOptional()) {
+                    return;
+                } else {
+                    throw new Xb4jMarshallException(String.format("This collection is not optional: %s", this), this);
+                }
+            }
+
+            // when this Binding must not output an element, the getElement() method should return null
+            QName element = getElement();
+            boolean isEmptyElement = (itemBinding == null) || (javaContext == null);
+            if (element != null) {
+                staxWriter.writeElement(element, isEmptyElement);
+                attributesToXml(staxWriter, javaContext);
+            }
+
+            if (itemBinding != null) {
+                int index = 0;
+                for (Object item : (Collection<?>) collection) {
+                    itemBinding.toXml(staxWriter, javaContext.newContext(item, index));
+                    index++;
+                }
+            }
+
+            if (element != null) {
+                staxWriter.closeElement(element, isEmptyElement);
+            }
         }
     }
 
