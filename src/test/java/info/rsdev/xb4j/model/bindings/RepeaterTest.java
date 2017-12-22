@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,12 +30,16 @@ import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.test.UnmarshallUtils;
+import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.util.XmlStreamFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import org.junit.Test;
 
@@ -245,5 +250,35 @@ public class RepeaterTest {
 
         UnmarshallResult result = UnmarshallUtils.unmarshall(nillableRepeater, "<elem xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
         assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
+
+    @Test
+    public void writeNilElementForNullValuedNillableBinding() throws Exception {
+        Repeater nillableRepeater = new Repeater(new QName("elem"), ArrayList.class, false, NILLABLE);
+        nillableRepeater.setItem(new SimpleType(new QName("mandatory"), false));
+
+
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableRepeater.toXml(staxWriter, new JavaContext(null));
+        staxWriter.close();
+
+        assertXMLEqual("<elem xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />", writer.toString());
+    }
+    
+    @Test
+    public void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
+        Repeater nillableRepeater = new Repeater(new QName("elem"), ArrayList.class, false, NILLABLE);
+        nillableRepeater.setItem(new SimpleType(new QName("mandatory"), false));
+
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        List<String> collection = Arrays.asList("some_value");
+        nillableRepeater.toXml(staxWriter, new JavaContext(collection));
+        staxWriter.close();
+
+        assertXMLEqual("<elem><mandatory>some_value</mandatory></elem>", writer.toString());
     }
 }

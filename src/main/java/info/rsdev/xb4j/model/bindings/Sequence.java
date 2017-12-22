@@ -139,29 +139,33 @@ public class Sequence extends AbstractContainerBinding {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
-            return;
-        }
+        JavaContext nextJavaContext = getProperty(javaContext);
+        if ((nextJavaContext.getContextObject()  == null) && isNillable()) {
+            nilToXml(staxWriter, nextJavaContext);
+        } else {
+            if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
+                return;
+            }
 
-        //when this Binding must not output an element, the getElement() method should return null
-        QName element = getElement();
+            //when this Binding must not output an element, the getElement() method should return null
+            QName element = getElement();
 
-        //mixed content is not yet supported -- there are either child elements or there is content
-        Collection<IBinding> children = getChildren();
-        boolean isEmptyElement = children.isEmpty();	//TODO: take isOptional properties into account
-        //TODO: reliably determine if child bindings have output -- new API method hasContent?
-        javaContext = getProperty(javaContext);
-        if (element != null) {
-            staxWriter.writeElement(element, isEmptyElement);
-            attributesToXml(staxWriter, javaContext);
-        }
+            //mixed content is not yet supported -- there are either child elements or there is content
+            Collection<IBinding> children = getChildren();
+            boolean isEmptyElement = children.isEmpty();	//TODO: take isOptional properties into account
+            //TODO: reliably determine if child bindings have output -- new API method hasContent?
+            if (element != null) {
+                staxWriter.writeElement(element, isEmptyElement);
+                attributesToXml(staxWriter, nextJavaContext);
+            }
 
-        for (IBinding child : children) {
-            child.toXml(staxWriter, javaContext);
-        }
+            for (IBinding child : children) {
+                child.toXml(staxWriter, nextJavaContext);
+            }
 
-        if (element != null) {
-            staxWriter.closeElement(element, isEmptyElement);
+            if (element != null) {
+                staxWriter.closeElement(element, isEmptyElement);
+            }
         }
     }
 

@@ -374,6 +374,20 @@ public abstract class AbstractBinding implements IBinding {
         return this.isOptional;
     }
 
+    /**
+     * Write an empty element to the xml stream with the xsi:nil attribute set to true.
+     * 
+     * @param staxWriter the xml stream
+     * @param javaContext the Java context with context object appropriate for this binding
+     * @throws XMLStreamException 
+     */
+    void nilToXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
+        staxWriter.writeElement(getElement(), true);
+        attributesToXml(staxWriter, javaContext);
+        staxWriter.writeAttribute(getElement(), NIL_ATTRIBUTE, "true");
+        staxWriter.closeElement(getElement(), true);        
+    }
+
     void attributesToXml(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
         if ((attributes != null) && !attributes.isEmpty()) {
             for (IAttribute attribute : this.attributes) {
@@ -381,7 +395,7 @@ public abstract class AbstractBinding implements IBinding {
             }
         }
     }
-
+    
     void attributesToJava(RecordAndPlaybackXMLStreamReader staxReader, JavaContext javaContext) throws XMLStreamException {
         Collection<IAttribute> expectedAttributes = getAttributes();
         if ((expectedAttributes != null) && !expectedAttributes.isEmpty()) {

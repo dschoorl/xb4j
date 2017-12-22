@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -108,5 +109,33 @@ public class ChoiceTest {
 
         UnmarshallResult result = UnmarshallUtils.unmarshall(nillableChoice, "<elem xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
         assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
+    
+    @Test
+    public void writeNilElementForNullValuedNillableBinding() throws Exception {
+        Choice nillableChoice = new Choice(new QName("elem"), false, NILLABLE);
+        nillableChoice.addOption(new SimpleType(new QName("option"), false), "name", new ContextInstanceOf(ObjectA.class));
+
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableChoice.toXml(staxWriter, new JavaContext(null));
+        staxWriter.close();
+
+        assertXMLEqual("<elem xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />", writer.toString());
+    }
+    
+    @Test
+    public void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
+        Choice nillableChoice = new Choice(new QName("elem"), false, NILLABLE);
+        nillableChoice.addOption(new SimpleType(new QName("option"), false), "name", new ContextInstanceOf(ObjectA.class));
+
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableChoice.toXml(staxWriter, new JavaContext(new ObjectA("some_name")));
+        staxWriter.close();
+
+        assertXMLEqual("<elem><option>some_name</option></elem>", writer.toString());
     }
 }

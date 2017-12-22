@@ -62,8 +62,8 @@ public class ElementInjector extends AbstractBinding {
             throw new Xb4jMarshallException(String.format("No content for mandatory element %s", element), this);	//this does not support an empty element
         }
 
-        boolean outputElement = !isEmpty || hasAttributes();
-        if (outputElement) {
+        boolean mustOutputElement = !isEmpty || hasAttributes();
+        if (mustOutputElement) {
             staxWriter.writeElement(element, isEmpty);
             attributesToXml(staxWriter, javaContext);
         }
@@ -72,7 +72,7 @@ public class ElementInjector extends AbstractBinding {
             staxWriter.writeContent(value);
         }
 
-        if (outputElement) {
+        if (mustOutputElement) {
             staxWriter.closeElement(element, isEmpty);
         }
 

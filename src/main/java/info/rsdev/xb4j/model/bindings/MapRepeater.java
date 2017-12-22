@@ -205,46 +205,51 @@ public class MapRepeater extends AbstractBinding {
 
     @Override
     public void marshall(SimplifiedXMLStreamWriter staxWriter, JavaContext javaContext) throws XMLStreamException {
-        if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
-            return;
-        }
-
-        Object map = getProperty(javaContext).getContextObject();
-        if ((map != null) && (!(map instanceof Map<?, ?>))) {
-            throw new Xb4jMarshallException(String.format("Not a Map: %s", map), this);
-        }
-
-        //when this Binding must not output an element, the getElement() method should return null
-        QName element = getElement();
-        if ((map == null) || ((Map<?, ?>) map).isEmpty()) {
-            if (isOptional()) {
+        JavaContext nextJavaContext = getProperty(javaContext);
+        if ((nextJavaContext.getContextObject()  == null) && isNillable()) {
+            nilToXml(staxWriter, javaContext);
+        } else {
+            if (generatesOutput(javaContext) == OutputState.NO_OUTPUT) {
                 return;
-            } else {
-                throw new Xb4jMarshallException(String.format("This Map is not optional: %s", this), this);
             }
-        }
 
-        boolean isEmptyElement = (keyBinding == null) || (valueBinding == null) || (javaContext == null);
-        if (element != null) {
-            staxWriter.writeElement(element, isEmptyElement);
-            attributesToXml(staxWriter, javaContext);
-        }
-
-        if ((keyBinding != null) || (valueBinding != null)) {
-            int index = 0;
-            for (Entry<?, ?> keyValue : ((Map<?, ?>) map).entrySet()) {
-                if (keyBinding != null) {
-                    keyBinding.toXml(staxWriter, javaContext.newContext(keyValue.getKey(), index));
-                }
-                if (valueBinding != null) {
-                    valueBinding.toXml(staxWriter, javaContext.newContext(keyValue.getValue(), index));
-                }
-                index++;
+            Object map = nextJavaContext.getContextObject();
+            if ((map != null) && (!(map instanceof Map<?, ?>))) {
+                throw new Xb4jMarshallException(String.format("Not a Map: %s", map), this);
             }
-        }
 
-        if (element != null) {
-            staxWriter.closeElement(element, isEmptyElement);
+            if ((map == null) || ((Map<?, ?>) map).isEmpty()) {
+                if (isOptional()) {
+                    return;
+                } else {
+                    throw new Xb4jMarshallException(String.format("This Map is not optional: %s", this), this);
+                }
+            }
+
+            //when this Binding must not output an element, the getElement() method should return null
+            QName element = getElement();
+            boolean isEmptyElement = (keyBinding == null) || (valueBinding == null) || (javaContext == null);
+            if (element != null) {
+                staxWriter.writeElement(element, isEmptyElement);
+                attributesToXml(staxWriter, javaContext);
+            }
+
+            if ((keyBinding != null) || (valueBinding != null)) {
+                int index = 0;
+                for (Entry<?, ?> keyValue : ((Map<?, ?>) map).entrySet()) {
+                    if (keyBinding != null) {
+                        keyBinding.toXml(staxWriter, javaContext.newContext(keyValue.getKey(), index));
+                    }
+                    if (valueBinding != null) {
+                        valueBinding.toXml(staxWriter, javaContext.newContext(keyValue.getValue(), index));
+                    }
+                    index++;
+                }
+            }
+
+            if (element != null) {
+                staxWriter.closeElement(element, isEmptyElement);
+            }
         }
     }
 

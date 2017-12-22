@@ -15,6 +15,7 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -210,5 +211,29 @@ public class SimpleTypeTest {
 
         UnmarshallResult result = UnmarshallUtils.unmarshall(nillableSimpleType, "<simple xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
         assertEquals(UnmarshallResult.NO_RESULT, result);
+    }
+    
+    @Test
+    public void writeNilElementForNullValuedNillableBinding() throws Exception {
+        SimpleType nillableSimpleType = new SimpleType(new QName("simple"), false, NILLABLE);
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableSimpleType.toXml(staxWriter, new JavaContext(null));
+        staxWriter.close();
+
+        assertXMLEqual("<simple xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />", writer.toString());
+    }
+    
+    @Test
+    public void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
+        SimpleType nillableSimpleType = new SimpleType(new QName("simple"), false, NILLABLE);
+        StringWriter writer = new StringWriter();
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+
+        nillableSimpleType.toXml(staxWriter, new JavaContext("name"));
+        staxWriter.close();
+
+        assertXMLEqual("<simple>name</simple>", writer.toString());
     }
 }
