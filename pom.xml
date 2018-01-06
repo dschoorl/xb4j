@@ -1,14 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>
-    </parent>
     <groupId>info.rsdev.xb4j</groupId>
     <artifactId>xb4j</artifactId>
-    <version>0.0.10-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>xb4j</name>
     <description>Xml binding for Java</description>
@@ -27,15 +22,26 @@
         <url>https://github.com/dschoorl/xb4j</url>
     </scm>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <developers>
         <developer>
             <name>Dave Schoorl</name>
             <email>dave.schoorl@redstardevelopment.nl</email>
             <timezone>+1</timezone>
             <organization>Red Star Development</organization>
-            <organizationUrl>http://www.redstardevelopment.nl</organizationUrl>
+            <organizationUrl>https://www.redstardevelopment.nl</organizationUrl>
             <roles>
-                <role>Architect</role>
+                <role>Software Architect</role>
                 <role>Developer</role>
             </roles>
         </developer>
@@ -43,10 +49,14 @@
 
     <organization>
         <name>Red Star Development</name>
-        <url>http://www.redstardevelopment.nl</url>
+        <url>https://www.redstardevelopment.nl</url>
     </organization>
 
     <url>https://github.com/dschoorl/xb4j</url>
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -109,6 +119,17 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.8</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-toolchains-plugin</artifactId>
                 <version>1.1</version>
@@ -178,7 +199,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <!-- downgrade to 2.19, due to bug in 2.20 that affects JUnit5. 
-                     See warning @ http://junit.org/junit5/docs/current/user-guide/#running-tests-build-maven  -->
+                See warning @ http://junit.org/junit5/docs/current/user-guide/#running-tests-build-maven  -->
                 <version>2.19.1</version>
                 <dependencies>
                     <dependency>
@@ -210,7 +231,8 @@
                             <goal>sign</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
+                            <keyname>${gpg.keyname}</keyname>
+                            <passphraseServerId>${gpg.keyname}</passphraseServerId>
                         </configuration>
                     </execution>
                 </executions>
