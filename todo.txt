@@ -10,10 +10,9 @@ TODO
 - allow the java instance to be constructed by a non-default constructor method
 - allow the java instance to be created through a factory method
 - simplify API -- where possible
-- support atributegroups
+- support attribute groups
 - support any type
 - support mixed content
-- support nillable xml types
 - support key / keyref (aka ID / IDREF) xml types
 - configure binding through xml binding file (TBD: are we gonna support this?)
 
@@ -28,3 +27,4 @@ DONE
 20120427  added rudimentary support for attributes (incl. namespaces for atrtibutes)
 20141024  use XmlStreamer to marshall / unmarshall. This is a wrapper around a binding.
 20141024  resolve all complex types on first use of a root binding
+20180107  support nillable xml types
