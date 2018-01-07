@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.rsdev.xb4j</groupId>
     <artifactId>xb4j</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>xb4j</name>
     <description>Xml binding for Java</description>

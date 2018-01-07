@@ -1,7 +1,7 @@
-Xml (data)binding for Java (xb4j)
+Xml binding for Java (xb4j)
 ---------------------------------
 
-Yet another xml databinding framework? Yes. And the following features are planned:
+Yet another xml binding framework? Yes. And the following features are planned:
 - use STaX for reading/writing xml
 - Treat Java and xml as first class citizens
 - Configure bindings programmatically (maybe even generate the bindings from schemas - in due time)
