@@ -10,6 +10,7 @@
 
         <menu name="Documentation">
             <item name="Introduction" href="introduction.html"/>
+            <item name="Getting started" href="getstarted.html"/>
             <item name="User Guide" href="userguide.html"/>
         </menu>
 
