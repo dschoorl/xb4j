@@ -17,13 +17,13 @@ package info.rsdev.xb4j.model.converter;
 import info.rsdev.xb4j.exceptions.ValidationException;
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.JavaContext;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
@@ -41,10 +41,10 @@ public abstract class AbstractDateConverter implements IValueConverter {
     private static final List<String> SUPPORTED_XML_DATE_TYPES = Arrays.asList(DATE_ONLY, TIME_ONLY, DATE_TIME);
 
     /**
-     * For datetime conversions, we do not rely on the {@link DatatypeConverter} implementation of JAXB, because then the the output
+     * For datetime conversions, we do not rely on the <code>DatatypeConverter</code> implementation of JAXB, because then the output
      * will be formatted in the default timezone, while we want to control the timezone when running automated tests. Instead, we
      * create our own copy of {@link DatatypeFactory}. The conversion code however, is copied shamelessly from Sun's implementation
-     * of {@link DatatypeConverter}
+     * of <code>javax.xml.bind.DatatypeConverter</code>.
      */
     private static final DatatypeFactory DATA_TYPE_FACTORY;
 
@@ -101,11 +101,14 @@ public abstract class AbstractDateConverter implements IValueConverter {
         GregorianCalendar aMoment = validator.isValid(toCalander(value));
         switch (xmlType) {
             case 0:
-                return DatatypeConverter.printDate(aMoment);
+                //  From DatatypeConverter.printDate: "%Y-%M-%D%z"
+                return DateTimeFormatter.ISO_DATE.format(aMoment.toZonedDateTime().withFixedOffsetZone());
             case 1:
-                return DatatypeConverter.printTime(aMoment);
+                // From DatatypeConverter.printTime: "%h:%m:%s%z"
+                return DateTimeFormatter.ISO_TIME.format(aMoment.toZonedDateTime().withFixedOffsetZone());
             case 2:
-                return DatatypeConverter.printDateTime(aMoment);
+                // From DatatypeConverter.printDateTime: "%Y-%M-%DT%h:%m:%s%z"
+                return DateTimeFormatter.ISO_DATE_TIME.format(aMoment.toZonedDateTime().withFixedOffsetZone());
         }
         throw new Xb4jException("Xml date type index not recognized: " + xmlType);
     }
