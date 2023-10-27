@@ -15,14 +15,24 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
+import static org.xmlunit.assertj3.XmlAssert.assertThat;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import info.rsdev.xb4j.model.BindingModel;
-import info.rsdev.xb4j.model.bindings.chooser.ContextInstanceOf;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
@@ -31,20 +41,12 @@ import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.test.UnmarshallUtils;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import org.junit.Before;
-import org.junit.Test;
 
-public class ComplexTypeTest {
+class ComplexTypeTest {
 
     private BindingModel model = null;
 
-    @Before
+    @BeforeEach
     public void setup() {
         Root root = new Root(new QName("root"), ObjectA.class);   //has element, but class comes from child
         root.setChild(new Reference("typeO", null, false), NoGetter.INSTANCE, NoSetter.INSTANCE);
@@ -62,7 +64,7 @@ public class ComplexTypeTest {
     }
 
     @Test
-    public void testMarshallComplexType() {
+    void testMarshallComplexType() {
         //marshall root
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new ObjectA("test");
@@ -79,7 +81,7 @@ public class ComplexTypeTest {
     }
 
     @Test
-    public void testUnmarshallComplexType() {
+    void testUnmarshallComplexType() {
         //Unmarshall ObjectA
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><name>test</name></root>".getBytes());
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -99,7 +101,7 @@ public class ComplexTypeTest {
     }
 
     @Test
-    public void testMarshallReferenceWithElement() {
+    void testMarshallReferenceWithElement() {
         //Setup the binding model
         BindingModel myModel = new BindingModel();
         Root root = new Root(new QName("root"), ObjectA.class);
@@ -117,7 +119,7 @@ public class ComplexTypeTest {
     }
 
     @Test
-    public void ignoreMissingMandatoryChildrenWhenNilIsSetTrue() throws XMLStreamException {
+    void ignoreMissingMandatoryChildrenWhenNilIsSetTrue() throws XMLStreamException {
         ComplexType nillableComplexType = new ComplexType(new QName("complex"), mock(IBinding.class), "complex", false, NILLABLE);
 
         UnmarshallResult result = UnmarshallUtils.unmarshall(nillableComplexType, "<complex xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
@@ -125,7 +127,7 @@ public class ComplexTypeTest {
     }
 
     @Test
-    public void writeNilElementForNullValuedNillableBinding() throws Exception {
+    void writeNilElementForNullValuedNillableBinding() throws Exception {
         ComplexType nillableComplexType = new ComplexType(new QName("complex"), mock(IBinding.class), "name", false, NILLABLE);
 
         StringWriter writer = new StringWriter();
@@ -134,11 +136,11 @@ public class ComplexTypeTest {
         nillableComplexType.toXml(staxWriter, new JavaContext(null));
         staxWriter.close();
 
-        assertXMLEqual("<complex xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />", writer.toString());
+        assertThat(writer.toString()).and("<complex xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />").areIdentical();
     }
     
     @Test
-    public void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
+    void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
         ComplexType nillableComplexType = new ComplexType(new QName("complex"), mock(IBinding.class), "name", false, NILLABLE);
 
         StringWriter writer = new StringWriter();
@@ -147,6 +149,6 @@ public class ComplexTypeTest {
         nillableComplexType.toXml(staxWriter, new JavaContext(new ObjectA("some_name")));
         staxWriter.close();
         
-        assertXMLEqual("<complex />", writer.toString());
+        assertThat(writer.toString()).and("<complex />").areIdentical();
     }
 }

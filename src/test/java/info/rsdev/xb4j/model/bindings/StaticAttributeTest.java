@@ -14,48 +14,50 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.Xb4jException;
-import static org.junit.Assert.assertEquals;
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectA;
 
-import javax.xml.namespace.QName;
-import org.junit.Before;
-
-import org.junit.Test;
-
-public class StaticAttributeTest {
+class StaticAttributeTest {
     
     private BindingModel model = null;
     private Root root = null;
     
-    @Before
-    public void setupModelWithObjectABinding() {
+    @BeforeEach
+    void setupModelWithObjectABinding() {
         model = new BindingModel();
         root = new Root(new QName("A"), ObjectA.class);
         model.registerRoot(root);
     }
 
-    @Test 
-    public void outputOfOptionalAttributeWithAValueDependsOnParentsOutputState() {
+    @Test
+    void outputOfOptionalAttributeWithAValueDependsOnParentsOutputState() {
         assertEquals(OutputState.COLLABORATE, getAttributeUnderTest().generatesOutput(new JavaContext("value")));
     }
 
     @Test 
-    public void outputOfOptionalAttributeWithoutAValueDependsOnParentsOutputState(){
+    void outputOfOptionalAttributeWithoutAValueDependsOnParentsOutputState(){
         assertEquals(OutputState.COLLABORATE, getAttributeUnderTest().generatesOutput(new JavaContext(null)));
     }
 
-    @Test(expected=Xb4jException.class)
-    public void defaultValueIsNotSupported() {
-        getAttributeUnderTest().setDefault("default");
+    @Test
+    void defaultValueIsNotSupported() {
+        assertThrows(Xb4jException.class, () -> getAttributeUnderTest().setDefault("default"));
     }
 
     @Test 
-    public void outputStaticValueWithEmptyRequiredAttribute() {
+    void outputStaticValueWithEmptyRequiredAttribute() {
         //if the JavaContext does not provide a value, an required attribute generates output anyway
         StaticAttribute attributeUnderTest = getAttributeUnderTest().setRequired(true);
         assertEquals(OutputState.HAS_OUTPUT, attributeUnderTest.generatesOutput(new JavaContext(null)));

@@ -15,11 +15,22 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.xmlunit.assertj3.XmlAssert.assertThat;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.JavaContext;
@@ -27,22 +38,8 @@ import info.rsdev.xb4j.test.ChinesePerson;
 import info.rsdev.xb4j.test.UnmarshallUtils;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import org.custommonkey.xmlunit.XMLAssert;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
-public class RecursorTest {
+class RecursorTest {
 
     private static final class FamilyTree {
 
@@ -70,13 +67,7 @@ public class RecursorTest {
 
     private BindingModel model = null;
 
-    @BeforeClass
-    public static void setupOnce() {
-        XMLUnit.setIgnoreAttributeOrder(true);
-        XMLUnit.setIgnoreWhitespace(true);
-    }
-
-    @Before
+    @BeforeEach
     public void setup() {
         model = new BindingModel();
         Root root = new Root(new QName("Stamboom"), FamilyTree.class);
@@ -87,7 +78,7 @@ public class RecursorTest {
     }
 
     @Test
-    public void testMarshallNoRecurringElement() throws Exception {
+    void testMarshallNoRecurringElement() throws Exception {
         FamilyTree tree = new FamilyTree();
         assertEquals(0, tree.getFamilyTreeDepth());
 
@@ -95,11 +86,13 @@ public class RecursorTest {
         model.getXmlStreamer(tree.getClass(), null).toXml(XmlStreamFactory.makeWriter(stream), tree);
         String expected = "<Stamboom />";
 
-        XMLAssert.assertXMLEqual(expected, stream.toString());
+        assertThat(stream.toString()).and(expected)
+            .ignoreWhitespace()
+            .areIdentical();
     }
 
     @Test
-    public void testMarshallSingleRecurringElement() throws Exception {
+    void testMarshallSingleRecurringElement() throws Exception {
         FamilyTree tree = new FamilyTree();
         tree.setChild(new ChinesePerson("Mao", "Zedong"));
         assertEquals(1, tree.getFamilyTreeDepth());
@@ -110,11 +103,11 @@ public class RecursorTest {
                 + "  <Kind Voornaam=\"Mao\" Achternaam=\"Zedong\" />"
                 + "</Stamboom>";
 
-        XMLAssert.assertXMLEqual(expected, stream.toString());
+        assertThat(stream.toString()).and(expected).ignoreWhitespace().areIdentical();
     }
 
     @Test
-    public void testMarshallMultipleRecurringElements() throws Exception {
+    void testMarshallMultipleRecurringElements() throws Exception {
         FamilyTree tree = new FamilyTree();
         tree.setChild(new ChinesePerson("Mao", "Zedong").setChild(new ChinesePerson("Mao Anqing", "Zedong").setChild(new ChinesePerson("Mao Xinyu", "Zedong"))));
         assertEquals(3, tree.getFamilyTreeDepth());
@@ -129,11 +122,11 @@ public class RecursorTest {
                 + "  </Kind>"
                 + "</Stamboom>";
 
-        XMLAssert.assertXMLEqual(expected, stream.toString());
+        assertThat(stream.toString()).and(expected).ignoreWhitespace().areIdentical();
     }
 
     @Test
-    public void testUnmarshallNoRecurringElement() {
+    void testUnmarshallNoRecurringElement() {
         String snippet = "<Stamboom />";
         ByteArrayInputStream stream = new ByteArrayInputStream(snippet.getBytes());
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -144,7 +137,7 @@ public class RecursorTest {
     }
 
     @Test
-    public void testUnmarshallSingleRecurringElement() {
+    void testUnmarshallSingleRecurringElement() {
         String snippet = "<Stamboom>"
                 + "  <Kind Voornaam=\"Mao\" Achternaam=\"Zedong\" />"
                 + "</Stamboom>";
@@ -159,7 +152,7 @@ public class RecursorTest {
     }
 
     @Test
-    public void testUnmarshallMultipleRecurringElements() {
+    void testUnmarshallMultipleRecurringElements() {
         String snippet = "<Stamboom>"
                 + "  <Kind Voornaam=\"Mao\" Achternaam=\"Zedong\">"
                 + "    <Kind Voornaam=\"Mao Anqing\" Achternaam=\"Zedong\">"
@@ -183,7 +176,7 @@ public class RecursorTest {
     }
 
     @Test
-    public void ignoreMissingMandatoryItemWhenNilIsSetTrue() throws XMLStreamException {
+    void ignoreMissingMandatoryItemWhenNilIsSetTrue() throws XMLStreamException {
         Recursor nillableRecursor = new Recursor(new QName("recurse"), ChinesePerson.class, "child", false, NILLABLE);
 
         UnmarshallResult result = UnmarshallUtils.unmarshall(nillableRecursor, "<recurse xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
@@ -191,7 +184,7 @@ public class RecursorTest {
     }
     
     @Test
-    public void writeNilElementForNullValuedNillableBinding() throws Exception {
+    void writeNilElementForNullValuedNillableBinding() throws Exception {
         Recursor nillableRecursor = new Recursor(new QName("recurse"), ChinesePerson.class, "child", false, NILLABLE);
 
         StringWriter writer = new StringWriter();
@@ -200,11 +193,10 @@ public class RecursorTest {
         nillableRecursor.toXml(staxWriter, new JavaContext(null));
         staxWriter.close();
 
-        assertXMLEqual("<recurse xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />", writer.toString());
-    }
+        assertThat(writer.toString()).and("<recurse xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />").areIdentical();    }
     
     @Test
-    public void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
+    void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
         Recursor nillableRecursor = new Recursor(new QName("recurse"), ChinesePerson.class, "child", false, NILLABLE);
 
         StringWriter writer = new StringWriter();
@@ -213,6 +205,6 @@ public class RecursorTest {
         nillableRecursor.toXml(staxWriter, new JavaContext(new ChinesePerson("Jet", "Ski")));
         staxWriter.close();
 
-        assertXMLEqual("<recurse />", writer.toString());
+        assertThat(writer.toString()).and("<recurse />").areIdentical();
     }
 }

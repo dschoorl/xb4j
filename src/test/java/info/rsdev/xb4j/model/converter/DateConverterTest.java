@@ -14,17 +14,21 @@
  */
 package info.rsdev.xb4j.model.converter;
 
-import info.rsdev.xb4j.model.java.JavaContext;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
-import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import org.junit.Before;
-import org.junit.Test;
-import static org.mockito.Mockito.*;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import info.rsdev.xb4j.model.java.JavaContext;
 
 /**
  * Test the conversion support for data, time and dateTime schema data types to Java Date instances. The same xml values must be
@@ -35,18 +39,18 @@ import static org.mockito.Mockito.*;
  *
  * @author dschoorl
  */
-public class DateConverterTest {
+class DateConverterTest {
 
     private JavaContext mockContext = null;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.mockContext = mock(JavaContext.class);
     }
 
-    @After
-    public void teardown() {
-        verifyZeroInteractions(mockContext);    //JavaContext is not used by this converter
+    @AfterEach
+    void teardown() {
+        verifyNoInteractions(mockContext);    //JavaContext is not used by this converter
     }
 
     /**
@@ -54,7 +58,7 @@ public class DateConverterTest {
      * @throws java.lang.Exception
      */
     @Test
-    public void testDateTimeToText() throws Exception {
+    void testDateTimeToText() throws Exception {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+05:00");
         Calendar march17 = new GregorianCalendar(2012, 2, 17, 12, 34, 56);
         march17.setTimeZone(timeZone);
@@ -65,7 +69,7 @@ public class DateConverterTest {
     }
 
     @Test
-    public void testToObject() {
+    void testToObject() {
         Date result = (Date) DateConverter.XML_DATETIME.toObject(mockContext, "2012-03-14T08:23:00+01:00");
         assertNotNull(result);
     }

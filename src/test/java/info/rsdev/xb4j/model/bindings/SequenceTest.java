@@ -15,12 +15,24 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.xmlunit.assertj3.XmlAssert.assertThat;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
+import org.junit.jupiter.api.Test;
 
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.JavaContext;
@@ -30,20 +42,11 @@ import info.rsdev.xb4j.test.UnmarshallUtils;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import org.junit.Test;
 
-public class SequenceTest {
+class SequenceTest {
 
     @Test
-    public void testMarshallMultipleElementsNoNamespace() {
+    void testMarshallMultipleElementsNoNamespace() {
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectC.class));
         Sequence sequence = root.setChild(new Sequence(false));
@@ -59,14 +62,16 @@ public class SequenceTest {
     }
 
     @Test
-    public void testUnmarshallIncompleteSequence() throws Exception {
+    void testUnmarshallIncompleteSequence() throws Exception {
         Root root = new Root(new QName("root"), ObjectC.class);
         Sequence sequence = root.setChild(new Sequence(false));
         sequence.add(new SimpleType(new QName("name"), false), "name");
         sequence.add(new SimpleType(new QName("description"), false), "description");
 
-        ByteArrayInputStream stream = new ByteArrayInputStream("<root><name>Jan</name><initialized>true</initialized></root>".getBytes());
-        RecordAndPlaybackXMLStreamReader staxReader = new RecordAndPlaybackXMLStreamReader(XMLInputFactory.newInstance().createXMLStreamReader(stream));
+        ByteArrayInputStream stream = new ByteArrayInputStream(
+                "<root><name>Jan</name><initialized>true</initialized></root>".getBytes());
+        RecordAndPlaybackXMLStreamReader staxReader = new RecordAndPlaybackXMLStreamReader(
+                XMLInputFactory.newInstance().createXMLStreamReader(stream));
         UnmarshallResult result = root.toJava(staxReader, new JavaContext(null));
         assertNotNull(result);
         assertFalse(result.isUnmarshallSuccessful());
@@ -75,16 +80,17 @@ public class SequenceTest {
     }
 
     @Test
-    public void testOutputSequenceWithNullJavaContextAndMandatoryChild() {
+    void testOutputSequenceWithNullJavaContextAndMandatoryChild() {
         Root root = new Root(new QName("container"), Object.class);
         Sequence sequence = root.setChild(new Sequence(true));
         sequence.add(new SimpleType(new QName("name"), true), "name");
-        sequence.add(new SimpleType(new QName("description"), false), "description");	//mandatory: will output empty description tag??
+        sequence.add(new SimpleType(new QName("description"), false), "description"); // mandatory: will output empty description
+                                                                                      // tag??
         assertSame(OutputState.NO_OUTPUT, sequence.generatesOutput(new JavaContext(null)));
     }
 
     @Test
-    public void testOutputEmptyOptionalSequence() throws Exception {
+    void testOutputEmptyOptionalSequence() throws Exception {
         Root root = new Root(new QName("container"), Object.class);
         Sequence sequence = root.setChild(new Sequence(true));
         sequence.add(new SimpleType(new QName("name"), true), "name");
@@ -98,48 +104,53 @@ public class SequenceTest {
     }
 
     @Test
-    public void surpressEmptyOptionalSequenceWithMandatoryChild() {
+    void surpressEmptyOptionalSequenceWithMandatoryChild() {
         Root root = new Root(new QName("container"), ObjectC.class);
         Sequence sequence = root.setChild(new Sequence(true));
         sequence.add(new SimpleType(new QName("name"), true), "name");
-        sequence.add(new SimpleType(new QName("description"), true), "description");	//mandatory: will output empty description tag??
+        sequence.add(new SimpleType(new QName("description"), true), "description"); // mandatory: will output empty description
+                                                                                     // tag??
         assertSame(OutputState.NO_OUTPUT, sequence.generatesOutput(new JavaContext(new ObjectC())));
     }
 
     @Test
-    public void ignoreMissingMandatoryChildrenWhenNilIsSetTrue() throws XMLStreamException {
+    void ignoreMissingMandatoryChildrenWhenNilIsSetTrue() throws XMLStreamException {
         Sequence nillableSequence = new Sequence(new QName("seq"), ObjectA.class, false, NILLABLE);
         nillableSequence.add(new SimpleType(new QName("mandatory"), false), "name");
 
-        UnmarshallResult result = UnmarshallUtils.unmarshall(nillableSequence, "<seq xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
+        UnmarshallResult result = UnmarshallUtils.unmarshall(nillableSequence,
+                "<seq xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
         assertEquals(UnmarshallResult.NO_RESULT, result);
     }
-    
+
     @Test
-    public void writeNilElementForNullValuedNillableBinding() throws Exception {
+    void writeNilElementForNullValuedNillableBinding() throws Exception {
         Sequence nillableSequence = new Sequence(new QName("seq"), ObjectA.class, false, NILLABLE);
         nillableSequence.add(new SimpleType(new QName("mandatory"), false), "name");
 
         StringWriter writer = new StringWriter();
-        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(
+                XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
 
         nillableSequence.toXml(staxWriter, new JavaContext(null));
         staxWriter.close();
 
-        assertXMLEqual("<seq xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />", writer.toString());
+        assertThat(writer.toString()).and("<seq xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />")
+                .areIdentical();
     }
-    
+
     @Test
-    public void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
+    void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
         Sequence nillableSequence = new Sequence(new QName("seq"), ObjectA.class, false, NILLABLE);
         nillableSequence.add(new SimpleType(new QName("mandatory"), false), "name");
 
         StringWriter writer = new StringWriter();
-        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+        SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(
+                XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
 
         nillableSequence.toXml(staxWriter, new JavaContext(new ObjectA("name")));
         staxWriter.close();
 
-        assertXMLEqual("<seq><mandatory>name</mandatory></seq>", writer.toString());
+        assertThat(writer.toString()).and("<seq><mandatory>name</mandatory></seq>").areIdentical();
     }
 }

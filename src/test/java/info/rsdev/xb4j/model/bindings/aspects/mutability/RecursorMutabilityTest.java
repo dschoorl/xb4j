@@ -14,18 +14,20 @@
  */
 package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
 import info.rsdev.xb4j.model.bindings.Recursor;
 import info.rsdev.xb4j.model.bindings.Root;
 
-import javax.xml.namespace.QName;
+class RecursorMutabilityTest extends AbstractSingleBindingMutabilityTest<Recursor> {
 
-import org.junit.Before;
-import org.junit.Test;
-
-public class RecursorMutabilityTest extends AbstractSingleBindingMutabilityTest<Recursor> {
-
-    @Before
+    @BeforeEach
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
         immutableElement = new Recursor(new QName("level1"), Object.class, "hashcode", false);
@@ -33,9 +35,9 @@ public class RecursorMutabilityTest extends AbstractSingleBindingMutabilityTest<
         root.makeImmutable();
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotSetMaxOccurs() {
-        immutableElement.setMaxOccurs(3);
+    @Test
+    void testCannotSetMaxOccurs() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.setMaxOccurs(3));
     }
 
 }

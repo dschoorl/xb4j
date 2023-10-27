@@ -15,6 +15,18 @@
  */
 package info.rsdev.xb4j.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.ByteArrayOutputStream;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.model.bindings.Sequence;
 import info.rsdev.xb4j.model.bindings.SimpleType;
@@ -22,24 +34,12 @@ import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectC;
 import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-import java.io.ByteArrayOutputStream;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.Test;
 
-/**
- *
- * @author Dave Schoorl
- */
-public class SurpressEmptyXmlStructuresTest {
+class SurpressEmptyXmlStructuresTest {
     
     private Sequence koopsom = null;
     
-    @Before
+    @BeforeEach
     public void setup() {
         //JavaContext object contains an ObjectTree
         Root root = new Root(new QName("tree"), ObjectC.class);
@@ -49,7 +49,7 @@ public class SurpressEmptyXmlStructuresTest {
     }
 
     @Test
-    public void test() throws XMLStreamException {
+    void test() throws XMLStreamException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         XMLStreamWriter staxWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
         koopsom.toXml(new SimplifiedXMLStreamWriter(staxWriter), new JavaContext(new ObjectTree()));

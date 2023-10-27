@@ -14,46 +14,49 @@
  */
 package info.rsdev.xb4j.model.converter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.ValidationException;
 import info.rsdev.xb4j.model.java.JavaContext;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-public class BooleanConverterTest {
+class BooleanConverterTest {
 
     private JavaContext mockContext = null;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.mockContext = mock(JavaContext.class);
     }
 
-    @After
+    @AfterEach
     public void teardown() {
-        verifyZeroInteractions(mockContext);    //JavaContext is not used by this converter
+        verifyNoInteractions(mockContext);    //JavaContext is not used by this converter
     }
 
     @Test
-    public void testToObject() {
+    void testToObject() {
         assertNull(BooleanConverter.INSTANCE.toObject(mockContext, null));
         assertTrue(BooleanConverter.INSTANCE.toObject(mockContext, "true"));
         assertFalse(BooleanConverter.INSTANCE.toObject(mockContext, "false"));
     }
 
-    @Test(expected = ValidationException.class)
-    public void testToObjectNoBoolean() {
-        BooleanConverter.INSTANCE.toObject(mockContext, "some value");
+    @Test
+    void testToObjectNoBoolean() {
+        assertThrows(ValidationException.class, () -> BooleanConverter.INSTANCE.toObject(mockContext, "some value"));
     }
 
     @Test
-    public void testToText() {
+    void testToText() {
         assertNull(BooleanConverter.INSTANCE.toText(mockContext, null));
         assertEquals("true", BooleanConverter.INSTANCE.toText(mockContext, Boolean.TRUE));
         assertEquals("true", BooleanConverter.INSTANCE.toText(mockContext, true));
@@ -61,8 +64,8 @@ public class BooleanConverterTest {
         assertEquals("false", BooleanConverter.INSTANCE.toText(mockContext, false));
     }
 
-    @Test(expected = ValidationException.class)
-    public void testToTextNoBoolean() {
-        BooleanConverter.INSTANCE.toText(mockContext, new Object());
+    @Test
+    void testToTextNoBoolean() {
+        assertThrows(ValidationException.class, () -> BooleanConverter.INSTANCE.toText(mockContext, new Object()));
     }
 }

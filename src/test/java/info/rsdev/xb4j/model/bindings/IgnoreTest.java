@@ -14,14 +14,10 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import info.rsdev.xb4j.model.BindingModel;
-import info.rsdev.xb4j.model.java.JavaContext;
-import info.rsdev.xb4j.test.ObjectA;
-import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
-import info.rsdev.xb4j.util.XmlStreamFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.xmlunit.assertj3.XmlAssert.assertThat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
@@ -30,18 +26,23 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import org.custommonkey.xmlunit.XMLAssert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class IgnoreTest {
+import info.rsdev.xb4j.model.BindingModel;
+import info.rsdev.xb4j.model.java.JavaContext;
+import info.rsdev.xb4j.test.ObjectA;
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
+import info.rsdev.xb4j.util.XmlStreamFactory;
+
+class IgnoreTest {
 
     private BindingModel model = null;
     private Root root = null;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void setup() throws Exception {
         model = new BindingModel();
         root = new Root(new QName("root"), ObjectA.class);
         root.addAttribute(new Attribute(new QName("name")).setRequired(false), "name");
@@ -49,7 +50,7 @@ public class IgnoreTest {
     }
 
     @Test
-    public void testMarshallWithoutAccessors() {
+    void testMarshallWithoutAccessors() {
         //the root is only made read-only after first use (marshall/unmarshall)
         root.setChild(new Ignore(new QName("ignore-me"), false));
 
@@ -61,7 +62,7 @@ public class IgnoreTest {
     }
 
     @Test
-    public void testMarshallWithAccessors() {
+    void testMarshallWithAccessors() {
         //the root is only made read-only after first use (marshall/unmarshall)
         root.setChild(new Ignore(new QName("ignore-me"), false), "nonExistentProperty");
 
@@ -72,7 +73,7 @@ public class IgnoreTest {
     }
 
     @Test
-    public void testMarshallOptionally() {
+    void testMarshallOptionally() {
         //the root is only made read-only after first use (marshall/unmarshall)
         root.setChild(new Ignore(new QName("ignore-me"), true), "nonExistentProperty");
 
@@ -80,7 +81,7 @@ public class IgnoreTest {
     }
 
     @Test
-    public void testMarshallIgnoreRepeatedly() {
+    void testMarshallIgnoreRepeatedly() {
         //the root is only made read-only after first use (marshall/unmarshall)
         Sequence content = root.setChild(new Sequence(false));
         content.add(new Ignore(new QName("ignore-me"), true), "nonExistentProperty");
@@ -95,7 +96,7 @@ public class IgnoreTest {
     }
 
     @Test
-    public void testUnmarshallWithAccessors() throws Exception {
+    void testUnmarshallWithAccessors() throws Exception {
         //the root is only made read-only after first use (marshall/unmarshall)
         root.setChild(new Ignore(new QName("ignore-me"), false), "nonExistentProperty");
 
@@ -103,11 +104,11 @@ public class IgnoreTest {
         model.getXmlStreamer(ObjectA.class, null).toXml(XmlStreamFactory.makeWriter(stream), new ObjectA("Repelsteeltje"));
         String expected = "<root name='Repelsteeltje' />";
 
-        XMLAssert.assertXMLEqual(expected, stream.toString());
+        assertThat(stream.toString()).and(expected).areIdentical();
     }
 
     @Test
-    public void testUnmarshallWithoutAccessors() throws Exception {
+    void testUnmarshallWithoutAccessors() throws Exception {
         //the root is only made read-only after first use (marshall/unmarshall)
         root.setChild(new Ignore(new QName("ignore-me"), false));
 
@@ -115,11 +116,11 @@ public class IgnoreTest {
         model.getXmlStreamer(ObjectA.class, null).toXml(XmlStreamFactory.makeWriter(stream), new ObjectA("Repelsteeltje"));
         String expected = "<root name='Repelsteeltje' />";
 
-        XMLAssert.assertXMLEqual(expected, stream.toString());
+        assertThat(stream.toString()).and(expected).areIdentical();
     }
 
     @Test
-    public void ignoreRepeatingMandatoryElements() throws XMLStreamException {
+    void ignoreRepeatingMandatoryElements() throws XMLStreamException {
         Ignore ignore = new Ignore(new QName("stuff"), false);
         RecordAndPlaybackXMLStreamReader reader = makeReader("<start><stuff /><stuff /></start>");
         assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());
@@ -128,7 +129,7 @@ public class IgnoreTest {
     }
 
     @Test
-    public void ignoreSingleMandatoryElement() throws XMLStreamException {
+    void ignoreSingleMandatoryElement() throws XMLStreamException {
         Ignore ignore = new Ignore(new QName("stuff"), false);
         RecordAndPlaybackXMLStreamReader reader = makeReader("<start><stuff /><fluff /></start>");
         assertEquals(XMLStreamReader.START_ELEMENT, reader.nextTag());

@@ -14,20 +14,21 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import info.rsdev.xb4j.test.ObjectTree;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.xml.namespace.QName;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class UnmarshallResultTest {
+import info.rsdev.xb4j.test.ObjectTree;
+
+class UnmarshallResultTest {
 
     @Test
-    public void testMissingOptionalElement() {
+    void testMissingOptionalElement() {
         assertTrue(UnmarshallResult.MISSING_OPTIONAL_ELEMENT.isMissingOptional());
         assertTrue(UnmarshallResult.MISSING_OPTIONAL_ELEMENT.isUnmarshallSuccessful());
         assertFalse(UnmarshallResult.MISSING_OPTIONAL_ELEMENT.mustHandleUnmarshalledObject());
@@ -36,7 +37,7 @@ public class UnmarshallResultTest {
     }
 
     @Test
-    public void testMissingMandatoryElement() {
+    void testMissingMandatoryElement() {
         UnmarshallResult missingMandatory = UnmarshallResult.newMissingElement(new Element(new QName("where-am-i"), false));
         assertFalse(missingMandatory.isMissingOptional());
         assertFalse(missingMandatory.isUnmarshallSuccessful());
@@ -46,7 +47,7 @@ public class UnmarshallResultTest {
     }
 
     @Test
-    public void testReturnUnmarshalledAndUnhandledObject() {
+    void testReturnUnmarshalledAndUnhandledObject() {
         UnmarshallResult unhandledResponse = new UnmarshallResult(new ObjectTree());
         assertFalse(unhandledResponse.isMissingOptional());
         assertTrue(unhandledResponse.isUnmarshallSuccessful());
@@ -56,7 +57,7 @@ public class UnmarshallResultTest {
     }
 
     @Test
-    public void testReturnUnmarshalledAndHandledObject() {
+    void testReturnUnmarshalledAndHandledObject() {
         UnmarshallResult unhandledResponse = new UnmarshallResult(new ObjectTree(), true);
         assertFalse(unhandledResponse.isMissingOptional());
         assertTrue(unhandledResponse.isUnmarshallSuccessful());

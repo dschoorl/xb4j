@@ -14,15 +14,17 @@
  */
 package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+
 import info.rsdev.xb4j.model.bindings.ElementInjector;
 import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.test.FixedValueTestAction;
-import javax.xml.namespace.QName;
-import org.junit.Before;
 
 public class ElementInjectorMutabilityTest extends BaseBindingMutabilityTest<ElementInjector> {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
         immutableElement = new ElementInjector(new QName("level1"), FixedValueTestAction.INSTANCE, false);

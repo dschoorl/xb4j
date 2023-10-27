@@ -14,35 +14,37 @@
  */
 package info.rsdev.xb4j.model.converter;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.model.java.JavaContext;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-public class LongConverterTest {
+class LongConverterTest {
 
     private JavaContext mockContext = null;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.mockContext = mock(JavaContext.class);
     }
 
-    @After
+    @AfterEach
     public void teardown() {
-        verifyZeroInteractions(mockContext);    //JavaContext is not used by this converter
+        verifyNoInteractions(mockContext);    //JavaContext is not used by this converter
     }
 
     @Test
-    public void nullValuesAreNotValidated() {
+    void nullValuesAreNotValidated() {
         assertNull(LongConverter.POSITIVE.toObject(mockContext, null));
     }
 
     @Test
-    public void emptyStringsAreTreatedAsNullValues() {
+    void emptyStringsAreTreatedAsNullValues() {
         assertNull(LongConverter.POSITIVE.toObject(mockContext, ""));
     }
 

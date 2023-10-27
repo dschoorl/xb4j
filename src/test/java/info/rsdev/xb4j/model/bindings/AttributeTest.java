@@ -14,9 +14,18 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
@@ -24,20 +33,12 @@ import info.rsdev.xb4j.model.java.accessor.NoSetter;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.util.XmlStreamFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-
-import javax.xml.namespace.QName;
-import org.junit.Before;
-
-import org.junit.Test;
-
-public class AttributeTest {
+class AttributeTest {
     
     private BindingModel model = null;
     private Root root = null;
     
-    @Before
+    @BeforeEach
     public void setupModelWithObjectABinding() {
         model = new BindingModel();
         root = new Root(new QName("A"), ObjectA.class);
@@ -45,7 +46,7 @@ public class AttributeTest {
     }
 
     @Test
-    public void testMarshallSingleAttributeNoNamespace() {
+    void testMarshallSingleAttributeNoNamespace() {
         //Setup the test
         root.addAttribute(new Attribute(new QName("name")), "name");
 
@@ -56,7 +57,7 @@ public class AttributeTest {
     }
 
     @Test
-    public void testUnmarshallSingleAttributeNoNamespace() {
+    void testUnmarshallSingleAttributeNoNamespace() {
         //Setup the test
         root.addAttribute(new Attribute(new QName("name")), "name");
 
@@ -70,7 +71,7 @@ public class AttributeTest {
     }
 
     @Test
-    public void testMarshallSingleAttributeWithNamespace() {
+    void testMarshallSingleAttributeWithNamespace() {
         //Setup the test
         root.addAttribute(new Attribute(new QName("http://attrib/ns", "name", "test")), "name");
 
@@ -81,7 +82,7 @@ public class AttributeTest {
     }
     
     @Test
-    public void marshallEmptyElementWithNamespaceContainingAttributesInDifferentNamespace() {
+    void marshallEmptyElementWithNamespaceContainingAttributesInDifferentNamespace() {
         QName rootQName = new QName("http://namespace/A", "A", "a");
         Root myRoot = new Root(rootQName, ObjectA.class);
         myRoot.addAttribute(new Attribute(new QName("http://attrib/ns", "name", "attr")), "name");
@@ -96,23 +97,23 @@ public class AttributeTest {
     }
     
     @Test 
-    public void outputOptionalAttributeWhenItHasAValue() {
+    void outputOptionalAttributeWhenItHasAValue() {
         assertEquals(OutputState.HAS_OUTPUT, getAttributeUnderTest().generatesOutput(new JavaContext("value")));
     }
 
     @Test 
-    public void doNotOutputOptionalAttributeWithoutValue() {
+    void doNotOutputOptionalAttributeWithoutValue() {
         assertEquals(OutputState.NO_OUTPUT, getAttributeUnderTest().generatesOutput(new JavaContext(null)));
     }
 
     @Test 
-    public void outputEmptyOptionalAttributeWithDefaultValue() {
+    void outputEmptyOptionalAttributeWithDefaultValue() {
         Attribute attributeUnderTest = getAttributeUnderTest().setDefault("default");
         assertEquals(OutputState.HAS_OUTPUT, attributeUnderTest.generatesOutput(new JavaContext(null)));
     }
 
     @Test 
-    public void outputEmptyRequiredAttribute() {
+    void outputEmptyRequiredAttribute() {
         Attribute attributeUnderTest = getAttributeUnderTest().setRequired(true);
         assertEquals(OutputState.HAS_OUTPUT, attributeUnderTest.generatesOutput(new JavaContext(null)));
     }

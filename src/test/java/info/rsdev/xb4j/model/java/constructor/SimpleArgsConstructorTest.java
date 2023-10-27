@@ -1,8 +1,18 @@
 package info.rsdev.xb4j.model.java.constructor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+import java.io.StringReader;
+import java.util.LinkedList;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.Ignore;
@@ -15,22 +25,15 @@ import info.rsdev.xb4j.model.xml.NoElementFetchStrategy;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-import java.io.StringReader;
-import java.util.LinkedList;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import org.junit.Before;
-import org.junit.Test;
 
-public class SimpleArgsConstructorTest {
+class SimpleArgsConstructorTest {
 
     private XMLStreamReader staxReader = null;
 
     private BindingModel model = null;
     private Sequence objectSequence = null;
 
-    @Before
+    @BeforeEach
     public void setup() {
         model = new BindingModel();
         Root root = new Root(new QName("root"), ObjectTree.class);
@@ -42,7 +45,7 @@ public class SimpleArgsConstructorTest {
     }
 
     @Test
-    public void testCreateObjectWithNextXmlElementInStream() throws XMLStreamException {
+    void testCreateObjectWithNextXmlElementInStream() throws XMLStreamException {
         objectSequence.add(new SimpleArgument(new QName("name"), false), "AName");
         staxReader = XmlStreamFactory.makeReader(new StringReader("<root><name>Repelsteeltje</name></root>"));
 
@@ -54,7 +57,7 @@ public class SimpleArgsConstructorTest {
     }
 
     @Test
-    public void testCreateObjectFromXmlElementInStreamSkippingSome() throws XMLStreamException {
+    void testCreateObjectFromXmlElementInStreamSkippingSome() throws XMLStreamException {
         objectSequence.add(new Ignore(new QName("bla"), false));
         objectSequence.add(new SimpleArgument(new QName("name"), false), "AName");
         objectSequence.add(new Ignore(new QName("bla"), false));
@@ -68,7 +71,7 @@ public class SimpleArgsConstructorTest {
     }
 
 //	@Test
-//	public void testCreateObjectFromTwoXmlElementsInStream() throws XMLStreamException {
+//	void testCreateObjectFromTwoXmlElementsInStream() throws XMLStreamException {
 //		ArgsConstructor constructor = new ArgsConstructor(ObjectD.class, new QName("first"), new QName("last"));
 //		staxReader = XMLStreamReaderFactory.newReader("<objectd><first>Dave</first><last>Schoorl</last></objectd>");
 //		staxReader.nextTag();	//kickoff reading the xml stream
@@ -79,7 +82,7 @@ public class SimpleArgsConstructorTest {
 //	}
 //
 //	@Test
-//	public void testCreateObjectFromTwoXmlElementsInStreamReversedOrder() throws XMLStreamException {
+//	void testCreateObjectFromTwoXmlElementsInStreamReversedOrder() throws XMLStreamException {
 //		ArgsConstructor constructor = new ArgsConstructor(ObjectD.class, new QName("first"), new QName("last"));
 //		staxReader = XMLStreamReaderFactory.newReader("<objectd><last>Schoorl</last><first>Dave</first></objectd>");
 //		staxReader.nextTag();	//kickoff reading the xml stream

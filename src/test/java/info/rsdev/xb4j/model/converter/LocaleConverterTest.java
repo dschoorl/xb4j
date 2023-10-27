@@ -14,52 +14,54 @@
  */
 package info.rsdev.xb4j.model.converter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.mockito.Mockito.*;
-import info.rsdev.xb4j.model.java.JavaContext;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.util.Locale;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class LocaleConverterTest {
+import info.rsdev.xb4j.model.java.JavaContext;
+
+class LocaleConverterTest {
 
     private JavaContext mockContext = null;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.mockContext = mock(JavaContext.class);
     }
 
-    @After
+    @AfterEach
     public void teardown() {
-        verifyZeroInteractions(mockContext);    //JavaContext is not used by this converter
+        verifyNoInteractions(mockContext);    //JavaContext is not used by this converter
     }
 
     @Test
-    public void testToObjectLanguageOnly() {
+    void testToObjectLanguageOnly() {
         assertNull(LocaleConverter.INSTANCE.toObject(mockContext, null));
         assertEquals(new Locale("nl"), LocaleConverter.INSTANCE.toObject(mockContext, "nl"));
         assertEquals(Locale.ENGLISH, LocaleConverter.INSTANCE.toObject(mockContext, "en"));
     }
 
     @Test
-    public void testToObjectLanguagePlusCountry() {
+    void testToObjectLanguagePlusCountry() {
         assertEquals(Locale.UK, LocaleConverter.INSTANCE.toObject(mockContext, "en_GB"));
         assertEquals(new Locale("nl", "NL"), LocaleConverter.INSTANCE.toObject(mockContext, "nl_NL"));
     }
 
     @Test
-    public void testToObjectLanguagePlusCountryPlusVariant() {
+    void testToObjectLanguagePlusCountryPlusVariant() {
         assertEquals(new Locale("es", "ES", "Traditional_WIN"), LocaleConverter.INSTANCE.toObject(mockContext, "es_ES_Traditional_WIN"));
     }
 
     @Test
-    public void testToTextLanguageOnly() {
+    void testToTextLanguageOnly() {
         assertNull(LocaleConverter.INSTANCE.toText(mockContext, null));
         assertEquals("nl", LocaleConverter.INSTANCE.toText(mockContext, new Locale("nl")));
         assertEquals("en", LocaleConverter.INSTANCE.toText(mockContext, Locale.ENGLISH));
@@ -67,18 +69,18 @@ public class LocaleConverterTest {
     }
 
     @Test
-    public void testToTextLanguagePlusCountry() {
+    void testToTextLanguagePlusCountry() {
         assertEquals("nl_NL", LocaleConverter.INSTANCE.toText(mockContext, new Locale("nl", "NL")));
         assertEquals("en_GB", LocaleConverter.INSTANCE.toText(mockContext, Locale.UK));
     }
 
     @Test
-    public void testToTextLanguagePlusCountryPlusVariant() {
+    void testToTextLanguagePlusCountryPlusVariant() {
         assertEquals("es_ES_Traditional_WIN", LocaleConverter.INSTANCE.toText(mockContext, new Locale("es", "ES", "Traditional_WIN")));
     }
 
     @Test
-    public void testGetJavaType() {
+    void testGetJavaType() {
         assertSame(Locale.class, LocaleConverter.INSTANCE.getJavaType());
     }
 

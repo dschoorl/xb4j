@@ -14,35 +14,37 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 
-import org.junit.Test;
-
 public abstract class AbstractAttributeMutabilityTest<T extends AbstractAttribute> {
 
     protected T immutableAttribute = null;
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotSetGetter() {
-        immutableAttribute.setGetter(NoGetter.INSTANCE);
+    @Test
+    protected void testCannotSetGetter() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableAttribute.setGetter(NoGetter.INSTANCE));
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotSetSetter() {
-        immutableAttribute.setSetter(NoSetter.INSTANCE);
+    @Test
+    protected void testCannotSetSetter() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableAttribute.setSetter(NoSetter.INSTANCE));
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotSetRequired() {
-        immutableAttribute.setRequired(true);
+    @Test
+    protected void testCannotSetRequired() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableAttribute.setRequired(true));
     }
 
-    @Test(expected = Xb4jException.class)
-    public void testCannotSetDefault() {
-        immutableAttribute.setDefault("defaultValue");
+    @Test
+    protected void testCannotSetDefault() {
+        assertThrows(Xb4jException.class, () -> immutableAttribute.setDefault("defaultValue"));
     }
 
 }

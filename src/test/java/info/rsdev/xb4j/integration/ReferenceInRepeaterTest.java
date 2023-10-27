@@ -15,9 +15,17 @@
  */
 package info.rsdev.xb4j.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+import java.io.StringReader;
+import java.util.ArrayList;
+
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.ComplexType;
@@ -30,20 +38,12 @@ import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-import java.io.StringReader;
-import java.util.ArrayList;
-import javax.xml.namespace.QName;
-import org.junit.Before;
-import org.junit.Test;
 
-/**
- *
- */
-public class ReferenceInRepeaterTest {
+class ReferenceInRepeaterTest {
 
     private BindingModel model = null;
 
-    @Before
+    @BeforeEach
     public void setupBinding() {
         Root root = new Root(new QName("root"), ObjectTree.class);
         Sequence content = root.setChild(new Sequence(false));
@@ -62,7 +62,7 @@ public class ReferenceInRepeaterTest {
     }
 
     @Test
-    public void unmarshall() {
+    void unmarshall() {
         Object result = model.toJava(XmlStreamFactory.makeReader(new StringReader(REPEATING_VALUES)));
         assertNotNull(result);
         assertSame(ObjectTree.class, result.getClass());

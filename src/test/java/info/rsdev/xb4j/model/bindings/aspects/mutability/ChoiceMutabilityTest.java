@@ -14,6 +14,13 @@
  */
 package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
 import info.rsdev.xb4j.model.bindings.Attribute;
@@ -23,13 +30,10 @@ import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.model.bindings.chooser.PropertyNotNullChooser;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
-import javax.xml.namespace.QName;
-import org.junit.Before;
-import org.junit.Test;
 
-public class ChoiceMutabilityTest extends BaseBindingMutabilityTest<Choice> {
+class ChoiceMutabilityTest extends BaseBindingMutabilityTest<Choice> {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
         immutableElement = new Choice(new QName("level1"), false);
@@ -37,31 +41,31 @@ public class ChoiceMutabilityTest extends BaseBindingMutabilityTest<Choice> {
         root.makeImmutable();
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotAddOptionViaConvenienceMethod() {
-        immutableElement.addOption(new Element(new QName("level2"), false));
+    @Test
+    void testCannotAddOptionViaConvenienceMethod() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.addOption(new Element(new QName("level2"), false)));
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotAddOptionWithFieldnameAndChooser() {
-        immutableElement.addOption(new Element(new QName("level2"), false), "someField", new PropertyNotNullChooser("someField"));
+    @Test
+    void testCannotAddOptionWithFieldnameAndChooser() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.addOption(new Element(new QName("level2"), false), "someField", new PropertyNotNullChooser("someField")));
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotAddOptionWithChooser() {
-        immutableElement.addOption(new Element(new QName("level2"), false), new PropertyNotNullChooser("someField"));
+    @Test
+    void testCannotAddOptionWithChooser() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.addOption(new Element(new QName("level2"), false), new PropertyNotNullChooser("someField")));
     }
 
-    @Test(expected = Xb4jException.class)
+    @Test
     @Override
-    public void testCannotAddAttributeViaConvenienceMethod() {
-        immutableElement.addAttribute(new Attribute(new QName("number")), "hashcode");
+    void testCannotAddAttributeViaConvenienceMethod() {
+        assertThrows(Xb4jException.class, () -> immutableElement.addAttribute(new Attribute(new QName("number")), "hashcode"));
     }
 
-    @Test(expected = Xb4jException.class)
+    @Test
     @Override
-    public void testCannotAddAttributeWithGetterSetter() {
-        immutableElement.addAttribute(new Attribute(new QName("number")), NoGetter.INSTANCE, NoSetter.INSTANCE);
+    void testCannotAddAttributeWithGetterSetter() {
+        assertThrows(Xb4jException.class, () -> immutableElement.addAttribute(new Attribute(new QName("number")), NoGetter.INSTANCE, NoSetter.INSTANCE));
     }
 
 }

@@ -15,10 +15,21 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.xmlunit.assertj3.XmlAssert.assertThat;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.converter.NullConverter;
@@ -28,14 +39,6 @@ import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.test.UnmarshallUtils;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  *
@@ -53,7 +56,7 @@ public class SimpleTypeTest {
     private Root rootBinding = null;
     private Root nestedBinding = null;
 
-    @Before
+    @BeforeEach
     public void setupModel() {
         model = new BindingModel();
         model.registerRoot(new Root(Q_ROOT, Object.class));
@@ -71,7 +74,7 @@ public class SimpleTypeTest {
     }
 
     @Test
-    public void testMarshallingToEmptyElementNoNamespace() {
+    void testMarshallingToEmptyElementNoNamespace() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new Object();
         model.getXmlStreamer(instance.getClass(), UNQ_ROOT).toXml(XmlStreamFactory.makeWriter(stream), instance);
@@ -79,7 +82,7 @@ public class SimpleTypeTest {
     }
 
     @Test
-    public void testUnmarshallingFromEmptyElementNoNamespace() {
+    void testUnmarshallingFromEmptyElementNoNamespace() {
         byte[] buffer = "<root/>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -88,7 +91,7 @@ public class SimpleTypeTest {
     }
 
     @Test
-    public void testMarshallingToEmptyElementWithNamespace() {
+    void testMarshallingToEmptyElementWithNamespace() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Object instance = new Object();
         model.getXmlStreamer(instance.getClass(), Q_ROOT).toXml(XmlStreamFactory.makeWriter(stream), instance);
@@ -96,7 +99,7 @@ public class SimpleTypeTest {
     }
 
     @Test
-    public void testUnmarshallingFromEmptyElementWithNamespace() {
+    void testUnmarshallingFromEmptyElementWithNamespace() {
         byte[] buffer = "<tst:root xmlns:tst=\"urn:test/namespace\"/>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
         Object instance = model.toJava(XmlStreamFactory.makeReader(stream));
@@ -105,7 +108,7 @@ public class SimpleTypeTest {
     }
 
     @Test
-    public void testUnmarshalFromNestedXmlWithNamespaces() {
+    void testUnmarshalFromNestedXmlWithNamespaces() {
         treeBinding.setChild(new Element(new QName("urn:test/namespace/tree", "child", "tst"), ObjectA.class, false), "myObject");
 
         byte[] buffer = "<tst:tree xmlns:tst=\"urn:test/namespace/tree\"><tst:child/></tst:tree>".getBytes();
@@ -118,7 +121,7 @@ public class SimpleTypeTest {
     }
 
     @Test
-    public void testMarshallNestedBinding() throws Exception {
+    void testMarshallNestedBinding() throws Exception {
         treeBinding.setChild(new Element(new QName("urn:test/namespace/tree", "child", "tst"), ObjectA.class, false), "myObject");
 
         ObjectTree instance = new ObjectTree();
@@ -133,7 +136,7 @@ public class SimpleTypeTest {
     }
 
     @Test
-    public void testMarshallValue() throws Exception {
+    void testMarshallValue() throws Exception {
         ObjectA instance = new ObjectA("test");
 
         String expected = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>test</name></tst:myobject>";
@@ -143,7 +146,7 @@ public class SimpleTypeTest {
     }
 
     @Test
-    public void testUnmarshallValue() throws Exception {
+    void testUnmarshallValue() throws Exception {
         byte[] buffer = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>test</name></tst:myobject>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
 
@@ -154,7 +157,7 @@ public class SimpleTypeTest {
     }
 
     @Test
-    public void testMarshallValueWithDiacritics() throws Exception {
+    void testMarshallValueWithDiacritics() throws Exception {
         ObjectA instance = new ObjectA("Garçon");
 
         String expected = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>Garçon</name></tst:myobject>";
@@ -164,7 +167,7 @@ public class SimpleTypeTest {
     }
 
     @Test
-    public void testUnmarshallValueWithDiacritics() throws Exception {
+    void testUnmarshallValueWithDiacritics() throws Exception {
         byte[] buffer = "<tst:myobject xmlns:tst=\"urn:test/namespace\"><name>Garçon</name></tst:myobject>".getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
 
@@ -175,7 +178,7 @@ public class SimpleTypeTest {
     }
 
     @Test
-    public void testMarshallMandatorySimpleTypeNoTextWithAttributes() throws Exception {
+    void testMarshallMandatorySimpleTypeNoTextWithAttributes() throws Exception {
         StringWriter writer = new StringWriter();
         SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
 
@@ -188,25 +191,25 @@ public class SimpleTypeTest {
     }
 
     @Test
-    public void testOptionalSimpleTypeNoContentGeneratesNoOutput() {
+    void testOptionalSimpleTypeNoContentGeneratesNoOutput() {
         IBinding simple = new SimpleType(new QName("optional"), true);
         assertSame(OutputState.NO_OUTPUT, simple.generatesOutput(new JavaContext(null)));
     }
 
     @Test
-    public void testManadatorySimpleTypeNoContentWillColaborate() {
+    void testManadatorySimpleTypeNoContentWillColaborate() {
         IBinding simple = new SimpleType(new QName("mandatory"), false);
         assertSame(OutputState.COLLABORATE, simple.generatesOutput(new JavaContext(null)));
     }
 
     @Test
-    public void testOptionalSimpleTypeWithContentGeneratesOutput() {
+    void testOptionalSimpleTypeWithContentGeneratesOutput() {
         IBinding simple = new SimpleType(new QName("optional"), true);
         assertSame(OutputState.HAS_OUTPUT, simple.generatesOutput(new JavaContext("a value")));
     }
 
     @Test
-    public void ignoreMissingMandatoryContentWhenNilIsSetTrue() throws XMLStreamException {
+    void ignoreMissingMandatoryContentWhenNilIsSetTrue() throws XMLStreamException {
         SimpleType nillableSimpleType = new SimpleType(new QName("simple"), false, NILLABLE);
 
         UnmarshallResult result = UnmarshallUtils.unmarshall(nillableSimpleType, "<simple xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />");
@@ -214,7 +217,7 @@ public class SimpleTypeTest {
     }
     
     @Test
-    public void writeNilElementForNullValuedNillableBinding() throws Exception {
+    void writeNilElementForNullValuedNillableBinding() throws Exception {
         SimpleType nillableSimpleType = new SimpleType(new QName("simple"), false, NILLABLE);
         StringWriter writer = new StringWriter();
         SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
@@ -222,11 +225,11 @@ public class SimpleTypeTest {
         nillableSimpleType.toXml(staxWriter, new JavaContext(null));
         staxWriter.close();
 
-        assertXMLEqual("<simple xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />", writer.toString());
+        assertThat(writer.toString()).and("<simple xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />").areIdentical();
     }
     
     @Test
-    public void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
+    void doNotwriteNillAttributeWhenNillableBindingEncountersAValue() throws Exception {
         SimpleType nillableSimpleType = new SimpleType(new QName("simple"), false, NILLABLE);
         StringWriter writer = new StringWriter();
         SimplifiedXMLStreamWriter staxWriter = new SimplifiedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
@@ -234,6 +237,6 @@ public class SimpleTypeTest {
         nillableSimpleType.toXml(staxWriter, new JavaContext("name"));
         staxWriter.close();
 
-        assertXMLEqual("<simple>name</simple>", writer.toString());
+        assertThat(writer.toString()).and("<simple>name</simple>").areIdentical();
     }
 }

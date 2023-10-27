@@ -15,9 +15,13 @@
  */
 package info.rsdev.xb4j.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.StringReader;
+
+import javax.xml.stream.XMLStreamException;
 
 import info.rsdev.xb4j.model.bindings.IBinding;
 import info.rsdev.xb4j.model.bindings.Root;
@@ -25,8 +29,6 @@ import info.rsdev.xb4j.model.bindings.UnmarshallResult;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-import java.io.StringReader;
-import javax.xml.stream.XMLStreamException;
 
 /**
  *
@@ -78,7 +80,7 @@ public interface UnmarshallUtils {
      * @param actualResult the {@link UnmarshallResult}
      */
     static void assertResult(Object expectedObject, UnmarshallResult actualResult) {
-        assertTrue("Unexpected failure: " + actualResult, actualResult.isUnmarshallSuccessful());
+        assertTrue(actualResult.isUnmarshallSuccessful(), "Unexpected failure: " + actualResult);
         assertSame(expectedObject.getClass(), actualResult.getUnmarshalledObject().getClass());
         assertEquals(expectedObject, actualResult.getUnmarshalledObject());
     }
@@ -92,7 +94,7 @@ public interface UnmarshallUtils {
      * @return
      */
     static <T> T getContextObject(Class<T> expectedType, UnmarshallResult actualResult) {
-        assertTrue("Unexpected failure: " + actualResult, actualResult.isUnmarshallSuccessful());
+        assertTrue(actualResult.isUnmarshallSuccessful(), "Unexpected failure: " + actualResult);
         assertSame(expectedType, actualResult.getUnmarshalledObject().getClass());
         return (T)actualResult.getUnmarshalledObject();
     }

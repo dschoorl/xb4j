@@ -15,11 +15,27 @@
 package info.rsdev.xb4j.model.bindings;
 
 import static info.rsdev.xb4j.model.bindings.SchemaOptions.NILLABLE;
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.xmlunit.assertj3.XmlAssert.assertThat;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.exceptions.Xb4jUnmarshallException;
@@ -32,27 +48,15 @@ import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.test.UnmarshallUtils;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import org.junit.Ignore;
-import org.junit.Test;
 
 /**
  *
  * @author Dave Schoorl
  */
-public class MapRepeaterTest {
+class MapRepeaterTest {
 
     @Test
-    public void testMarshallValueMapNoContainerElement() {
+    void testMarshallValueMapNoContainerElement() {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
@@ -70,7 +74,7 @@ public class MapRepeaterTest {
     }
 
     @Test
-    public void testMarshallRootAsMapType() {
+    void testMarshallRootAsMapType() {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), LinkedHashMap.class));
@@ -87,19 +91,19 @@ public class MapRepeaterTest {
         assertEquals("<root><key>1</key><value>Een</value><key>2</key><value>Twee</value></root>", result);
     }
 
-    @Test(expected = Xb4jMarshallException.class)
-    public void testMarshallExpectParentBindingToProvideMapButNoMap() {
+    @Test
+    void testMarshallExpectParentBindingToProvideMapButNoMap() {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));	//Root binding must represent Map type, but does not
         MapRepeater map = root.setChild(new MapRepeater(false));
         map.setKeyValue(new SimpleType(new QName("key"), false), new SimpleType(new QName("value"), false));
 
-        model.getXmlStreamer(ObjectTree.class, null).toXml(XmlStreamFactory.makeWriter(new ByteArrayOutputStream()), new ObjectTree());
+        assertThrows(Xb4jMarshallException.class, () -> model.getXmlStreamer(ObjectTree.class, null).toXml(XmlStreamFactory.makeWriter(new ByteArrayOutputStream()), new ObjectTree()));
     }
 
     @Test
-    public void testMarshallValueMapWithContainerElement() {
+    void testMarshallValueMapWithContainerElement() {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
@@ -117,7 +121,7 @@ public class MapRepeaterTest {
     }
 
     @Test
-    public void testUnmarshallValueMapNoContainerElement() {
+    void testUnmarshallValueMapNoContainerElement() {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
@@ -136,7 +140,7 @@ public class MapRepeaterTest {
     }
 
     @Test
-    public void testUnmarshallRootAsMapType() {
+    void testUnmarshallRootAsMapType() {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), LinkedHashMap.class));
@@ -153,8 +157,8 @@ public class MapRepeaterTest {
         assertArrayEquals(new String[]{"Een", "Twee"}, mappings.values().toArray());
     }
 
-    @Test(expected = Xb4jUnmarshallException.class)
-    public void testUnmarshallExpectParentBindingToProvideMapButNoMap() {
+    @Test
+    void testUnmarshallExpectParentBindingToProvideMapButNoMap() {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));	//Root binding must represent Map type, but does not
@@ -162,11 +166,11 @@ public class MapRepeaterTest {
         map.setKeyValue(new SimpleType(new QName("key"), false), new SimpleType(new QName("value"), false));
 
         ByteArrayInputStream stream = new ByteArrayInputStream("<root><key>1</key><value>Een</value><key>2</key><value>Twee</value></root>".getBytes());
-        model.toJava(XmlStreamFactory.makeReader(stream));
+        assertThrows(Xb4jUnmarshallException.class, () -> model.toJava(XmlStreamFactory.makeReader(stream)));
     }
 
     @Test
-    public void testUnmarshallValueMapWithContainerElement() {
+    void testUnmarshallValueMapWithContainerElement() {
         //fixture
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
@@ -184,32 +188,32 @@ public class MapRepeaterTest {
     }
 
     @Test
-    public void testRepeaterNoMapNoElementGeneratesNoOutput() {
+    void testRepeaterNoMapNoElementGeneratesNoOutput() {
         MapRepeater repeater = new MapRepeater(LinkedHashMap.class, false);
         assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(null)));
     }
 
     @Test
-    public void testRepeaterEmptyMapNoElementGeneratesNoOutput() {
+    void testRepeaterEmptyMapNoElementGeneratesNoOutput() {
         MapRepeater repeater = new MapRepeater(LinkedHashMap.class, false);
         assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(new LinkedHashMap<>())));
     }
 
     @Test
-    public void testRepeaterEmptyMapOptionalElementGeneratesNoOutput() {
+    void testRepeaterEmptyMapOptionalElementGeneratesNoOutput() {
         MapRepeater repeater = new MapRepeater(new QName("optional"), LinkedHashMap.class, true);
         assertSame(OutputState.NO_OUTPUT, repeater.generatesOutput(new JavaContext(new LinkedHashMap<>())));
     }
 
     @Test
-    public void testRepeaterEmptyCollectionMandatoryElementGeneratesNoOutput() {
+    void testRepeaterEmptyCollectionMandatoryElementGeneratesNoOutput() {
         Repeater repeater = new Repeater(new QName("mandatory"), ArrayList.class, false);
         assertSame(OutputState.HAS_OUTPUT, repeater.generatesOutput(new JavaContext(new ArrayList<>())));
     }
 
     @Test
-    @Ignore("TBD: rewrite for MapRepeater and use index as key or value?")
-    public void testMarshallCollectionIndexAsAttribute() throws Exception {
+    @Disabled("TBD: rewrite for MapRepeater and use index as key or value?")
+    void testMarshallCollectionIndexAsAttribute() throws Exception {
         //work on a collection of Strings
         BindingModel model = new BindingModel();
         Root root = model.registerRoot(new Root(new QName("root"), ObjectTree.class));
@@ -228,8 +232,8 @@ public class MapRepeaterTest {
     }
 
     @Test
-    @Ignore("TBD: rewrite for MapRepeater and use index as key or value?")
-    public void testMarshallCollectionIndexAsElement() throws Exception {
+    @Disabled("TBD: rewrite for MapRepeater and use index as key or value?")
+    void testMarshallCollectionIndexAsElement() throws Exception {
         BindingModel model = new BindingModel();
         Root root = new Root(new QName("root"), ObjectTree.class);
         Repeater collection = root.setChild(new Repeater(new QName("collection"), ArrayList.class, true), "messages");
@@ -249,7 +253,7 @@ public class MapRepeaterTest {
     }
 
     @Test
-    public void ignoreMissingMandatoryItemWhenNilIsSetTrue() throws XMLStreamException {
+    void ignoreMissingMandatoryItemWhenNilIsSetTrue() throws XMLStreamException {
         MapRepeater nillableMapRepeater = new MapRepeater(new QName("map"), TreeMap.class, false, NILLABLE);
         nillableMapRepeater.setKeyValue(new SimpleType(new QName("key"), false),
                                      new SimpleType(new QName("value"), false));
@@ -258,7 +262,7 @@ public class MapRepeaterTest {
         assertEquals(UnmarshallResult.NO_RESULT, result);
     }
      @Test
-    public void writeNilElementForNullValuedNillableBinding() throws Exception {
+    void writeNilElementForNullValuedNillableBinding() throws Exception {
         MapRepeater nillableMapRepeater = new MapRepeater(new QName("map"), TreeMap.class, false, NILLABLE);
         nillableMapRepeater.setKeyValue(new SimpleType(new QName("key"), false),
                                      new SimpleType(new QName("value"), false));
@@ -269,6 +273,6 @@ public class MapRepeaterTest {
         nillableMapRepeater.toXml(staxWriter, new JavaContext(null));
         staxWriter.close();
 
-        assertXMLEqual("<map xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />", writer.toString());
+        assertThat(writer.toString()).and("<map xsi:nil='true' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' />").areIdentical();
     }
 }

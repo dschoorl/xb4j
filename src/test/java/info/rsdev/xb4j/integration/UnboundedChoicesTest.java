@@ -1,14 +1,15 @@
 package info.rsdev.xb4j.integration;
 
+import static info.rsdev.xb4j.test.UnmarshallUtils.unmarshall;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 import java.util.ArrayList;
 
 import javax.xml.namespace.QName;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-import static info.rsdev.xb4j.test.UnmarshallUtils.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import info.rsdev.xb4j.model.bindings.Choice;
 import info.rsdev.xb4j.model.bindings.Element;
@@ -24,7 +25,7 @@ public class UnboundedChoicesTest {
     private Repeater repeater = null;
     private Choice choice = null;
 
-    @Before
+    @BeforeEach
     public void setup() {
         Root root = new Root(new QName("sigh"), Object.class);
         repeater = root.setChild(new Repeater(new QName("list"), ArrayList.class, true));

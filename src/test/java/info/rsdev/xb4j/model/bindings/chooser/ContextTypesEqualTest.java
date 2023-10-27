@@ -15,33 +15,36 @@
  */
 package info.rsdev.xb4j.model.bindings.chooser;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectC;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Before;
 
 /**
  *
  * @author Dave Schoorl
  */
-public class ContextTypesEqualTest {
+class ContextTypesEqualTest {
     
     private ContextTypesEqual chooserUnderTest = null;
     
-    @Before
+    @BeforeEach
     public void setup() {
         this.chooserUnderTest = new ContextTypesEqual(ObjectA.class);
     }
     
     @Test
-    public void doNotMatchOnSubtypes() {
+    void doNotMatchOnSubtypes() {
         assertFalse(chooserUnderTest.matches(new JavaContext(new ObjectC())));
     }
     
     @Test
-    public void matchOnSameType() {
+    void matchOnSameType() {
         assertTrue(chooserUnderTest.matches(new JavaContext(new ObjectA("a"))));
     }
     

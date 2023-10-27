@@ -14,7 +14,16 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.io.StringWriter;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import info.rsdev.xb4j.exceptions.Xb4jMarshallException;
 import info.rsdev.xb4j.model.bindings.action.IMarshallingAction;
@@ -23,13 +32,8 @@ import info.rsdev.xb4j.test.FixedValueTestAction;
 import info.rsdev.xb4j.test.NullValueTestAction;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
-import java.io.StringWriter;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import org.junit.Before;
-import org.junit.Test;
 
-public class ElementInjectorTest {
+class ElementInjectorTest {
 
     private IMarshallingAction action = null;
 
@@ -37,7 +41,7 @@ public class ElementInjectorTest {
 
     private SimplifiedXMLStreamWriter staxWriter = null;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         action = new FixedValueTestAction();
         writer = new StringWriter();
@@ -45,7 +49,7 @@ public class ElementInjectorTest {
     }
 
     @Test
-    public void testInjectText() throws Exception {
+    void testInjectText() throws Exception {
         ElementInjector xmlInjector = new ElementInjector(new QName("Injected"), action, false);
         xmlInjector.toXml(staxWriter, new JavaContext(new ObjectA("true")));
         staxWriter.close();
@@ -54,7 +58,7 @@ public class ElementInjectorTest {
     }
 
     @Test
-    public void testInjectOptionalElementNoText() throws Exception {
+    void testInjectOptionalElementNoText() throws Exception {
         ElementInjector xmlInjector = new ElementInjector(new QName("Injected"), new NullValueTestAction(), true);
         xmlInjector.toXml(staxWriter, new JavaContext(new ObjectA("true")));
         staxWriter.close();
@@ -62,14 +66,14 @@ public class ElementInjectorTest {
         assertEquals("", this.writer.toString());
     }
 
-    @Test(expected = Xb4jMarshallException.class)
-    public void testInjectMandatoryElementNoText() throws Exception {
+    @Test
+    void testInjectMandatoryElementNoText() throws Exception {
         ElementInjector xmlInjector = new ElementInjector(new QName("Injected"), new NullValueTestAction(), false);
-        xmlInjector.toXml(staxWriter, new JavaContext(new ObjectA("true")));
+        assertThrows(Xb4jMarshallException.class, () -> xmlInjector.toXml(staxWriter, new JavaContext(new ObjectA("true"))));
     }
 
     @Test
-    public void testInjectMandatoryElementNoTextWithAttributes() throws Exception {
+    void testInjectMandatoryElementNoTextWithAttributes() throws Exception {
         Root root = new Root(new QName("Root"), Object.class);
         ElementInjector xmlInjector = root.setChild(new ElementInjector(new QName("Injected"), new NullValueTestAction(), false));
         xmlInjector.addAttribute(new Attribute(new QName("attributes")), "name");

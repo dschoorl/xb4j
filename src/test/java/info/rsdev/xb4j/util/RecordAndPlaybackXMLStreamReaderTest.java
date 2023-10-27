@@ -14,21 +14,24 @@
  */
 package info.rsdev.xb4j.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.Marker;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import org.junit.After;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import info.rsdev.xb4j.util.RecordAndPlaybackXMLStreamReader.Marker;
 
 public class RecordAndPlaybackXMLStreamReaderTest {
 
@@ -44,7 +47,7 @@ public class RecordAndPlaybackXMLStreamReaderTest {
 
     private static final QName BAR = new QName("urn:test/baz", "bar");
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         if (staxReader != null) {
             staxReader.close(true);	//this also closes the underlying xmlstream

@@ -14,31 +14,32 @@
  */
 package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
+import static org.junit.jupiter.api.Assertions.*;
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
 import info.rsdev.xb4j.model.bindings.AbstractContainerBinding;
 import info.rsdev.xb4j.model.bindings.Element;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 
-import javax.xml.namespace.QName;
+abstract class AbstractContainerBindingMutabilityTest<T extends AbstractContainerBinding> extends BaseBindingMutabilityTest<T> {
 
-import org.junit.Test;
-
-public abstract class AbstractContainerBindingMutabilityTest<T extends AbstractContainerBinding> extends BaseBindingMutabilityTest<T> {
-
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotAddBinding() {
-        immutableElement.add(new Element(new QName("level2"), false));
+    @Test
+    void testCannotAddBinding() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.add(new Element(new QName("level2"), false)));
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotAddBindingViaConvenienceMethod() {
-        immutableElement.add(new Element(new QName("level2"), false), "someField");
+    @Test
+    void testCannotAddBindingViaConvenienceMethod() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.add(new Element(new QName("level2"), false), "someField"));
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotAddBindingViaGetterSetter() {
-        immutableElement.add(new Element(new QName("level2"), false), NoGetter.INSTANCE, NoSetter.INSTANCE);
+    @Test
+    void testCannotAddBindingViaGetterSetter() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.add(new Element(new QName("level2"), false), NoGetter.INSTANCE, NoSetter.INSTANCE));
     }
 
 }

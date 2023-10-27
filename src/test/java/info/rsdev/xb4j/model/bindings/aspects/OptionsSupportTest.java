@@ -15,8 +15,16 @@
  */
 package info.rsdev.xb4j.model.bindings.aspects;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import info.rsdev.xb4j.model.bindings.Choice;
 import info.rsdev.xb4j.model.bindings.ComplexType;
@@ -41,30 +49,15 @@ import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.test.ChinesePerson;
 import info.rsdev.xb4j.util.file.IFileOutputStrategy;
 import info.rsdev.xb4j.util.file.IXmlCodingFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import javax.xml.namespace.QName;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 /**
  * Make sure that the options added to a constructor can be queried later on.
  * @author Dave Schoorl
  */
-@RunWith(Parameterized.class)
 public class OptionsSupportTest {
     
     private static final SchemaOptions OPTION = SchemaOptions.NILLABLE;
     
-    private final IBinding bindingUnderTest;
-    
-    public OptionsSupportTest(IBinding implementation) {
-        this.bindingUnderTest = implementation;
-    }
-    
-    @Parameters
     public static Object[] createBindingInstances() {
         //The weakness of this test is that it is easy to forget to add new constructors or new IBinding-implementations
         return new Object [] {
@@ -106,10 +99,11 @@ public class OptionsSupportTest {
             new SimpleType(new QName("simpletype"), mock(IValueConverter.class), true, OPTION)
         };
     }
-    
-    @Test
-    public void isOptionPresent() {
+
+    @ParameterizedTest
+    @MethodSource("createBindingInstances")
+    void isOptionPresent(IBinding bindingUnderTest) {
         assertTrue(bindingUnderTest.hasOption(OPTION));
     }
-    
+
 }

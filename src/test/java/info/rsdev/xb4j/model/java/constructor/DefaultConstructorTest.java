@@ -14,27 +14,29 @@
  */
 package info.rsdev.xb4j.model.java.constructor;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.SubclassedObjectA;
 
-import org.junit.Test;
-
-public class DefaultConstructorTest {
+class DefaultConstructorTest {
 
     @Test
-    public void testInstantiatePrivateDefaultConstructor() {
+    void testInstantiatePrivateDefaultConstructor() {
         DefaultConstructor constructor = new DefaultConstructor(ObjectA.class);
         Object instance = constructor.newInstance(null, null);
         assertNotNull(instance);
         assertSame(ObjectA.class, instance.getClass());
     }
 
-    @Test(expected = Xb4jException.class)
-    public void testNoDefaultConstructor() {
-        new DefaultConstructor(SubclassedObjectA.class);    //has no default constructor
+    @Test
+    void testNoDefaultConstructor() {
+        assertThrows(Xb4jException.class, () -> new DefaultConstructor(SubclassedObjectA.class));    //has no default constructor
     }
 
     //TODO: test with anonymous inner classes?

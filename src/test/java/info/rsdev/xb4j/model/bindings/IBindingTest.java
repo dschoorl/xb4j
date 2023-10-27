@@ -15,34 +15,41 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ITestSubject;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectB;
-import java.util.Collections;
-import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import static org.mockito.Mockito.*;
 
 /**
  *
  * @author Dave Schoorl
  */
-public class IBindingTest {
+class IBindingTest {
     
     private IBinding mockBinding = null;
     private static final Map<String, Object> map = Collections.emptyMap();
     
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mockBinding = mock(IBinding.class);
         doCallRealMethod().when(mockBinding).validateContextObject(any());
     }
 
     @Test
-    public void theContextObjectMustMatchTheBindingsJavatype() {
+    void theContextObjectMustMatchTheBindingsJavatype() {
         JavaContext javaContext = new JavaContext(new ObjectA("A"), map);
         when(mockBinding.getProperty(javaContext)).thenReturn(javaContext);
         when(mockBinding.getJavaType()).thenReturn(ObjectA.class);
@@ -50,31 +57,31 @@ public class IBindingTest {
     }
     
     @Test
-    public void orTheContextObjectIsASubtypeOfJavatype() {
+    void orTheContextObjectIsASubtypeOfJavatype() {
         JavaContext javaContext = new JavaContext(new ObjectA("A"), map);
         when(mockBinding.getProperty(javaContext)).thenReturn(javaContext);
         when(mockBinding.getJavaType()).thenReturn(ITestSubject.class);
         mockBinding.validateContextObject(javaContext);    //no exception means a succesfull test
     }
     
-    @Test(expected=Xb4jException.class)
-    public void failWhenContextTypeIsNotASubtypeOfTheJavatype() {
+    @Test
+    void failWhenContextTypeIsNotASubtypeOfTheJavatype() {
         JavaContext javaContext = new JavaContext(new ObjectB(100), map);
         when(mockBinding.getProperty(javaContext)).thenReturn(javaContext);
         when(mockBinding.getJavaType()).thenReturn(ObjectA.class);
-        mockBinding.validateContextObject(javaContext);
-    }
-    
-    @Test(expected=Xb4jException.class)
-    public void failWhenTheContextObjectIsNotASubtypeOfJavatype() {
-        JavaContext javaContext = new JavaContext(new Object(), map);
-        when(mockBinding.getProperty(javaContext)).thenReturn(javaContext);
-        when(mockBinding.getJavaType()).thenReturn(ITestSubject.class);
-        mockBinding.validateContextObject(javaContext);
+        assertThrows(Xb4jException.class, () -> mockBinding.validateContextObject(javaContext));
     }
     
     @Test
-    public void aBindingIsNotRequiredToHaveAJavaType() {
+    void failWhenTheContextObjectIsNotASubtypeOfJavatype() {
+        JavaContext javaContext = new JavaContext(new Object(), map);
+        when(mockBinding.getProperty(javaContext)).thenReturn(javaContext);
+        when(mockBinding.getJavaType()).thenReturn(ITestSubject.class);
+        assertThrows(Xb4jException.class, () -> mockBinding.validateContextObject(javaContext));
+    }
+    
+    @Test
+    void aBindingIsNotRequiredToHaveAJavaType() {
         JavaContext javaContext = new JavaContext(new ObjectA("A"), map);
         when(mockBinding.getProperty(javaContext)).thenReturn(javaContext);
         when(mockBinding.getJavaType()).thenReturn(null);

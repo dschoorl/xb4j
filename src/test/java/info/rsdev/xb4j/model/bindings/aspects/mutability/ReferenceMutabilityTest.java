@@ -14,16 +14,18 @@
  */
 package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.ComplexType;
 import info.rsdev.xb4j.model.bindings.Reference;
 import info.rsdev.xb4j.model.bindings.Root;
-import javax.xml.namespace.QName;
-import org.junit.Before;
 
 public class ReferenceMutabilityTest extends BaseBindingMutabilityTest<Reference> {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         BindingModel model = new BindingModel();
         Root root = new Root(new QName("root"), Object.class);

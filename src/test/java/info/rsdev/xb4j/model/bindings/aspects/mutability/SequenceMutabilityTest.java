@@ -14,29 +14,31 @@
  */
 package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
-import info.rsdev.xb4j.exceptions.Xb4jException;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
 import info.rsdev.xb4j.model.bindings.Element;
 import info.rsdev.xb4j.model.bindings.Root;
-import javax.xml.namespace.QName;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import org.junit.Before;
-import org.junit.Test;
 
 public class SequenceMutabilityTest extends AbstractSingleBindingMutabilityTest<Root> {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         immutableElement = new Root(new QName("root"), Object.class);
         immutableElement.makeImmutable();
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
+    @Test
     @Override
     public void testCannotSetParent() {
         assertNull(immutableElement.getParent());
-        immutableElement.setParent(new Element(new QName("ghost"), false));
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.setParent(new Element(new QName("ghost"), false)));
     }
 
 }

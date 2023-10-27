@@ -1,9 +1,20 @@
 package info.rsdev.xb4j.integration;
 
 import static info.rsdev.xb4j.test.UnmarshallUtils.unmarshall;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import info.rsdev.xb4j.model.bindings.Choice;
 import info.rsdev.xb4j.model.bindings.Element;
@@ -14,14 +25,8 @@ import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.model.converter.IntegerConverter;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectB;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-import org.junit.Before;
-import org.junit.Test;
 
-public class NoEndlessLoopTest {
+class NoEndlessLoopTest {
 
     private static class DocRoot {
 
@@ -30,7 +35,7 @@ public class NoEndlessLoopTest {
 
     private Root root = null;
 
-    @Before
+    @BeforeEach
     public void setupBinding() {
         root = new Root(new QName("root"), DocRoot.class);
         Element with = root.setChild(new Element(new QName("with"), false));
@@ -47,8 +52,9 @@ public class NoEndlessLoopTest {
 
     }
 
-    @Test(timeout = 500)
-    public void stopRepeaterWhenChildChoiceHasNoMoreFittingOptions() throws XMLStreamException {
+    @Test
+    @Timeout(value=500, unit = TimeUnit.MILLISECONDS)
+    void stopRepeaterWhenChildChoiceHasNoMoreFittingOptions() throws XMLStreamException {
         DocRoot docRoot = unmarshall(root, DocRoot.class, EXAMPLE);
         assertNotNull(docRoot.collection);
         assertEquals(1, docRoot.collection.size());
@@ -56,8 +62,9 @@ public class NoEndlessLoopTest {
         assertEquals(3, ((ArrayList<?>) docRoot.collection.get(0)).size());
     }
 
-    @Test(timeout = 500)
-    public void stopRepeaterWhenThereAreNoFittingOptions() throws XMLStreamException {
+    @Test
+    @Timeout(value=500, unit = TimeUnit.MILLISECONDS)
+    void stopRepeaterWhenThereAreNoFittingOptions() throws XMLStreamException {
         DocRoot docRoot = unmarshall(root, DocRoot.class, EMPTY_EXAMPLE);
         assertNotNull(docRoot);
         assertNotNull(docRoot.collection);

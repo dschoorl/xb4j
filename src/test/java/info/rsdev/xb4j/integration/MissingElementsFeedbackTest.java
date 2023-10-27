@@ -17,9 +17,17 @@ package info.rsdev.xb4j.integration;
 
 import static info.rsdev.xb4j.test.UnmarshallUtils.unmarshall;
 import static org.hamcrest.core.StringStartsWith.startsWith;
-import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.util.ArrayList;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.bindings.Choice;
@@ -29,11 +37,6 @@ import info.rsdev.xb4j.model.bindings.Sequence;
 import info.rsdev.xb4j.model.bindings.SimpleType;
 import info.rsdev.xb4j.model.bindings.UnmarshallResult;
 import info.rsdev.xb4j.test.ObjectC;
-import java.util.ArrayList;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 /**
  * Test the usability of feedback messages when mandatory elements are missing

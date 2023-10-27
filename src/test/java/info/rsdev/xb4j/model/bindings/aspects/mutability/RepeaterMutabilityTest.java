@@ -14,21 +14,23 @@
  */
 package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
-import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
-import info.rsdev.xb4j.model.bindings.Element;
-import info.rsdev.xb4j.model.bindings.Repeater;
-import info.rsdev.xb4j.model.bindings.Root;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 
 import javax.xml.namespace.QName;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class RepeaterMutabilityTest extends BaseBindingMutabilityTest<Repeater> {
+import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
+import info.rsdev.xb4j.model.bindings.Element;
+import info.rsdev.xb4j.model.bindings.Repeater;
+import info.rsdev.xb4j.model.bindings.Root;
 
-    @Before
+class RepeaterMutabilityTest extends BaseBindingMutabilityTest<Repeater> {
+
+    @BeforeEach
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
         immutableElement = new Repeater(new QName("level1"), ArrayList.class, true);
@@ -36,14 +38,14 @@ public class RepeaterMutabilityTest extends BaseBindingMutabilityTest<Repeater> 
         root.makeImmutable();
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotSetMaxOccurs() {
-        immutableElement.setMaxOccurs(3);
+    @Test
+    void testCannotSetMaxOccurs() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.setMaxOccurs(3));
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotSetItem() {
-        immutableElement.setItem(new Element(new QName("item"), false));
+    @Test
+    void testCannotSetItem() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.setItem(new Element(new QName("item"), false)));
     }
 
 }

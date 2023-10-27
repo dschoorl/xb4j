@@ -14,7 +14,14 @@
  */
 package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
 import info.rsdev.xb4j.model.bindings.Attribute;
 import info.rsdev.xb4j.model.bindings.ComplexType;
@@ -23,33 +30,28 @@ import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 
-import javax.xml.namespace.QName;
-
-import org.junit.Before;
-import org.junit.Test;
-
 public class ComplexTypeMutabilityTest extends AbstractSingleBindingMutabilityTest<ComplexType> {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         immutableElement = new ComplexType("identifier", "namespace", false);
         immutableElement.makeImmutable();
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
+    @Test
     @Override
     public void testCannotSetParent() {
         assertNull(immutableElement.getParent());
-        immutableElement.setParent(new Element(new QName("ghost"), false));
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.setParent(new Element(new QName("ghost"), false)));
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
+    @Test
     @Override
     public void testCannotAddAttributeWithGetterSetter() {
         Root root = new Root(new QName("root"), Object.class);
         ComplexType type = new ComplexType(new QName("complex"), root, "hashcode", false);
         root.makeImmutable();
-        type.addAttribute(new Attribute(new QName("number")), NoGetter.INSTANCE, NoSetter.INSTANCE);
+        assertThrows(Xb4jMutabilityException.class, () -> type.addAttribute(new Attribute(new QName("number")), NoGetter.INSTANCE, NoSetter.INSTANCE));
     }
 
 }

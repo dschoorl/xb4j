@@ -14,9 +14,17 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import info.rsdev.xb4j.model.BindingModel;
 import info.rsdev.xb4j.model.converter.IntegerConverter;
@@ -25,20 +33,15 @@ import info.rsdev.xb4j.model.xml.IElementFetchStrategy;
 import info.rsdev.xb4j.test.ObjectB;
 import info.rsdev.xb4j.test.ObjectTree;
 import info.rsdev.xb4j.util.XmlStreamFactory;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import javax.xml.namespace.QName;
-import org.junit.Before;
-import org.junit.Test;
 
-public class SimpleArgumentTest {
+class SimpleArgumentTest {
 
     private static final QName GETAL = new QName("getal");
 
     private BindingModel model = null;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         model = new BindingModel();
         Root root = (new Root(new QName("root"), ObjectTree.class));
         Sequence objectB = root.setChild(new Sequence((IElementFetchStrategy) null, new ArgsConstructor(ObjectB.class, GETAL), false), "myObject");
@@ -47,7 +50,7 @@ public class SimpleArgumentTest {
     }
 
     @Test
-    public void readIntegerFromXmlAndUseInConstructor() throws IOException {
+    void readIntegerFromXmlAndUseInConstructor() throws IOException {
         try (ByteArrayInputStream stream = new ByteArrayInputStream("<root><getal>123</getal></root>".getBytes("UTF-8"))) {
             ObjectTree instance = (ObjectTree) model.toJava(XmlStreamFactory.makeReader(stream));
             assertNotNull(instance);

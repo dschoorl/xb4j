@@ -14,14 +14,17 @@
  */
 package info.rsdev.xb4j.model.converter;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.ValidationException;
 import info.rsdev.xb4j.model.java.JavaContext;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 public class EnumConverterTest {
 
@@ -33,15 +36,15 @@ public class EnumConverterTest {
 
     private JavaContext mockContext = null;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.converter = new EnumConverter(TestEnum.class);
         this.mockContext = mock(JavaContext.class);
     }
 
-    @After
+    @AfterEach
     public void teardown() {
-        verifyZeroInteractions(mockContext);    //JavaContext is not used by this converter
+        verifyNoInteractions(mockContext);    //JavaContext is not used by this converter
     }
 
     @Test
@@ -54,9 +57,9 @@ public class EnumConverterTest {
         assertEquals(TestEnum.TESTOFF, converter.toObject(null, "TESTOFF"));
     }
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void toTextOnNoneEnumType() {
-        converter.toText(null, "I am a String, not an enum value");
+        assertThrows(ValidationException.class, () -> converter.toText(null, "I am a String, not an enum value"));
     }
 
 }

@@ -14,22 +14,25 @@
  */
 package info.rsdev.xb4j.model.java.accessor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.LinkedList;
+
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.model.java.JavaContext;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.test.ObjectC;
 import info.rsdev.xb4j.test.SubclassedObjectA;
-import java.util.LinkedList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
 
-public class BeanPropertyAccessorTest {
+class BeanPropertyAccessorTest {
 
     @Test
-    public void testSetProtectedProperty() {
+    void testSetProtectedProperty() {
         BeanPropertyAccessor accessor = new BeanPropertyAccessor("aName");
 
         ObjectA context = new ObjectA("test");
@@ -39,7 +42,7 @@ public class BeanPropertyAccessorTest {
     }
 
     @Test
-    public void testSetPrimitiveProperty() {
+    void testSetPrimitiveProperty() {
         BeanPropertyAccessor accessor = new BeanPropertyAccessor("initialized");
 
         ObjectC context = new ObjectC();
@@ -49,7 +52,7 @@ public class BeanPropertyAccessorTest {
     }
 
     @Test
-    public void testSetSuperclassProperty() {
+    void testSetSuperclassProperty() {
         BeanPropertyAccessor accessor = new BeanPropertyAccessor("aName");
 
         SubclassedObjectA context = new SubclassedObjectA("test");
@@ -59,7 +62,7 @@ public class BeanPropertyAccessorTest {
     }
 
     @Test
-    public void testGetProtectedProperty() {
+    void testGetProtectedProperty() {
         BeanPropertyAccessor accessor = new BeanPropertyAccessor("details");
 
         LinkedList<String> details = new LinkedList<>();
@@ -71,7 +74,7 @@ public class BeanPropertyAccessorTest {
     }
 
     @Test
-    public void testGetPrimitiveBoolean() {
+    void testGetPrimitiveBoolean() {
         BeanPropertyAccessor accessor = new BeanPropertyAccessor("initialized");
 
         ObjectC context = new ObjectC();
@@ -84,7 +87,7 @@ public class BeanPropertyAccessorTest {
     }
 
     @Test
-    public void testGetSuperclassProperty() {
+    void testGetSuperclassProperty() {
         BeanPropertyAccessor accessor = new BeanPropertyAccessor("aName");
 
         SubclassedObjectA context = new SubclassedObjectA("test");

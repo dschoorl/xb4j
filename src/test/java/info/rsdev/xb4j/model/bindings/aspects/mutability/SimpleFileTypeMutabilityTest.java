@@ -14,18 +14,20 @@
  */
 package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
 import info.rsdev.xb4j.model.bindings.Root;
 import info.rsdev.xb4j.model.bindings.SimpleFileType;
 
-import javax.xml.namespace.QName;
+class SimpleFileTypeMutabilityTest extends BaseBindingMutabilityTest<SimpleFileType> {
 
-import org.junit.Before;
-import org.junit.Test;
-
-public class SimpleFileTypeMutabilityTest extends BaseBindingMutabilityTest<SimpleFileType> {
-
-    @Before
+    @BeforeEach
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
         immutableElement = new SimpleFileType(new QName("level1"), false);
@@ -33,14 +35,14 @@ public class SimpleFileTypeMutabilityTest extends BaseBindingMutabilityTest<Simp
         root.makeImmutable();
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotSetCodingtypeFrom() {
-        immutableElement.setCodingtypeFrom(new QName("encodingAttribute"), "Base64");
+    @Test
+    void testCannotSetCodingtypeFrom() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.setCodingtypeFrom(new QName("encodingAttribute"), "Base64"));
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
-    public void testCannotSetFilenameHintFrom() {
-        immutableElement.setFilenameHintFrom(new QName("filenameAttribute"), "archive.zip");
+    @Test
+    void testCannotSetFilenameHintFrom() {
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.setFilenameHintFrom(new QName("filenameAttribute"), "archive.zip"));
     }
 
 }

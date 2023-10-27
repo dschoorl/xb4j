@@ -1,13 +1,17 @@
 package info.rsdev.xb4j.model.java.accessor;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.Xb4jException;
 import info.rsdev.xb4j.model.java.JavaContext;
 
-import org.junit.Before;
-import org.junit.Test;
-
-public class MethodGetterTest {
+class MethodGetterTest {
 
     private class SuperComputer {
 
@@ -19,13 +23,13 @@ public class MethodGetterTest {
 
     private MethodGetter getter = null;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.getter = new MethodGetter("getAnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything");
     }
 
     @Test
-    public void methodGetterObtainsValueThroughFullMethodName() {
+    void methodGetterObtainsValueThroughFullMethodName() {
         JavaContext myContext = new JavaContext(new SuperComputer());
         JavaContext returnContext = getter.get(myContext);
         assertNotNull(returnContext.getContextObject());
@@ -33,10 +37,10 @@ public class MethodGetterTest {
         assertEquals(42, returnContext.getContextObject());
     }
 
-    @Test(expected = Xb4jException.class)
-    public void methodGetterThrowsExceptionOnAccessWhenMethodNotExists() {
+    @Test
+    void methodGetterThrowsExceptionOnAccessWhenMethodNotExists() {
         JavaContext myContext = new JavaContext(new Object());
-        getter.get(myContext);
+        assertThrows(Xb4jException.class, () -> getter.get(myContext));
     }
 
 }

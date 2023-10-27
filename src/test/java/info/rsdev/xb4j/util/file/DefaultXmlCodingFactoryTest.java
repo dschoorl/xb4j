@@ -1,8 +1,8 @@
 package info.rsdev.xb4j.util.file;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -10,12 +10,12 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import org.apache.commons.codec.binary.Base64InputStream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class DefaultXmlCodingFactoryTest {
+class DefaultXmlCodingFactoryTest {
 
     @Test
-    public void testGetDecodingStream() throws Exception {
+    void testGetDecodingStream() throws Exception {
         byte[] buffer = "SGVsbG8gd29ybGQh".getBytes();	//Base64 encoded version of 'Hello world!'
         ByteArrayInputStream in = new ByteArrayInputStream(buffer);
         InputStream decodingStream = DefaultXmlCodingFactory.INSTANCE.getEncodingStream(in, "base64", Boolean.FALSE);	//Force decoding by setting doEncode to false via contructorParam

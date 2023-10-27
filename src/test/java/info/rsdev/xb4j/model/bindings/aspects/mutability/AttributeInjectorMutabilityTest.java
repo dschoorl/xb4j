@@ -21,11 +21,11 @@ import info.rsdev.xb4j.test.FixedValueTestAction;
 
 import javax.xml.namespace.QName;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class AttributeInjectorMutabilityTest extends AbstractAttributeMutabilityTest<AttributeInjector> {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
         immutableAttribute = new AttributeInjector(new QName("attrib"), FixedValueTestAction.INSTANCE);

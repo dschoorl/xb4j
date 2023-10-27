@@ -16,11 +16,11 @@ package info.rsdev.xb4j.model.bindings;
 
 import javax.xml.namespace.QName;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class AttributeMutabilityTest extends AbstractAttributeMutabilityTest<Attribute> {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
         immutableAttribute = new Attribute(new QName("attrib"));

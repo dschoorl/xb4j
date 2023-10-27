@@ -14,31 +14,33 @@
  */
 package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.exceptions.Xb4jMutabilityException;
 import info.rsdev.xb4j.model.bindings.AbstractSingleBinding;
 import info.rsdev.xb4j.model.bindings.Element;
 import info.rsdev.xb4j.model.java.accessor.NoGetter;
 import info.rsdev.xb4j.model.java.accessor.NoSetter;
 
-import javax.xml.namespace.QName;
-
-import org.junit.Test;
-
 public abstract class AbstractSingleBindingMutabilityTest<T extends AbstractSingleBinding> extends BaseBindingMutabilityTest<T> {
 
-    @Test(expected = Xb4jMutabilityException.class)
+    @Test
     public void testCannotSetChild() {
-        immutableElement.setChild(new Element(new QName("level2"), false));
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.setChild(new Element(new QName("level2"), false)));
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
+    @Test
     public void testCannotSetChildViaConvenienceMethod() {
-        immutableElement.setChild(new Element(new QName("level2"), false), "someField");
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.setChild(new Element(new QName("level2"), false), "someField"));
     }
 
-    @Test(expected = Xb4jMutabilityException.class)
+    @Test
     public void testCannotSetChildViaGetterSetter() {
-        immutableElement.setChild(new Element(new QName("level2"), false), NoGetter.INSTANCE, NoSetter.INSTANCE);
+        assertThrows(Xb4jMutabilityException.class, () -> immutableElement.setChild(new Element(new QName("level2"), false), NoGetter.INSTANCE, NoSetter.INSTANCE));
     }
 
 }

@@ -1,26 +1,28 @@
 package info.rsdev.xb4j.util;
 
-import javax.xml.namespace.QName;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class NamespaceContextTest {
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class NamespaceContextTest {
 
     private NamespaceContext context = null;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         this.context = new NamespaceContext();
     }
 
     @Test
-    public void testRegisterNamespace() {
+    void testRegisterNamespace() {
         assertFalse(context.isRegistered("http://first/level/namespace"));
         String prefix = context.registerNamespace(new QName("http://root", "root", "rt"), "http://first/level/namespace", null);
         assertEquals("ns0", prefix);
@@ -28,7 +30,7 @@ public class NamespaceContextTest {
     }
 
     @Test
-    public void testUnregisterNamespacesFor() {
+    void testUnregisterNamespacesFor() {
         this.context.registerNamespace(new QName("http://root", "root", "rt"));
         assertTrue(context.isRegistered("http://root"));
         context.unregisterNamespacesFor(new QName("http://root", "root", "rt"));
@@ -36,7 +38,7 @@ public class NamespaceContextTest {
     }
 
     @Test
-    public void reusePrefixFromPreviousRegistration() {
+    void reusePrefixFromPreviousRegistration() {
         context.registerNamespace(new QName("http://namespace/one", "root", "one"));
         assertEquals("one", context.getPrefix("http://namespace/one"));
         assertEquals(1, context.size());
@@ -46,7 +48,7 @@ public class NamespaceContextTest {
     }
 
     @Test
-    public void reusePrefixFromOlderRegistration() {
+    void reusePrefixFromOlderRegistration() {
         context.registerNamespace(new QName("http://namespace/one", "localOne", "one"));
         context.registerNamespace(new QName("http://namespace/two", "localTwo", "two"));
         context.registerNamespace(new QName("http://namespace/one", "localEins"));
@@ -55,7 +57,7 @@ public class NamespaceContextTest {
     }
 
     @Test
-    public void doNotChangePrefixesOfEarlierRegistrations() {
+    void doNotChangePrefixesOfEarlierRegistrations() {
         context.registerNamespace(new QName("http://namespace/two", "localTwo", "two"));
         context.registerNamespace(new QName("http://namespace/one", "localOne", "one"));
         context.registerNamespace(new QName("http://namespace/one", "localEins", "uno"));
@@ -65,7 +67,7 @@ public class NamespaceContextTest {
     }
 
     @Test
-    public void registerMultipleNamespacesOnElement() {
+    void registerMultipleNamespacesOnElement() {
         QName contextElement = new QName("http://namespace/one", "localOne", "one");
         context.registerNamespace(contextElement);
         context.registerNamespace(contextElement, "http://namespace/two", "two");
@@ -76,7 +78,7 @@ public class NamespaceContextTest {
     }
 
     @Test
-    public void unregisterLastElementWithMultipleContextElements() {
+    void unregisterLastElementWithMultipleContextElements() {
         context.registerNamespace(new QName("http://namespace/one", "localOne", "one"));
         context.registerNamespace(new QName("http://namespace/two", "localTwo", "two"));
         context.unregisterNamespacesFor(new QName("http://namespace/two", "localTwo", "two"));
@@ -86,7 +88,7 @@ public class NamespaceContextTest {
     }
     
     @Test
-    public void doNotMixupRegisteredNamespaceOnSiblingElement() {
+    void doNotMixupRegisteredNamespaceOnSiblingElement() {
         String prefix1 = context.registerNamespace(new QName("http://namespace/one", "localOne"));
         context.unregisterNamespacesFor(new QName("http://namespace/one", "localOne"));
         String prefix2 = context.registerNamespace(new QName("http://namespace/one", "localTwo"));

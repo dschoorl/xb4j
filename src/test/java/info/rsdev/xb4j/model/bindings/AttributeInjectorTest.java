@@ -14,7 +14,16 @@
  */
 package info.rsdev.xb4j.model.bindings;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.StringWriter;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import info.rsdev.xb4j.model.bindings.action.IMarshallingAction;
 import info.rsdev.xb4j.model.converter.NullConverter;
 import info.rsdev.xb4j.model.java.JavaContext;
@@ -24,15 +33,7 @@ import info.rsdev.xb4j.test.FixedValueTestAction;
 import info.rsdev.xb4j.test.ObjectA;
 import info.rsdev.xb4j.util.SimplifiedXMLStreamWriter;
 
-import java.io.StringWriter;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-
-import org.junit.Before;
-import org.junit.Test;
-
-public class AttributeInjectorTest {
+class AttributeInjectorTest {
 
     private IMarshallingAction action = null;
 
@@ -40,7 +41,7 @@ public class AttributeInjectorTest {
 
     private SimplifiedXMLStreamWriter staxWriter = null;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         action = new FixedValueTestAction();
         writer = new StringWriter();
@@ -48,7 +49,7 @@ public class AttributeInjectorTest {
     }
 
     @Test
-    public void testToXml() throws Exception {
+    void testToXml() throws Exception {
         Root root = new Root(new QName("Root"), Object.class);
         SimpleType simpleElement = root.setChild(new SimpleType(new QName("Simple"), NullConverter.INSTANCE, false));
         simpleElement.addAttribute(new AttributeInjector(new QName("attribute"), action), NoGetter.INSTANCE, NoSetter.INSTANCE);

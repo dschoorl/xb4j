@@ -14,16 +14,16 @@
  */
 package info.rsdev.xb4j.model.bindings.aspects.mutability;
 
+import javax.xml.namespace.QName;
+
+import org.junit.jupiter.api.BeforeEach;
+
 import info.rsdev.xb4j.model.bindings.Element;
 import info.rsdev.xb4j.model.bindings.Root;
 
-import javax.xml.namespace.QName;
-
-import org.junit.Before;
-
 public class ElementMutabilityTest extends AbstractSingleBindingMutabilityTest<Element> {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Root root = new Root(new QName("root"), Object.class);
         immutableElement = new Element(new QName("level1"), false);
